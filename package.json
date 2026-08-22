@@ -12,9 +12,13 @@
     "dev": "concurrently -n api,web -c blue,green \"npm run dev -w server\" \"npm run dev -w client\"",
     "dev:server": "npm run dev -w server",
     "dev:client": "npm run dev -w client",
-    "seed": "npm run seed -w server"
+    "seed": "npm run seed -w server",
+    "prepare": "husky"
   },
   "devDependencies": {
-    "concurrently": "^9.1.2"
+    "@commitlint/cli": "^21.2.2",
+    "@commitlint/config-conventional": "^21.2.2",
+    "concurrently": "^9.1.2",
+    "husky": "^9.1.7"
   }
 }
