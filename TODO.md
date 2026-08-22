@@ -4,7 +4,7 @@
 >
 > Check items off as they land on `main`. Keep this file updated in the same PR that completes the work.
 
-## ✅ Done (before sprint)
+## Done (before sprint)
 
 - [x] Proposal presentation
 - [x] Repo scaffold (React 19 + Vite 8 + Tailwind 4 / Express 5 + Mongoose)
