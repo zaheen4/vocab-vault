@@ -27,27 +27,39 @@ vocab-vault/
 
 ### Prerequisites
 
-- Node.js ≥ 20.19 (Node 24 LTS recommended)
+- Node.js ≥ 20.19 (Node 24 LTS recommended) — [nodejs.org](https://nodejs.org)
+- Git
 - A MongoDB Atlas free cluster (or any MongoDB URI)
 
-### 1. Server setup
+### 1. Install everything (one command)
+
+```bash
+git clone https://github.com/zaheen4/vocab-vault.git
+cd vocab-vault
+npm install          # installs client + server deps via npm workspaces
+```
+
+### 2. Configure environment (server only)
 
 ```bash
 cd server
-cp .env.example .env        # then edit: set MONGODB_URI & JWT_SECRET
-npm install
-npm run seed                # loads data/gre-words.json into the DB
-npm run dev                 # http://localhost:5000
+cp .env.example .env         # Windows: copy .env.example .env
+# edit .env → set MONGODB_URI (ask your teammate for the shared dev URI)
+cd ..
 ```
 
-Health check: `curl http://localhost:5000/api/health`
-
-### 2. Client setup
+### 3. Run (one command, both services)
 
 ```bash
-cd client
-npm install
-npm run dev                 # http://localhost:5173
+npm run dev
+# api  → http://localhost:5000   (Express)
+# web  → http://localhost:5173   (Vite, proxies /api automatically)
+```
+
+### 4. Seed the database (first time only)
+
+```bash
+npm run seed                 # loads server/data/gre-words.json into MongoDB
 ```
 
 ## API Overview
