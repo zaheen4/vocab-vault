@@ -91,3 +91,4 @@ admin bulk-import UI (planned for week 10).
 ## Team
 
 See `CONTRIBUTING.md` for branching, commit message rules and the PR workflow.
+Current sprint status and remaining work live in `TODO.md`.
