@@ -90,4 +90,4 @@ admin bulk-import UI (planned for week 10).
 
 ## Team
 
-See `../PROJECT_PLAN.md` for roles, roadmap, and conventions.
+See `CONTRIBUTING.md` for branching, commit message rules and the PR workflow.
