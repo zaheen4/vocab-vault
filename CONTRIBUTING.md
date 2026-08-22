@@ -43,9 +43,15 @@ The `commit-msg` hook installs automatically via `npm install`
 ## Pull Requests
 
 1. Push your branch and open a PR against `main`.
-2. At least **1 teammate approval** is required to merge.
-3. New commits to the branch dismiss stale approvals — re-review before merging.
-4. Merge methods allowed: merge commit or squash.
+2. **No approvals required** — the PR author merges their own PR once CI looks good.
+3. Reviews are *encouraged, not required* — ask a teammate to look over bigger
+   changes; it's free learning and great evidence of collaboration for evaluation.
+4. New commits to an open PR are always allowed.
+5. Merge methods allowed: merge commit or squash.
+
+> Direct pushes to `main` are blocked — everything goes through a PR,
+> even one-person doc changes. This keeps `main` history clean and reviewable.
+
 
 ## Code Style
 
