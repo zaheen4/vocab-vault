@@ -2,7 +2,7 @@
 
 A Smart Vocabulary Flashcard Web Platform — CSE 4113 Internet Programming Lab project.
 
-Turns any vocabulary wordlist (including the instructor-provided 1200 words) into
+Turns any vocabulary wordlist into
 smart flashcard learning with flashcard practice, quizzes, and Leitner-box spaced
 repetition — in the browser, no installation needed.
 
