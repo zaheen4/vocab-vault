@@ -1,0 +1,1946 @@
+[
+ {
+  "word": "aberrant",
+  "definition": "markedly different from an accepted norm",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "aberration",
+  "definition": "a deviation from what is normal or expected",
+  "partOfSpeech": "noun",
+  "difficulty": "basic"
+ },
+ {
+  "word": "abstain",
+  "definition": "choose not to consume or take part in (particularly something enjoyable)",
+  "partOfSpeech": "verb",
+  "difficulty": "basic"
+ },
+ {
+  "word": "abstruse",
+  "definition": "difficult to understand; incomprehensible",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "accolade",
+  "definition": "an award or praise granted as a special honor",
+  "partOfSpeech": "noun",
+  "difficulty": "basic"
+ },
+ {
+  "word": "acerbic",
+  "definition": "harsh in tone",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "acrimony",
+  "definition": "bitterness and ill will",
+  "partOfSpeech": "noun",
+  "difficulty": "basic"
+ },
+ {
+  "word": "adamant",
+  "definition": "refusing to change one's mind",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "admonish",
+  "definition": "to warn strongly, even to the point of reprimanding",
+  "partOfSpeech": "verb",
+  "difficulty": "basic"
+ },
+ {
+  "word": "admonitory",
+  "definition": "serving to warn; expressing reproof or reproach especially as a corrective",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "aesthete",
+  "definition": "one who professes great sensitivity to the beauty of art and nature",
+  "partOfSpeech": "noun",
+  "difficulty": "basic"
+ },
+ {
+  "word": "aesthetic",
+  "definition": "concerned with the appreciation of beauty",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "aesthetic",
+  "definition": "a set of principles underlying and guiding the work of a particular artist or artistic movement.",
+  "partOfSpeech": "noun",
+  "difficulty": "basic"
+ },
+ {
+  "word": "amalgam",
+  "definition": "a mixture of multiple things",
+  "partOfSpeech": "noun",
+  "difficulty": "basic"
+ },
+ {
+  "word": "ambiguous",
+  "definition": "open to more than one interpretation",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "ambivalent",
+  "definition": "mixed or conflicting emotions about something",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "ameliorate",
+  "definition": "make something bad better",
+  "partOfSpeech": "verb",
+  "difficulty": "basic"
+ },
+ {
+  "word": "amenable",
+  "definition": "easily persuaded",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "amorphous",
+  "definition": "shapeless",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "anomalous",
+  "definition": "not normal",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "anomaly",
+  "definition": "something that is not normal, standard, or expected",
+  "partOfSpeech": "noun",
+  "difficulty": "basic"
+ },
+ {
+  "word": "antipathy",
+  "definition": "an intense feeling of dislike or aversion",
+  "partOfSpeech": "noun",
+  "difficulty": "basic"
+ },
+ {
+  "word": "antithetical",
+  "definition": "sharply contrasted in character or purpose",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "apathetic",
+  "definition": "marked by a lack of interest",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "apathy",
+  "definition": "an absence of emotion or enthusiasm",
+  "partOfSpeech": "noun",
+  "difficulty": "basic"
+ },
+ {
+  "word": "apocryphal",
+  "definition": "being of questionable authenticity",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "appease",
+  "definition": "pacify by acceding to the demands of.",
+  "partOfSpeech": "verb",
+  "difficulty": "basic"
+ },
+ {
+  "word": "arbitrary",
+  "definition": "based on a random, groundless decision",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "arcane",
+  "definition": "requiring secret or mysterious knowledge",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "arduous",
+  "definition": "demanding considerable mental effort and skill; testing powers of endurance",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "artful",
+  "definition": "exhibiting artistic skill",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "artful",
+  "definition": "clever in a cunning way",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "ascetic",
+  "definition": "practicing self-denial",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "ascetic",
+  "definition": "one who practices great self-denial",
+  "partOfSpeech": "noun",
+  "difficulty": "basic"
+ },
+ {
+  "word": "askance",
+  "definition": "with a look of suspicion or disapproval",
+  "partOfSpeech": "adverb",
+  "difficulty": "basic"
+ },
+ {
+  "word": "audacious",
+  "definition": "willing to be bold in social situations or to take risks",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "audacity",
+  "definition": "aggressive boldness in social situations",
+  "partOfSpeech": "noun",
+  "difficulty": "basic"
+ },
+ {
+  "word": "auspicious",
+  "definition": "favorable, the opposite of sinister",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "austere",
+  "definition": "practicing self-denial",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "austere",
+  "definition": "unadorned in style or appearance",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "austere",
+  "definition": "harsh in manner of temperament",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "avaricious",
+  "definition": "excessively greedy",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "banal",
+  "definition": "repeated too often; overfamiliar through overuse",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "banality",
+  "definition": "a trite or obvious remark",
+  "partOfSpeech": "noun",
+  "difficulty": "basic"
+ },
+ {
+  "word": "belie",
+  "definition": "to give a false representation to; misrepresent",
+  "partOfSpeech": "verb",
+  "difficulty": "basic"
+ },
+ {
+  "word": "belligerent",
+  "definition": "characteristic of one eager to fight",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "betray",
+  "definition": "to reveal or make known something, usually unintentionally",
+  "partOfSpeech": "verb",
+  "difficulty": "basic"
+ },
+ {
+  "word": "blatant",
+  "definition": "without any attempt at concealment; completely obvious",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "brazen",
+  "definition": "unrestrained by convention or propriety",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "bucolic",
+  "definition": "relating to the pleasant aspects of the country",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "bumbling",
+  "definition": "lacking physical movement skills, especially with the hands",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "burgeon",
+  "definition": "grow and flourish",
+  "partOfSpeech": "verb",
+  "difficulty": "basic"
+ },
+ {
+  "word": "calumny",
+  "definition": "making of a false statement meant to injure a person's reputation",
+  "partOfSpeech": "noun",
+  "difficulty": "basic"
+ },
+ {
+  "word": "capricious",
+  "definition": "determined by chance or impulse or whim rather than by necessity or reason",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "castigate",
+  "definition": "to reprimand harshly",
+  "partOfSpeech": "verb",
+  "difficulty": "basic"
+ },
+ {
+  "word": "censure",
+  "definition": "to express strong disapproval",
+  "partOfSpeech": "verb",
+  "difficulty": "basic"
+ },
+ {
+  "word": "chastise",
+  "definition": "to reprimand harshly",
+  "partOfSpeech": "verb",
+  "difficulty": "basic"
+ },
+ {
+  "word": "chortle",
+  "definition": "to chuckle, laugh merrily",
+  "partOfSpeech": "verb",
+  "difficulty": "basic"
+ },
+ {
+  "word": "circumscribe",
+  "definition": "restrict or confine",
+  "partOfSpeech": "verb",
+  "difficulty": "basic"
+ },
+ {
+  "word": "circumvent",
+  "definition": "cleverly find a way out of one's duties or obligations",
+  "partOfSpeech": "verb",
+  "difficulty": "basic"
+ },
+ {
+  "word": "commensurate",
+  "definition": "to be in proportion or corresponding in degree or amount",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "concede",
+  "definition": "acknowledge defeat",
+  "partOfSpeech": "verb",
+  "difficulty": "basic"
+ },
+ {
+  "word": "concede",
+  "definition": "admit (to a wrongdoing)",
+  "partOfSpeech": "verb",
+  "difficulty": "basic"
+ },
+ {
+  "word": "concede",
+  "definition": "give over; surrender or relinquish to the physical control of another",
+  "partOfSpeech": "verb",
+  "difficulty": "basic"
+ },
+ {
+  "word": "confound",
+  "definition": "be confusing or perplexing to",
+  "partOfSpeech": "verb",
+  "difficulty": "basic"
+ },
+ {
+  "word": "confound",
+  "definition": "mistake one thing for another",
+  "partOfSpeech": "verb",
+  "difficulty": "basic"
+ },
+ {
+  "word": "conspicuous",
+  "definition": "without any attempt at concealment; completely obvious",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "constituent",
+  "definition": "a citizen who is represented in a government by officials for whom he or she votes",
+  "partOfSpeech": "noun",
+  "difficulty": "basic"
+ },
+ {
+  "word": "constituent",
+  "definition": "an abstract part of something",
+  "partOfSpeech": "noun",
+  "difficulty": "basic"
+ },
+ {
+  "word": "construe",
+  "definition": "interpreted in a particular way",
+  "partOfSpeech": "verb",
+  "difficulty": "basic"
+ },
+ {
+  "word": "contingent",
+  "definition": "a gathering of persons representative of some larger group",
+  "partOfSpeech": "noun",
+  "difficulty": "basic"
+ },
+ {
+  "word": "contingent",
+  "definition": "possible but not certain to occur",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "contrition",
+  "definition": "the feeling of remorse or guilt that comes from doing something bad",
+  "partOfSpeech": "noun",
+  "difficulty": "basic"
+ },
+ {
+  "word": "contrive",
+  "definition": "to pull off a plan or scheme, usually through skill or trickery",
+  "partOfSpeech": "verb",
+  "difficulty": "basic"
+ },
+ {
+  "word": "copious",
+  "definition": "in abundant supply",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "craven",
+  "definition": "pathetically cowardly",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "cryptic",
+  "definition": "mysterious or vague, usually intentionally",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "culminate",
+  "definition": "reach the highest or most decisive point",
+  "partOfSpeech": "verb",
+  "difficulty": "basic"
+ },
+ {
+  "word": "culpability",
+  "definition": "a state of guilt",
+  "partOfSpeech": "noun",
+  "difficulty": "basic"
+ },
+ {
+  "word": "decorous",
+  "definition": "characterized by good taste in manners and conduct",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "decorum",
+  "definition": "propriety in manners and conduct",
+  "partOfSpeech": "noun",
+  "difficulty": "basic"
+ },
+ {
+  "word": "deferential",
+  "definition": "showing respect",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "deleterious",
+  "definition": "harmful to living things",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "delineate",
+  "definition": "describe in detail",
+  "partOfSpeech": "verb",
+  "difficulty": "basic"
+ },
+ {
+  "word": "demur",
+  "definition": "to object or show reluctance",
+  "partOfSpeech": "verb",
+  "difficulty": "basic"
+ },
+ {
+  "word": "denigrate",
+  "definition": "charge falsely or with malicious intent; attack the good name and reputation of someone",
+  "partOfSpeech": "verb",
+  "difficulty": "basic"
+ },
+ {
+  "word": "denote",
+  "definition": "be a sign or indication of; have as a meaning",
+  "partOfSpeech": "verb",
+  "difficulty": "basic"
+ },
+ {
+  "word": "derivative",
+  "definition": "(or a creative product, e.g. music, writing, etc.) not original but drawing on the work of another person",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "derive",
+  "definition": "come from; be connected by a relationship of blood",
+  "partOfSpeech": "verb",
+  "difficulty": "basic"
+ },
+ {
+  "word": "derive",
+  "definition": "reason by deduction; establish by deduction",
+  "partOfSpeech": "verb",
+  "difficulty": "basic"
+ },
+ {
+  "word": "dictatorial",
+  "definition": "expecting unquestioning obedience; characteristic of an absolute ruler",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "didactic",
+  "definition": "instructive (especially excessively)",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "diffident",
+  "definition": "showing modest reserve; lacking self-confidence",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "dilatory",
+  "definition": "wasting time",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "dilettante",
+  "definition": "an amateur who engages in an activity without serious intentions and who pretends to have knowledge",
+  "partOfSpeech": "noun",
+  "difficulty": "basic"
+ },
+ {
+  "word": "disaffected",
+  "definition": "discontented as toward authority",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "discrete",
+  "definition": "constituting a separate entity or part",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "disinterested",
+  "definition": "unbiased; neutral",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "dispassionate",
+  "definition": "unaffected by strong emotion or prejudice",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "disseminate",
+  "definition": "cause to become widely known",
+  "partOfSpeech": "verb",
+  "difficulty": "basic"
+ },
+ {
+  "word": "dogmatic",
+  "definition": "highly opinionated, not accepting that your belief may not be correct",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "duress",
+  "definition": "compulsory force or threat",
+  "partOfSpeech": "noun",
+  "difficulty": "basic"
+ },
+ {
+  "word": "eclectic",
+  "definition": "comprised of a variety of styles",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "economical",
+  "definition": "avoiding waste, efficient",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "edifying",
+  "definition": "enlightening or uplifting so as to encourage intellectual or moral improvement",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "efficacious",
+  "definition": "producing the intended result",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "egregious",
+  "definition": "standing out in negative way; shockingly bad",
+  "partOfSpeech": "adjective",
+  "difficulty": "basic"
+ },
+ {
+  "word": "elicit",
+  "definition": "call forth (emotions, feelings, and responses)",
+  "partOfSpeech": "verb",
+  "difficulty": "basic"
+ },
+ {
+  "word": "elucidate",
+  "definition": "make clearer and easier to understand",
+  "partOfSpeech": "verb",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "eminent",
+  "definition": "standing above others in quality or position",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "enervate",
+  "definition": "to sap energy from",
+  "partOfSpeech": "verb",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "engender",
+  "definition": "give rise to",
+  "partOfSpeech": "verb",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "entrenched",
+  "definition": "fixed firmly or securely",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "ephemeral",
+  "definition": "lasting a very short time",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "equivocal",
+  "definition": "confusing or ambiguous",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "eradicate",
+  "definition": "to completely destroy",
+  "partOfSpeech": "verb",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "erudite",
+  "definition": "having or showing profound knowledge",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "eschew",
+  "definition": "avoid and stay away from deliberately; stay clear of",
+  "partOfSpeech": "verb",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "esoteric",
+  "definition": "confined to and understandable by only an enlightened inner circle",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "espouse",
+  "definition": " to adopt or support an idea or cause",
+  "partOfSpeech": "verb",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "exacerbate",
+  "definition": "make worse",
+  "partOfSpeech": "verb",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "exacting",
+  "definition": "requiring and demanding accuracy",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "exalt",
+  "definition": "praise or glorify",
+  "partOfSpeech": "verb",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "exonerate",
+  "definition": "pronounce not guilty of criminal charges",
+  "partOfSpeech": "verb",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "expound",
+  "definition": "add details or explanation; clarify the meaning; state in depth",
+  "partOfSpeech": "verb",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "extant",
+  "definition": "the opposite of extinct",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "fallacious",
+  "definition": "of a belief that is based on faulty reasoning",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "fastidious",
+  "definition": "overly concerned with details; fussy",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "flux",
+  "definition": "a state of uncertainty about what should be done (usually following some important event)",
+  "partOfSpeech": "noun",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "foment",
+  "definition": "try to stir up public opinion",
+  "partOfSpeech": "verb",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "forlorn",
+  "definition": "marked by or showing hopelessness",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "forthcoming",
+  "definition": "available when required or as promised",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "forthcoming",
+  "definition": "at ease in talking to others",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "fortuitous",
+  "definition": "occurring by happy chance; having no cause or apparent cause",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "frivolous",
+  "definition": "not serious in content or attitude or behavior",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "frugal",
+  "definition": "not spending much money (but spending wisely)",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "frustrate",
+  "definition": "hinder or prevent (the efforts, plans, or desires) of.",
+  "partOfSpeech": "verb",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "furtive",
+  "definition": "marked by quiet and caution and secrecy; taking pains to avoid being observed",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "gainsay",
+  "definition": "deny or contradict; speak against or oppose",
+  "partOfSpeech": "verb",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "gall",
+  "definition": "the trait of being rude and impertinent",
+  "partOfSpeech": "noun",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "gall",
+  "definition": "feeling of deep and bitter anger and ill-will",
+  "partOfSpeech": "noun",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "galvanize",
+  "definition": "to excite or inspire (someone) to action",
+  "partOfSpeech": "verb",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "garrulous",
+  "definition": "full of trivial conversation",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "gauche",
+  "definition": "lacking social polish",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "germane",
+  "definition": "relevant and appropriate",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "glut",
+  "definition": "an excessive supply",
+  "partOfSpeech": "noun",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "glut",
+  "definition": "supply with an excess of",
+  "partOfSpeech": "verb",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "gregarious",
+  "definition": "to be likely to socialize with others",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "guileless",
+  "definition": "free of deceit",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "hackneyed",
+  "definition": "lacking significance through having been overused",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "haphazard",
+  "definition": "marked by great carelessness; dependent upon or characterized by chance",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "harangue",
+  "definition": "a long pompous speech; a tirade",
+  "partOfSpeech": "noun",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "harangue",
+  "definition": "to deliver a long pompous speech or tirade",
+  "partOfSpeech": "verb",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "harried",
+  "definition": "troubled persistently especially with petty annoyances",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "haughty",
+  "definition": "having or showing arrogant superiority to and disdain of those one views as unworthy",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "hegemony",
+  "definition": "dominance over a certain area",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "heretic",
+  "definition": "a person who holds unorthodox opinions in any field (not merely religion)",
+  "partOfSpeech": "noun",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "iconoclast",
+  "definition": "somebody who attacks cherished beliefs or institutions",
+  "partOfSpeech": "noun",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "iconoclastic",
+  "definition": "defying tradition or convention",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "idiosyncrasy",
+  "definition": "a behavioral attribute that is distinctive and peculiar to an individual",
+  "partOfSpeech": "noun",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "ignoble",
+  "definition": "dishonorable",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "ignominious",
+  "definition": "(used of conduct or character) deserving or bringing disgrace or shame",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "immutable",
+  "definition": "not able to be changed",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "impartial",
+  "definition": "free from undue bias or preconceived opinions",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "impertinent",
+  "definition": "being disrespectful; improperly forward or bold",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "implacable",
+  "definition": "incapable of making less angry or hostile",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "implausible",
+  "definition": "describing a statement that is not believable",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "imprudent",
+  "definition": "not wise",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "impudent",
+  "definition": "improperly forward or bold",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "incisive",
+  "definition": "having or demonstrating ability to recognize or draw fine distinctions",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "incongruous",
+  "definition": "lacking in harmony or compatibility or appropriateness",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "incorrigible",
+  "definition": "impervious to correction by punishment",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "indecorous",
+  "definition": "not in keeping with accepted standards of what is right or proper in polite society",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "indifference",
+  "definition": "the trait of seeming not to care",
+  "partOfSpeech": "noun",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "inexorable",
+  "definition": "impossible to stop or prevent",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "ingenuous",
+  "definition": "to be naïve and innocent",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "ingratiate",
+  "definition": "gain favor with somebody by deliberate efforts",
+  "partOfSpeech": "verb",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "inimical",
+  "definition": "hostile (usually describes conditions or environments)",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "innocuous",
+  "definition": "harmless and doesn't produce any ill effects",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "inscrutable",
+  "definition": "not easily understood; unfathomable",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "insidious",
+  "definition": "working in a subtle but destructive way",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "insolent",
+  "definition": "rude and arrogant",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "intimate",
+  "definition": "to suggest something subtly",
+  "partOfSpeech": "verb",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "intransigent",
+  "definition": "unwilling to change one's beliefs or course of action",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "intrepid",
+  "definition": "fearless",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "inveterate",
+  "definition": "habitual",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "involved",
+  "definition": "complicated, and difficult to comprehend",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "irrevocable",
+  "definition": "incapable of being retracted or revoked",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "itinerant",
+  "definition": "traveling from place to place to work",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "jingoism",
+  "definition": "fanatical patriotism",
+  "partOfSpeech": "noun",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "jovial",
+  "definition": "full of or showing high-spirited merriment",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "jubilant",
+  "definition": "full of high-spirited delight because of triumph or success",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "juxtapose",
+  "definition": "place side by side",
+  "partOfSpeech": "verb",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "laconic",
+  "definition": "one who says very few words",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "lambast",
+  "definition": "criticize severely or angrily",
+  "partOfSpeech": "verb",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "languid",
+  "definition": "not inclined towards physical exertion or effort; slow and relaxed",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "largess",
+  "definition": "extreme generosity and giving",
+  "partOfSpeech": "noun",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "laudable",
+  "definition": "worthy of high praise",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "lionize",
+  "definition": "assign great social importance to",
+  "partOfSpeech": "verb",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "magnanimous",
+  "definition": "noble and generous in spirit, especially towards a rival or someone less powerful",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "maintain",
+  "definition": "to assert",
+  "partOfSpeech": "verb",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "maladroit",
+  "definition": "clumsy",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "maverick",
+  "definition": "someone who exhibits great independence in thought and action",
+  "partOfSpeech": "noun",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "mawkish",
+  "definition": "overly sentimental to the point that it is disgusting",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "mendacity",
+  "definition": "the tendency to be untruthful",
+  "partOfSpeech": "noun",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "mercurial",
+  "definition": "(of a person) prone to unexpected and unpredictable changes in mood",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "meticulous",
+  "definition": "marked by extreme care in treatment of details",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "misconstrue",
+  "definition": "interpret in the wrong way",
+  "partOfSpeech": "verb",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "mitigate",
+  "definition": "make less severe or harsh",
+  "partOfSpeech": "verb",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "mitigate",
+  "definition": "lessen the severity of an offense",
+  "partOfSpeech": "verb",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "mollify",
+  "definition": "to make someone angry less angry; placate",
+  "partOfSpeech": "verb",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "mundane",
+  "definition": "repetitive and boring; not spiritual",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "mundane",
+  "definition": "relating to the ordinary world",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "munificent",
+  "definition": " very generous",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "myopic",
+  "definition": "lacking foresight or imagination",
+  "partOfSpeech": "adjective",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "myriad",
+  "definition": "a large indefinite number",
+  "partOfSpeech": "noun",
+  "difficulty": "intermediate"
+ },
+ {
+  "word": "negligible",
+  "definition": "so small as to be meaningless; insignificant",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "nonplussed",
+  "definition": "unsure how to act or respond",
+  "partOfSpeech": "verb",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "nuance",
+  "definition": "a subtle difference in meaning or opinion or attitude",
+  "partOfSpeech": "noun",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "obscure",
+  "definition": "make unclear",
+  "partOfSpeech": "verb",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "obscure",
+  "definition": "known by only a few",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "obsequious",
+  "definition": "attentive in an ingratiating or servile manner; attempting to win favor from influential people by flattery",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "opaque",
+  "definition": "not clearly understood or expressed",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "opulence",
+  "definition": "wealth as evidenced by sumptuous living",
+  "partOfSpeech": "noun",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "ostentatious",
+  "definition": "intended to attract notice and impress others; tawdry or vulgar",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "ostracize",
+  "definition": "exclude from a community or group",
+  "partOfSpeech": "verb",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "panache",
+  "definition": "distinctive and stylish elegance",
+  "partOfSpeech": "noun",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "parochial",
+  "definition": "narrowly restricted in scope or outlook",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "parsimonious",
+  "definition": "extremely frugal; miserly",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "pedantic",
+  "definition": "marked by a narrow focus on or display of learning especially its trivial aspects",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "pedestrian",
+  "definition": "lacking imagination",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "pejorative",
+  "definition": "expressing disapproval (usu. refers to a term)",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "perfidy",
+  "definition": "an act of deliberate betrayal; a breach of a trust",
+  "partOfSpeech": "noun",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "pernicious",
+  "definition": "exceedingly harmful; working or spreading in a hidden and injurious way",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "petulant",
+  "definition": "easily irritated or annoyed",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "placate",
+  "definition": "cause to be more favorably inclined; gain the good will of",
+  "partOfSpeech": "verb",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "platitude",
+  "definition": "a trite or obvious remark",
+  "partOfSpeech": "noun",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "poignant",
+  "definition": "emotionally touching",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "polemic",
+  "definition": "a strong verbal or written attack on someone or something.",
+  "partOfSpeech": "noun",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "posit",
+  "definition": "assume as fact",
+  "partOfSpeech": "verb",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "pragmatic",
+  "definition": "guided by practical experience and observation rather than theory",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "precipitous",
+  "definition": "done with very great haste and without due deliberation",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "preclude",
+  "definition": "keep from happening or arising; make impossible",
+  "partOfSpeech": "verb",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "precocious",
+  "definition": "characterized by or characteristic of exceptionally early development or maturity (especially in mental aptitude)",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "predilection",
+  "definition": "a strong liking",
+  "partOfSpeech": "noun",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "prescience",
+  "definition": "the power to foresee the future",
+  "partOfSpeech": "noun",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "prevaricate",
+  "definition": "to speak in an evasive way",
+  "partOfSpeech": "verb",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "prodigal",
+  "definition": "rashly or wastefully extravagant",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "prodigious",
+  "definition": "so great in size or force or extent as to elicit awe",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "profligate",
+  "definition": "spending money recklessly or wastefully",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "profligate",
+  "definition": "someone who spends money recklessly or wastefully",
+  "partOfSpeech": "noun",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "prolific",
+  "definition": "intellectually productive",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "propitious",
+  "definition": "presenting favorable circumstances; likely to result in or show signs of success",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "provincial",
+  "definition": "characteristic of the a limited perspective; not fashionable or sophisticated",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "pundit",
+  "definition": "someone who has been admitted to membership in a scholarly field",
+  "partOfSpeech": "noun",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "qualify",
+  "definition": "to be legally competent or capable",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "qualify",
+  "definition": " to make less severe; to limit (a statement)",
+  "partOfSpeech": "verb",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "querulous",
+  "definition": "habitually complaining",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "quotidian",
+  "definition": "found in the ordinary course of events",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "ravenous",
+  "definition": "extremely hungry; devouring or craving food in great quantities",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "rebuke",
+  "definition": "criticize severely or angrily; censure",
+  "partOfSpeech": "verb",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "reconcile",
+  "definition": "make (one thing) compatible with (another)",
+  "partOfSpeech": "verb",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "recondite",
+  "definition": "difficult to penetrate; incomprehensible to one of ordinary understanding or knowledge",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "refractory",
+  "definition": "stubbornly resistant to authority or control",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "refute",
+  "definition": "prove to be false or incorrect",
+  "partOfSpeech": "verb",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "reproach",
+  "definition": "to express criticism towards",
+  "partOfSpeech": "verb",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "repudiate",
+  "definition": "reject as untrue or unfounded",
+  "partOfSpeech": "verb",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "rescind",
+  "definition": "cancel officially",
+  "partOfSpeech": "verb",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "restive",
+  "definition": "restless",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "resurgent",
+  "definition": "rising again as to new life and vigor",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "reticent",
+  "definition": "reluctant to draw attention to yourself; temperamentally disinclined to talk",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "reverent",
+  "definition": "feeling or showing profound respect or veneration",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "rudimentary",
+  "definition": "being in the earliest stages of development; being or involving basic facts or principles",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "rustic",
+  "definition": "characteristic of rural life; awkwardly simple and provincial",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "sanction",
+  "definition": " give authority or permission to",
+  "partOfSpeech": "verb",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "sanction",
+  "definition": "a legal penalty for a forbidden action",
+  "partOfSpeech": "noun",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "scrupulous",
+  "definition": "characterized by extreme care and great effort",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "scrupulous",
+  "definition": "having a sense of right and wrong; principled",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "soporific",
+  "definition": "inducing mental lethargy; sleep inducing",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "specious",
+  "definition": "based on pretense; deceptively pleasing",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "specious",
+  "definition": "plausible but false",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "sporadic",
+  "definition": "recurring in scattered and irregular or unpredictable instances",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "spurious",
+  "definition": " plausible but false",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "staunch",
+  "definition": "firm and dependable especially in loyalty",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "stringent",
+  "definition": "demanding strict attention to rules and procedures",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "subsume",
+  "definition": "contain or include",
+  "partOfSpeech": "verb",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "subsume",
+  "definition": "consider (an instance of something) as part of a general rule or principle",
+  "partOfSpeech": "verb",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "subversive",
+  "definition": "in opposition to a civil authority or government",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "sullen",
+  "definition": "showing a brooding ill humor",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "superfluous",
+  "definition": "serving no useful purpose",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "superfluous",
+  "definition": "more than is needed, desired, or required",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "supplant",
+  "definition": "take the place or move into the position of",
+  "partOfSpeech": "verb",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "sycophant",
+  "definition": "a person who tries to please someone in order to gain a personal advantage",
+  "partOfSpeech": "noun",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "taciturn",
+  "definition": "habitually reserved and uncommunicative",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "tantamount",
+  "definition": "being essentially equal to something",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "temperance",
+  "definition": "the trait of avoiding excesses",
+  "partOfSpeech": "noun",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "tempered",
+  "definition": "moderated in effect",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "tenacious",
+  "definition": "stubbornly unyielding",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "timorous",
+  "definition": "timid by nature or revealing fear and nervousness",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "torpor",
+  "definition": "inactivity resulting from lethargy and lack of vigor or energy",
+  "partOfSpeech": "noun",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "tortuous",
+  "definition": " marked by repeated turns and bends; not straightforward",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "tractable",
+  "definition": "readily reacting to suggestions and influences; easily managed (controlled or taught or molded)",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "transient",
+  "definition": "lasting a very short time",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "travesty",
+  "definition": "an absurd presentation of something; a mockery",
+  "partOfSpeech": "noun",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "treacherous",
+  "definition": "tending to betray",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "treacherous",
+  "definition": "dangerously unstable and unpredictable",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "trite",
+  "definition": "repeated too often; overfamiliar through overuse",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "truncate",
+  "definition": "reduce the length of something",
+  "partOfSpeech": "verb",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "undermine",
+  "definition": "to weaken (usually paired with an abstract term)",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "underscore",
+  "definition": "give extra weight to (a communication)",
+  "partOfSpeech": "verb",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "unequivocal",
+  "definition": "admitting of no doubt or misunderstanding; having only one meaning or interpretation and leading to only one conclusion",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "unscrupulous",
+  "definition": "without scruples or principles",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "upbraid",
+  "definition": "to reproach; to scold",
+  "partOfSpeech": "verb",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "vacillate",
+  "definition": "be undecided about something; waver between conflicting positions or courses of action",
+  "partOfSpeech": "verb",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "vehement",
+  "definition": "marked by extreme intensity of emotions or convictions",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "venality",
+  "definition": "the condition of being susceptible to bribes or corruption",
+  "partOfSpeech": "noun",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "venerate",
+  "definition": "to respect deeply",
+  "partOfSpeech": "verb",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "veracious",
+  "definition": " truthful",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "vilify",
+  "definition": "spread negative information about",
+  "partOfSpeech": "verb",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "vindicate",
+  "definition": "to clear of accusation, blame, suspicion, or doubt with supporting arguments or proof",
+  "partOfSpeech": "verb",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "vociferous",
+  "definition": "conspicuously and offensively loud; given to vehement outcry",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "volubility",
+  "definition": "the quality of talking or writing easily and continuously",
+  "partOfSpeech": "noun",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "wanting",
+  "definition": "lacking",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ },
+ {
+  "word": "winsome",
+  "definition": "charming in a childlike or naive way",
+  "partOfSpeech": "adjective",
+  "difficulty": "advanced"
+ }
+]
