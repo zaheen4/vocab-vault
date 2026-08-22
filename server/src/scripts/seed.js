@@ -1,5 +1,6 @@
 import 'dotenv/config'
 import mongoose from 'mongoose'
+import { fileURLToPath } from 'url'
 import { connectDB } from '../config/db.js'
 import Word from '../models/Word.js'
 import Deck from '../models/Deck.js'
@@ -7,7 +8,8 @@ import Deck from '../models/Deck.js'
 // Usage: node src/scripts/seed.js [dataFile.json]
 // Accepts an array of objects with at least { word, definition }.
 // Optional fields: example, partOfSpeech, synonyms[], banglaMeaning, difficulty.
-const file = process.argv[2] ?? new URL('../../data/gre-words.json', import.meta.url).pathname
+const defaultFile = fileURLToPath(new URL('../../data/gre-words.json', import.meta.url))
+const file = process.argv[2] ?? defaultFile
 
 async function main() {
   const connected = await connectDB()
