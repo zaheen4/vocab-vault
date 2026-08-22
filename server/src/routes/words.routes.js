@@ -2,10 +2,11 @@ import { Router } from 'express'
 import mongoose from 'mongoose'
 import Word from '../models/Word.js'
 import { requireAuth } from '../middleware/auth.js'
+import { requireDB } from '../middleware/requireDB.js'
 
 const router = Router()
 
-router.get('/', requireAuth, async (req, res) => {
+router.get('/', requireDB, requireAuth, async (req, res) => {
   try {
     const { q, difficulty, page = 1, limit = 20 } = req.query
     const filter = {}
@@ -24,7 +25,7 @@ router.get('/', requireAuth, async (req, res) => {
   }
 })
 
-router.get('/:id', requireAuth, async (req, res) => {
+router.get('/:id', requireDB, requireAuth, async (req, res) => {
   try {
     if (!mongoose.isValidObjectId(req.params.id)) {
       return res.status(400).json({ message: 'Invalid id' })

@@ -1,13 +1,14 @@
 import { Router } from 'express'
 import Progress from '../models/Progress.js'
 import { requireAuth } from '../middleware/auth.js'
+import { requireDB } from '../middleware/requireDB.js'
 
 const router = Router()
 
 // Leitner box intervals (days): review due after this long in each box
 export const BOX_INTERVALS = { 1: 1, 2: 2, 3: 4, 4: 8, 5: 16 }
 
-router.get('/summary', requireAuth, async (req, res) => {
+router.get('/summary', requireDB, requireAuth, async (req, res) => {
   try {
     const byStatus = await Progress.aggregate([
       { $match: { userId: req.user._id } },

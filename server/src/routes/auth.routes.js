@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import User from '../models/User.js'
 import { requireAuth } from '../middleware/auth.js'
+import { requireDB } from '../middleware/requireDB.js'
 
 const router = Router()
 const sign = (user) =>
@@ -10,7 +11,7 @@ const sign = (user) =>
     expiresIn: '7d',
   })
 
-router.post('/register', async (req, res) => {
+router.post('/register', requireDB, async (req, res) => {
   try {
     const { name, email, password } = req.body || {}
     if (!name || !email || !password) {
@@ -30,7 +31,7 @@ router.post('/register', async (req, res) => {
   }
 })
 
-router.post('/login', async (req, res) => {
+router.post('/login', requireDB, async (req, res) => {
   try {
     const { email, password } = req.body || {}
     if (!email || !password) {
@@ -46,7 +47,7 @@ router.post('/login', async (req, res) => {
   }
 })
 
-router.get('/me', requireAuth, (req, res) => {
+router.get('/me', requireDB, requireAuth, (req, res) => {
   res.json({ user: req.user })
 })
 
