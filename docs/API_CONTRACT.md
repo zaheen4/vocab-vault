@@ -130,6 +130,21 @@
 
 ---
 
+### `GET /api/decks/:id/practice?limit=10` — Get a practice session for a deck
+**Auth:** required  
+**Params:** `id` (ObjectId)  
+**Query:** `limit` (number, default 10, max 50)  
+**Selection order:** words never seen by this user first (deck order), then seen
+words whose SRS due date (`reviewDueAfter`) has passed — oldest due first.
+Seen-but-not-yet-due words are excluded.  
+**Response 200:**
+```json
+{ "words": [ { ...word }, { ...word } ] }
+```
+**Errors:** 400 (invalid id), 404 (deck not found), 500
+
+---
+
 ## Progress (Leitner SRS)
 
 ### `GET /api/progress/summary` — Get user's progress summary
