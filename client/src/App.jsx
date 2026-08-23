@@ -3,6 +3,7 @@ import { AuthProvider } from './context/AuthContext'
 import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
 import Home from './pages/Home'
+import Search from './pages/Search'
 import Login from './pages/Login'
 import Register from './pages/Register'
 
@@ -21,6 +22,7 @@ export default function App() {
             }
           >
             <Route index element={<Home />} />
+            <Route path="search" element={<Search />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>
