@@ -140,7 +140,34 @@
 ```
 **Errors:** 500
 
-**Note:** `BOX_INTERVALS` (internal): `{1: 1, 2: 2, 3: 4, 4: 8, 5: 16}` days
+---
+
+### `POST /api/progress/review` — Record a practice answer
+**Auth:** required  
+**Request:**
+```json
+{ "wordId": "ObjectId", "correct": true }
+```
+**Response 200:**
+```json
+{
+  "progress": {
+    "_id": "...",
+    "userId": "...",
+    "wordId": "...",
+    "box": 2,
+    "streakCorrect": 1,
+    "lastReviewed": "...",
+    "reviewDueAfter": "...",
+    "status": "learning",
+    "createdAt": "...",
+    "updatedAt": "..."
+  }
+}
+```
+**Behavior (Leitner):** correct → box+1 (max 5), streak +1; wrong → box 1, streak 0.
+Status: first review → `learning`; box reaches 5 → `mastered`.  
+**Errors:** 400 (invalid wordId / non-boolean correct), 404 (unknown word), 500
 
 ---
 
@@ -209,6 +236,7 @@
 | box | number | ❌ | 1–5, default 1 |
 | streakCorrect | number | ❌ | default 0 |
 | lastReviewed | Date | ❌ | default now |
+| reviewDueAfter | Date | ❌ | set by review; SRS due date |
 | status | enum | ❌ | `new` \| `learning` \| `mastered`, default `new` |
 | createdAt / updatedAt | Date | auto | |
 | unique index | | | `(userId, wordId)` |

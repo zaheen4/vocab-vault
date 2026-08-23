@@ -7,6 +7,7 @@ const progressSchema = new mongoose.Schema(
     box: { type: Number, min: 1, max: 5, default: 1 },
     streakCorrect: { type: Number, default: 0 },
     lastReviewed: { type: Date, default: Date.now },
+    reviewDueAfter: { type: Date },
     status: {
       type: String,
       enum: ['new', 'learning', 'mastered'],
