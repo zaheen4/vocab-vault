@@ -88,6 +88,26 @@ Required fields per entry: `word`, `definition`. Optional: `example`,
 (`basic` | `intermediate` | `advanced`). Unknown formats will be handled by the
 admin bulk-import UI (planned for week 10).
 
+## Design System
+
+Brand palette defined as Tailwind v4 theme tokens in `client/src/index.css`.
+Use the token classes (`text-primary`, `bg-accent`, `bg-gold`, …) — never raw
+hex values in components.
+
+| Token    | Hex       | Role                  | Usage                                            |
+|----------|-----------|-----------------------|--------------------------------------------------|
+| primary  | `#28324E` | Structure (darkest)   | Headings, brand, text on accent backgrounds      |
+| accent   | `#EE964B` | Interaction (warm)    | CTAs, focus rings, links                         |
+| gold     | `#FAF0CA` | Surface (lightest)    | Auth page backgrounds, active-nav pill highlight |
+
+Rules of thumb:
+
+- **Darkest → foreground**, **most saturated → interactive elements**,
+  **lightest → surfaces/backgrounds**
+- Never put white text on `accent` — contrast fails (~2.5:1); use
+  `text-primary` on accent fills instead
+- Neutrals come from Tailwind's built-in `slate` scale
+
 ## Team
 
 See `CONTRIBUTING.md` for branching, commit message rules and the PR workflow.
