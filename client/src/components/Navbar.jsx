@@ -25,6 +25,9 @@ export default function Navbar() {
             <NavLink to="/search" className={linkClass}>
               Search
             </NavLink>
+            <NavLink to="/progress" className={linkClass}>
+              Progress
+            </NavLink>
             <span className="text-sm text-slate-500">{user.name}</span>
             <button
               onClick={() => {
