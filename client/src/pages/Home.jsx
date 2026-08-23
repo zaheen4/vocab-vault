@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { api } from '../api/client'
 
 const DIFFICULTIES = ['basic', 'intermediate', 'advanced']
@@ -12,7 +13,10 @@ const badgeClass = {
 function DeckCard({ deck }) {
   const count = deck.wordCount ?? (deck.wordIds ? deck.wordIds.length : 0)
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm hover:shadow transition-shadow">
+    <Link
+      to={`/decks/${deck._id}`}
+      className="block rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition-shadow hover:shadow"
+    >
       <div className="flex items-start justify-between gap-2">
         <h3 className="font-semibold text-primary">{deck.title}</h3>
         <span
@@ -25,7 +29,7 @@ function DeckCard({ deck }) {
         <p className="mt-1 text-sm text-slate-500">{deck.description}</p>
       )}
       <p className="mt-3 text-xs font-medium text-slate-400">{count} words</p>
-    </div>
+    </Link>
   )
 }
 
