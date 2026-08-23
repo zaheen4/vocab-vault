@@ -24,7 +24,7 @@
 - [ ] @fe Home page = deck grid grouped by difficulty (GET `/api/decks`)
 - [ ] @be Deck list response: add word counts per deck
 - [ ] @fe Search page wired to `GET /api/words?q=`
-- [ ] @data Decide Bangla-meanings source dataset or manual entry (blocking W3 field usage)
+- [ ] ~@data Decide Bangla-meanings source dataset or manual entry (deferred — `banglaMeaning` field optional and unused)~
 
 ## Week 2 — Practice, Quiz & Progress
 
