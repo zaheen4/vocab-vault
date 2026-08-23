@@ -7,8 +7,13 @@ const router = Router()
 
 router.get('/', requireDB, requireAuth, async (req, res) => {
   try {
-    const decks = await Deck.find().populate('wordIds')
-    res.json({ decks })
+    const decks = await Deck.find().select('-__v')
+    res.json({
+      decks: decks.map((deck) => ({
+        ...deck.toObject(),
+        wordCount: deck.wordIds.length,
+      })),
+    })
   } catch (err) {
     res.status(500).json({ message: err.message })
   }
