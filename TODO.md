@@ -17,13 +17,13 @@
 
 ## Week 1 — Auth UI & Browsing
 
-- [ ] @fe Login page wired to `POST /api/auth/login`
-- [ ] @fe Register page wired to `POST /api/auth/register`
-- [ ] @fe AuthContext + JWT persistence (localStorage) + auto-inject via api client
-- [ ] @fe ProtectedRoute wrapper + Navbar auth state (login/logout)
-- [ ] @fe Home page = deck grid grouped by difficulty (GET `/api/decks`)
-- [ ] @be Deck list response: add word counts per deck
-- [ ] @fe Search page wired to `GET /api/words?q=`
+- [x] @fe Login page wired to `POST /api/auth/login` (#7)
+- [x] @fe Register page wired to `POST /api/auth/register` (#7)
+- [x] @fe AuthContext + JWT persistence (localStorage) + auto-inject via api client (#6)
+- [x] @fe ProtectedRoute wrapper + Navbar auth state (login/logout) (#6, #7)
+- [x] @fe Home page = deck grid grouped by difficulty (GET `/api/decks`) (#8)
+- [x] @be Deck list response: add word counts per deck (#10)
+- [x] @fe Search page wired to `GET /api/words?q=` (#9)
 - [ ] ~@data Decide Bangla-meanings source dataset or manual entry (deferred — `banglaMeaning` field optional and unused)~
 
 ## Week 2 — Practice, Quiz & Progress
