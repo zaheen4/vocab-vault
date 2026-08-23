@@ -1,4 +1,5 @@
-import { BOX_INTERVALS } from '../routes/progress.routes.js'
+// Leitner-box intervals (days): review due after this long in each box
+export const BOX_INTERVALS = { 1: 1, 2: 2, 3: 4, 4: 8, 5: 16 }
 
 // Move a word through Leitner boxes based on answer quality.
 // correct → box+1 (max 5), wrong → box 1.
