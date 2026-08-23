@@ -2,7 +2,9 @@ import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
 const linkClass = ({ isActive }) =>
-  `text-sm font-medium ${isActive ? 'text-accent' : 'text-slate-600 hover:text-primary'}`
+  `rounded-md px-2 py-1 text-sm font-medium transition-colors ${
+    isActive ? 'bg-gold text-primary' : 'text-slate-600 hover:text-primary'
+  }`
 
 export default function Navbar() {
   const { user, logout } = useAuth()
@@ -44,7 +46,7 @@ export default function Navbar() {
             </Link>
             <Link
               to="/register"
-              className="rounded-md bg-accent px-3 py-1.5 text-sm font-semibold text-white hover:opacity-90"
+              className="rounded-md bg-accent px-3 py-1.5 text-sm font-semibold text-primary hover:brightness-95"
             >
               Register
             </Link>

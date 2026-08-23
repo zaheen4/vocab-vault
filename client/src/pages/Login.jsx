@@ -28,7 +28,7 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gold px-4">
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-sm space-y-4 rounded-lg bg-white p-6 shadow"
@@ -64,7 +64,7 @@ export default function Login() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full rounded-md bg-accent py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+          className="w-full rounded-md bg-accent py-2 text-sm font-semibold text-primary hover:brightness-95 disabled:opacity-50"
         >
           {submitting ? 'Logging in…' : 'Log in'}
         </button>
