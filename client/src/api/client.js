@@ -1,7 +1,13 @@
 const BASE = import.meta.env.VITE_API_URL || '/api'
+const TOKEN_KEY = 'vv_token'
 
-function request(path, { method = 'GET', body, token } = {}) {
+function getToken() {
+  return localStorage.getItem(TOKEN_KEY)
+}
+
+function request(path, { method = 'GET', body } = {}) {
   const headers = { 'Content-Type': 'application/json' }
+  const token = getToken()
   if (token) headers.Authorization = `Bearer ${token}`
 
   return fetch(`${BASE}${path}`, {
