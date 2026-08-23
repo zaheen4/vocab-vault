@@ -28,12 +28,12 @@
 
 ## Week 2 — Practice, Quiz & Progress
 
-- [ ] @fe Flashcard practice page (card flip, "knew it" / "didn't know it" actions)
-- [ ] @be `POST /api/progress/review` — record answer, advance Leitner box
-- [ ] @be Practice session endpoint — next batch of words for a deck (respecting SRS due dates)
+- [x] @fe Flashcard practice page (card flip, "knew it" / "didn't know it" actions) (#17)
+- [x] @be `POST /api/progress/review` — record answer, advance Leitner box (#15)
+- [x] @be Practice session endpoint — next batch of words for a deck (respecting SRS due dates) (#16)
+- [x] @fe Progress dashboard (per-deck mastered/learning/new counts; GET `/api/progress/summary`) (#18)
 - [ ] @fe Quiz mode — MCQ generation from deck words + instant scoring
 - [ ] @be Quiz scoring endpoint (reuse progress review recording)
-- [ ] @fe Progress dashboard (per-deck mastered/learning/new counts; GET `/api/progress/summary`)
 - [ ] @data Test matrix: register → practice → review → dashboard flow
 
 ## Week 3 — SRS Review, Lists & Admin Import
