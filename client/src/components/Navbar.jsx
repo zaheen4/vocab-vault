@@ -1,5 +1,7 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import Logo from './Logo'
+import Button from './ui/Button'
 
 const linkClass = ({ isActive }) =>
   `rounded-md px-2 py-1 text-sm font-medium transition-colors ${
@@ -13,8 +15,9 @@ export default function Navbar() {
   return (
     <header className="border-b border-slate-200 bg-white">
       <nav className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-        <Link to="/" className="text-lg font-bold text-primary">
-          VocabVault
+        <Link to="/" className="flex items-center gap-2">
+          <Logo size={26} />
+          <span className="text-lg font-bold text-primary">VocabVault</span>
         </Link>
 
         {user ? (
@@ -47,11 +50,8 @@ export default function Navbar() {
             >
               Log in
             </Link>
-            <Link
-              to="/register"
-              className="rounded-md bg-accent px-3 py-1.5 text-sm font-semibold text-primary hover:brightness-95"
-            >
-              Register
+            <Link to="/register" className="inline-flex">
+              <Button>Register</Button>
             </Link>
           </div>
         )}

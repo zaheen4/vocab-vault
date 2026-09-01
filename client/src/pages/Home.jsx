@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '../api/client'
+import Card from '../components/ui/Card'
 
 const DIFFICULTIES = ['basic', 'intermediate', 'advanced']
 
@@ -13,22 +14,21 @@ const badgeClass = {
 function DeckCard({ deck }) {
   const count = deck.wordCount ?? (deck.wordIds ? deck.wordIds.length : 0)
   return (
-    <Link
-      to={`/decks/${deck._id}`}
-      className="block rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition-shadow hover:shadow"
-    >
-      <div className="flex items-start justify-between gap-2">
-        <h3 className="font-semibold text-primary">{deck.title}</h3>
-        <span
-          className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${badgeClass[deck.difficulty] || 'bg-slate-100 text-slate-600'}`}
-        >
-          {deck.difficulty}
-        </span>
-      </div>
-      {deck.description && (
-        <p className="mt-1 text-sm text-slate-500">{deck.description}</p>
-      )}
-      <p className="mt-3 text-xs font-medium text-slate-400">{count} words</p>
+    <Link to={`/decks/${deck._id}`} className="block">
+      <Card hoverable className="p-4">
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="font-semibold text-primary">{deck.title}</h3>
+          <span
+            className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${badgeClass[deck.difficulty] || 'bg-slate-100 text-slate-600'}`}
+          >
+            {deck.difficulty}
+          </span>
+        </div>
+        {deck.description && (
+          <p className="mt-1 text-sm text-slate-500">{deck.description}</p>
+        )}
+        <p className="mt-3 text-xs font-medium text-slate-400">{count} words</p>
+      </Card>
     </Link>
   )
 }
