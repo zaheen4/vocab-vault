@@ -2,40 +2,45 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { useAuth } from '../context/AuthContext'
+import Button from '../components/ui/Button'
+import EmptyState from '../components/ui/EmptyState'
 
 function Flashcard({ word, flipped, onFlip }) {
   return (
     <button
       onClick={onFlip}
-      className="flex min-h-64 w-full flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm transition-shadow hover:shadow"
+      className="flip-scene block w-full"
+      aria-pressed={flipped}
+      aria-label={flipped ? `Definition of ${word.word}` : `Word ${word.word}, tap to reveal`}
     >
-      {flipped ? (
-        <div className="space-y-3">
-          <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
-            {word.word}
-            {word.partOfSpeech && ` · ${word.partOfSpeech}`}
-          </p>
-          <p className="text-lg font-semibold text-primary">{word.definition}</p>
-          {word.example && (
-            <p className="text-sm italic text-slate-500">“{word.example}”</p>
-          )}
-          {word.synonyms?.length > 0 && (
-            <p className="text-sm text-slate-400">
-              Synonyms: {word.synonyms.join(', ')}
-            </p>
-          )}
-        </div>
-      ) : (
-        <div className="space-y-2">
+      <span
+        className={`flip-inner relative flex min-h-64 w-full ${flipped ? 'flipped' : ''}`}
+      >
+        <span className="flip-face absolute inset-0 flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
           <h2 className="text-3xl font-bold text-primary">{word.word}</h2>
           {word.partOfSpeech && (
-            <p className="text-sm italic text-slate-400">{word.partOfSpeech}</p>
+            <p className="mt-1 text-sm italic text-slate-400">{word.partOfSpeech}</p>
           )}
           <p className="pt-4 text-xs uppercase tracking-wide text-slate-300">
             Tap to reveal
           </p>
-        </div>
-      )}
+        </span>
+        <span className="flip-back flip-face absolute inset-0 flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+          <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+            {word.word}
+            {word.partOfSpeech && ` · ${word.partOfSpeech}`}
+          </p>
+          <p className="mt-2 text-lg font-semibold text-primary">{word.definition}</p>
+          {word.example && (
+            <p className="mt-1 text-sm italic text-slate-500">“{word.example}”</p>
+          )}
+          {word.synonyms?.length > 0 && (
+            <p className="mt-1 text-sm text-slate-400">
+              Synonyms: {word.synonyms.join(', ')}
+            </p>
+          )}
+        </span>
+      </span>
     </button>
   )
 }
@@ -100,10 +105,10 @@ export default function Practice() {
 
   if (status === 'empty') {
     return (
-      <div className="py-16 text-center text-slate-500">
-        This deck has no words ready to practice right now — everything is scheduled
-        for later. Check back soon!
-      </div>
+      <EmptyState
+        title="No words due right now"
+        message="Everything in this deck is scheduled for review later. Check back soon!"
+      />
     )
   }
 
@@ -161,18 +166,12 @@ export default function Practice() {
 
       {flipped && (
         <div className="grid grid-cols-2 gap-3">
-          <button
-            onClick={() => answer(false)}
-            className="rounded-md border border-red-200 bg-red-50 py-2.5 text-sm font-semibold text-red-700 hover:bg-red-100"
-          >
+          <Button variant="danger" onClick={() => answer(false)} fullWidth>
             Didn&apos;t know it
-          </button>
-          <button
-            onClick={() => answer(true)}
-            className="rounded-md border border-emerald-200 bg-emerald-50 py-2.5 text-sm font-semibold text-emerald-700 hover:bg-emerald-100"
-          >
+          </Button>
+          <Button variant="success" onClick={() => answer(true)} fullWidth>
             Knew it
-          </button>
+          </Button>
         </div>
       )}
     </div>

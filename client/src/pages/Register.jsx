@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import Button from '../components/ui/Button'
 
 const inputClass =
   'w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-accent focus:outline-none'
@@ -79,13 +80,9 @@ export default function Register() {
           <span className="mt-1 block text-xs text-slate-400">At least 6 characters</span>
         </label>
 
-        <button
-          type="submit"
-          disabled={submitting}
-          className="w-full rounded-md bg-accent py-2 text-sm font-semibold text-primary hover:brightness-95 disabled:opacity-50"
-        >
+        <Button type="submit" fullWidth loading={submitting}>
           {submitting ? 'Creating account…' : 'Register'}
-        </button>
+        </Button>
 
         <p className="text-center text-sm text-slate-500">
           Already have an account?{' '}
