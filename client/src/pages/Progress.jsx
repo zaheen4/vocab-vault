@@ -9,17 +9,17 @@ const CARDS = [
 
 export default function Progress() {
   const [summary, setSummary] = useState(null)
+  const [stats, setStats] = useState(null)
   const [status, setStatus] = useState('loading')
 
   useEffect(() => {
     let cancelled = false
-    api
-      .get('/progress/summary')
-      .then((data) => {
-        if (!cancelled) {
-          setSummary(data.summary)
-          setStatus('ready')
-        }
+    Promise.all([api.get('/progress/summary'), api.get('/gamification/me')])
+      .then(([summaryData, statsData]) => {
+        if (cancelled) return
+        setSummary(summaryData.summary)
+        setStats(statsData.gamification)
+        setStatus('ready')
       })
       .catch(() => !cancelled && setStatus('error'))
     return () => {
@@ -60,6 +60,44 @@ export default function Progress() {
             : `${total} word${total === 1 ? '' : 's'} in your learning pipeline.`}
         </p>
       </div>
+
+      {stats && (
+        <div className="rounded-xl border border-accent bg-gold/60 p-5">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div className="flex items-center gap-6">
+              <div className="text-center">
+                <p className="text-3xl font-bold text-primary">⭐ {stats.level}</p>
+                <p className="text-xs text-slate-500">Level</p>
+              </div>
+              <div className="text-center">
+                <p className="text-3xl font-bold text-primary">🔥 {stats.dailyStreak}</p>
+                <p className="text-xs text-slate-500">Day streak</p>
+              </div>
+              <div className="text-center">
+                <p className="text-3xl font-bold text-accent">+{stats.xp} XP</p>
+                <p className="text-xs text-slate-500">Total xp</p>
+              </div>
+            </div>
+            <div className="min-w-56 flex-1">
+              <div className="mb-1 flex justify-between text-xs text-slate-500">
+                <span>
+                  Level {stats.level}
+                </span>
+                <span>Level {stats.level + 1}</span>
+              </div>
+              <div className="h-2.5 overflow-hidden rounded-full bg-slate-200">
+                <div
+                  className="h-full rounded-full bg-accent transition-all duration-500"
+                  style={{ width: `${(stats.progressToNext || 0) * 100}%` }}
+                />
+              </div>
+              <p className="mt-1 text-right text-xs text-slate-400">
+                {Math.round((stats.progressToNext || 0) * 100)}% to next level
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {CARDS.map(({ key, label, class: cardClass, text }) => (

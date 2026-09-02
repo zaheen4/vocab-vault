@@ -177,12 +177,48 @@ Seen-but-not-yet-due words are excluded.
     "status": "learning",
     "createdAt": "...",
     "updatedAt": "..."
+  },
+  "gamification": {
+    "xpEarned": 14,
+    "xp": 340,
+    "level": 3,
+    "levelUp": false,
+    "dailyStreak": 5,
+    "streakIncreased": false,
+    "newWordsLearned": 1,
+    "reviewsCaughtUp": 0
   }
 }
 ```
 **Behavior (Leitner):** correct → box+1 (max 5), streak +1; wrong → box 1, streak 0.
 Status: first review → `learning`; box reaches 5 → `mastered`.  
+**Gamification:** XP awarded per answer (`10 + box*2` correct, `3` wrong); user's
+XP/level/totals/daily streak updated atomically; `levelUp` true when the user's
+level increases; `newWordsLearned` is 1 when a word moves `new → learning`;
+`reviewsCaughtUp` is 1 when a word becomes `mastered`.
 **Errors:** 400 (invalid wordId / non-boolean correct), 404 (unknown word), 500
+
+---
+
+## Gamification
+
+### `GET /api/gamification/me` — Get current user's XP / level / streak
+**Auth:** required  
+**Response 200:**
+```json
+{
+  "gamification": {
+    "xp": 340,
+    "level": 3,
+    "dailyStreak": 5,
+    "totalCorrect": 21,
+    "totalReviewed": 30,
+    "nextLevelXp": 400,
+    "progressToNext": 0.6
+  }
+}
+```
+**Errors:** 401 (unauthorized), 404 (user not found), 500
 
 ---
 
@@ -241,7 +277,18 @@ Status: first review → `learning`; box reaches 5 → `mastered`.
 | email | string | ✅ | unique, lowercase, trimmed |
 | passwordHash | string | ✅ | bcrypt |
 | role | enum | ❌ | `user` \| `admin`, default `user` |
+| xp | number | ❌ | default 0, earned via reviews |
+| level | number | ❌ | default 1, derived from XP (sqrt curve) |
+| totalCorrect | number | ❌ | default 0 |
+| totalReviewed | number | ❌ | default 0 |
+| lastPracticeDate | Date | ❌ | last review date (for daily streak) |
+| practiceStreakDays | number | ❌ | default 0, consecutive daily-practice count |
 | createdAt / updatedAt | Date | auto | |
+
+**Gamification XP/level rule:** `xpForAnswer`: `10 + box*2` for a correct answer,
+`3` for an incorrect one. `level = floor(sqrt(xp / 100)) + 1`. Daily streak
+increments when practicing on a new consecutive calendar day, resets to 1 after
+a gap of 2+ days, and is idempotent within the same day.
 
 ### Progress
 | Field | Type | Required | Notes |
