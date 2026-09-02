@@ -36,6 +36,22 @@
 - [ ] @be Quiz scoring endpoint (reuse progress review recording)
 - [ ] @data Test matrix: register → practice → review → dashboard flow
 
+## Week 2.5 — Gamified Practice (XP, Levels, Streaks) — branch `feat/gamified-practice`
+
+> **⚠️ NOT merged yet** — awaiting manual check & review. Other members may work on this branch directly.
+
+- [ ] @all Manual check of gamified practice UI before merge
+- [x] @be User model: `xp`, `level`, `totalCorrect`, `totalReviewed`, `lastPracticeDate`, `practiceStreakDays`
+- [x] @be `server/src/utils/gamify.js` — XP/level curve + daily-streak logic
+- [x] @be `POST /api/progress/review` returns `gamification` object (xpEarned, levelUp, dailyStreak, newWordsLearned, reviewsCaughtUp)
+- [x] @be `GET /api/gamification/me` — XP/level/streak/progress-to-next
+- [x] @fe Practice overhaul — instant ✓/✗ feedback, floating +XP, combo counter, HUD
+- [x] @fe End screen — score ring, XP earned, best combo, new/mastered stats, confetti
+- [x] @fe Level-up toast (gold glow pulse)
+- [x] @fe Navbar stats chip (⭐ level · 🔥 streak · XP)
+- [x] @fe Progress page XP/level/streak banner
+- [x] @docs `API_CONTRACT.md` updated — gamification response, `/api/gamification/me`, User fields
+
 ## Week 3 — SRS Review, Lists & Admin Import
 
 - [ ] @fe Smart Review page — mixed-deck session of words due for review
