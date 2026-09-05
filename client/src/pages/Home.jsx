@@ -94,17 +94,27 @@ export default function Home() {
   return (
     <div className="space-y-8">
       <h1 className="text-2xl font-bold text-primary">Your decks</h1>
-      {DIFFICULTIES.map((level) => {
+      {DIFFICULTIES.map((level, si) => {
         const group = decks.filter((d) => d.difficulty === level)
         if (group.length === 0) return null
         return (
-          <section key={level}>
+          <section
+            key={level}
+            className="animate-fade-up"
+            style={{ animationDelay: `${si * 80}ms` }}
+          >
             <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-slate-400">
               {level}
             </h2>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {group.map((deck) => (
-                <DeckCard key={deck._id} deck={deck} />
+              {group.map((deck, i) => (
+                <div
+                  key={deck._id}
+                  className="animate-fade-up"
+                  style={{ animationDelay: `${si * 80 + (i + 1) * 60}ms` }}
+                >
+                  <DeckCard deck={deck} />
+                </div>
               ))}
             </div>
           </section>
