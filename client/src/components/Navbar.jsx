@@ -1,4 +1,4 @@
-import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { api } from '../api/client'
@@ -12,6 +12,7 @@ const linkClass = ({ isActive }) =>
 
 function StatsChip() {
   const [stats, setStats] = useState(null)
+  const { pathname } = useLocation()
   useEffect(() => {
     let cancelled = false
     api
@@ -21,7 +22,7 @@ function StatsChip() {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [pathname])
   if (!stats) return null
   return (
     <span className="hidden items-center gap-2 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-primary sm:inline-flex">

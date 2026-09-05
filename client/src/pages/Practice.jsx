@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../api/client'
+import { useAuth } from '../context/AuthContext'
 import Button from '../components/ui/Button'
 import EmptyState from '../components/ui/EmptyState'
 import Confetti from '../components/Confetti'
@@ -76,12 +77,14 @@ function ScoreRing({ correct, total }) {
 
 export default function Practice() {
   const { id } = useParams()
+  const { user } = useAuth()
   const [deckTitle, setDeckTitle] = useState('')
   const [words, setWords] = useState([])
   const [index, setIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
   const [status, setStatus] = useState('loading')
   const [results, setResults] = useState([])
+  const [submitting, setSubmitting] = useState(false)
   const [sessionXp, setSessionXp] = useState(0)
   const [combo, setCombo] = useState(0)
   const [bestCombo, setBestCombo] = useState(0)
@@ -111,15 +114,9 @@ export default function Practice() {
   }, [id])
 
   async function answer(correct) {
+    if (submitting || feedback) return // guard against double-submits
     const word = words[index]
-    const responses = [...results, { word: word.word, correct }]
-    setResults(responses)
-
-    // live HUD
-    const newCombo = correct ? combo + 1 : 0
-    setCombo(newCombo)
-    setBestCombo((b) => Math.max(b, newCombo))
-    setScore((s) => s + (correct ? 1 : 0))
+    setSubmitting(true)
 
     let g = {}
     let box = correct ? 2 : 1
@@ -127,20 +124,33 @@ export default function Practice() {
       const data = await api.post('/progress/review', { wordId: word._id, correct })
       g = data.gamification || {}
       box = data.progress?.box || box
-      setSessionXp((x) => x + (g.xpEarned || 0))
-      if (g.newWordsLearned) setNewLearned((n) => n + g.newWordsLearned)
-      if (g.reviewsCaughtUp) setCaughtUp((n) => n + g.reviewsCaughtUp)
-      if (g.levelUp) setLevelEvent({ newLevel: g.level, xp: g.xp })
     } catch (err) {
       console.error(err)
+      // Don't record the result — let the user retry instead of losing progress
+      setSubmitting(false)
+      setFeedback({ error: true })
+      return
     }
+
+    // Only committed once the server has recorded the review
+    setResults((r) => [...r, { word: word.word, correct }])
+
+    // live HUD
+    const newCombo = correct ? combo + 1 : 0
+    setCombo(newCombo)
+    setBestCombo((b) => Math.max(b, newCombo))
+    setScore((s) => s + (correct ? 1 : 0))
+    setSessionXp((x) => x + (g.xpEarned || 0))
+    if (g.newWordsLearned) setNewLearned((n) => n + g.newWordsLearned)
+    if (g.reviewsCaughtUp) setCaughtUp((n) => n + g.reviewsCaughtUp)
+    if (g.levelUp) setLevelEvent({ newLevel: g.level, xp: g.xp })
 
     setFlipped(false)
     if (!correct) setShake(true)
 
     setFeedback({
       correct,
-      xpEarned: g.xpEarned || (correct ? 10 : 3),
+      xpEarned: g.xpEarned,
       boxLabel: BOX_LABELS[box] || `Box ${box}`,
     })
 
@@ -148,6 +158,7 @@ export default function Practice() {
     advanceTimer.current = setTimeout(() => {
       setShake(false)
       setFeedback(null)
+      setSubmitting(false)
       clearTimeout(advanceTimer.current)
       if (done) {
         setConfetti(true)
@@ -184,12 +195,18 @@ export default function Practice() {
 
   if (status === 'done') {
     const correctCount = results.filter((r) => r.correct).length
+    const firstName = user?.name?.split(' ')[0]
     return (
       <div className="mx-auto max-w-2xl animate-page space-y-6 py-6 text-center">
         <Confetti active={confetti} pieces={70} />
         <h1 className="text-3xl font-bold text-primary">
           {correctCount >= Math.ceil(results.length / 2) ? 'Session complete! 🎉' : 'Session done — keep going! 💪'}
         </h1>
+        {firstName && (
+          <p className="-mt-3 text-slate-500">
+            {firstName}, you got {correctCount} of {results.length} right.
+          </p>
+        )}
         {levelEvent && (
           <div className="animate-pop mx-auto max-w-sm rounded-xl border-2 border-accent bg-gold px-4 py-3 text-primary animate-glow">
             <span className="text-sm font-bold">🎊 Level up! You reached Level {levelEvent.newLevel}</span>
@@ -279,17 +296,25 @@ export default function Practice() {
 
       {flipped && !feedback && (
         <div className="grid grid-cols-2 gap-3">
-          <Button variant="danger" onClick={() => answer(false)} fullWidth>
+          <Button variant="danger" onClick={() => answer(false)} fullWidth disabled={submitting}>
             Didn&apos;t know it
           </Button>
-          <Button variant="success" onClick={() => answer(true)} fullWidth>
+          <Button variant="success" onClick={() => answer(true)} fullWidth disabled={submitting}>
             Knew it
           </Button>
         </div>
       )}
 
-      {/* Instant feedback overlay */}
-      {feedback && (
+      {feedback?.error && (
+        <div className="flex items-center justify-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 animate-pop">
+          <span>Couldn&apos;t save that review. Check your connection and try again.</span>
+          <button className="ml-auto underline" onClick={() => setFeedback(null)}>
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {feedback && !feedback.error && (
         <div
           className={`flex items-center justify-center gap-3 rounded-lg border px-4 py-3 text-sm font-semibold animate-pop ${
             feedback.correct
