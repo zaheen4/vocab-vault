@@ -42,7 +42,7 @@ export default function Navbar() {
       <nav className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
         <Link to="/" className="flex items-center gap-2">
           <Logo size={26} />
-          <span className="text-lg font-bold text-primary">VocabVault</span>
+          <span className="font-display text-lg font-bold text-primary">VocabVault</span>
         </Link>
 
         {user ? (

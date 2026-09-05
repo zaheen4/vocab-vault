@@ -13,9 +13,9 @@ const badgeClass = {
 function DeckCard({ deck }) {
   const count = deck.wordCount ?? (deck.wordIds ? deck.wordIds.length : 0)
   return (
-    <Card hoverable className="relative flex h-full flex-col p-5 shadow-md">
+    <Card hoverable className="relative flex h-full flex-col border-2 p-5 shadow-md">
       <div className="flex items-start justify-between gap-2">
-        <h3 className="text-lg font-bold text-primary">{deck.title}</h3>
+        <h3 className="font-display text-lg font-bold text-primary">{deck.title}</h3>
         <span
           className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${badgeClass[deck.difficulty] || 'bg-slate-100 text-slate-600'}`}
         >
@@ -117,8 +117,8 @@ export default function Home() {
   return (
     <div className="-m-4 sm:-m-6">
       <div className="bg-primary px-4 pb-28 pt-6 sm:px-6">
-        <p className="text-xs font-bold uppercase tracking-widest text-accent">VocabVault</p>
-        <h1 className="mt-1 text-2xl font-bold text-white sm:text-3xl">Master your words.</h1>
+        <p className="font-display text-xs font-bold uppercase tracking-widest text-accent">VocabVault</p>
+        <h1 className="mt-1 font-display text-2xl font-bold text-white sm:text-3xl">Master your words.</h1>
         {stats && (
           <div className="mt-3 flex gap-6 text-sm">
             {stats.dailyStreak > 0 && (

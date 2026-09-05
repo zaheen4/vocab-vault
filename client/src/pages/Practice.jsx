@@ -19,14 +19,14 @@ function Flashcard({ word, flipped, onFlip, shake }) {
         aria-label={flipped ? `Definition of ${word.word}` : `Word ${word.word}, tap to reveal`}
       >
         <span className={`flip-inner relative flex min-h-64 w-full ${flipped ? 'flipped' : ''}`}>
-          <span className="flip-face absolute inset-0 flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+          <span className="flip-face absolute inset-0 flex flex-col items-center justify-center rounded-xl border-2 border-slate-200 bg-white p-8 text-center shadow-sm">
             <h2 className="text-3xl font-bold text-primary">{word.word}</h2>
             {word.partOfSpeech && (
               <p className="mt-1 text-sm italic text-slate-400">{word.partOfSpeech}</p>
             )}
             <p className="pt-4 text-xs uppercase tracking-wide text-slate-300">Tap to reveal</p>
           </span>
-          <span className="flip-back flip-face absolute inset-0 flex flex-col items-center justify-center rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+          <span className="flip-back flip-face absolute inset-0 flex flex-col items-center justify-center rounded-xl border-2 border-slate-200 bg-white p-8 text-center shadow-sm">
             <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
               {word.word}
               {word.partOfSpeech && ` · ${word.partOfSpeech}`}
@@ -226,7 +226,7 @@ export default function Practice() {
     return (
       <div className="mx-auto max-w-2xl animate-page space-y-6 py-6 text-center">
         <Confetti active={confetti} pieces={70} />
-        <h1 className="text-3xl font-bold text-primary">
+        <h1 className="font-display text-3xl font-bold text-primary">
           {finalMessage || 'Session complete! 🎉'}
         </h1>
         {firstName && (
@@ -331,10 +331,10 @@ export default function Practice() {
 
       {flipped && !feedback && (
         <div className="grid grid-cols-2 gap-3">
-          <Button variant="danger" onClick={() => answer(false)} fullWidth disabled={submitting}>
+          <Button variant="danger" onClick={() => answer(false)} fullWidth disabled={submitting} chunky>
             Not yet
           </Button>
-          <Button variant="success" onClick={() => answer(true)} fullWidth disabled={submitting}>
+          <Button variant="success" onClick={() => answer(true)} fullWidth disabled={submitting} chunky>
             Got it
           </Button>
         </div>

@@ -189,7 +189,7 @@ export default function Quiz() {
         <Link to="/" className="inline-block text-sm text-slate-400 hover:text-primary">
           ← {deckTitle}
         </Link>
-        <h1 className="text-2xl font-bold text-primary">Quiz yourself</h1>
+        <h1 className="font-display text-2xl font-bold text-primary">Quiz yourself</h1>
         <p className="text-sm text-slate-500">
           {pool.length} viewed word{pool.length === 1 ? '' : 's'} ready. Pick a
           definition for each word — every answer is recorded like practice.
@@ -223,7 +223,7 @@ export default function Quiz() {
     const pct = results.length === 0 ? 0 : Math.round((correctCount / results.length) * 100)
     return (
       <div className="mx-auto max-w-2xl animate-page space-y-6 py-6 text-center">
-        <h1 className="text-3xl font-bold text-primary">{finalMessage || 'Quiz complete!'}</h1>
+        <h1 className="font-display text-3xl font-bold text-primary">{finalMessage || 'Quiz complete!'}</h1>
         <p className="text-slate-500">
           You scored {correctCount} of {results.length} ({pct}%).
         </p>
@@ -299,7 +299,7 @@ export default function Quiz() {
               onClick={() => choose(i)}
               disabled={picked !== null}
               style={picked === null ? { animationDelay: `${i * 50}ms` } : undefined}
-              className={`rounded-lg border px-4 py-3 text-left text-sm font-medium text-primary transition-colors disabled:cursor-default ${picked === null ? 'animate-fade-up' : ''} ${cls}`}
+              className={`rounded-lg border-2 px-4 py-3 text-left text-sm font-medium text-primary transition-colors disabled:cursor-default ${picked === null ? 'animate-fade-up' : ''} ${cls}`}
             >
               <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-500">
                 {picked !== null && i === q.answerIndex
