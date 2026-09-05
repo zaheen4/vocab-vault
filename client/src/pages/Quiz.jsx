@@ -299,7 +299,7 @@ export default function Quiz() {
               onClick={() => choose(i)}
               disabled={picked !== null}
               style={picked === null ? { animationDelay: `${i * 50}ms` } : undefined}
-              className={`rounded-lg border-2 px-4 py-3 text-left text-sm font-medium text-primary transition-colors disabled:cursor-default ${picked === null ? 'animate-fade-up' : ''} ${cls}`}
+              className={`rounded-lg border-2 px-4 py-3 text-left font-display text-sm font-bold text-primary transition-all active:scale-[0.99] disabled:cursor-default ${picked === null ? 'animate-fade-up' : ''} ${cls}`}
             >
               <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-500">
                 {picked !== null && i === q.answerIndex

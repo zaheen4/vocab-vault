@@ -30,7 +30,7 @@ function DeckCard({ deck }) {
           <p className="text-xs font-semibold text-slate-500">{count} words</p>
           <Link
             to={`/decks/${deck._id}/quiz`}
-            className="relative z-10 rounded-full bg-accent px-4 py-3 text-xs font-bold text-primary hover:brightness-95"
+            className="relative z-10 rounded-full border-b-4 border-[#b25f16] bg-accent px-4 py-3 font-display text-xs font-bold text-primary transition-all hover:brightness-95 active:translate-y-0.5 active:border-b-0"
           >
             Quiz →
           </Link>
