@@ -40,7 +40,7 @@
 
 > **⚠️ NOT merged yet** — awaiting manual check & review. Other members may work on this branch directly.
 
-- [ ] @all Manual check of gamified practice UI before merge
+- [x] @all Manual check of gamified practice UI before merge
 - [x] @be User model: `xp`, `level`, `totalCorrect`, `totalReviewed`, `lastPracticeDate`, `practiceStreakDays`
 - [x] @be `server/src/utils/gamify.js` — XP/level curve + daily-streak logic
 - [x] @be `POST /api/progress/review` returns `gamification` object (xpEarned, levelUp, dailyStreak, newWordsLearned, reviewsCaughtUp)
@@ -60,7 +60,7 @@
 
 ### Merge gamified
 
-- [ ] @all Manual check of gamified practice UI before merge
+- [x] @all Manual check of gamified practice UI before merge
 - [ ] @all Open PR from `feat/gamified-practice`, squash-merge, delete branch
 
 ### Quiz mode
