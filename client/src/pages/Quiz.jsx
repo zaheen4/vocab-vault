@@ -61,12 +61,14 @@ export default function Quiz() {
 
   useEffect(() => {
     let cancelled = false
+    // Viewed-words pool: the server returns only words this user has a
+    // Progress record for, most-recently-reviewed first
     api
-      .get(`/decks/${id}`)
+      .get(`/decks/${id}/quiz?limit=50`)
       .then((data) => {
         if (cancelled) return
         setDeckTitle(data.deck.title)
-        const words = data.deck.wordIds || []
+        const words = data.words || []
         setPool(words)
         setStatus(words.length === 0 ? 'empty' : 'idle')
       })
@@ -170,8 +172,13 @@ export default function Quiz() {
   if (status === 'empty') {
     return (
       <EmptyState
-        title="No words in this deck yet"
-        message="Add words to this deck before starting a quiz."
+        title="Practice first!"
+        message="Quizzes cover words you've already seen. Run through the flashcards once, then come back and test yourself."
+        action={
+          <Link to={`/decks/${id}`}>
+            <Button>Practice this deck</Button>
+          </Link>
+        }
       />
     )
   }
@@ -184,7 +191,7 @@ export default function Quiz() {
         </Link>
         <h1 className="text-2xl font-bold text-primary">Quiz yourself</h1>
         <p className="text-sm text-slate-500">
-          {pool.length} word{pool.length === 1 ? '' : 's'} in this deck. Pick a
+          {pool.length} viewed word{pool.length === 1 ? '' : 's'} ready. Pick a
           definition for each word — every answer is recorded like practice.
         </p>
         <div className="flex justify-center gap-2">
