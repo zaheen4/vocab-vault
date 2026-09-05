@@ -278,7 +278,7 @@ export default function Quiz() {
         <h2 className="mt-1 text-3xl font-bold text-primary">{q.word.word}</h2>
       </div>
 
-      <div className="grid grid-cols-1 gap-2">
+      <div className="grid grid-cols-1 gap-2" key={q.word._id}>
         {q.options.map((opt, i) => {
           let cls = 'border-slate-200 bg-white hover:border-accent hover:bg-gold/40'
           if (picked !== null) {
@@ -291,7 +291,8 @@ export default function Quiz() {
               key={i}
               onClick={() => choose(i)}
               disabled={picked !== null}
-              className={`rounded-lg border px-4 py-3 text-left text-sm font-medium text-primary transition-colors disabled:cursor-default ${cls}`}
+              style={picked === null ? { animationDelay: `${i * 50}ms` } : undefined}
+              className={`rounded-lg border px-4 py-3 text-left text-sm font-medium text-primary transition-colors disabled:cursor-default ${picked === null ? 'animate-fade-up' : ''} ${cls}`}
             >
               <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-500">
                 {picked !== null && i === q.answerIndex

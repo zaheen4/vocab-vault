@@ -131,8 +131,14 @@ export default function Home() {
       </div>
       <div className="-mt-24 bg-gold/40 px-4 pb-10 pt-12 sm:px-6">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {decks.map((deck) => (
-            <DeckCard key={deck._id} deck={deck} />
+          {decks.map((deck, i) => (
+            <div
+              key={deck._id}
+              className="animate-fade-up"
+              style={{ animationDelay: `${Math.min(i, 8) * 60}ms` }}
+            >
+              <DeckCard deck={deck} />
+            </div>
           ))}
         </div>
 

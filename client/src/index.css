@@ -112,6 +112,21 @@
   animation: glow-pulse 1.1s ease-out infinite;
 }
 
+/* staggered list entrance (pair with inline animation-delay per index) */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-up {
+  animation: fade-up 0.4s ease-out both;
+}
+
 /* confetti falling pieces */
 @keyframes confetti-fall {
   0% {
@@ -131,6 +146,22 @@
   animation: confetti-fall linear forwards;
   pointer-events: none;
   z-index: 60;
+}
+
+/* honor OS reduced-motion: stillness over celebration */
+@media (prefers-reduced-motion: reduce) {
+  .animate-pop,
+  .animate-shake,
+  .animate-float-up,
+  .animate-glow,
+  .animate-page,
+  .animate-fade-up,
+  .confetti-piece {
+    animation: none;
+  }
+  .flip-inner {
+    transition: none;
+  }
 }
 
 

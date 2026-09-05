@@ -1,5 +1,7 @@
+import { cn } from '../../utils/cn'
+
 const base =
-  'inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
+  'inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-semibold transition-all active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent'
 
 const variants = {
   primary: 'bg-accent text-primary hover:brightness-95',
@@ -21,9 +23,7 @@ export default function Button({
     <button
       {...props}
       disabled={disabled || loading}
-      className={`${base} ${variants[variant] || variants.primary} ${
-        fullWidth ? 'w-full' : ''
-      } ${className}`}
+      className={cn(base, variants[variant] || variants.primary, fullWidth && 'w-full', className)}
     >
       {loading ? '…' : children}
     </button>
