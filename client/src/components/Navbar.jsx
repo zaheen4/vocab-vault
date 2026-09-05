@@ -58,15 +58,15 @@ export default function Navbar() {
             </NavLink>
             <StatsChip />
             <span className="text-sm text-slate-500">{user.name}</span>
-            <button
+            <Button
+              variant="secondary"
               onClick={() => {
                 logout()
                 navigate('/login', { replace: true })
               }}
-              className="rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50"
             >
               Logout
-            </button>
+            </Button>
           </div>
         ) : (
           <div className="flex items-center gap-3">

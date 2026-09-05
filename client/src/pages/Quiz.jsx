@@ -200,7 +200,7 @@ export default function Quiz() {
               key={n}
               onClick={() => setLength(n)}
               aria-pressed={length === n}
-              className={`rounded-md px-5 py-2.5 text-sm font-semibold transition-colors ${
+              className={`rounded-md px-5 py-2.5 font-display text-sm font-bold transition-all active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
                 length === n
                   ? 'bg-accent text-primary'
                   : 'border border-slate-300 bg-white text-slate-600 hover:bg-slate-50'
@@ -278,7 +278,7 @@ export default function Quiz() {
         />
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+      <div className="rounded-xl border-2 border-slate-200 bg-white p-8 text-center shadow-sm">
         <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
           {q.word.partOfSpeech || 'What does this mean?'}
         </p>

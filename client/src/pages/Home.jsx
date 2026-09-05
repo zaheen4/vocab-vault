@@ -146,10 +146,10 @@ export default function Home() {
         {totalProgress === 0 && decks[0] && (
           <Link
             to={`/decks/${decks[0]._id}`}
-            className="mt-6 flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm hover:shadow"
+            className="mt-6 flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:shadow active:scale-[0.99]"
           >
             <div>
-              <p className="text-sm font-semibold text-primary">
+              <p className="font-display text-sm font-semibold text-primary">
                 Start with {decks[0].title}
               </p>
               <p className="mt-0.5 text-xs text-slate-500">
