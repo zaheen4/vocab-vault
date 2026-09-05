@@ -106,6 +106,9 @@ Rules of thumb:
   **lightest → surfaces/backgrounds**
 - Never put white text on `accent` — contrast fails (~2.5:1); use
   `text-primary` on accent fills instead
+- Touch targets: minimum 24×24px (WCAG 2.2 AA), aim 44×44px (Apple HIG).
+  Enlarge hit areas with padding + compensating negative margin so the
+  visuals stay identical
 - Neutrals come from Tailwind's built-in `slate` scale
 
 ## Team

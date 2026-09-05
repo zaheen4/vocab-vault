@@ -32,8 +32,8 @@
 - [x] @be `POST /api/progress/review` — record answer, advance Leitner box (#15)
 - [x] @be Practice session endpoint — next batch of words for a deck (respecting SRS due dates) (#16)
 - [x] @fe Progress dashboard (per-deck mastered/learning/new counts; GET `/api/progress/summary`) (#18)
-- [ ] @fe Quiz mode — MCQ generation from deck words + instant scoring
-- [ ] @be Quiz scoring endpoint (reuse progress review recording)
+- [x] @fe Quiz mode — MCQ generation from deck words + instant scoring
+- [x] @be Quiz scoring endpoint (reuse progress review recording)
 - [ ] @data Test matrix: register → practice → review → dashboard flow
 
 ## Week 2.5 — Gamified Practice (XP, Levels, Streaks) — branch `feat/gamified-practice`
@@ -106,7 +106,7 @@
 - [ ] @data Vercel deployment (client) + env vars
 - [ ] @data Load the final 1200-word dataset via importer; verify search/practice against it
 - [ ] @data Warm-up runbook for demo day (Render free tier sleeps — hit API 30s before showtime)
-- [ ] @fe Responsive pass — mobile-first check on all pages
+- [ ] @fe Responsive pass — mobile-first check on all pages, tap-target sweep (24px min, 44px aim), touch-verify primary flows on a small viewport
 - [ ] @fe Loading/error/empty states on every fetch
 - [ ] All End-to-end regression: fresh account → practice → quiz → typing → review → import
 - [ ] All Final report write-up + screenshots (heatmap + badge + quiz numbers)

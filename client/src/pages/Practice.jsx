@@ -270,9 +270,17 @@ export default function Practice() {
         <Link to="/" className="text-slate-400 hover:text-primary">
           ← {deckTitle}
         </Link>
-        <span className="text-slate-400">
-          {index + 1} / {words.length}
-        </span>
+        <div className="flex items-center gap-3">
+          <Link
+            to={`/decks/${id}/quiz`}
+            className="rounded-md border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+          >
+            Quiz mode →
+          </Link>
+          <span className="text-sm text-slate-400">
+            {index + 1} / {words.length}
+          </span>
+        </div>
       </div>
 
       <div className="flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold">
