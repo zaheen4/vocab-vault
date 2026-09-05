@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { useAuth } from '../context/AuthContext'
+import { getSessionMessage } from '../utils/sessionMessages'
 import Button from '../components/ui/Button'
 import EmptyState from '../components/ui/EmptyState'
 import Confetti from '../components/Confetti'
@@ -96,6 +97,13 @@ export default function Practice() {
   const [caughtUp, setCaughtUp] = useState(0)
   const advanceTimer = useRef(null)
   const [shake, setShake] = useState(false)
+  // Synchronous submit guard: state-based `submitting` is stale within rapid
+  // double-clicks (no re-render between them), so a ref owns the lock
+  const busyRef = useRef(false)
+  // Session totals mirrored in a ref so the end-of-session message can be
+  // computed exactly once inside the advance timer (no render-phase side effects)
+  const sessionRef = useRef({ correct: 0, total: 0, bestCombo: 0, levelUp: false, level: null })
+  const [finalMessage, setFinalMessage] = useState(null)
 
   useEffect(() => {
     let cancelled = false
@@ -114,7 +122,8 @@ export default function Practice() {
   }, [id])
 
   async function answer(correct) {
-    if (submitting || feedback) return // guard against double-submits
+    if (busyRef.current || submitting || feedback) return
+    busyRef.current = true
     const word = words[index]
     setSubmitting(true)
 
@@ -127,6 +136,7 @@ export default function Practice() {
     } catch (err) {
       console.error(err)
       // Don't record the result — let the user retry instead of losing progress
+      busyRef.current = false
       setSubmitting(false)
       setFeedback({ error: true })
       return
@@ -140,6 +150,12 @@ export default function Practice() {
     setCombo(newCombo)
     setBestCombo((b) => Math.max(b, newCombo))
     setScore((s) => s + (correct ? 1 : 0))
+    const ref = sessionRef.current
+    ref.correct += correct ? 1 : 0
+    ref.total += 1
+    ref.bestCombo = Math.max(ref.bestCombo, newCombo)
+    ref.levelUp = ref.levelUp || !!g.levelUp
+    if (g.level != null) ref.level = g.level
     setSessionXp((x) => x + (g.xpEarned || 0))
     if (g.newWordsLearned) setNewLearned((n) => n + g.newWordsLearned)
     if (g.reviewsCaughtUp) setCaughtUp((n) => n + g.reviewsCaughtUp)
@@ -159,9 +175,20 @@ export default function Practice() {
       setShake(false)
       setFeedback(null)
       setSubmitting(false)
+      busyRef.current = false
       clearTimeout(advanceTimer.current)
       if (done) {
         setConfetti(true)
+        const s = sessionRef.current
+        setFinalMessage(
+          getSessionMessage({
+            correct: s.correct,
+            total: s.total,
+            bestCombo: s.bestCombo,
+            levelUp: s.levelUp,
+            level: s.level,
+          })
+        )
         setStatus('done')
       } else {
         setIndex((i) => i + 1)
@@ -200,7 +227,7 @@ export default function Practice() {
       <div className="mx-auto max-w-2xl animate-page space-y-6 py-6 text-center">
         <Confetti active={confetti} pieces={70} />
         <h1 className="text-3xl font-bold text-primary">
-          {correctCount >= Math.ceil(results.length / 2) ? 'Session complete! 🎉' : 'Session done — keep going! 💪'}
+          {finalMessage || 'Session complete! 🎉'}
         </h1>
         {firstName && (
           <p className="-mt-3 text-slate-500">

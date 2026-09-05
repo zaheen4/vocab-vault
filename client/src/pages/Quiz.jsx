@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../api/client'
+import { getSessionMessage } from '../utils/sessionMessages'
 import Button from '../components/ui/Button'
 import EmptyState from '../components/ui/EmptyState'
 
@@ -52,6 +53,11 @@ export default function Quiz() {
   const [saveError, setSaveError] = useState(false)
   const [results, setResults] = useState([])
   const [score, setScore] = useState(0)
+  const [levelEvent, setLevelEvent] = useState(null)
+  const [finalMessage, setFinalMessage] = useState(null)
+  // Synchronous submit guard (see Practice.jsx busyRef): state flags are
+  // stale across rapid double-clicks, so the ref owns the lock
+  const busyRef = useRef(false)
 
   useEffect(() => {
     let cancelled = false
@@ -87,14 +93,18 @@ export default function Quiz() {
     setSaveError(false)
     setResults([])
     setScore(0)
+    setLevelEvent(null)
+    setFinalMessage(null)
+    busyRef.current = false
     setStatus('ready')
   }
 
   async function saveAnswer(payload) {
     try {
-      await api.post('/progress/review', payload)
+      const data = await api.post('/progress/review', payload)
       setResults((r) => [...r, { word: questions[index].word.word, correct: payload.correct }])
       if (payload.correct) setScore((s) => s + 1)
+      if (data.gamification?.levelUp) setLevelEvent({ newLevel: data.gamification.level })
       setPending(null)
       setSaveError(false)
       return true
@@ -106,7 +116,8 @@ export default function Quiz() {
   }
 
   async function choose(optIdx) {
-    if (picked !== null || pending) return // one answer per question
+    if (busyRef.current || picked !== null || pending) return // one answer per question
+    busyRef.current = true
     const q = questions[index]
     const correct = optIdx === q.answerIndex
     const payload = { wordId: q.word._id, correct }
@@ -124,7 +135,17 @@ export default function Quiz() {
     setPicked(null)
     setPending(null)
     setSaveError(false)
+    busyRef.current = false
     if (index + 1 >= questions.length) {
+      const correctCount = results.filter((r) => r.correct).length
+      setFinalMessage(
+        getSessionMessage({
+          correct: correctCount,
+          total: results.length,
+          levelUp: !!levelEvent,
+          level: levelEvent?.newLevel ?? null,
+        })
+      )
       setStatus('done')
     } else {
       setIndex((i) => i + 1)
@@ -195,7 +216,7 @@ export default function Quiz() {
     const pct = results.length === 0 ? 0 : Math.round((correctCount / results.length) * 100)
     return (
       <div className="mx-auto max-w-2xl animate-page space-y-6 py-6 text-center">
-        <h1 className="text-3xl font-bold text-primary">Quiz complete!</h1>
+        <h1 className="text-3xl font-bold text-primary">{finalMessage || 'Quiz complete!'}</h1>
         <p className="text-slate-500">
           You scored {correctCount} of {results.length} ({pct}%).
         </p>
