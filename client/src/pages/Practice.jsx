@@ -305,10 +305,10 @@ export default function Practice() {
       {flipped && !feedback && (
         <div className="grid grid-cols-2 gap-3">
           <Button variant="danger" onClick={() => answer(false)} fullWidth disabled={submitting}>
-            Didn&apos;t know it
+            Not yet
           </Button>
           <Button variant="success" onClick={() => answer(true)} fullWidth disabled={submitting}>
-            Knew it
+            Got it
           </Button>
         </div>
       )}
