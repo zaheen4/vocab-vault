@@ -76,4 +76,39 @@ router.get('/:id/practice', requireDB, requireAuth, async (req, res) => {
   }
 })
 
+// Quiz pool: words in this deck the user has already viewed (has a Progress
+// record for), most-recently-reviewed first. Unviewed words are excluded so
+// quizzes test recall, not first exposure.
+router.get('/:id/quiz', requireDB, requireAuth, async (req, res) => {
+  try {
+    const { id } = req.params
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({ message: 'Invalid id' })
+    }
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 50, 1), 100)
+
+    const deck = await Deck.findById(id).select('title wordIds')
+    if (!deck) return res.status(404).json({ message: 'Deck not found' })
+
+    const seen = await Progress.find({
+      userId: req.user._id,
+      wordId: { $in: deck.wordIds },
+    }).select('wordId lastReviewed')
+    const byWordId = new Map(seen.map((p) => [p.wordId.toString(), p]))
+
+    const viewed = await Word.find({ _id: { $in: [...byWordId.keys()] } })
+    const words = viewed
+      .sort(
+        (a, b) =>
+          (byWordId.get(b._id.toString()).lastReviewed?.getTime() ?? 0) -
+          (byWordId.get(a._id.toString()).lastReviewed?.getTime() ?? 0)
+      )
+      .slice(0, limit)
+
+    res.json({ deck: { _id: deck._id, title: deck.title }, words })
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
+})
+
 export default router
