@@ -47,7 +47,8 @@ vocab-vault/
 ## Common Gotchas
 - `npm install` at root installs everything via workspaces — don't `cd client && npm install`
 - `npm run seed` fails silently if `.env` missing or Atlas unreachable
-- Commitlint rejects non-conventional messages (case-sensitive subject, max 100 chars)
+- Commitlint rejects non-conventional messages (lowercase subject, max 100 chars; body lines max 100 chars too)
+- `node --watch` + Vite HMR miss some git branch switches and serve stale code — restart `npm run dev` after switching branches, then curl-verify endpoints before trusting E2E results
 - Husky `prepare` script auto-installs hooks on `npm install` — don't remove
 - Client uses `@tailwindcss/vite` plugin (Tailwind v4 CSS-first, no `tailwind.config.js`)
 
