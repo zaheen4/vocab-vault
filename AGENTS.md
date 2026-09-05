@@ -28,5 +28,5 @@ node --check server/src/<file>.js   # server has no linter; syntax-check touched
 ## Architecture
 - `client/` React 19 + Vite 8 + Tailwind v4 (CSS-first, no tailwind.config) + Router 7. Never touches DB; JWT from localStorage via `api/client.js`.
 - `server/` Express 5 + Mongoose, entry `src/server.js`. SRS in `utils/leitner.js`, gamification in `utils/gamify.js`.
-- Design tokens (`text-primary`, `bg-accent`, `bg-gold`) in `client/src/index.css` — never raw hex; see README Design System (incl. touch-target rule).
+- Design tokens (`text-primary`, `bg-accent`, `bg-gold`) in `client/src/index.css` — never raw hex; full voice/tactile/motion rubric in `docs/DESIGN_SYSTEM.md` (incl. touch-target rule).
 - Word schema: `word` + `definition` required, rest optional.
