@@ -34,6 +34,7 @@
 - [x] @fe Progress dashboard (per-deck mastered/learning/new counts; GET `/api/progress/summary`) (#18)
 - [x] @fe Quiz mode — MCQ generation from deck words + instant scoring
 - [x] @be Quiz scoring endpoint (reuse progress review recording)
+- [x] @be Quiz pool limited to viewed words (`GET /api/decks/:id/quiz`, practice-first empty state)
 - [ ] @data Test matrix: register → practice → review → dashboard flow
 
 ## Week 2.5 — Gamified Practice (XP, Levels, Streaks) — branch `feat/gamified-practice`

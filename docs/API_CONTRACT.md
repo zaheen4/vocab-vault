@@ -145,6 +145,21 @@ Seen-but-not-yet-due words are excluded.
 
 ---
 
+### `GET /api/decks/:id/quiz?limit=50` — Get viewed words for a quiz
+**Auth:** required  
+**Params:** `id` (ObjectId)  
+**Query:** `limit` (number, default 50, max 100)  
+Only words this user has already viewed (has a Progress record for) are
+returned, most-recently-reviewed first. Unviewed words are excluded so
+quizzes test recall, not first exposure. Empty array when nothing viewed yet.  
+**Response 200:**
+```json
+{ "deck": { "_id": "...", "title": "..." }, "words": [ { ...word } ] }
+```
+**Errors:** 400 (invalid id), 404 (deck not found), 500
+
+---
+
 ## Progress (Leitner SRS)
 
 ### `GET /api/progress/summary` — Get user's progress summary
