@@ -191,9 +191,7 @@ export default function Quiz() {
         <Link to="/" className="inline-block text-sm text-slate-400 hover:text-primary">
           ← {deckTitle}
         </Link>
-        <div className="flex justify-center">
-          <ModeTabs deckId={id} />
-        </div>
+        <ModeTabs deckId={id} />
         <h1 className="font-display text-2xl font-bold text-primary">Quiz yourself</h1>
         <p className="text-sm text-slate-500">
           {pool.length} viewed word{pool.length === 1 ? '' : 's'} ready. Pick a
@@ -232,9 +230,7 @@ export default function Quiz() {
         <p className="text-slate-500">
           You scored {correctCount} of {results.length} ({pct}%).
         </p>
-        <div className="flex justify-center">
-          <ModeTabs deckId={id} />
-        </div>
+        <ModeTabs deckId={id} />
         {results.length > 0 && (
           <div className="flex flex-wrap justify-center gap-1.5">
             {results.map((r, i) => (
@@ -279,9 +275,7 @@ export default function Quiz() {
         </span>
       </div>
 
-      <div className="flex justify-center">
-        <ModeTabs deckId={id} />
-      </div>
+      <ModeTabs deckId={id} />
 
       <div className="h-1.5 overflow-hidden rounded-full bg-slate-200">
         <div
