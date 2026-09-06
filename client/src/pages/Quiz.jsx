@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../api/client'
+import { useInvalidateAfterReview, useQuizPool } from '../api/queries'
 import { getSessionMessage } from '../utils/sessionMessages'
 import Button from '../components/ui/Button'
 import EmptyState from '../components/ui/EmptyState'
@@ -43,8 +44,11 @@ function buildQuestions(deckWords, fallbackPool, count) {
 
 export default function Quiz() {
   const { id } = useParams()
-  const [deckTitle, setDeckTitle] = useState('')
-  const [pool, setPool] = useState([])
+  // Shared pool with Typing: switching modes is a cache hit after first load.
+  const { data: poolData, isLoading, isError } = useQuizPool(id)
+  const invalidateAfterReview = useInvalidateAfterReview()
+  const deckTitle = poolData?.title || ''
+  const pool = poolData?.words ?? []
   const [status, setStatus] = useState('loading') // loading|error|empty|idle|ready|done
   const [length, setLength] = useState(10)
   const [questions, setQuestions] = useState([])
@@ -61,23 +65,17 @@ export default function Quiz() {
   const busyRef = useRef(false)
 
   useEffect(() => {
-    let cancelled = false
-    // Viewed-words pool: the server returns only words this user has a
-    // Progress record for, most-recently-reviewed first
-    api
-      .get(`/decks/${id}/quiz?limit=50`)
-      .then((data) => {
-        if (cancelled) return
-        setDeckTitle(data.deck.title)
-        const words = data.words || []
-        setPool(words)
-        setStatus(words.length === 0 ? 'empty' : 'idle')
-      })
-      .catch(() => !cancelled && setStatus('error'))
-    return () => {
-      cancelled = true
+    if (isLoading) {
+      setStatus('loading')
+      return
     }
-  }, [id])
+    if (isError) {
+      setStatus('error')
+      return
+    }
+    // First settle only — afterwards the start/ready/done flow owns status.
+    setStatus((s) => (s === 'loading' ? (pool.length === 0 ? 'empty' : 'idle') : s))
+  }, [isLoading, isError, pool])
 
   async function start() {
     let fallback = []
@@ -108,6 +106,7 @@ export default function Quiz() {
       setResults((r) => [...r, { word: questions[index].word.word, correct: payload.correct }])
       if (payload.correct) setScore((s) => s + 1)
       if (data.gamification?.levelUp) setLevelEvent({ newLevel: data.gamification.level })
+      invalidateAfterReview(id)
       setPending(null)
       setSaveError(false)
       return true

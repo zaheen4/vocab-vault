@@ -1,17 +1,8 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from './client'
 
-// Central read layer. Rules:
-// - Cacheable reads (decks, gamification, summary) live here with a
-//   staleTime; revisits render instantly and revalidate in the background.
-// - Practice sessions use staleTime 0: the prefetched cache paints
-//   instantly, then always revalidates, because SRS due states change with
-//   every recorded answer.
-// - Quiz/typing pools stay direct fetches: single-use per session start
-//   with no prefetch source wired, so caching buys nothing yet.
-// - Search stays a direct fetch (debounced typeahead; caching buys little).
-// - After a successful POST /progress/review, call invalidateAfterReview()
-//   so XP, streaks and summaries self-refresh instead of going stale.
+// Central read layer. Quiz and Typing share one pool key; Practice
+// sessions revalidate on every mount because SRS due states move fast.
 
 const GAMIFICATION_KEY = ['gamification', 'me']
 const SUMMARY_KEY = ['progress', 'summary']
@@ -22,6 +13,8 @@ export const fetchGamification = () => api.get('/gamification/me').then((d) => d
 export const fetchSummary = () => api.get('/progress/summary').then((d) => d.summary)
 export const fetchPracticeSession = (id, limit = 10) =>
   api.get(`/decks/${id}/practice?limit=${limit}`).then((d) => d.words)
+export const fetchQuizPool = (id, limit = 50) =>
+  api.get(`/decks/${id}/quiz?limit=${limit}`).then((d) => ({ title: d.deck.title, words: d.words }))
 
 export function useDecks() {
   return useQuery({
@@ -65,6 +58,18 @@ export function usePracticeSession(id, limit = 10) {
   })
 }
 
+// Quiz and Typing share one viewed-words pool: switching between them is a
+// cache hit. The viewed set grows only via practice sessions, so a minute
+// of staleness is invisible.
+export function useQuizPool(id, limit = 50) {
+  return useQuery({
+    queryKey: ['quizpool', id, limit],
+    queryFn: () => fetchQuizPool(id, limit),
+    staleTime: 60 * 1000,
+    enabled: !!id,
+  })
+}
+
 // Warm the practice session + deck title on card hover/focus so the
 // Practice page usually opens from cache.
 export function usePrefetchDeck() {
@@ -79,6 +84,18 @@ export function usePrefetchDeck() {
   }
 }
 
+// Warm sibling modes on tab hover/focus so mode switches paint from cache.
+export function usePrefetchQuizPool() {
+  const qc = useQueryClient()
+  return (id) => {
+    qc.prefetchQuery({
+      queryKey: ['quizpool', id, 50],
+      queryFn: () => fetchQuizPool(id, 50),
+      staleTime: 60 * 1000,
+    })
+  }
+}
+
 export function useInvalidateAfterReview() {
   const qc = useQueryClient()
   return (deckId) => {
@@ -86,6 +103,7 @@ export function useInvalidateAfterReview() {
     qc.invalidateQueries({ queryKey: SUMMARY_KEY })
     if (deckId) {
       qc.invalidateQueries({ queryKey: ['session', deckId] })
+      qc.invalidateQueries({ queryKey: ['quizpool', deckId] })
     }
   }
 }
