@@ -6,6 +6,7 @@ import { getSessionMessage } from '../utils/sessionMessages'
 import Button from '../components/ui/Button'
 import EmptyState from '../components/ui/EmptyState'
 import Confetti from '../components/Confetti'
+import ModeTabs from '../components/ModeTabs'
 
 const BOX_LABELS = { 1: 'Box 1', 2: 'Box 2', 3: 'Box 3', 4: 'Box 4', 5: 'Mastered' }
 
@@ -240,6 +241,9 @@ export default function Practice() {
             {firstName}, you got {correctCount} of {results.length} right.
           </p>
         )}
+        <div className="flex justify-center">
+          <ModeTabs deckId={id} />
+        </div>
         {levelEvent && (
           <div className="animate-pop animate-glow mx-auto max-w-sm rounded-xl border-2 border-accent bg-gold px-4 py-3 text-primary">
             <span className="text-sm font-bold">🎊 Level up! You reached Level {levelEvent.newLevel}</span>
@@ -303,24 +307,12 @@ export default function Practice() {
         <Link to="/" className="text-slate-400 hover:text-primary">
           ← {deckTitle}
         </Link>
-        <div className="flex items-center gap-3">
-          <Link
-            to={`/decks/${id}/quiz`}
-            className="rounded-md border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50"
-          >
-            Quiz mode →
-          </Link>
-          <Link
-            to={`/decks/${id}/typing`}
-            className="rounded-md border border-slate-300 bg-white px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50"
-          >
-            Typing mode →
-          </Link>
-          <span className="text-sm text-slate-400">
-            {index + 1} / {words.length}
-          </span>
-        </div>
+        <span className="text-sm text-slate-400">
+          {index + 1} / {words.length}
+        </span>
       </div>
+
+      <ModeTabs deckId={id} />
 
       <div className="flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold">
         <span className="text-primary">✓ {score}</span>

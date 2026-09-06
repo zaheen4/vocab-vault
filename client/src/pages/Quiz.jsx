@@ -4,6 +4,7 @@ import { api } from '../api/client'
 import { getSessionMessage } from '../utils/sessionMessages'
 import Button from '../components/ui/Button'
 import EmptyState from '../components/ui/EmptyState'
+import ModeTabs from '../components/ModeTabs'
 
 const LENGTHS = [5, 10, 20]
 
@@ -189,6 +190,9 @@ export default function Quiz() {
         <Link to="/" className="inline-block text-sm text-slate-400 hover:text-primary">
           ← {deckTitle}
         </Link>
+        <div className="flex justify-center">
+          <ModeTabs deckId={id} />
+        </div>
         <h1 className="font-display text-2xl font-bold text-primary">Quiz yourself</h1>
         <p className="text-sm text-slate-500">
           {pool.length} viewed word{pool.length === 1 ? '' : 's'} ready. Pick a
@@ -214,14 +218,6 @@ export default function Quiz() {
           {Math.min(length, pool.length)} questions
         </p>
         <Button onClick={start}>Start quiz</Button>
-        <p>
-          <Link
-            to={`/decks/${id}/typing`}
-            className="text-xs font-semibold text-slate-400 hover:text-primary"
-          >
-            Prefer spelling? Try typing mode →
-          </Link>
-        </p>
       </div>
     )
   }
@@ -235,6 +231,9 @@ export default function Quiz() {
         <p className="text-slate-500">
           You scored {correctCount} of {results.length} ({pct}%).
         </p>
+        <div className="flex justify-center">
+          <ModeTabs deckId={id} />
+        </div>
         {results.length > 0 && (
           <div className="flex flex-wrap justify-center gap-1.5">
             {results.map((r, i) => (
@@ -277,6 +276,10 @@ export default function Quiz() {
         <span className="text-slate-400">
           {index + 1} / {questions.length} · ✓ {score}
         </span>
+      </div>
+
+      <div className="flex justify-center">
+        <ModeTabs deckId={id} />
       </div>
 
       <div className="h-1.5 overflow-hidden rounded-full bg-slate-200">

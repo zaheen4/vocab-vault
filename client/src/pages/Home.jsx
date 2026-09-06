@@ -26,17 +26,11 @@ function DeckCard({ deck }) {
         <p className="mt-1 text-sm text-slate-500">{deck.description}</p>
       )}
       <div className="mt-auto pt-4">
-        <div className="flex items-center justify-between border-t border-slate-100 pt-3">
-          <p className="text-xs font-semibold text-slate-500">{count} words</p>
-          <Link
-            to={`/decks/${deck._id}/quiz`}
-            className="relative z-10 rounded-full border-b-4 border-accent-deep bg-accent px-4 py-3 font-display text-xs font-bold text-primary transition-all hover:brightness-95 active:translate-y-0.5 active:border-b-0"
-          >
-            Quiz →
-          </Link>
-        </div>
+        <p className="border-t border-slate-100 pt-3 text-xs font-semibold text-slate-500">
+          {count} words · tap to practice →
+        </p>
       </div>
-      {/* stretched link: whole card goes to Practice, Quiz pill sits above it */}
+      {/* stretched link: the whole card is the Practice entry; modes live in ModeTabs */}
       <Link
         to={`/decks/${deck._id}`}
         aria-label={`Practice ${deck.title}`}
