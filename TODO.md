@@ -35,6 +35,7 @@
 - [x] @fe Quiz mode — MCQ generation from deck words + instant scoring
 - [x] @be Quiz scoring endpoint (reuse progress review recording)
 - [x] @be Quiz pool limited to viewed words (`GET /api/decks/:id/quiz`, practice-first empty state)
+- [x] @fe ModeTabs navigation across practice/quiz/typing; deck cards link Practice only
 - [ ] @data Test matrix: register → practice → review → dashboard flow
 
 ## Week 2.5 — Gamified Practice (XP, Levels, Streaks) — branch `feat/gamified-practice`
