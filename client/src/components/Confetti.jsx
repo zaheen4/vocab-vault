@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 
-const COLORS = ['#ee964b', '#28324e', '#faf0ca', '#34d399', '#f472b6', '#60a5fa']
+const COLORS = [
+  'var(--color-accent)',
+  'var(--color-primary)',
+  'var(--color-gold)',
+  'var(--color-emerald-400)',
+  'var(--color-pink-400)',
+  'var(--color-blue-400)',
+]
 
 // Renders a one-shot confetti burst. `active` toggles a new burst.
 export default function Confetti({ active = false, pieces = 60 }) {

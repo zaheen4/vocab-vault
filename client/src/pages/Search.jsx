@@ -61,7 +61,7 @@ export default function Search() {
         </p>
       )}
       {status === 'ready' && (
-        <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+        <p className="text-xs font-medium tracking-wide text-slate-400 uppercase">
           {total} result{total === 1 ? '' : 's'}
         </p>
       )}
@@ -75,7 +75,7 @@ export default function Search() {
             <div className="flex items-baseline justify-between gap-3">
               <h3 className="font-display font-semibold text-primary">{w.word}</h3>
               {w.partOfSpeech && (
-                <span className="text-xs italic text-slate-400">{w.partOfSpeech}</span>
+                <span className="text-xs text-slate-400 italic">{w.partOfSpeech}</span>
               )}
               <span
                 className={`ml-auto shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${badgeClass[w.difficulty] || 'bg-slate-100 text-slate-600'}`}
@@ -85,7 +85,7 @@ export default function Search() {
             </div>
             <p className="mt-1 text-sm text-slate-600">{w.definition}</p>
             {w.example && (
-              <p className="mt-1 text-sm italic text-slate-400">“{w.example}”</p>
+              <p className="mt-1 text-sm text-slate-400 italic">“{w.example}”</p>
             )}
           </li>
         ))}

@@ -14,7 +14,7 @@ const variants = {
 // Radius is chosen in one place so rounded-md and rounded-xl never collide
 // in a class list (cn() joins without deduping).
 const tactileEdge = {
-  primary: 'border-[#b25f16]',
+  primary: 'border-accent-deep',
   secondary: 'border-slate-400',
   danger: 'border-red-800',
   success: 'border-emerald-800',

@@ -73,3 +73,4 @@ no custom cursor or magnetic effects, no dark mode before demo week.
 - New motion is still under reduced-motion emulation.
 - Loading, error, and empty states exist on every new fetch.
 - One screen width at 375px and one at desktop, zero page errors.
+- Automated: `python3 scripts/design-contract.py` with dev servers running.

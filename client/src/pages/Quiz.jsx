@@ -200,7 +200,7 @@ export default function Quiz() {
               key={n}
               onClick={() => setLength(n)}
               aria-pressed={length === n}
-              className={`rounded-md px-5 py-2.5 font-display text-sm font-bold transition-all active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+              className={`rounded-md px-5 py-2.5 font-display text-sm font-bold transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:scale-[0.97] ${
                 length === n
                   ? 'bg-accent text-primary'
                   : 'border border-slate-300 bg-white text-slate-600 hover:bg-slate-50'
@@ -222,7 +222,7 @@ export default function Quiz() {
     const correctCount = results.filter((r) => r.correct).length
     const pct = results.length === 0 ? 0 : Math.round((correctCount / results.length) * 100)
     return (
-      <div className="mx-auto max-w-2xl animate-page space-y-6 py-6 text-center">
+      <div className="animate-page mx-auto max-w-2xl space-y-6 py-6 text-center">
         <h1 className="font-display text-3xl font-bold text-primary">{finalMessage || 'Quiz complete!'}</h1>
         <p className="text-slate-500">
           You scored {correctCount} of {results.length} ({pct}%).
@@ -279,7 +279,7 @@ export default function Quiz() {
       </div>
 
       <div className="rounded-xl border-2 border-slate-200 bg-white p-8 text-center shadow-sm">
-        <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+        <p className="text-xs font-medium tracking-wide text-slate-400 uppercase">
           {q.word.partOfSpeech || 'What does this mean?'}
         </p>
         <h2 className="mt-1 text-3xl font-bold text-primary">{q.word.word}</h2>
@@ -315,7 +315,7 @@ export default function Quiz() {
       </div>
 
       {saveError && (
-        <div className="flex items-center justify-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 animate-pop">
+        <div className="animate-pop flex items-center justify-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
           <span>Couldn&apos;t save that answer.</span>
           <button className="ml-auto underline" onClick={retrySave}>
             Retry
