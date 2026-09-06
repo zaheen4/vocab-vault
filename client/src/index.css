@@ -43,6 +43,13 @@
   animation: fade-slide-in 0.18s ease-out;
 }
 
+/* route-change entrance: each page root animates on mount. This replaces
+   the old key={pathname} remount, which destroyed reconciliation (all DOM,
+   effects and fetches reran on every navigation). */
+main > * {
+  animation: fade-slide-in 0.18s ease-out;
+}
+
 /* answer-result pop */
 @keyframes pop-in {
   0% {
@@ -153,6 +160,7 @@
 
 /* honor OS reduced-motion: stillness over celebration */
 @media (prefers-reduced-motion: reduce) {
+  main > *,
   .animate-pop,
   .animate-shake,
   .animate-float-up,
