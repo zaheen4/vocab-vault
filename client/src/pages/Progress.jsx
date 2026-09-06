@@ -1,5 +1,4 @@
-import { useEffect, useState } from 'react'
-import { api } from '../api/client'
+import { useGamification, useProgressSummary } from '../api/queries'
 
 const CARDS = [
   { key: 'mastered', label: 'Mastered', class: 'border-emerald-200 bg-emerald-50', text: 'text-emerald-700' },
@@ -8,26 +7,11 @@ const CARDS = [
 ]
 
 export default function Progress() {
-  const [summary, setSummary] = useState(null)
-  const [stats, setStats] = useState(null)
-  const [status, setStatus] = useState('loading')
+  const { data: summary, isLoading, isError } = useProgressSummary()
+  // Decorative gamification banner: never block the page on failure
+  const { data: stats } = useGamification()
 
-  useEffect(() => {
-    let cancelled = false
-    Promise.all([api.get('/progress/summary'), api.get('/gamification/me')])
-      .then(([summaryData, statsData]) => {
-        if (cancelled) return
-        setSummary(summaryData.summary)
-        setStats(statsData.gamification)
-        setStatus('ready')
-      })
-      .catch(() => !cancelled && setStatus('error'))
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
-  if (status === 'loading') {
+  if (isLoading) {
     return (
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {[...Array(3)].map((_, i) => (
@@ -37,7 +21,7 @@ export default function Progress() {
     )
   }
 
-  if (status === 'error') {
+  if (isError) {
     return (
       <div className="rounded-lg bg-red-50 p-4 text-center text-sm text-red-600">
         Failed to load progress.{' '}
