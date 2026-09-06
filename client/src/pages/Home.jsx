@@ -30,7 +30,7 @@ function DeckCard({ deck }) {
           <p className="text-xs font-semibold text-slate-500">{count} words</p>
           <Link
             to={`/decks/${deck._id}/quiz`}
-            className="relative z-10 rounded-full border-b-4 border-[#b25f16] bg-accent px-4 py-3 font-display text-xs font-bold text-primary transition-all hover:brightness-95 active:translate-y-0.5 active:border-b-0"
+            className="relative z-10 rounded-full border-b-4 border-accent-deep bg-accent px-4 py-3 font-display text-xs font-bold text-primary transition-all hover:brightness-95 active:translate-y-0.5 active:border-b-0"
           >
             Quiz →
           </Link>
@@ -116,8 +116,8 @@ export default function Home() {
 
   return (
     <div className="-m-4 sm:-m-6">
-      <div className="bg-primary px-4 pb-28 pt-6 sm:px-6">
-        <p className="font-display text-xs font-bold uppercase tracking-widest text-accent">VocabVault</p>
+      <div className="bg-primary px-4 pt-6 pb-28 sm:px-6">
+        <p className="font-display text-xs font-bold tracking-widest text-accent uppercase">VocabVault</p>
         <h1 className="mt-1 font-display text-2xl font-bold text-white sm:text-3xl">Master your words.</h1>
         {stats && (
           <div className="mt-3 flex gap-6 text-sm">
@@ -129,7 +129,7 @@ export default function Home() {
           </div>
         )}
       </div>
-      <div className="-mt-24 bg-gold/40 px-4 pb-10 pt-12 sm:px-6">
+      <div className="-mt-24 bg-gold/40 px-4 pt-12 pb-10 sm:px-6">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {decks.map((deck, i) => (
             <div

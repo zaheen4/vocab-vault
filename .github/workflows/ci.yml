@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify:
+    name: lint, unit, build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint client (oxlint)
+        run: npm run lint -w client
+
+      - name: Lint class hygiene (eslint)
+        run: npm run lint:tw -w client
+
+      - name: Unit tests (vitest)
+        run: npm test
+
+      - name: Check server syntax
+        run: find server/src -name '*.js' -not -name '*.test.js' -exec node --check {} +
+
+      - name: Client build
+        run: npm run build -w client

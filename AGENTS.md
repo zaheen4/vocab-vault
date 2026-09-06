@@ -8,13 +8,15 @@ npm run seed         # seeds Atlas; fails silently if .env bad or Atlas unreacha
 npm run dev          # API :5000 + web :5173 (Vite proxies /api → :5000)
 ```
 
-## Verify (no test runner exists — this is the whole suite)
+## Verify (CI runs all of this on every PR — see `.github/workflows/ci.yml`)
 ```bash
-npm run build -w client             # must pass before any PR
-npm run lint -w client              # oxlint; AuthContext + Search warnings are pre-existing, ignore
+npm test                        # vitest: pure-logic suites, colocated *.test.js (no DOM needed)
+npm run lint -w client          # oxlint for JS (AuthContext + Search warnings pre-existing, ignore)
+npm run lint:tw -w client       # eslint class hygiene: no contradictions, tokens over arbitrary values
+npm run build -w client         # must pass before any PR
 node --check server/src/<file>.js   # server has no linter; syntax-check touched files
 ```
-- E2E: curl suites for API, Playwright (python) for UI. Assert tight values (`+\d+ XP`, not `+.*XP` — loose regexes hide failures).
+- E2E: curl suites for API, Playwright (python) for UI ad-hoc probes; the committed gate is `e2e/design-contract.spec.js` via `npm run test:e2e` (dev servers running, QA account `qa@test.local`). Assert tight values (`+\d+ XP`, not `+.*XP` — loose regexes hide failures). E2E stays out of CI (needs Atlas).
 - Restart `npm run dev` after any branch switch (`node --watch`/HMR serve stale code across checkouts); curl-verify endpoints before trusting results.
 - Test auth: persistent QA account `qa@test.local` / `password123` lives in shared Atlas — log in, don't register throwaways. Delete any temp users/data you do create (shared M0, 512 MB).
 

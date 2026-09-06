@@ -61,3 +61,6 @@ The `commit-msg` hook installs automatically via `npm install`
 
 - JavaScript (ESM), no build-step types.
 - Run your feature through both apps (`npm run dev`) before opening a PR.
+- `npm test` (vitest, colocated `*.test.js`) must pass; add unit tests for
+  pure logic (SRS, gamification, message pools). Browser E2E stays local
+  (`npm run test:e2e`, needs Atlas) — never in CI.

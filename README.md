@@ -101,6 +101,7 @@ hex values in components.
 |----------|-----------|-----------------------|--------------------------------------------------|
 | primary  | `#28324E` | Structure (darkest)   | Headings, brand, text on accent backgrounds      |
 | accent   | `#EE964B` | Interaction (warm)    | CTAs, focus rings, links                         |
+| accent-deep | `#B25F16` | Tactile edge       | Bottom-shadow edge under accent fills (chunky buttons) |
 | gold     | `#FAF0CA` | Surface (lightest)    | Auth page backgrounds, active-nav pill highlight |
 
 Rules of thumb:

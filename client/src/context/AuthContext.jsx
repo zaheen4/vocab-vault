@@ -36,7 +36,6 @@ export function AuthProvider({ children }) {
     return () => {
       cancelled = true
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   function persist(nextToken, nextUser) {

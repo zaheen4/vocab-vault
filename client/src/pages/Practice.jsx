@@ -22,18 +22,18 @@ function Flashcard({ word, flipped, onFlip, shake }) {
           <span className="flip-face absolute inset-0 flex flex-col items-center justify-center rounded-xl border-2 border-slate-200 bg-white p-8 text-center shadow-sm">
             <h2 className="text-3xl font-bold text-primary">{word.word}</h2>
             {word.partOfSpeech && (
-              <p className="mt-1 text-sm italic text-slate-400">{word.partOfSpeech}</p>
+              <p className="mt-1 text-sm text-slate-400 italic">{word.partOfSpeech}</p>
             )}
-            <p className="pt-4 text-xs uppercase tracking-wide text-slate-300">Tap to reveal</p>
+            <p className="pt-4 text-xs tracking-wide text-slate-300 uppercase">Tap to reveal</p>
           </span>
           <span className="flip-back flip-face absolute inset-0 flex flex-col items-center justify-center rounded-xl border-2 border-slate-200 bg-white p-8 text-center shadow-sm">
-            <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+            <p className="text-xs font-medium tracking-wide text-slate-400 uppercase">
               {word.word}
               {word.partOfSpeech && ` · ${word.partOfSpeech}`}
             </p>
             <p className="mt-2 text-lg font-semibold text-primary">{word.definition}</p>
             {word.example && (
-              <p className="mt-1 text-sm italic text-slate-500">“{word.example}”</p>
+              <p className="mt-1 text-sm text-slate-500 italic">“{word.example}”</p>
             )}
             {word.synonyms?.length > 0 && (
               <p className="mt-1 text-sm text-slate-400">Synonyms: {word.synonyms.join(', ')}</p>
@@ -54,13 +54,19 @@ function ScoreRing({ correct, total }) {
   return (
     <div className="relative mx-auto h-36 w-36">
       <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
-        <circle cx="60" cy="60" r={r} fill="none" stroke="#e2e8f0" strokeWidth="10" />
+        <circle cx="60" cy="60" r={r} fill="none" stroke="var(--color-slate-200)" strokeWidth="10" />
         <circle
           cx="60"
           cy="60"
           r={r}
           fill="none"
-          stroke={pct >= 70 ? '#34d399' : pct >= 40 ? '#ee964b' : '#f87171'}
+          stroke={
+            pct >= 70
+              ? 'var(--color-emerald-400)'
+              : pct >= 40
+                ? 'var(--color-accent)'
+                : 'var(--color-red-400)'
+          }
           strokeWidth="10"
           strokeLinecap="round"
           strokeDasharray={`${filled} ${c}`}
@@ -224,7 +230,7 @@ export default function Practice() {
     const correctCount = results.filter((r) => r.correct).length
     const firstName = user?.name?.split(' ')[0]
     return (
-      <div className="mx-auto max-w-2xl animate-page space-y-6 py-6 text-center">
+      <div className="animate-page mx-auto max-w-2xl space-y-6 py-6 text-center">
         <Confetti active={confetti} pieces={70} />
         <h1 className="font-display text-3xl font-bold text-primary">
           {finalMessage || 'Session complete! 🎉'}
@@ -235,7 +241,7 @@ export default function Practice() {
           </p>
         )}
         {levelEvent && (
-          <div className="animate-pop mx-auto max-w-sm rounded-xl border-2 border-accent bg-gold px-4 py-3 text-primary animate-glow">
+          <div className="animate-pop animate-glow mx-auto max-w-sm rounded-xl border-2 border-accent bg-gold px-4 py-3 text-primary">
             <span className="text-sm font-bold">🎊 Level up! You reached Level {levelEvent.newLevel}</span>
           </div>
         )}
@@ -341,7 +347,7 @@ export default function Practice() {
       )}
 
       {feedback?.error && (
-        <div className="flex items-center justify-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 animate-pop">
+        <div className="animate-pop flex items-center justify-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
           <span>Couldn&apos;t save that review. Check your connection and try again.</span>
           <button className="ml-auto underline" onClick={() => setFeedback(null)}>
             Dismiss
@@ -351,7 +357,7 @@ export default function Practice() {
 
       {feedback && !feedback.error && (
         <div
-          className={`flex items-center justify-center gap-3 rounded-lg border px-4 py-3 text-sm font-semibold animate-pop ${
+          className={`animate-pop flex items-center justify-center gap-3 rounded-lg border px-4 py-3 text-sm font-semibold ${
             feedback.correct
               ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
               : 'border-red-200 bg-red-50 text-red-700'
@@ -363,13 +369,13 @@ export default function Practice() {
           </span>
           <span className="relative ml-auto text-accent">
             +{feedback.xpEarned} XP
-            <span className="absolute -top-1 right-0 animate-float-up text-accent">+{feedback.xpEarned}</span>
+            <span className="animate-float-up absolute -top-1 right-0 text-accent">+{feedback.xpEarned}</span>
           </span>
         </div>
       )}
 
       {levelEvent && (
-        <div className="animate-pop rounded-lg border-2 border-accent bg-gold px-4 py-2 text-center text-sm font-bold text-primary animate-glow">
+        <div className="animate-pop animate-glow rounded-lg border-2 border-accent bg-gold px-4 py-2 text-center text-sm font-bold text-primary">
           🎊 Level up! You reached Level {levelEvent.newLevel}
         </div>
       )}
