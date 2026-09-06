@@ -43,12 +43,7 @@
   animation: fade-slide-in 0.18s ease-out;
 }
 
-/* route-change entrance: each page root animates on mount. This replaces
-   the old key={pathname} remount, which destroyed reconciliation (all DOM,
-   effects and fetches reran on every navigation). */
-main > * {
-  animation: fade-slide-in 0.18s ease-out;
-}
+/* staggered list entrance (pair with inline animation-delay per index) */
 
 /* answer-result pop */
 @keyframes pop-in {
@@ -123,8 +118,7 @@ main > * {
 }
 
 /* directional mode-switch slides: forward enters from the right,
-   back from the left. Element-level shorthand out-specifics the
-   main > * fade above, so exactly one entrance runs. */
+   back from the left. Non-mode pages use .animate-page explicitly. */
 @keyframes slide-in-right {
   from {
     opacity: 0;
@@ -190,7 +184,6 @@ main > * {
 
 /* honor OS reduced-motion: stillness over celebration */
 @media (prefers-reduced-motion: reduce) {
-  main > *,
   .animate-slide-forward,
   .animate-slide-back,
   .animate-pop,

@@ -35,7 +35,7 @@ export default function Progress() {
   const total = Object.values(summary).reduce((a, b) => a + b, 0)
 
   return (
-    <div className="space-y-6">
+    <div className="animate-page space-y-6">
       <div>
         <h1 className="font-display text-2xl font-bold text-primary">Your progress</h1>
         <p className="mt-1 text-sm text-slate-500">

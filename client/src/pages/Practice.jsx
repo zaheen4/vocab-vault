@@ -8,7 +8,6 @@ import { getSessionMessage } from '../utils/sessionMessages'
 import Button from '../components/ui/Button'
 import EmptyState from '../components/ui/EmptyState'
 import Confetti from '../components/Confetti'
-import ModeTabs from '../components/ModeTabs'
 
 const BOX_LABELS = { 1: 'Box 1', 2: 'Box 2', 3: 'Box 3', 4: 'Box 4', 5: 'Mastered' }
 
@@ -260,9 +259,6 @@ export default function Practice() {
             {firstName}, you got {correctCount} of {results.length} right.
           </p>
         )}
-        <div className="flex justify-center">
-          <ModeTabs deckId={id} />
-        </div>
         {levelEvent && (
           <div className="animate-pop animate-glow mx-auto max-w-sm rounded-xl border-2 border-accent bg-gold px-4 py-3 text-primary">
             <span className="text-sm font-bold">🎊 Level up! You reached Level {levelEvent.newLevel}</span>
@@ -330,8 +326,6 @@ export default function Practice() {
           {index + 1} / {words.length}
         </span>
       </div>
-
-      <ModeTabs deckId={id} />
 
       <div className="flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold">
         <span className="text-primary">✓ {score}</span>

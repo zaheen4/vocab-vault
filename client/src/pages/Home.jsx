@@ -87,7 +87,7 @@ export default function Home() {
     : null
 
   return (
-    <div className="-m-4 sm:-m-6">
+    <div className="animate-page -m-4 sm:-m-6">
       <div className="bg-primary px-4 pt-6 pb-28 sm:px-6">
         <p className="font-display text-xs font-bold tracking-widest text-accent uppercase">VocabVault</p>
         <h1 className="mt-1 font-display text-2xl font-bold text-white sm:text-3xl">Master your words.</h1>
