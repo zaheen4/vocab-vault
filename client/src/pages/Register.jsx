@@ -39,7 +39,7 @@ export default function Register() {
         onSubmit={handleSubmit}
         className="w-full max-w-sm space-y-4 rounded-lg bg-white p-6 shadow"
       >
-        <h1 className="text-2xl font-bold text-primary">Create your account</h1>
+        <h1 className="font-display text-2xl font-bold text-primary">Create your account</h1>
 
         {error && (
           <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>

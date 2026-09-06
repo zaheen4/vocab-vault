@@ -48,6 +48,10 @@ The `commit-msg` hook installs automatically via `npm install`
    changes; it's free learning and great evidence of collaboration for evaluation.
 4. New commits to an open PR are always allowed.
 5. Merge methods allowed: merge commit or squash.
+6. UI changes must satisfy the checklist: loading/error/empty states on every
+   new fetch · tap targets measured (24px min, 44px aim) · voice surfaces in
+   Baloo per `docs/DESIGN_SYSTEM.md` · no raw hex · one mobile + one desktop
+   width checked with zero page errors.
 
 > Direct pushes to `main` are blocked — everything goes through a PR,
 > even one-person doc changes. This keeps `main` history clean and reviewable.

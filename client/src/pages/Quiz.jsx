@@ -189,7 +189,7 @@ export default function Quiz() {
         <Link to="/" className="inline-block text-sm text-slate-400 hover:text-primary">
           ← {deckTitle}
         </Link>
-        <h1 className="text-2xl font-bold text-primary">Quiz yourself</h1>
+        <h1 className="font-display text-2xl font-bold text-primary">Quiz yourself</h1>
         <p className="text-sm text-slate-500">
           {pool.length} viewed word{pool.length === 1 ? '' : 's'} ready. Pick a
           definition for each word — every answer is recorded like practice.
@@ -200,7 +200,7 @@ export default function Quiz() {
               key={n}
               onClick={() => setLength(n)}
               aria-pressed={length === n}
-              className={`rounded-md px-5 py-2.5 text-sm font-semibold transition-colors ${
+              className={`rounded-md px-5 py-2.5 font-display text-sm font-bold transition-all active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
                 length === n
                   ? 'bg-accent text-primary'
                   : 'border border-slate-300 bg-white text-slate-600 hover:bg-slate-50'
@@ -223,7 +223,7 @@ export default function Quiz() {
     const pct = results.length === 0 ? 0 : Math.round((correctCount / results.length) * 100)
     return (
       <div className="mx-auto max-w-2xl animate-page space-y-6 py-6 text-center">
-        <h1 className="text-3xl font-bold text-primary">{finalMessage || 'Quiz complete!'}</h1>
+        <h1 className="font-display text-3xl font-bold text-primary">{finalMessage || 'Quiz complete!'}</h1>
         <p className="text-slate-500">
           You scored {correctCount} of {results.length} ({pct}%).
         </p>
@@ -278,7 +278,7 @@ export default function Quiz() {
         />
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-8 text-center shadow-sm">
+      <div className="rounded-xl border-2 border-slate-200 bg-white p-8 text-center shadow-sm">
         <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
           {q.word.partOfSpeech || 'What does this mean?'}
         </p>
@@ -299,7 +299,7 @@ export default function Quiz() {
               onClick={() => choose(i)}
               disabled={picked !== null}
               style={picked === null ? { animationDelay: `${i * 50}ms` } : undefined}
-              className={`rounded-lg border px-4 py-3 text-left text-sm font-medium text-primary transition-colors disabled:cursor-default ${picked === null ? 'animate-fade-up' : ''} ${cls}`}
+              className={`rounded-lg border-2 px-4 py-3 text-left font-display text-sm font-bold text-primary transition-all active:scale-[0.99] disabled:cursor-default ${picked === null ? 'animate-fade-up' : ''} ${cls}`}
             >
               <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-500">
                 {picked !== null && i === q.answerIndex

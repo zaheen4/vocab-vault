@@ -53,7 +53,7 @@ export default function Progress() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-primary">Your progress</h1>
+        <h1 className="font-display text-2xl font-bold text-primary">Your progress</h1>
         <p className="mt-1 text-sm text-slate-500">
           {total === 0
             ? 'Practice a deck to start tracking your progress.'

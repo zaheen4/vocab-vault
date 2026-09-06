@@ -90,6 +90,9 @@ admin bulk-import UI (planned for week 10).
 
 ## Design System
 
+Full rubric (voice/reading type split, tactile rules, motion, anti-list):
+`docs/DESIGN_SYSTEM.md`. Summary below; the doc wins on conflicts.
+
 Brand palette defined as Tailwind v4 theme tokens in `client/src/index.css`.
 Use the token classes (`text-primary`, `bg-accent`, `bg-gold`, …) — never raw
 hex values in components.

@@ -42,7 +42,7 @@ export default function Navbar() {
       <nav className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
         <Link to="/" className="flex items-center gap-2">
           <Logo size={26} />
-          <span className="text-lg font-bold text-primary">VocabVault</span>
+          <span className="font-display text-lg font-bold text-primary">VocabVault</span>
         </Link>
 
         {user ? (
@@ -58,15 +58,15 @@ export default function Navbar() {
             </NavLink>
             <StatsChip />
             <span className="text-sm text-slate-500">{user.name}</span>
-            <button
+            <Button
+              variant="secondary"
               onClick={() => {
                 logout()
                 navigate('/login', { replace: true })
               }}
-              className="rounded-md border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50"
             >
               Logout
-            </button>
+            </Button>
           </div>
         ) : (
           <div className="flex items-center gap-3">

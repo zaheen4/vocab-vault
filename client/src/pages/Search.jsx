@@ -73,7 +73,7 @@ export default function Search() {
             className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
           >
             <div className="flex items-baseline justify-between gap-3">
-              <h3 className="font-semibold text-primary">{w.word}</h3>
+              <h3 className="font-display font-semibold text-primary">{w.word}</h3>
               {w.partOfSpeech && (
                 <span className="text-xs italic text-slate-400">{w.partOfSpeech}</span>
               )}
