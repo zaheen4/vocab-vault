@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../api/client'
+import { isCorrectSpelling } from '../utils/fuzzyMatch'
 import { getSessionMessage } from '../utils/sessionMessages'
 import Button from '../components/ui/Button'
 import EmptyState from '../components/ui/EmptyState'
@@ -16,61 +17,37 @@ function shuffle(arr) {
   return a
 }
 
-// Build `count` multiple-choice questions from deck words. Distractors prefer
-// the same part of speech; `fallbackPool` (cross-deck words) fills in when the
-// deck itself has fewer than 4 words.
-function buildQuestions(deckWords, fallbackPool, count) {
-  const inDeck = new Set(deckWords.map((w) => w._id))
-  const pool = [
-    ...deckWords,
-    ...fallbackPool.filter((w) => !inDeck.has(w._id)),
-  ]
-  return shuffle(deckWords)
-    .slice(0, Math.min(count, deckWords.length))
-    .map((word) => {
-      const samePos = pool.filter(
-        (w) => w._id !== word._id && w.partOfSpeech && w.partOfSpeech === word.partOfSpeech
-      )
-      const others = pool.filter((w) => w._id !== word._id && !samePos.includes(w))
-      const distractors = shuffle([...samePos, ...others])
-        .slice(0, 3)
-        .map((w) => w.definition)
-      const options = shuffle([word.definition, ...distractors])
-      return { word, options, answerIndex: options.indexOf(word.definition) }
-    })
-}
-
-export default function Quiz() {
+export default function Typing() {
   const { id } = useParams()
   const [deckTitle, setDeckTitle] = useState('')
   const [pool, setPool] = useState([])
   const [status, setStatus] = useState('loading') // loading|error|empty|idle|ready|done
   const [length, setLength] = useState(10)
-  const [questions, setQuestions] = useState([])
+  const [words, setWords] = useState([])
   const [index, setIndex] = useState(0)
-  const [picked, setPicked] = useState(null)
-  const [pending, setPending] = useState(null) // {wordId, correct} awaiting save
+  const [value, setValue] = useState('')
+  const [answered, setAnswered] = useState(null) // {correct} after submit
+  const [pending, setPending] = useState(null)
   const [saveError, setSaveError] = useState(false)
   const [results, setResults] = useState([])
   const [score, setScore] = useState(0)
   const [levelEvent, setLevelEvent] = useState(null)
   const [finalMessage, setFinalMessage] = useState(null)
   // Synchronous submit guard (see Practice.jsx busyRef): state flags are
-  // stale across rapid double-clicks, so the ref owns the lock
+  // stale across rapid double-submits, so the ref owns the lock
   const busyRef = useRef(false)
 
   useEffect(() => {
     let cancelled = false
-    // Viewed-words pool: the server returns only words this user has a
-    // Progress record for, most-recently-reviewed first
+    // Viewed-words pool, like quiz: typing tests recall, not first exposure
     api
       .get(`/decks/${id}/quiz?limit=50`)
       .then((data) => {
         if (cancelled) return
         setDeckTitle(data.deck.title)
-        const words = data.words || []
-        setPool(words)
-        setStatus(words.length === 0 ? 'empty' : 'idle')
+        const viewed = data.words || []
+        setPool(viewed)
+        setStatus(viewed.length === 0 ? 'empty' : 'idle')
       })
       .catch(() => !cancelled && setStatus('error'))
     return () => {
@@ -78,19 +55,11 @@ export default function Quiz() {
     }
   }, [id])
 
-  async function start() {
-    let fallback = []
-    if (pool.length < 4) {
-      try {
-        const data = await api.get('/words?limit=50')
-        fallback = data.words || []
-      } catch (err) {
-        console.error(err)
-      }
-    }
-    setQuestions(buildQuestions(pool, fallback, length))
+  function start() {
+    setWords(shuffle(pool).slice(0, Math.min(length, pool.length)))
     setIndex(0)
-    setPicked(null)
+    setValue('')
+    setAnswered(null)
     setPending(null)
     setSaveError(false)
     setResults([])
@@ -101,10 +70,10 @@ export default function Quiz() {
     setStatus('ready')
   }
 
-  async function saveAnswer(payload) {
+  async function saveAnswer(payload, word) {
     try {
       const data = await api.post('/progress/review', payload)
-      setResults((r) => [...r, { word: questions[index].word.word, correct: payload.correct }])
+      setResults((r) => [...r, { word, correct: payload.correct }])
       if (payload.correct) setScore((s) => s + 1)
       if (data.gamification?.levelUp) setLevelEvent({ newLevel: data.gamification.level })
       setPending(null)
@@ -117,28 +86,30 @@ export default function Quiz() {
     }
   }
 
-  async function choose(optIdx) {
-    if (busyRef.current || picked !== null || pending) return // one answer per question
+  async function submit(e) {
+    e?.preventDefault()
+    if (busyRef.current || answered || pending || !value.trim()) return
+    const word = words[index]
+    const correct = isCorrectSpelling(word.word, value)
     busyRef.current = true
-    const q = questions[index]
-    const correct = optIdx === q.answerIndex
-    const payload = { wordId: q.word._id, correct }
-    setPicked(optIdx)
+    const payload = { wordId: word._id, correct }
     setPending(payload)
-    await saveAnswer(payload)
+    setAnswered({ correct })
+    await saveAnswer(payload, word.word)
   }
 
   async function retrySave() {
     if (!pending) return
-    await saveAnswer(pending)
+    await saveAnswer(pending, words[index].word)
   }
 
   function next() {
-    setPicked(null)
+    setValue('')
+    setAnswered(null)
     setPending(null)
     setSaveError(false)
     busyRef.current = false
-    if (index + 1 >= questions.length) {
+    if (index + 1 >= words.length) {
       const correctCount = results.filter((r) => r.correct).length
       setFinalMessage(
         getSessionMessage({
@@ -161,7 +132,7 @@ export default function Quiz() {
   if (status === 'error') {
     return (
       <div className="rounded-lg bg-red-50 p-4 text-center text-sm text-red-600">
-        Failed to load the quiz.{' '}
+        Failed to load the typing session.{' '}
         <button className="underline" onClick={() => window.location.reload()}>
           Retry
         </button>
@@ -173,7 +144,7 @@ export default function Quiz() {
     return (
       <EmptyState
         title="Practice first!"
-        message="Quizzes cover words you've already seen. Run through the flashcards once, then come back and test yourself."
+        message="Typing tests words you've already seen. Run through the flashcards once, then come back and spell them."
         action={
           <Link to={`/decks/${id}`}>
             <Button>Practice this deck</Button>
@@ -189,10 +160,10 @@ export default function Quiz() {
         <Link to="/" className="inline-block text-sm text-slate-400 hover:text-primary">
           ← {deckTitle}
         </Link>
-        <h1 className="font-display text-2xl font-bold text-primary">Quiz yourself</h1>
+        <h1 className="font-display text-2xl font-bold text-primary">Type the word</h1>
         <p className="text-sm text-slate-500">
-          {pool.length} viewed word{pool.length === 1 ? '' : 's'} ready. Pick a
-          definition for each word — every answer is recorded like practice.
+          {pool.length} viewed word{pool.length === 1 ? '' : 's'} ready. Read the
+          definition, spell the word — small typos are forgiven.
         </p>
         <div className="flex justify-center gap-2">
           {LENGTHS.map((n) => (
@@ -200,7 +171,7 @@ export default function Quiz() {
               key={n}
               onClick={() => setLength(n)}
               aria-pressed={length === n}
-              className={`rounded-md px-5 py-2.5 font-display text-sm font-bold transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:scale-[0.97] ${
+              className={`rounded-md px-5 py-2.5 font-display text-sm font-bold transition-all active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
                 length === n
                   ? 'bg-accent text-primary'
                   : 'border border-slate-300 bg-white text-slate-600 hover:bg-slate-50'
@@ -210,18 +181,8 @@ export default function Quiz() {
             </button>
           ))}
         </div>
-        <p className="text-xs text-slate-400">
-          {Math.min(length, pool.length)} questions
-        </p>
-        <Button onClick={start}>Start quiz</Button>
-        <p>
-          <Link
-            to={`/decks/${id}/typing`}
-            className="text-xs font-semibold text-slate-400 hover:text-primary"
-          >
-            Prefer spelling? Try typing mode →
-          </Link>
-        </p>
+        <p className="text-xs text-slate-400">{Math.min(length, pool.length)} words</p>
+        <Button onClick={start}>Start typing</Button>
       </div>
     )
   }
@@ -230,10 +191,10 @@ export default function Quiz() {
     const correctCount = results.filter((r) => r.correct).length
     const pct = results.length === 0 ? 0 : Math.round((correctCount / results.length) * 100)
     return (
-      <div className="animate-page mx-auto max-w-2xl space-y-6 py-6 text-center">
-        <h1 className="font-display text-3xl font-bold text-primary">{finalMessage || 'Quiz complete!'}</h1>
+      <div className="mx-auto max-w-2xl animate-page space-y-6 py-6 text-center">
+        <h1 className="font-display text-3xl font-bold text-primary">{finalMessage || 'Session complete!'}</h1>
         <p className="text-slate-500">
-          You scored {correctCount} of {results.length} ({pct}%).
+          You spelled {correctCount} of {results.length} right ({pct}%).
         </p>
         {results.length > 0 && (
           <div className="flex flex-wrap justify-center gap-1.5">
@@ -252,7 +213,7 @@ export default function Quiz() {
         )}
         <div className="flex justify-center gap-3">
           <Button variant="secondary" onClick={() => setStatus('idle')}>
-            New quiz
+            New session
           </Button>
           <Link to={`/decks/${id}`}>
             <Button variant="secondary">Practice flashcards</Button>
@@ -265,8 +226,7 @@ export default function Quiz() {
     )
   }
 
-  const q = questions[index]
-  const answered = picked !== null && !pending
+  const word = words[index]
 
   return (
     <div className="mx-auto max-w-xl space-y-4">
@@ -275,55 +235,50 @@ export default function Quiz() {
           ← {deckTitle}
         </Link>
         <span className="text-slate-400">
-          {index + 1} / {questions.length} · ✓ {score}
+          {index + 1} / {words.length} · ✓ {score}
         </span>
       </div>
 
       <div className="h-1.5 overflow-hidden rounded-full bg-slate-200">
         <div
           className="h-full rounded-full bg-accent transition-all duration-300"
-          style={{ width: `${(index / questions.length) * 100}%` }}
+          style={{ width: `${(index / words.length) * 100}%` }}
         />
       </div>
 
       <div className="rounded-xl border-2 border-slate-200 bg-white p-8 text-center shadow-sm">
-        <p className="text-xs font-medium tracking-wide text-slate-400 uppercase">
-          {q.word.partOfSpeech || 'What does this mean?'}
+        <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+          {word.partOfSpeech || 'Spell this word'}
         </p>
-        <h2 className="mt-1 text-3xl font-bold text-primary">{q.word.word}</h2>
+        <p className="mt-2 text-lg font-semibold text-primary">{word.definition}</p>
+        {word.example && (
+          <p className="mt-1 text-sm italic text-slate-500">“{word.example}”</p>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 gap-2" key={q.word._id}>
-        {q.options.map((opt, i) => {
-          let cls = 'border-slate-200 bg-white hover:border-accent hover:bg-gold/40'
-          if (picked !== null) {
-            if (i === q.answerIndex) cls = 'border-emerald-300 bg-emerald-50 text-emerald-800'
-            else if (i === picked) cls = 'border-red-300 bg-red-50 text-red-700'
-            else cls = 'border-slate-200 bg-white opacity-50'
-          }
-          return (
-            <button
-              key={i}
-              onClick={() => choose(i)}
-              disabled={picked !== null}
-              style={picked === null ? { animationDelay: `${i * 50}ms` } : undefined}
-              className={`rounded-lg border-2 px-4 py-3 text-left font-display text-sm font-bold text-primary transition-all active:scale-[0.99] disabled:cursor-default ${picked === null ? 'animate-fade-up' : ''} ${cls}`}
-            >
-              <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-500">
-                {picked !== null && i === q.answerIndex
-                  ? '✓'
-                  : picked === i && i !== q.answerIndex
-                    ? '✗'
-                    : String.fromCharCode(65 + i)}
-              </span>
-              {opt}
-            </button>
-          )
-        })}
-      </div>
+      <form onSubmit={submit} className="space-y-3">
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          disabled={answered !== null}
+          placeholder="Type the word…"
+          autoFocus
+          autoCapitalize="off"
+          autoCorrect="off"
+          spellCheck={false}
+          aria-label="Your spelling"
+          className="w-full rounded-lg border-2 border-slate-200 bg-white px-4 py-3 text-center text-xl font-semibold text-primary placeholder:font-normal placeholder:text-slate-300 focus:border-accent focus:outline-none disabled:bg-slate-50"
+        />
+        {!answered && (
+          <Button type="submit" fullWidth disabled={!value.trim()}>
+            Check spelling
+          </Button>
+        )}
+      </form>
 
       {saveError && (
-        <div className="animate-pop flex items-center justify-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+        <div className="flex items-center justify-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 animate-pop">
           <span>Couldn&apos;t save that answer.</span>
           <button className="ml-auto underline" onClick={retrySave}>
             Retry
@@ -331,15 +286,34 @@ export default function Quiz() {
         </div>
       )}
 
-      {answered && (
+      {answered && !pending && (
         <div className="space-y-3">
-          <p className="text-center text-sm text-slate-500">
-            {q.word.word} — {q.word.definition}
-            {q.word.example && <span className="italic"> “{q.word.example}”</span>}
-          </p>
+          <div
+            className={`rounded-lg border px-4 py-3 text-center text-sm font-semibold animate-pop ${
+              answered.correct
+                ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                : 'border-red-200 bg-red-50 text-red-700'
+            }`}
+          >
+            {answered.correct ? (
+              <span>
+                ✓ Correct{value.trim().toLowerCase() !== word.word.toLowerCase() ? ' (typo forgiven!)' : '!'}
+              </span>
+            ) : (
+              <span>
+                ✗ The spelling is <span className="font-bold">{word.word}</span>
+              </span>
+            )}
+          </div>
           <Button onClick={next} fullWidth>
-            {index + 1 >= questions.length ? 'See results' : 'Next →'}
+            {index + 1 >= words.length ? 'See results' : 'Next →'}
           </Button>
+        </div>
+      )}
+
+      {levelEvent && (
+        <div className="animate-pop rounded-lg border-2 border-accent bg-gold px-4 py-2 text-center text-sm font-bold text-primary animate-glow">
+          🎊 Level up! You reached Level {levelEvent.newLevel}
         </div>
       )}
     </div>

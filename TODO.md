@@ -80,8 +80,8 @@
 
 ### Typing mode
 
-- [ ] @fe Spell-the-word mode with fuzzy match (case/punctuation tolerant), wired into review recording
-- [ ] @be Accept typed-answer scoring via existing review endpoint
+- [x] @fe Spell-the-word mode with fuzzy match (case/punctuation tolerant), wired into review recording
+- [x] @be Accept typed-answer scoring via existing review endpoint
 
 ### Badges & goals
 
