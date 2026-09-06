@@ -91,15 +91,17 @@ export default function Home() {
       <div className="bg-primary px-4 pt-6 pb-28 sm:px-6">
         <p className="font-display text-xs font-bold tracking-widest text-accent uppercase">VocabVault</p>
         <h1 className="mt-1 font-display text-2xl font-bold text-white sm:text-3xl">Master your words.</h1>
-        {stats && (
-          <div className="mt-3 flex gap-6 text-sm">
-            {stats.dailyStreak > 0 && (
-              <span className="font-semibold text-gold">🔥 {stats.dailyStreak} day streak</span>
-            )}
-            <span className="font-semibold text-gold">⭐ Level {stats.level}</span>
-            <span className="font-semibold text-gold">+{stats.xp} XP</span>
-          </div>
-        )}
+        <div className="mt-3 flex min-h-5 items-center gap-6 text-sm">
+          {stats && (
+            <>
+              {stats.dailyStreak > 0 && (
+                <span className="font-semibold text-gold">🔥 {stats.dailyStreak} day streak</span>
+              )}
+              <span className="font-semibold text-gold">⭐ Level {stats.level}</span>
+              <span className="font-semibold text-gold">+{stats.xp} XP</span>
+            </>
+          )}
+        </div>
       </div>
       <div className="-mt-24 bg-gold/40 px-4 pt-12 pb-10 sm:px-6">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

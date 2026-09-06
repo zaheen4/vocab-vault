@@ -17,6 +17,12 @@ function activeLabel(pathname, deckId) {
   return hit ? hit.label : tabs[0].label
 }
 
+// Last measured geometry survives remounts: every tab switch mounts a fresh
+// ModeTabs, so without this the pill would fly in from x=0 each time.
+// fresh=true only on the very first measurement ever (snap); afterwards the
+// pill glides between live positions.
+let lastGeometry = null
+
 export default function ModeTabs({ deckId }) {
   const prefetchDeck = usePrefetchDeck()
   const prefetchPool = usePrefetchQuizPool()
@@ -24,15 +30,17 @@ export default function ModeTabs({ deckId }) {
   const warm = (kind) => () => (kind === 'session' ? prefetchDeck(deckId) : prefetchPool(deckId))
   const current = activeLabel(pathname, deckId)
   const tabRefs = useRef({})
-  const [pill, setPill] = useState(null)
+  const [pill, setPill] = useState(() => (lastGeometry ? { ...lastGeometry, fresh: false } : null))
 
   useLayoutEffect(() => {
     const measure = () => {
       const el = tabRefs.current[current]
       if (!el) return
+      const next = { x: el.offsetLeft, w: el.offsetWidth }
+      lastGeometry = next
       setPill((prev) => {
-        const next = { x: el.offsetLeft, w: el.offsetWidth }
-        return prev && prev.x === next.x && prev.w === next.w ? prev : next
+        if (prev && prev.x === next.x && prev.w === next.w) return prev
+        return { ...next, fresh: !prev }
       })
     }
     measure()
@@ -51,7 +59,12 @@ export default function ModeTabs({ deckId }) {
         className="absolute inset-y-1 left-0 rounded-full bg-accent transition-[transform,width] duration-250 ease-out motion-reduce:transition-none"
         style={
           pill
-            ? { transform: `translateX(${pill.x}px)`, width: pill.w, opacity: 1 }
+            ? {
+                transform: `translateX(${pill.x}px)`,
+                width: pill.w,
+                opacity: 1,
+                transition: pill.fresh ? 'none' : undefined,
+              }
             : { opacity: 0 }
         }
       />
