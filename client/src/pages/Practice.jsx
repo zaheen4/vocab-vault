@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { useDeck, useInvalidateAfterReview, usePracticeSession } from '../api/queries'
+import { useSlideDirection } from '../utils/navDirection'
 import { useAuth } from '../context/AuthContext'
 import { getSessionMessage } from '../utils/sessionMessages'
 import Button from '../components/ui/Button'
@@ -117,6 +118,7 @@ export default function Practice() {
   // computed exactly once inside the advance timer (no render-phase side effects)
   const sessionRef = useRef({ correct: 0, total: 0, bestCombo: 0, levelUp: false, level: null })
   const [finalMessage, setFinalMessage] = useState(null)
+  const slideCls = useSlideDirection()
 
   // Timer cleanup only — data comes from the session query above.
   // (advanceTimer is read inside cleanup so the latest timer is cleared.)
@@ -318,7 +320,7 @@ export default function Practice() {
   const current = words[index]
 
   return (
-    <div className="mx-auto max-w-xl space-y-4">
+    <div className={`mx-auto max-w-xl space-y-4 ${slideCls}`}>
       {/* HUD */}
       <div className="flex items-center justify-between text-sm">
         <Link to="/" className="text-slate-400 hover:text-primary">

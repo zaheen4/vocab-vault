@@ -122,6 +122,36 @@ main > * {
   animation: glow-pulse 1.1s ease-out infinite;
 }
 
+/* directional mode-switch slides: forward enters from the right,
+   back from the left. Element-level shorthand out-specifics the
+   main > * fade above, so exactly one entrance runs. */
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+.animate-slide-forward {
+  animation: slide-in-right 0.22s ease-out;
+}
+.animate-slide-back {
+  animation: slide-in-left 0.22s ease-out;
+}
+
 /* staggered list entrance (pair with inline animation-delay per index) */
 @keyframes fade-up {
   from {
@@ -161,6 +191,8 @@ main > * {
 /* honor OS reduced-motion: stillness over celebration */
 @media (prefers-reduced-motion: reduce) {
   main > *,
+  .animate-slide-forward,
+  .animate-slide-back,
   .animate-pop,
   .animate-shake,
   .animate-float-up,

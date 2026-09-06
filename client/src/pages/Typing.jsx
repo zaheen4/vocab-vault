@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { useInvalidateAfterReview, useQuizPool } from '../api/queries'
+import { useSlideDirection } from '../utils/navDirection'
 import { isCorrectSpelling } from '../utils/fuzzyMatch'
 import { getSessionMessage } from '../utils/sessionMessages'
 import Button from '../components/ui/Button'
@@ -37,6 +38,7 @@ export default function Typing() {
   const [score, setScore] = useState(0)
   const [levelEvent, setLevelEvent] = useState(null)
   const [finalMessage, setFinalMessage] = useState(null)
+  const slideCls = useSlideDirection()
   // Synchronous submit guard (see Practice.jsx busyRef): state flags are
   // stale across rapid double-submits, so the ref owns the lock
   const busyRef = useRef(false)
@@ -155,7 +157,7 @@ export default function Typing() {
 
   if (status === 'idle') {
     return (
-      <div className="mx-auto max-w-xl space-y-4 text-center">
+      <div className={`mx-auto max-w-xl space-y-4 text-center ${slideCls}`}>
         <Link to="/" className="inline-block text-sm text-slate-400 hover:text-primary">
           ← {deckTitle}
         </Link>
@@ -234,7 +236,7 @@ export default function Typing() {
   const word = words[index]
 
   return (
-    <div className="mx-auto max-w-xl space-y-4">
+    <div className={`mx-auto max-w-xl space-y-4 ${slideCls}`}>
       <div className="flex items-center justify-between text-sm">
         <Link to="/" className="text-slate-400 hover:text-primary">
           ← {deckTitle}
