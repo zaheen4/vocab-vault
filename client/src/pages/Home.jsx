@@ -33,7 +33,7 @@ function DeckCard({ deck }) {
       )}
       <div className="mt-auto pt-4">
         <p className="border-t border-slate-100 pt-3 text-xs font-semibold text-slate-500">
-          {count} words · tap to practice →
+          {count} words
         </p>
       </div>
       {/* stretched link: the whole card is the Practice entry; modes live in ModeTabs */}
