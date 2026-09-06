@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { api } from '../api/client'
+import { usePrefetchDeck, useDecks, useGamification, useProgressSummary } from '../api/queries'
 import Card from '../components/ui/Card'
 import EmptyState from '../components/ui/EmptyState'
 
@@ -12,8 +11,15 @@ const badgeClass = {
 
 function DeckCard({ deck }) {
   const count = deck.wordCount ?? (deck.wordIds ? deck.wordIds.length : 0)
+  const prefetchDeck = usePrefetchDeck()
+  const warm = () => prefetchDeck(deck._id)
   return (
-    <Card hoverable className="relative flex h-full flex-col border-2 p-5 shadow-md">
+    <Card
+      hoverable
+      className="relative flex h-full flex-col border-2 p-5 shadow-md"
+      onMouseEnter={warm}
+      onFocus={warm}
+    >
       <div className="flex items-start justify-between gap-2">
         <h3 className="font-display text-lg font-bold text-primary">{deck.title}</h3>
         <span
@@ -27,7 +33,7 @@ function DeckCard({ deck }) {
       )}
       <div className="mt-auto pt-4">
         <p className="border-t border-slate-100 pt-3 text-xs font-semibold text-slate-500">
-          {count} words · tap to practice →
+          {count} words
         </p>
       </div>
       {/* stretched link: the whole card is the Practice entry; modes live in ModeTabs */}
@@ -41,40 +47,12 @@ function DeckCard({ deck }) {
 }
 
 export default function Home() {
-  const [decks, setDecks] = useState([])
-  const [stats, setStats] = useState(null)
-  const [summary, setSummary] = useState(null)
-  const [status, setStatus] = useState('loading')
+  const { data: decks = [], isLoading, isError } = useDecks()
+  // Decorative: never block or break the page on failure
+  const { data: stats } = useGamification()
+  const { data: summary } = useProgressSummary()
 
-  useEffect(() => {
-    let cancelled = false
-    api
-      .get('/decks')
-      .then((data) => {
-        if (cancelled) return
-        setDecks(data.decks)
-        setStatus('ready')
-      })
-      .catch((err) => {
-        if (cancelled) return
-        console.error(err)
-        setStatus('error')
-      })
-    // Hero stats and pipeline counts are decorative — never block or break the page
-    api
-      .get('/gamification/me')
-      .then((data) => !cancelled && setStats(data.gamification))
-      .catch(() => {})
-    api
-      .get('/progress/summary')
-      .then((data) => !cancelled && setSummary(data.summary))
-      .catch(() => {})
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
-  if (status === 'loading') {
+  if (isLoading) {
     return (
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {[...Array(6)].map((_, i) => (
@@ -84,7 +62,7 @@ export default function Home() {
     )
   }
 
-  if (status === 'error') {
+  if (isError) {
     return (
       <div className="rounded-lg bg-red-50 p-4 text-center text-sm text-red-600">
         Failed to load decks.{' '}
@@ -109,19 +87,21 @@ export default function Home() {
     : null
 
   return (
-    <div className="-m-4 sm:-m-6">
+    <div className="animate-page -m-4 sm:-m-6">
       <div className="bg-primary px-4 pt-6 pb-28 sm:px-6">
         <p className="font-display text-xs font-bold tracking-widest text-accent uppercase">VocabVault</p>
         <h1 className="mt-1 font-display text-2xl font-bold text-white sm:text-3xl">Master your words.</h1>
-        {stats && (
-          <div className="mt-3 flex gap-6 text-sm">
-            {stats.dailyStreak > 0 && (
-              <span className="font-semibold text-gold">🔥 {stats.dailyStreak} day streak</span>
-            )}
-            <span className="font-semibold text-gold">⭐ Level {stats.level}</span>
-            <span className="font-semibold text-gold">+{stats.xp} XP</span>
-          </div>
-        )}
+        <div className="mt-3 flex min-h-5 items-center gap-6 text-sm">
+          {stats && (
+            <>
+              {stats.dailyStreak > 0 && (
+                <span className="font-semibold text-gold">🔥 {stats.dailyStreak} day streak</span>
+              )}
+              <span className="font-semibold text-gold">⭐ Level {stats.level}</span>
+              <span className="font-semibold text-gold">+{stats.xp} XP</span>
+            </>
+          )}
+        </div>
       </div>
       <div className="-mt-24 bg-gold/40 px-4 pt-12 pb-10 sm:px-6">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

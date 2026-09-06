@@ -1,7 +1,6 @@
-import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { api } from '../api/client'
+import { useGamification } from '../api/queries'
 import Logo from './Logo'
 import Button from './ui/Button'
 
@@ -11,18 +10,9 @@ const linkClass = ({ isActive }) =>
   }`
 
 function StatsChip() {
-  const [stats, setStats] = useState(null)
-  const { pathname } = useLocation()
-  useEffect(() => {
-    let cancelled = false
-    api
-      .get('/gamification/me')
-      .then((data) => !cancelled && setStats(data.gamification))
-      .catch(() => {})
-    return () => {
-      cancelled = true
-    }
-  }, [pathname])
+  // Shared ['gamification','me'] cache with hero and progress: one request,
+  // refreshed by review-post invalidation instead of per-route refetching.
+  const { data: stats } = useGamification()
   if (!stats) return null
   return (
     <span className="hidden items-center gap-2 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-primary sm:inline-flex">

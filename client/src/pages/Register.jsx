@@ -34,7 +34,7 @@ export default function Register() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gold px-4">
+    <div className="animate-page flex min-h-screen items-center justify-center bg-gold px-4">
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-sm space-y-4 rounded-lg bg-white p-6 shadow"
