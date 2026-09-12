@@ -10,6 +10,8 @@ const badgeClass = {
   advanced: 'bg-red-100 text-red-700',
 }
 
+const groupBadgeClass = 'bg-primary text-white'
+
 function DeckCard({ deck }) {
   const count = deck.wordCount ?? (deck.wordIds ? deck.wordIds.length : 0)
   return (
@@ -17,9 +19,9 @@ function DeckCard({ deck }) {
       <div className="flex items-start justify-between gap-2">
         <h3 className="font-display text-lg font-bold text-primary">{deck.title}</h3>
         <span
-          className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${badgeClass[deck.difficulty] || 'bg-slate-100 text-slate-600'}`}
+          className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${deck.group ? groupBadgeClass : badgeClass[deck.difficulty] || 'bg-slate-100 text-slate-600'}`}
         >
-          {deck.difficulty}
+          {deck.group ? `Group ${deck.group}` : deck.difficulty}
         </span>
       </div>
       {deck.description && (
