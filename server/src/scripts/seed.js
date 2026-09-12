@@ -6,10 +6,20 @@ import Word from '../models/Word.js'
 import Deck from '../models/Deck.js'
 
 // Usage: node src/scripts/seed.js [dataFile.json]
-// Accepts an array of objects with at least { word, definition }.
-// Optional fields: example, partOfSpeech, synonyms[], banglaMeaning, difficulty.
-const defaultFile = fileURLToPath(new URL('../../data/gre-words.json', import.meta.url))
+// Default: server/data/gregmat-words.json — the canonical GregMat dataset,
+// a JSON object { groups: [{ group, words: [{ word, definition, example }] }] }.
+// Mapping GregMat progression (frequency/ascending difficulty) to the
+// word-level difficulty tiers used by Search.
+const defaultFile = fileURLToPath(
+  new URL('../../data/gregmat-words.json', import.meta.url)
+)
 const file = process.argv[2] ?? defaultFile
+
+function difficultyFor(group) {
+  if (group <= 11) return 'basic'
+  if (group <= 22) return 'intermediate'
+  return 'advanced'
+}
 
 async function main() {
   const connected = await connectDB()
@@ -19,63 +29,72 @@ async function main() {
   }
 
   const raw = JSON.parse((await import('fs')).readFileSync(file, 'utf8'))
-  if (!Array.isArray(raw)) {
-    console.error('Data file must be a JSON array of word objects')
+  const groups = raw.groups
+  if (!Array.isArray(groups) || groups.length === 0) {
+    console.error('Data file must be an object with a non-empty "groups" array')
     process.exit(1)
   }
 
+  // upsert every word; pairwise group -> difficulty band
   let inserted = 0
-  let skipped = 0
-  for (const entry of raw) {
-    if (!entry?.word || !entry?.definition) {
-      skipped++
-      continue
-    }
-    try {
-      await Word.create({
-        word: entry.word,
-        definition: entry.definition,
-        example: entry.example,
-        partOfSpeech: entry.partOfSpeech ?? entry.pos,
-        synonyms: Array.isArray(entry.synonyms) ? entry.synonyms : [],
-        banglaMeaning: entry.banglaMeaning,
-        difficulty: ['basic', 'intermediate', 'advanced'].includes(entry.difficulty)
-          ? entry.difficulty
-          : 'basic',
-      })
-      inserted++
-    } catch (err) {
-      if (err.code === 11000) {
-        // duplicate word — update instead
+  let updated = 0
+  for (const { group, words } of groups) {
+    for (const w of words) {
+      if (!w?.word || !w?.definition) continue
+      try {
         await Word.updateOne(
-          { word: entry.word.toLowerCase() },
-          { $set: { definition: entry.definition } }
+          { word: w.word.toLowerCase() },
+          {
+            $set: {
+              word: w.word.toLowerCase(),
+              definition: w.definition,
+              example: w.example,
+              group,
+              source: 'gregmat',
+              difficulty: difficultyFor(group),
+            },
+          },
+          { upsert: true }
         )
-        skipped++
-      } else {
-        console.warn('skip:', entry.word, '-', err.message)
-        skipped++
+        inserted++
+      } catch (err) {
+        console.warn('skip:', w.word, '-', err.message)
       }
     }
   }
+  console.log(`Seed upserted ${inserted} words`)
 
-  console.log(`Seed done: ${inserted} inserted, ${skipped} skipped/updated`)
+  // retire the previous auto-built difficulty decks and their words
+  const wordCount = await Word.countDocuments({ source: { $ne: 'gregmat' } })
+  const deckCount = await Deck.countDocuments({ source: { $ne: 'gregmat' } })
+  await Word.deleteMany({ source: { $ne: 'gregmat' } })
+  await Deck.deleteMany({ source: { $ne: 'gregmat' } })
+  console.log(
+    `Removed ${wordCount} legacy words (not in GregMat) and ${deckCount} legacy decks`
+  )
 
-  // create one deck per difficulty if none exist yet
-  for (const level of ['basic', 'intermediate', 'advanced']) {
-    const exists = await Deck.findOne({ difficulty: level })
-    if (exists) continue
-    const words = await Word.find({ difficulty: level }).limit(50)
-    if (words.length) {
-      await Deck.create({
-        title: `${level[0].toUpperCase() + level.slice(1)} Words`,
-        description: `Auto-generated ${level} deck`,
-        difficulty: level,
-        wordIds: words.map((w) => w._id),
-      })
-      console.log(`Deck created: ${level} (${words.length} words)`)
-    }
+  // create one deck per group, discarding stale ones for that group
+  let decks = 0
+  for (const { group } of groups) {
+    const words = await Word.find({ source: 'gregmat', group })
+    if (!words.length) continue
+    await Deck.updateOne(
+      { source: 'gregmat', group },
+      {
+        $set: {
+          title: `Group ${group}`,
+          description: `GregMat vocabulary group ${group} — ${words.length} words`,
+          source: 'gregmat',
+          group,
+          difficulty: difficultyFor(group),
+          wordIds: words.map((w) => w._id),
+        },
+      },
+      { upsert: true }
+    )
+    decks++
   }
+  console.log(`GregMat decks ready: ${decks}`)
 
   await mongoose.disconnect()
 }
