@@ -78,7 +78,7 @@ npm run seed                 # loads server/data/gregmat-words.json into MongoDB
 ## Seeding Custom Wordlists
 
 The seed script loads the canonical GregMat dataset (`server/data/gregmat-words.json`,
-1,114 words in groups 1–38) and creates one deck per group:
+1,110 words in groups 1–37) and creates one deck per group:
 
 ```bash
 npm run seed

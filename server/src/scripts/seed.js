@@ -73,6 +73,20 @@ async function main() {
     `Removed ${wordCount} legacy words (not in GregMat) and ${deckCount} legacy decks`
   )
 
+  // drop GregMat words/decks whose group is no longer in the dataset
+  const validGroups = groups.map((g) => g.group)
+  const staleWords = await Word.deleteMany({
+    source: 'gregmat',
+    group: { $nin: validGroups },
+  })
+  const staleDecks = await Deck.deleteMany({
+    source: 'gregmat',
+    group: { $nin: validGroups },
+  })
+  console.log(
+    `Removed ${staleWords.deletedCount} out-of-dataset words and ${staleDecks.deletedCount} stale decks`
+  )
+
   // create one deck per group, discarding stale ones for that group
   let decks = 0
   for (const { group } of groups) {

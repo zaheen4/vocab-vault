@@ -277,7 +277,7 @@ level increases; `newWordsLearned` is 1 when a word moves `new → learning`;
 | synonyms | string[] | ❌ | default `[]` |
 | banglaMeaning | string | ❌ | **deferred / optional** |
 | difficulty | enum | ❌ | `basic` \| `intermediate` \| `advanced`, default `basic` |
-| group | number | ❌ | GregMat group 1–38 |
+| group | number | ❌ | GregMat group 1–37 |
 | source | enum | ❌ | `gregmat` |
 | createdAt / updatedAt | Date | auto | |
 
@@ -288,7 +288,7 @@ level increases; `newWordsLearned` is 1 when a word moves `new → learning`;
 | description | string | ❌ | |
 | difficulty | enum | ❌ | default `basic` |
 | wordIds | ObjectId[] | ❌ | ref `Word`, default `[]` |
-| group | number | ❌ | GregMat group 1–38 |
+| group | number | ❌ | GregMat group 1–37 |
 | source | enum | ❌ | `gregmat` |
 | createdBy | ObjectId | ❌ | ref `User` |
 | createdAt / updatedAt | Date | auto | |
