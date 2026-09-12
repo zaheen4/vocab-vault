@@ -10,6 +10,7 @@
 - [x] Repo scaffold (React 19 + Vite 8 + Tailwind 4 / Express 5 + Mongoose)
 - [x] Branch protection + commitlint hooks
 - [x] MongoDB Atlas connected · 298 words seeded · 3 difficulty decks
+- [x] **GregMat dataset integrated** — 1,110 words × groups 1–37 (32 Oxford-style groups from `HFV Essential.pdf` + 5 filled-in groups), 37 group decks on Home (`feat/gregmat-dataset`)
 - [x] Auth API working end-to-end (register/login/me, JWT)
 - [x] Word search API (`GET /api/words?q=`)
 - [x] Progress summary endpoint skeleton
@@ -107,7 +108,7 @@
 
 - [ ] @data Render deployment (API) + Atlas production user; CORS locked to Vercel domain
 - [ ] @data Vercel deployment (client) + env vars
-- [ ] @data Load the final 1200-word dataset via importer; verify search/practice against it
+- [x] @data Load the final 1200-word dataset via importer; verify search/practice against it
 - [ ] @data Warm-up runbook for demo day (Render free tier sleeps — hit API 30s before showtime)
 - [ ] @fe Responsive pass — mobile-first check on all pages, tap-target sweep (24px min, 44px aim), touch-verify primary flows on a small viewport
 - [ ] @fe Loading/error/empty states on every fetch

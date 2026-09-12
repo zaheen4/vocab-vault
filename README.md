@@ -59,7 +59,7 @@ npm run dev
 ### 4. Seed the database (first time only)
 
 ```bash
-npm run seed                 # loads server/data/gre-words.json into MongoDB
+npm run seed                 # loads server/data/gregmat-words.json into MongoDB
 ```
 
 ## API Overview
@@ -77,16 +77,21 @@ npm run seed                 # loads server/data/gre-words.json into MongoDB
 
 ## Seeding Custom Wordlists
 
-The seed script accepts any JSON array of word objects:
+The seed script loads the canonical GregMat dataset (`server/data/gregmat-words.json`,
+1,110 words in groups 1–37) and creates one deck per group:
+
+```bash
+npm run seed
+```
+
+It also accepts any JSON file in the same `{ groups: [...] }` shape:
 
 ```bash
 node src/scripts/seed.js path/to/wordlist.json
 ```
 
-Required fields per entry: `word`, `definition`. Optional: `example`,
-`partOfSpeech`, `synonyms[]`, `banglaMeaning`, `difficulty`
-(`basic` | `intermediate` | `advanced`). Unknown formats will be handled by the
-admin bulk-import UI (planned for week 10).
+Each entry needs `word`, `definition`; optional `example`. Unknown formats
+will be handled by the admin bulk-import UI (planned for week 10).
 
 ## Design System
 
