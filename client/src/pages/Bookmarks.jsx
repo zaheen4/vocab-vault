@@ -442,6 +442,14 @@ export default function Bookmarks() {
             : `${counts.learning} still learning · ${counts.mastered} mastered.`}
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
+          {bookmarks.length > 0 && (
+            <Link
+              to="/bookmarks/practice"
+              className="rounded-md border border-accent bg-accent px-3 py-1.5 text-xs font-bold text-primary transition-transform active:scale-97"
+            >
+              Review saved →
+            </Link>
+          )}
           <Link
             to="/words/new"
             className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-primary transition-colors hover:border-accent"

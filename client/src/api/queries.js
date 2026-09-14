@@ -136,6 +136,16 @@ export function isStarred(bookmarks = [], wordId) {
 }
 
 export const fetchBookmarks = () => api.get('/bookmarks').then((d) => d.bookmarks)
+export const fetchSavedPracticeSession = (limit = 10) =>
+  api.get(`/bookmarks/practice?limit=${limit}`).then((d) => d.words)
+
+export function useSavedPracticeSession(limit = 10) {
+  return useQuery({
+    queryKey: ['saved-practice', limit],
+    queryFn: () => fetchSavedPracticeSession(limit),
+    staleTime: 0,
+  })
+}
 
 export function useBookmarks() {
   return useQuery({

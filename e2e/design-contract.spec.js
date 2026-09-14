@@ -71,6 +71,8 @@ test('core routes render clean', async ({ page }) => {
   await page.waitForSelector('text=Your progress', { timeout: 10000 })
   await page.goto('/bookmarks')
   await page.waitForSelector('text=Saved words', { timeout: 10000 })
+  await page.goto('/bookmarks/practice')
+  await page.waitForSelector('text=Review saved', { timeout: 10000 })
   await page.goto('/words/new')
   await page.waitForSelector('text=Add your own word', { timeout: 10000 })
 })
