@@ -10,7 +10,7 @@
 - [x] Repo scaffold (React 19 + Vite 8 + Tailwind 4 / Express 5 + Mongoose)
 - [x] Branch protection + commitlint hooks
 - [x] MongoDB Atlas connected · 298 words seeded · 3 difficulty decks (superseded — see GregMat line below)
-- [x] **GregMat dataset integrated** — 1,110 words × groups 1–37 (32 Oxford-style groups from `HFV Essential.pdf` + 5 filled-in groups), 37 group decks on Home ([#35](https://github.com/zaheen4/vocab-vault/pull/35))
+- [x] **GregMat dataset integrated** — 1,110 words × groups 1–37, 37 group decks on Home ([#35](https://github.com/zaheen4/vocab-vault/pull/35))
 - [x] Auth API working end-to-end (register/login/me, JWT)
 - [x] Word search API (`GET /api/words?q=`)
 - [x] Progress summary endpoint skeleton
