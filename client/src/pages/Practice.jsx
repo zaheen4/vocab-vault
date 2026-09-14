@@ -122,7 +122,7 @@ function ScoreRing({ correct, total }) {
   )
 }
 
-export default function Practice() {
+export default function Practice({ active = true }) {
   const { id } = useParams()
   const { user } = useAuth()
   // Session pool revalidates on every mount (staleTime 0) but paints the
@@ -131,7 +131,10 @@ export default function Practice() {
   const { data: sessionWords, isLoading, isError } = usePracticeSession(id, 10)
   const invalidateAfterReview = useInvalidateAfterReview()
   const deckTitle = deck?.title || ''
-  const words = sessionWords ?? []
+  // Freeze the session batch once per deck: background refetches (invalidation,
+  // tab-hover prefetch, window focus) must not swap the card mid-run.
+  const [pool, setPool] = useState(null)
+  const words = pool ?? []
   const [index, setIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
   const [reversed, setReversed] = useState(false)
@@ -171,6 +174,7 @@ export default function Practice() {
   // Fresh session state per deck (query key change remounts data, not UI).
   useEffect(() => {
     stopSpeaking()
+    setPool(null)
     setIndex(0)
     setFlipped(false)
     setReversed(false)
@@ -191,6 +195,17 @@ export default function Practice() {
     busyRef.current = false
     sessionRef.current = { correct: 0, total: 0, bestCombo: 0, levelUp: false, level: null }
   }, [id])
+
+  // Capture the batch when it arrives; later refetches of the same query are
+  // ignored so the frozen pool drives the whole run.
+  useEffect(() => {
+    if (pool === null && sessionWords) setPool(sessionWords)
+  }, [sessionWords, pool])
+
+  // Silence pronunciation when this mode is switched away from.
+  useEffect(() => {
+    if (!active) stopSpeaking()
+  }, [active])
 
   function speak(text) {
     const started = speakWord(text, {

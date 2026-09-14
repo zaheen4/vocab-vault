@@ -6,9 +6,6 @@ import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
 import DeckLayout from './components/DeckLayout'
 import Home from './pages/Home'
-import Practice from './pages/Practice'
-import Quiz from './pages/Quiz'
-import Typing from './pages/Typing'
 import Progress from './pages/Progress'
 import Search from './pages/Search'
 import Login from './pages/Login'
@@ -34,11 +31,7 @@ export default function App() {
             }
           >
             <Route index element={<Home />} />
-            <Route path="decks/:id" element={<DeckLayout />}>
-              <Route index element={<Practice />} />
-              <Route path="quiz" element={<Quiz />} />
-              <Route path="typing" element={<Typing />} />
-            </Route>
+            <Route path="decks/:id/*" element={<DeckLayout />} />
             <Route path="progress" element={<Progress />} />
             <Route path="search" element={<Search />} />
             <Route path="*" element={<Navigate to="/" replace />} />
