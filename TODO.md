@@ -92,10 +92,10 @@
 
 ### Personal words & lists
 
-- [ ] @fe Add-your-own-word form (word/definition/example/pos) feeding SRS
-- [ ] @fe Bookmarks — star toggle + bookmarks page
+- [x] @fe Add-your-own-word form (word/definition/example/pos) feeding SRS (`feat/custom-words-fe`)
+- [x] @fe Bookmarks — star toggle + bookmarks page (`feat/custom-words-fe`)
 - [x] @be Bookmark routes + CustomList model/routes (same CRUD shape) (`feat/custom-words-be`)
-- [ ] @fe Custom lists — create/list/add-remove
+- [x] @fe Custom lists — create/list/add-remove (`feat/custom-words-fe`)
 
 ### Analytics
 
