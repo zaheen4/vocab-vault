@@ -3,7 +3,13 @@ import { api } from '../api/client'
 import Button from '../components/ui/Button'
 import SpeakerIcon from '../components/ui/SpeakerIcon'
 import Toast from '../components/ui/Toast'
-import { claimTtsTip, speakWord, stopSpeaking, useTtsAvailable } from '../utils/speak'
+import {
+  claimTtsTip,
+  speakWord,
+  stopSpeaking,
+  TTS_UNAVAILABLE_HINT,
+  useTtsAvailable,
+} from '../utils/speak'
 
 const inputClass =
   'w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-accent focus:outline-none'
@@ -87,15 +93,23 @@ export default function Search() {
           >
             <div className="flex items-baseline justify-between gap-3">
               <h3 className="font-display font-semibold text-primary">{w.word}</h3>
-              {ttsAvailable && (
-                <Button
-                  variant="secondary"
-                  className="shrink-0 self-center"
-                  aria-label={`Pronounce ${w.word}`}
-                  onClick={() => speak(w.word)}
+              {ttsAvailable !== null && (
+                <span
+                  title={ttsAvailable ? undefined : TTS_UNAVAILABLE_HINT}
+                  className={ttsAvailable ? '' : 'cursor-not-allowed'}
                 >
-                  <SpeakerIcon />
-                </Button>
+                  <Button
+                    variant="secondary"
+                    className="shrink-0 self-center"
+                    aria-label={
+                      ttsAvailable ? `Pronounce ${w.word}` : TTS_UNAVAILABLE_HINT
+                    }
+                    disabled={!ttsAvailable}
+                    onClick={() => speak(w.word)}
+                  >
+                    <SpeakerIcon />
+                  </Button>
+                </span>
               )}
               {w.partOfSpeech && (
                 <span className="text-xs text-slate-400 italic">{w.partOfSpeech}</span>

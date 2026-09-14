@@ -5,7 +5,7 @@ import { useDeck, useInvalidateAfterReview, usePracticeSession } from '../api/qu
 import { useSlideDirection } from '../utils/navDirection'
 import { useAuth } from '../context/AuthContext'
 import { getSessionMessage } from '../utils/sessionMessages'
-import { claimTtsTip, speakWord, stopSpeaking, useTtsAvailable } from '../utils/speak'
+import { claimTtsTip, speakWord, stopSpeaking, TTS_UNAVAILABLE_HINT, useTtsAvailable } from '../utils/speak'
 import Button from '../components/ui/Button'
 import SpeakerIcon from '../components/ui/SpeakerIcon'
 import Toast from '../components/ui/Toast'
@@ -405,17 +405,24 @@ export default function Practice() {
       {/* Study controls sit outside the flip button: no nested interactives.
           Speaker stays silent in reverse mode until the word is revealed. */}
       <div className="flex justify-end gap-2">
-        {ttsAvailable && (
-          <Button
-            variant="secondary"
-            className="gap-1.5"
-            aria-label={`Pronounce ${current.word}`}
-            disabled={reversed && !flipped}
-            onClick={() => speak(current.word)}
+        {ttsAvailable !== null && (
+          <span
+            title={ttsAvailable ? undefined : TTS_UNAVAILABLE_HINT}
+            className={ttsAvailable ? '' : 'cursor-not-allowed'}
           >
-            <SpeakerIcon />
-            Say it
-          </Button>
+            <Button
+              variant="secondary"
+              className="gap-1.5"
+              aria-label={
+                ttsAvailable ? `Pronounce ${current.word}` : TTS_UNAVAILABLE_HINT
+              }
+              disabled={!ttsAvailable || (reversed && !flipped)}
+              onClick={() => speak(current.word)}
+            >
+              <SpeakerIcon />
+              Say it
+            </Button>
+          </span>
         )}
         <Button
           variant="secondary"

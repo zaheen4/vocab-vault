@@ -5,6 +5,10 @@ import { useEffect, useState } from 'react'
 
 const TIP_KEY = 'vocabvault:tts-tip-seen'
 
+// Shown when the browser exposes the API but reports no voices (e.g. Firefox
+// on Linux without the speech-dispatcher daemon).
+export const TTS_UNAVAILABLE_HINT = 'No speech voices in this browser'
+
 function getSynth() {
   if (typeof window === 'undefined') return undefined
   const synth = window.speechSynthesis
