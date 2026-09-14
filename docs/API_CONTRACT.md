@@ -340,6 +340,20 @@ Idempotent — unstarring a non-starred word still returns 200.
 
 ---
 
+### `GET /api/bookmarks/practice?limit=10` — Get a practice session from saved words
+**Auth:** required  
+**Query:** `limit` (number, default 10, max 50)  
+**Selection order:** saved words never seen by this user first (saved order),
+then seen words whose SRS due date (`reviewDueAfter`) has passed — oldest due
+first. Seen-but-not-yet-due words are excluded.  
+**Response 200:**
+```json
+{ "words": [ { ...word }, { ...word } ] }
+```
+**Errors:** 500
+
+---
+
 ## Custom lists
 
 ### `GET /api/lists` — List my custom lists

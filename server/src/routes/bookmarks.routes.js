@@ -52,6 +52,47 @@ router.post('/', requireDB, requireAuth, async (req, res) => {
   }
 })
 
+// Practice session from saved words: unseen first (saved order), then due
+// words oldest-first; seen-but-not-yet-due words are excluded until their
+// SRS date arrives. Mirrors GET /decks/:id/practice selection.
+router.get('/practice', requireDB, requireAuth, async (req, res) => {
+  try {
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 50)
+
+    const saved = await Bookmark.find({ userId: req.user._id }).sort({ createdAt: -1 })
+    const wordIds = saved.map((b) => b.wordId)
+
+    const progressDocs = await Progress.find({
+      userId: req.user._id,
+      wordId: { $in: wordIds },
+    })
+    const byWordId = new Map(progressDocs.map((p) => [p.wordId.toString(), p]))
+
+    const now = new Date()
+    const unseen = []
+    for (const wid of wordIds) {
+      if (!byWordId.has(wid.toString())) unseen.push(wid)
+    }
+    const due = progressDocs
+      .filter((p) => !p.reviewDueAfter || p.reviewDueAfter <= now)
+      .sort(
+        (a, b) =>
+          (a.reviewDueAfter?.getTime() ?? 0) - (b.reviewDueAfter?.getTime() ?? 0)
+      )
+      .map((p) => p.wordId)
+
+    const selectedIds = [...unseen, ...due].slice(0, limit)
+
+    const selectedWords = await Word.find({ _id: { $in: selectedIds } })
+    const wordById = new Map(selectedWords.map((w) => [w._id.toString(), w]))
+    const words = selectedIds.map((wid) => wordById.get(wid.toString())).filter(Boolean)
+
+    res.json({ words })
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
+})
+
 // Unstar a word. Idempotent: still 200 when nothing was starred.
 router.delete('/:wordId', requireDB, requireAuth, async (req, res) => {
   try {
