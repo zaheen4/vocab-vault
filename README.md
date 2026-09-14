@@ -93,6 +93,30 @@ node src/scripts/seed.js path/to/wordlist.json
 Each entry needs `word`, `definition`; optional `example`. Unknown formats
 will be handled by the admin bulk-import UI (planned for week 10).
 
+## Pronunciation Audio
+
+Word pronunciations are pre-rendered with Kokoro (`af_heart`) and shipped as
+static MP3s so every device and browser hears the same natural voice, instead
+of the OS speech engine (which on Linux is robotic espeak). Clips live in
+`client/public/audio/words/`, with `client/public/audio/manifest.json` mapping
+each word to its file slug. The client plays the clip and falls back to the Web
+Speech API only if a clip is unavailable.
+
+Regenerate (existing files are skipped):
+
+```bash
+npm run audio:generate             # all words
+npm run audio:generate -- --group 1
+npm run audio:generate -- --only quixotic,compound
+npm run audio:generate -- --force  # rebuild everything
+```
+
+Requires a Python environment with `kokoro` and `soundfile`, plus `ffmpeg` on
+`PATH`. Heteronyms that Kokoro stresses differently from the definition's
+primary sense (e.g. `compound`) are fixed via `scripts/audio-overrides.json`
+(misaki phoneme strings).
+
+
 ## Design System
 
 Full rubric (voice/reading type split, tactile rules, motion, anti-list):
