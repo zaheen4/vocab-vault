@@ -212,7 +212,8 @@ quizzes test recall, not first exposure. Empty array when nothing viewed yet.
     "newWordsLearned": 1,
     "reviewsCaughtUp": 0,
     "reviewsToday": 8,
-    "dailyGoalTarget": 10
+    "dailyGoalTarget": 10,
+    "newBadges": [{ "id": "first-word", "name": "First Word", "icon": "🌱" }]
   }
 }
 ```
@@ -227,6 +228,9 @@ level increases; `newWordsLearned` is 1 when a word moves `new → learning`;
 **Daily goal:** `reviewsToday` counts today's reviews; when it reaches
 `dailyGoalTarget`, `dailyGoalMet` becomes true and `freezeRefilled` true on the
 first cross per day (freeze count resets to 1).
+**Badges:** `newBadges` lists badges earned by this exact review (empty when
+none); each entry carries the catalog `id`, `name`, and `icon`. Award is
+idempotent — an already-earned badge is never returned again.
 **Errors:** 400 (invalid wordId / non-boolean correct), 404 (unknown word), 500
 
 ---
@@ -249,7 +253,8 @@ first cross per day (freeze count resets to 1).
     "streakFreezes": 1,
     "dailyGoalTarget": 10,
     "reviewsToday": 8,
-    "goalsMet": 3
+    "goalsMet": 3,
+    "badges": [{ "id": "first-word", "awardedAt": "..." }]
   }
 }
 ```
@@ -343,6 +348,8 @@ Valid targets: `5 | 10 | 15 | 20 | 25 | 30 | 40 | 50`
 | reviewsTodayDate | Date | ❌ | date of current reviewsToday |
 | goalMetDate | Date | ❌ | last date daily goal was met |
 | goalsMet | number | ❌ | total goals met |
+| badges | object[] | ❌ | earned badges `{ id, awardedAt }`, default `[]` |
+| perfectRun | number | ❌ | current consecutive-correct run (for flawless), default 0 |
 | createdAt / updatedAt | Date | auto | |
 
 **Gamification XP/level rule:** `xpForAnswer`: `10 + box*2` for a correct answer,
@@ -352,6 +359,10 @@ a gap of 2+ days, and is idempotent within the same day.
 **Streak freeze:** 1 grace day survives a missed practice day. Freezes are
 consumed when a 1-day gap is detected and refilled to 1 when the daily goal
 target is met. Max freeze count is 1.
+**Badges** (`server/src/utils/gamify.js` `BADGES`, awarded idempotently on each
+review via `awardBadges`): `first-word` (1+ total reviews), `century` (100+),
+`week-warrior` (7+ day streak), `level-5` (level 5+), `flawless` (10 correct in
+a row across any mode, tracked by `perfectRun`).
 
 ### Progress
 | Field | Type | Required | Notes |

@@ -86,9 +86,9 @@
 
 ### Badges & goals
 
-- [ ] @be Badge rules (first word, 7-day streak, 100 reviews, Level 5, perfect session) + award on review
+- [x] @be Badge rules (first word, 7-day streak, 100 reviews, Level 5, perfect session) + award on review (`feat/badges`)
 - [x] @fe Daily goal setting + ring on dashboard/HUD (`feat/streak-freeze`)
-- [ ] @fe Badge toast + badge shelf on Progress page
+- [x] @fe Badge toast + badge shelf on Progress page (`feat/badges`)
 
 ### Personal words & lists
 

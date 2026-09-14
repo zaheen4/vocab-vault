@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
   applyDailyStreak,
+  awardBadges,
   awardGoalRefill,
+  BADGES,
   levelFor,
   xpForAnswer,
   xpForLevel,
@@ -144,5 +146,63 @@ describe('awardGoalRefill', () => {
     expect(result.goalMet).toBe(true)
     expect(result.freezeRefilled).toBe(true)
     expect(user.goalsMet).toBe(2)
+  })
+})
+
+describe('awardBadges', () => {
+  it('exposes the five documented badges', () => {
+    expect(BADGES.map((b) => b.id)).toEqual([
+      'first-word',
+      'century',
+      'week-warrior',
+      'level-5',
+      'flawless',
+    ])
+  })
+
+  it('awards first-word on the first review', () => {
+    const user = { totalReviewed: 1 }
+    const fresh = awardBadges(user, noon(2026, 9, 10))
+    expect(fresh.map((b) => b.id)).toEqual(['first-word'])
+    expect(user.badges).toHaveLength(1)
+  })
+
+  it('awards nothing before any review', () => {
+    const user = { totalReviewed: 0 }
+    expect(awardBadges(user, noon(2026, 9, 10))).toEqual([])
+    expect(user.badges || []).toHaveLength(0)
+  })
+
+  it('awards century, week-warrior, and level-5 at their thresholds', () => {
+    const user = { totalReviewed: 100, practiceStreakDays: 7, level: 5 }
+    const fresh = awardBadges(user, noon(2026, 9, 10))
+    expect(fresh.map((b) => b.id).sort()).toEqual(
+      ['century', 'first-word', 'level-5', 'week-warrior'].sort()
+    )
+  })
+
+  it('awards flawless at a 10-answer correct run', () => {
+    const user = { totalReviewed: 10, perfectRun: 10 }
+    const fresh = awardBadges(user, noon(2026, 9, 10))
+    expect(fresh.map((b) => b.id)).toContain('flawless')
+  })
+
+  it('does not award flawless below the run target', () => {
+    const user = { totalReviewed: 9, perfectRun: 9 }
+    const fresh = awardBadges(user, noon(2026, 9, 10))
+    expect(fresh.map((b) => b.id)).not.toContain('flawless')
+  })
+
+  it('never re-awards an already-earned badge', () => {
+    const user = {
+      totalReviewed: 200,
+      practiceStreakDays: 30,
+      level: 9,
+      perfectRun: 40,
+      badges: [{ id: 'first-word', awardedAt: noon(2026, 9, 1) }],
+    }
+    const fresh = awardBadges(user, noon(2026, 9, 10))
+    expect(fresh.map((b) => b.id)).not.toContain('first-word')
+    expect(user.badges.filter((b) => b.id === 'first-word')).toHaveLength(1)
   })
 })

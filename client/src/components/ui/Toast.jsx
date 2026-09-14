@@ -12,7 +12,9 @@ export default function Toast({ message, variant = 'info', onDismiss, duration =
   const tone =
     variant === 'error'
       ? 'border-red-200 bg-red-50 text-red-700'
-      : 'border-slate-200 bg-white text-primary'
+      : variant === 'gold'
+        ? 'border-accent bg-gold text-primary'
+        : 'border-slate-200 bg-white text-primary'
 
   return (
     <div

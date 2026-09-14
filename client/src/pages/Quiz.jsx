@@ -6,6 +6,7 @@ import { useSlideDirection } from '../utils/navDirection'
 import { getSessionMessage } from '../utils/sessionMessages'
 import Button from '../components/ui/Button'
 import EmptyState from '../components/ui/EmptyState'
+import Toast from '../components/ui/Toast'
 
 const LENGTHS = [5, 10, 20]
 
@@ -59,6 +60,7 @@ export default function Quiz() {
   const [results, setResults] = useState([])
   const [score, setScore] = useState(0)
   const [levelEvent, setLevelEvent] = useState(null)
+  const [toast, setToast] = useState(null)
   const [finalMessage, setFinalMessage] = useState(null)
   const slideCls = useSlideDirection()
   // Synchronous submit guard (see Practice.jsx busyRef): state flags are
@@ -96,6 +98,7 @@ export default function Quiz() {
     setResults([])
     setScore(0)
     setLevelEvent(null)
+    setToast(null)
     setFinalMessage(null)
     busyRef.current = false
     setStatus('ready')
@@ -107,6 +110,10 @@ export default function Quiz() {
       setResults((r) => [...r, { word: questions[index].word.word, correct: payload.correct }])
       if (payload.correct) setScore((s) => s + 1)
       if (data.gamification?.levelUp) setLevelEvent({ newLevel: data.gamification.level })
+      if (data.gamification?.newBadges?.length) {
+        const names = data.gamification.newBadges.map((b) => `${b.icon} ${b.name}`).join(' · ')
+        setToast({ variant: 'gold', message: `🏅 Badge earned: ${names}!` })
+      }
       invalidateAfterReview(id)
       setPending(null)
       setSaveError(false)
@@ -334,6 +341,10 @@ export default function Quiz() {
             {index + 1 >= questions.length ? 'See results' : 'Next →'}
           </Button>
         </div>
+      )}
+
+      {toast && (
+        <Toast variant={toast.variant} message={toast.message} onDismiss={() => setToast(null)} />
       )}
     </div>
   )
