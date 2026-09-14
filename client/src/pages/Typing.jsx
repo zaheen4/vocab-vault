@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../api/client'
+import { useInvalidateAfterReview, useQuizPool } from '../api/queries'
+import { useSlideDirection } from '../utils/navDirection'
 import { isCorrectSpelling } from '../utils/fuzzyMatch'
 import { getSessionMessage } from '../utils/sessionMessages'
 import Button from '../components/ui/Button'
 import EmptyState from '../components/ui/EmptyState'
-import ModeTabs from '../components/ModeTabs'
 
 const LENGTHS = [5, 10, 20]
 
@@ -20,8 +21,10 @@ function shuffle(arr) {
 
 export default function Typing() {
   const { id } = useParams()
-  const [deckTitle, setDeckTitle] = useState('')
-  const [pool, setPool] = useState([])
+  const { data: poolData, isLoading, isError } = useQuizPool(id)
+  const invalidateAfterReview = useInvalidateAfterReview()
+  const deckTitle = poolData?.title || ''
+  const pool = poolData?.words ?? []
   const [status, setStatus] = useState('loading') // loading|error|empty|idle|ready|done
   const [length, setLength] = useState(10)
   const [words, setWords] = useState([])
@@ -34,27 +37,22 @@ export default function Typing() {
   const [score, setScore] = useState(0)
   const [levelEvent, setLevelEvent] = useState(null)
   const [finalMessage, setFinalMessage] = useState(null)
+  const slideCls = useSlideDirection()
   // Synchronous submit guard (see Practice.jsx busyRef): state flags are
   // stale across rapid double-submits, so the ref owns the lock
   const busyRef = useRef(false)
 
   useEffect(() => {
-    let cancelled = false
-    // Viewed-words pool, like quiz: typing tests recall, not first exposure
-    api
-      .get(`/decks/${id}/quiz?limit=50`)
-      .then((data) => {
-        if (cancelled) return
-        setDeckTitle(data.deck.title)
-        const viewed = data.words || []
-        setPool(viewed)
-        setStatus(viewed.length === 0 ? 'empty' : 'idle')
-      })
-      .catch(() => !cancelled && setStatus('error'))
-    return () => {
-      cancelled = true
+    if (isLoading) {
+      setStatus('loading')
+      return
     }
-  }, [id])
+    if (isError) {
+      setStatus('error')
+      return
+    }
+    setStatus((s) => (s === 'loading' ? (pool.length === 0 ? 'empty' : 'idle') : s))
+  }, [isLoading, isError, pool])
 
   function start() {
     setWords(shuffle(pool).slice(0, Math.min(length, pool.length)))
@@ -77,6 +75,7 @@ export default function Typing() {
       setResults((r) => [...r, { word, correct: payload.correct }])
       if (payload.correct) setScore((s) => s + 1)
       if (data.gamification?.levelUp) setLevelEvent({ newLevel: data.gamification.level })
+      invalidateAfterReview(id)
       setPending(null)
       setSaveError(false)
       return true
@@ -157,13 +156,10 @@ export default function Typing() {
 
   if (status === 'idle') {
     return (
-      <div className="mx-auto max-w-xl space-y-4 text-center">
+      <div className={`mx-auto max-w-xl space-y-4 text-center ${slideCls}`}>
         <Link to="/" className="inline-block text-sm text-slate-400 hover:text-primary">
           ← {deckTitle}
         </Link>
-        <div className="flex justify-center">
-          <ModeTabs deckId={id} />
-        </div>
         <h1 className="font-display text-2xl font-bold text-primary">Type the word</h1>
         <p className="text-sm text-slate-500">
           {pool.length} viewed word{pool.length === 1 ? '' : 's'} ready. Read the
@@ -200,9 +196,6 @@ export default function Typing() {
         <p className="text-slate-500">
           You spelled {correctCount} of {results.length} right ({pct}%).
         </p>
-        <div className="flex justify-center">
-          <ModeTabs deckId={id} />
-        </div>
         {results.length > 0 && (
           <div className="flex flex-wrap justify-center gap-1.5">
             {results.map((r, i) => (
@@ -236,7 +229,7 @@ export default function Typing() {
   const word = words[index]
 
   return (
-    <div className="mx-auto max-w-xl space-y-4">
+    <div className={`mx-auto max-w-xl space-y-4 ${slideCls}`}>
       <div className="flex items-center justify-between text-sm">
         <Link to="/" className="text-slate-400 hover:text-primary">
           ← {deckTitle}
@@ -244,10 +237,6 @@ export default function Typing() {
         <span className="text-slate-400">
           {index + 1} / {words.length} · ✓ {score}
         </span>
-      </div>
-
-      <div className="flex justify-center">
-        <ModeTabs deckId={id} />
       </div>
 
       <div className="h-1.5 overflow-hidden rounded-full bg-slate-200">

@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../api/client'
+import { useDeck, useInvalidateAfterReview, usePracticeSession } from '../api/queries'
+import { useSlideDirection } from '../utils/navDirection'
 import { useAuth } from '../context/AuthContext'
 import { getSessionMessage } from '../utils/sessionMessages'
 import Button from '../components/ui/Button'
 import EmptyState from '../components/ui/EmptyState'
 import Confetti from '../components/Confetti'
-import ModeTabs from '../components/ModeTabs'
 
 const BOX_LABELS = { 1: 'Box 1', 2: 'Box 2', 3: 'Box 3', 4: 'Box 4', 5: 'Mastered' }
 
@@ -86,11 +87,16 @@ function ScoreRing({ correct, total }) {
 export default function Practice() {
   const { id } = useParams()
   const { user } = useAuth()
-  const [deckTitle, setDeckTitle] = useState('')
-  const [words, setWords] = useState([])
+  // Session pool revalidates on every mount (staleTime 0) but paints the
+  // prefetched cache instantly; deck title is long-lived cache.
+  const { data: deck } = useDeck(id)
+  const { data: sessionWords, isLoading, isError } = usePracticeSession(id, 10)
+  const invalidateAfterReview = useInvalidateAfterReview()
+  const deckTitle = deck?.title || ''
+  const words = sessionWords ?? []
   const [index, setIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
-  const [status, setStatus] = useState('loading')
+  const [done, setDone] = useState(false)
   const [results, setResults] = useState([])
   const [submitting, setSubmitting] = useState(false)
   const [sessionXp, setSessionXp] = useState(0)
@@ -111,21 +117,32 @@ export default function Practice() {
   // computed exactly once inside the advance timer (no render-phase side effects)
   const sessionRef = useRef({ correct: 0, total: 0, bestCombo: 0, levelUp: false, level: null })
   const [finalMessage, setFinalMessage] = useState(null)
+  const slideCls = useSlideDirection()
 
+  // Timer cleanup only — data comes from the session query above.
+  // (advanceTimer is read inside cleanup so the latest timer is cleared.)
   useEffect(() => {
-    let cancelled = false
-    Promise.all([api.get(`/decks/${id}`), api.get(`/decks/${id}/practice?limit=10`)])
-      .then(([deckData, sessionData]) => {
-        if (cancelled) return
-        setDeckTitle(deckData.deck.title)
-        setWords(sessionData.words)
-        setStatus(sessionData.words.length === 0 ? 'empty' : 'ready')
-      })
-      .catch(() => !cancelled && setStatus('error'))
-    return () => {
-      cancelled = true
-      clearTimeout(advanceTimer.current)
-    }
+    return () => clearTimeout(advanceTimer.current)
+  }, [])
+  // Fresh session state per deck (query key change remounts data, not UI).
+  useEffect(() => {
+    setIndex(0)
+    setFlipped(false)
+    setDone(false)
+    setResults([])
+    setSubmitting(false)
+    setSessionXp(0)
+    setCombo(0)
+    setBestCombo(0)
+    setScore(0)
+    setFeedback(null)
+    setLevelEvent(null)
+    setConfetti(false)
+    setNewLearned(0)
+    setCaughtUp(0)
+    setFinalMessage(null)
+    busyRef.current = false
+    sessionRef.current = { correct: 0, total: 0, bestCombo: 0, levelUp: false, level: null }
   }, [id])
 
   async function answer(correct) {
@@ -167,6 +184,7 @@ export default function Practice() {
     if (g.newWordsLearned) setNewLearned((n) => n + g.newWordsLearned)
     if (g.reviewsCaughtUp) setCaughtUp((n) => n + g.reviewsCaughtUp)
     if (g.levelUp) setLevelEvent({ newLevel: g.level, xp: g.xp })
+    invalidateAfterReview(id)
 
     setFlipped(false)
     if (!correct) setShake(true)
@@ -177,14 +195,14 @@ export default function Practice() {
       boxLabel: BOX_LABELS[box] || `Box ${box}`,
     })
 
-    const done = index + 1 >= words.length
+    const finished = index + 1 >= words.length
     advanceTimer.current = setTimeout(() => {
       setShake(false)
       setFeedback(null)
       setSubmitting(false)
       busyRef.current = false
       clearTimeout(advanceTimer.current)
-      if (done) {
+      if (finished) {
         setConfetti(true)
         const s = sessionRef.current
         setFinalMessage(
@@ -196,18 +214,18 @@ export default function Practice() {
             level: s.level,
           })
         )
-        setStatus('done')
+        setDone(true)
       } else {
         setIndex((i) => i + 1)
       }
     }, 850)
   }
 
-  if (status === 'loading') {
+  if (isLoading) {
     return <div className="mx-auto h-64 max-w-xl animate-pulse rounded-xl bg-slate-200" />
   }
 
-  if (status === 'error') {
+  if (isError) {
     return (
       <div className="rounded-lg bg-red-50 p-4 text-center text-sm text-red-600">
         Failed to load the practice session.{' '}
@@ -218,7 +236,7 @@ export default function Practice() {
     )
   }
 
-  if (status === 'empty') {
+  if (words.length === 0) {
     return (
       <EmptyState
         title="No words due right now"
@@ -227,7 +245,7 @@ export default function Practice() {
     )
   }
 
-  if (status === 'done') {
+  if (done) {
     const correctCount = results.filter((r) => r.correct).length
     const firstName = user?.name?.split(' ')[0]
     return (
@@ -241,9 +259,6 @@ export default function Practice() {
             {firstName}, you got {correctCount} of {results.length} right.
           </p>
         )}
-        <div className="flex justify-center">
-          <ModeTabs deckId={id} />
-        </div>
         {levelEvent && (
           <div className="animate-pop animate-glow mx-auto max-w-sm rounded-xl border-2 border-accent bg-gold px-4 py-3 text-primary">
             <span className="text-sm font-bold">🎊 Level up! You reached Level {levelEvent.newLevel}</span>
@@ -301,7 +316,7 @@ export default function Practice() {
   const current = words[index]
 
   return (
-    <div className="mx-auto max-w-xl space-y-4">
+    <div className={`mx-auto max-w-xl space-y-4 ${slideCls}`}>
       {/* HUD */}
       <div className="flex items-center justify-between text-sm">
         <Link to="/" className="text-slate-400 hover:text-primary">
@@ -311,8 +326,6 @@ export default function Practice() {
           {index + 1} / {words.length}
         </span>
       </div>
-
-      <ModeTabs deckId={id} />
 
       <div className="flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold">
         <span className="text-primary">✓ {score}</span>

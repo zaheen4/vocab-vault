@@ -42,7 +42,7 @@ export default function Search() {
   }, [query])
 
   return (
-    <div className="space-y-4">
+    <div className="animate-page space-y-4">
       <input
         type="search"
         placeholder="Search words…"
