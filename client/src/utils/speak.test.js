@@ -125,6 +125,63 @@ describe('speakWord', () => {
   })
 })
 
+describe('voice ranking', () => {
+  const speakAndPick = (voices) => {
+    const synth = installSpeech({ voices })
+    speakWord('abide')
+    return synth.speak.mock.calls[0][0].voice
+  }
+
+  it('prefers en-US over the first-listed English voice', () => {
+    const picked = speakAndPick([
+      { lang: 'en-029', name: 'English (Caribbean)' },
+      { lang: 'en-GB', name: 'English (Great Britain)' },
+      { lang: 'en-US', name: 'English (America)' },
+    ])
+    expect(picked.name).toBe('English (America)')
+  })
+
+  it('skips espeak variant voices', () => {
+    const picked = speakAndPick([
+      { lang: 'en-US', name: 'English (America)+Demonic' },
+      { lang: 'en-US', name: 'English (America)' },
+    ])
+    expect(picked.name).toBe('English (America)')
+  })
+
+  it('prefers a non-espeak en-US voice over espeak', () => {
+    const picked = speakAndPick([
+      { lang: 'en-US', name: 'English (America)' },
+      { lang: 'en-US', name: 'RHVoice Alan' },
+    ])
+    expect(picked.name).toBe('RHVoice Alan')
+  })
+
+  it('falls back to another English voice when no en-US or en-GB', () => {
+    const picked = speakAndPick([
+      { lang: 'fr-FR', name: 'French' },
+      { lang: 'en-029', name: 'English (Caribbean)' },
+    ])
+    expect(picked.name).toBe('English (Caribbean)')
+  })
+
+  it('uses a variant only when nothing better exists, never Shavian', () => {
+    const picked = speakAndPick([
+      { lang: 'en', name: 'English (Shavian alphabet)' },
+      { lang: 'en-GB', name: 'English (Great Britain)+whisper' },
+    ])
+    expect(picked.name).toBe('English (Great Britain)+whisper')
+  })
+
+  it('leaves the voice unset when there is no English voice', () => {
+    const picked = speakAndPick([
+      { lang: 'fr-FR', name: 'French' },
+      { lang: 'de-DE', name: 'German' },
+    ])
+    expect(picked).toBeUndefined()
+  })
+})
+
 describe('stopSpeaking', () => {
   it('cancels when supported and no-ops otherwise', () => {
     expect(stopSpeaking()).toBe(false)

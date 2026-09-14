@@ -38,8 +38,34 @@ function listVoices(synth) {
   }
 }
 
+// speech-dispatcher + espeak-ng exposes every language crossed with ~100
+// variants ("English (Caribbean)+Demonic") and lists Caribbean before
+// America. Score candidates so a plain, standard English voice wins:
+// en-US > en-GB > other en; drop variants and script oddities; prefer
+// non-espeak engines (whose voices are not named "English (…)").
+function scoreVoice(voice) {
+  const lang = (voice.lang || '').toLowerCase().replace(/_/g, '-')
+  const name = voice.name || ''
+  if (!lang.startsWith('en')) return null
+  if (lang === 'en-shaw' || /shavian|mandarin|\bcmn\b/i.test(name)) return null
+
+  let score = lang === 'en-us' ? 30 : lang.startsWith('en-gb') ? 20 : 10
+  if (name.includes('+')) score -= 100
+  if (/^english \(/i.test(name)) score -= 1
+  return score
+}
+
 function pickVoice(synth) {
-  return listVoices(synth).find((v) => v.lang?.toLowerCase().startsWith('en')) ?? null
+  let best = null
+  let bestScore = -Infinity
+  for (const voice of listVoices(synth)) {
+    const score = scoreVoice(voice)
+    if (score !== null && score > bestScore) {
+      bestScore = score
+      best = voice
+    }
+  }
+  return best
 }
 
 // Voices load asynchronously in some engines, so "supported" is not the same
