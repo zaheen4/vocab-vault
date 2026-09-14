@@ -1,13 +1,60 @@
-// Tiny Web Speech API wrapper for flashcard pronunciation.
-// Frontend-only: no network, no backend. All browser access is
-// function-scoped so this module is safe to import in node (vitest).
+// Pronunciation for flashcards. Pre-rendered Kokoro clips are the primary
+// source (identical on every device); the Web Speech API is a fallback.
+// All browser access is function-scoped so importing in node (vitest) is safe.
 import { useEffect, useState } from 'react'
 
 const TIP_KEY = 'vocabvault:tts-tip-seen'
+const AUDIO_BASE = '/audio'
 
-// Shown when the browser exposes the API but reports no voices (e.g. Firefox
-// on Linux without the speech-dispatcher daemon).
-export const TTS_UNAVAILABLE_HINT = 'No speech voices in this browser'
+// Shown when neither a clip nor a browser voice is available.
+export const TTS_UNAVAILABLE_HINT = 'Pronunciation audio unavailable'
+
+// ---------------------------------------------------------------- audio clips
+
+let manifestPromise = null
+const urlCache = new Map()
+
+function slugify(word) {
+  return word
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+function loadManifest() {
+  if (!manifestPromise) {
+    manifestPromise =
+      typeof fetch === 'function'
+        ? fetch(`${AUDIO_BASE}/manifest.json`)
+            .then((res) => (res.ok ? res.json() : {}))
+            .catch(() => ({}))
+        : Promise.resolve({})
+  }
+  return manifestPromise
+}
+
+// Resolve a word to its clip URL, honouring the manifest (needed for the few
+// multi-word / hyphenated entries) with a slug fallback.
+export async function audioUrlFor(word) {
+  const key = (word ?? '').trim().toLowerCase()
+  if (!key) return null
+  if (urlCache.has(key)) return urlCache.get(key)
+  const manifest = await loadManifest()
+  const slug = manifest[key] || slugify(key)
+  const url = `${AUDIO_BASE}/words/${slug}.mp3`
+  urlCache.set(key, url)
+  return url
+}
+
+let audioEl = null
+
+function getAudio() {
+  if (typeof Audio === 'undefined') return null
+  if (!audioEl) audioEl = new Audio()
+  return audioEl
+}
+
+// --------------------------------------------------------------- speech API
 
 function getSynth() {
   if (typeof window === 'undefined') return undefined
@@ -68,6 +115,27 @@ function pickVoice(synth) {
   return best
 }
 
+function speakWithSynth(word, { rate = 1, onError } = {}) {
+  const synth = getSynth()
+  const Utterance = getUtterance()
+  if (!synth || !Utterance) return false
+  try {
+    synth.cancel()
+    const utterance = new Utterance(word)
+    utterance.lang = 'en-US'
+    utterance.rate = rate
+    const voice = pickVoice(synth)
+    if (voice) utterance.voice = voice
+    if (typeof onError === 'function') {
+      utterance.onerror = (event) => onError(event?.error || 'synthesis-failed')
+    }
+    synth.speak(utterance)
+  } catch {
+    return false
+  }
+  return true
+}
+
 // Voices load asynchronously in some engines, so "supported" is not the same
 // as "can actually speak". Resolves true only once a voice is known.
 export function voicesAvailable(timeoutMs = 1500) {
@@ -101,15 +169,18 @@ export function voicesAvailable(timeoutMs = 1500) {
   })
 }
 
-// null while checking, then boolean. Keeps the speaker hidden until we know
-// it can actually produce sound (avoids a dead button on Firefox Linux).
+// null while checking, then boolean. True when clips are shipped (the normal
+// case) or, failing that, when the browser has a usable voice.
 export function useTtsAvailable(timeoutMs = 1500) {
   const [available, setAvailable] = useState(null)
   useEffect(() => {
     let alive = true
-    voicesAvailable(timeoutMs).then((value) => {
-      if (alive) setAvailable(value)
-    })
+    ;(async () => {
+      const manifest = await loadManifest()
+      let ok = Object.keys(manifest).length > 0
+      if (!ok) ok = await voicesAvailable(timeoutMs)
+      if (alive) setAvailable(ok)
+    })()
     return () => {
       alive = false
     }
@@ -117,7 +188,7 @@ export function useTtsAvailable(timeoutMs = 1500) {
   return available
 }
 
-// One-time nudge for the undetectable case: voices exist but output is muted.
+// One-time nudge for the undetectable case: audio exists but output is muted.
 // We cannot read system volume, so we ask the human to check it.
 export function claimTtsTip() {
   try {
@@ -131,35 +202,48 @@ export function claimTtsTip() {
 }
 
 export function stopSpeaking() {
-  const synth = getSynth()
-  if (!synth) return false
-  try {
-    synth.cancel()
-  } catch {
-    return false
+  let stopped = false
+  const audio = audioEl
+  if (audio) {
+    try {
+      audio.pause()
+      audio.currentTime = 0
+      stopped = true
+    } catch {
+      /* ignore */
+    }
   }
-  return true
+  const synth = getSynth()
+  if (synth) {
+    try {
+      synth.cancel()
+      stopped = true
+    } catch {
+      /* ignore */
+    }
+  }
+  return stopped
 }
 
 export function speakWord(text, { rate = 1, onError } = {}) {
   const word = (text ?? '').trim()
   if (!word) return false
-  const synth = getSynth()
-  const Utterance = getUtterance()
-  if (!synth || !Utterance) return false
-  try {
-    synth.cancel()
-    const utterance = new Utterance(word)
-    utterance.lang = 'en-US'
-    utterance.rate = rate
-    const voice = pickVoice(synth)
-    if (voice) utterance.voice = voice
-    if (typeof onError === 'function') {
-      utterance.onerror = (event) => onError(event?.error || 'synthesis-failed')
-    }
-    synth.speak(utterance)
-  } catch {
-    return false
-  }
+
+  const audio = getAudio()
+  if (!audio) return speakWithSynth(word, { rate, onError })
+
+  // Prefer the shipped clip; fall back to speechSynthesis if it cannot play.
+  audioUrlFor(word)
+    .then((url) => {
+      if (!url) throw new Error('no clip')
+      stopSpeaking()
+      audio.onerror = () => speakWithSynth(word, { rate, onError })
+      audio.src = url
+      audio.playbackRate = rate
+      return audio.play()
+    })
+    .catch(() => {
+      speakWithSynth(word, { rate, onError })
+    })
   return true
 }

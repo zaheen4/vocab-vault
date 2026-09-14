@@ -72,7 +72,7 @@
 
 ### Practice depth
 
-- [x] @fe TTS pronunciation button on flashcard (Web Speech API, frontend-only) + per-row speakers on Search (`feat/practice-tts-reverse`)
+- [x] @fe TTS pronunciation: pre-rendered Kokoro clips (all words) with Web Speech API fallback + per-row speakers on Search (`feat/prerendered-audio`)
 - [x] @fe Reverse-card toggle (definition → word) (`feat/practice-tts-reverse`)
 - [ ] @be Streak freeze — 1 grace day (`gamify.js` + User field), unit-test the streak edges
 - [x] @fe Tiered end-of-session messages shared by practice and quiz (round-robin, 70 lines)
@@ -119,5 +119,5 @@
 
 - Leaderboards & class competitions (cut from sprint scope by team decision); teacher analytics
 - PWA offline mode / React Native wrapper
-- TTS pronunciation (Web Speech API)
+- ~~TTS pronunciation (Web Speech API)~~ — shipped as pre-rendered Kokoro `af_heart` audio
 - AI-generated example sentences; voice quizzes
