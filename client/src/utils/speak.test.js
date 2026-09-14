@@ -1,11 +1,19 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { isTtsSupported, speakWord, stopSpeaking } from './speak'
+import {
+  claimTtsTip,
+  isTtsSupported,
+  speakWord,
+  stopSpeaking,
+  voicesAvailable,
+} from './speak'
 
 function installSpeech({ voices } = {}) {
   const synth = {
     cancel: vi.fn(),
     speak: vi.fn(),
     getVoices: vi.fn(() => voices ?? [{ lang: 'en-US', name: 'Mock En' }]),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
   }
   vi.stubGlobal('window', { speechSynthesis: synth })
   vi.stubGlobal(
@@ -31,6 +39,38 @@ describe('isTtsSupported', () => {
   it('is true when speechSynthesis and the constructor exist', () => {
     installSpeech()
     expect(isTtsSupported()).toBe(true)
+  })
+})
+
+describe('voicesAvailable', () => {
+  it('resolves true when a voice is already listed', async () => {
+    installSpeech()
+    await expect(voicesAvailable()).resolves.toBe(true)
+  })
+
+  it('resolves false when the API is missing', async () => {
+    await expect(voicesAvailable(10)).resolves.toBe(false)
+  })
+
+  it('resolves true once voiceschanged reports voices', async () => {
+    const synth = installSpeech({ voices: [] })
+    const listeners = {}
+    synth.addEventListener = (name, fn) => {
+      listeners[name] = fn
+    }
+    const pending = voicesAvailable(1000)
+    synth.getVoices = () => [{ lang: 'en-US' }]
+    listeners.voiceschanged()
+    await expect(pending).resolves.toBe(true)
+    expect(synth.removeEventListener).toHaveBeenCalledWith(
+      'voiceschanged',
+      expect.any(Function)
+    )
+  })
+
+  it('resolves false on timeout when no voice ever appears', async () => {
+    installSpeech({ voices: [] })
+    await expect(voicesAvailable(10)).resolves.toBe(false)
   })
 })
 
@@ -74,6 +114,15 @@ describe('speakWord', () => {
     expect(speakWord('abide')).toBe(true)
     expect(bare.speak.mock.calls[0][0].voice).toBeUndefined()
   })
+
+  it('reports utterance failures through onError', () => {
+    const synth = installSpeech()
+    const onError = vi.fn()
+    speakWord('abide', { onError })
+    const utterance = synth.speak.mock.calls[0][0]
+    utterance.onerror({ error: 'synthesis-failed' })
+    expect(onError).toHaveBeenCalledWith('synthesis-failed')
+  })
 })
 
 describe('stopSpeaking', () => {
@@ -82,5 +131,17 @@ describe('stopSpeaking', () => {
     const synth = installSpeech()
     expect(stopSpeaking()).toBe(true)
     expect(synth.cancel).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('claimTtsTip', () => {
+  it('fires once per browser', () => {
+    const store = new Map()
+    vi.stubGlobal('localStorage', {
+      getItem: (key) => (store.has(key) ? store.get(key) : null),
+      setItem: (key, value) => store.set(key, String(value)),
+    })
+    expect(claimTtsTip()).toBe(true)
+    expect(claimTtsTip()).toBe(false)
   })
 })

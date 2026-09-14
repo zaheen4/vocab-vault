@@ -5,9 +5,10 @@ import { useDeck, useInvalidateAfterReview, usePracticeSession } from '../api/qu
 import { useSlideDirection } from '../utils/navDirection'
 import { useAuth } from '../context/AuthContext'
 import { getSessionMessage } from '../utils/sessionMessages'
-import { isTtsSupported, speakWord, stopSpeaking } from '../utils/speak'
+import { claimTtsTip, speakWord, stopSpeaking, useTtsAvailable } from '../utils/speak'
 import Button from '../components/ui/Button'
 import SpeakerIcon from '../components/ui/SpeakerIcon'
+import Toast from '../components/ui/Toast'
 import EmptyState from '../components/ui/EmptyState'
 import Confetti from '../components/Confetti'
 
@@ -146,6 +147,8 @@ export default function Practice() {
   const [confetti, setConfetti] = useState(false)
   const [newLearned, setNewLearned] = useState(0)
   const [caughtUp, setCaughtUp] = useState(0)
+  const [toast, setToast] = useState(null)
+  const ttsAvailable = useTtsAvailable()
   const advanceTimer = useRef(null)
   const [shake, setShake] = useState(false)
   // Synchronous submit guard: state-based `submitting` is stale within rapid
@@ -182,11 +185,22 @@ export default function Practice() {
     setLevelEvent(null)
     setConfetti(false)
     setNewLearned(0)
+    setToast(null)
     setCaughtUp(0)
     setFinalMessage(null)
     busyRef.current = false
     sessionRef.current = { correct: 0, total: 0, bestCombo: 0, levelUp: false, level: null }
   }, [id])
+
+  function speak(text) {
+    const started = speakWord(text, {
+      onError: () =>
+        setToast({ variant: 'error', message: "Couldn't play the pronunciation." }),
+    })
+    if (started && claimTtsTip()) {
+      setToast({ variant: 'info', message: 'No sound? Check your device volume.' })
+    }
+  }
 
   async function answer(correct) {
     if (busyRef.current || submitting || feedback) return
@@ -391,13 +405,13 @@ export default function Practice() {
       {/* Study controls sit outside the flip button: no nested interactives.
           Speaker stays silent in reverse mode until the word is revealed. */}
       <div className="flex justify-end gap-2">
-        {isTtsSupported() && (
+        {ttsAvailable && (
           <Button
             variant="secondary"
             className="gap-1.5"
             aria-label={`Pronounce ${current.word}`}
             disabled={reversed && !flipped}
-            onClick={() => speakWord(current.word)}
+            onClick={() => speak(current.word)}
           >
             <SpeakerIcon />
             Say it
@@ -464,6 +478,14 @@ export default function Practice() {
         <div className="animate-pop animate-glow rounded-lg border-2 border-accent bg-gold px-4 py-2 text-center text-sm font-bold text-primary">
           🎊 Level up! You reached Level {levelEvent.newLevel}
         </div>
+      )}
+
+      {toast && (
+        <Toast
+          variant={toast.variant}
+          message={toast.message}
+          onDismiss={() => setToast(null)}
+        />
       )}
     </div>
   )
