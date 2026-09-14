@@ -69,8 +69,12 @@ curl -sI -H 'Origin: https://evil.test' https://<your-api>.onrender.com/api/heal
 
 ## 6. Warm-up runbook (backup ritual before showtime)
 
-Primary keepalive is the in-repo GitHub Actions cron (every 10 min, logs in
-the repo Actions tab). If the demo still hits a cold instance:
+> Parked until demo day: the in-repo `keepalive` cron has its `schedule`
+> commented out (see `.github/workflows/keepalive.yml`). Re-enable by
+> uncommenting it and merging to `main` — schedules only run on `main`.
+> Manual pings still work anytime via Actions → keepalive → Run workflow.
+
+If the demo still hits a cold instance:
 
 1. ~60 s before showtime: `curl -w '\n%{time_total}s\n' https://<your-api>.onrender.com/api/health`
    - `< 2 s` → warm, go.

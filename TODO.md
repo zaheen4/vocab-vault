@@ -118,7 +118,7 @@
 - [ ] @fe Loading/error/empty states on every fetch
 - [ ] All End-to-end regression: fresh account → practice → quiz → typing → review → import
 - [ ] All Final report write-up + screenshots (heatmap + badge + quiz numbers)
-- [ ] All Demo rehearsal (scripted walkthrough, TTS fallback line) + presentation slides update
+- [ ] All Demo rehearsal (scripted walkthrough, TTS fallback line) + presentation slides update + re-enable keepalive cron
 - [ ] All Confirm presentation-machine audio for TTS; fallback line ready
 
 ## Backlog (post-submission ideas)
