@@ -1,6 +1,6 @@
 import express from 'express'
 import cors from 'cors'
-import { connectDB } from './config/db.js'
+import { connectDB, dbReady } from './config/db.js'
 import authRoutes from './routes/auth.routes.js'
 import deckRoutes from './routes/decks.routes.js'
 import wordRoutes from './routes/words.routes.js'
@@ -18,10 +18,16 @@ const allowedOrigins = (process.env.CLIENT_URL || '')
   .map((s) => s.trim())
   .filter(Boolean)
 app.use(allowedOrigins.length > 0 ? cors({ origin: allowedOrigins }) : cors())
-app.use(express.json({ limit: '10mb' }))
+app.use(express.json({ limit: '100kb' }))
+
+// Fail loud, not silent: a missing JWT_SECRET only surfaces as confusing
+// per-request 500s, so warn at startup (Render generates it via render.yaml).
+if (!process.env.JWT_SECRET) {
+  console.warn('[server] JWT_SECRET not set — auth endpoints will fail')
+}
 
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', uptime: process.uptime() })
+  res.json({ status: 'ok', uptime: process.uptime(), db: dbReady() })
 })
 
 app.use('/api/auth', authRoutes)

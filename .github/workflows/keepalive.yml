@@ -1,9 +1,11 @@
 name: keepalive
 
 on:
-  schedule:
-    # Keep the Render free-tier API warm (it sleeps after ~15 min idle).
-    - cron: '*/10 * * * *'
+  # Parked until demo day: uncomment `schedule` to keep the Render free-tier
+  # API permanently warm (it sleeps after ~15 min idle). Schedules only run
+  # on `main`. Manual pings via workflow_dispatch work anytime.
+  # schedule:
+  #   - cron: '*/10 * * * *'
   workflow_dispatch:
 
 jobs:

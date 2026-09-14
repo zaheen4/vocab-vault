@@ -485,8 +485,10 @@ Idempotent (`$addToSet`).
 **Auth:** none  
 **Response 200:**
 ```json
-{ "status": "ok", "uptime": 123.45 }
+{ "status": "ok", "uptime": 123.45, "db": true }
 ```
+`db` reflects Mongo connectivity. Status stays 200 so the Render health
+check passes; routes 503 via `requireDB` when the database is down.
 **Errors:** 500
 
 ---
