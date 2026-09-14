@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../api/client'
-import { useInvalidateAfterReview, useQuizPool } from '../api/queries'
+import { isStarred, useBookmarks, useInvalidateAfterReview, useQuizPool, useToggleBookmark } from '../api/queries'
 import { useSlideDirection } from '../utils/navDirection'
 import { getSessionMessage } from '../utils/sessionMessages'
 import Button from '../components/ui/Button'
@@ -48,6 +48,8 @@ export default function Quiz() {
   // Shared pool with Typing: switching modes is a cache hit after first load.
   const { data: poolData, isLoading, isError } = useQuizPool(id)
   const invalidateAfterReview = useInvalidateAfterReview()
+  const { data: bookmarks = [] } = useBookmarks()
+  const toggleBookmark = useToggleBookmark()
   const deckTitle = poolData?.title || ''
   const pool = poolData?.words ?? []
   const [status, setStatus] = useState('loading') // loading|error|empty|idle|ready|done
@@ -274,8 +276,23 @@ export default function Quiz() {
         <Link to="/" className="text-slate-400 hover:text-primary">
           ← {deckTitle}
         </Link>
-        <span className="text-slate-400">
-          {index + 1} / {questions.length} · ✓ {score}
+        <span className="flex items-center gap-2 text-slate-400">
+          <span>
+            {index + 1} / {questions.length} · ✓ {score}
+          </span>
+          <Button
+            variant="secondary"
+            aria-label={isStarred(bookmarks, q.word._id) ? `Remove ${q.word.word} from saved` : `Save ${q.word.word}`}
+            aria-pressed={isStarred(bookmarks, q.word._id)}
+            onClick={() =>
+              toggleBookmark.mutate(
+                { wordId: q.word._id, starred: isStarred(bookmarks, q.word._id) },
+                { onError: () => setToast({ variant: 'error', message: "Couldn't save that word." }) }
+              )
+            }
+          >
+            {isStarred(bookmarks, q.word._id) ? '★' : '☆'}
+          </Button>
         </span>
       </div>
 

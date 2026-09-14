@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../api/client'
-import { useDeck, useInvalidateAfterReview, usePracticeSession } from '../api/queries'
+import { isStarred, useBookmarks, useDeck, useInvalidateAfterReview, usePracticeSession, useToggleBookmark } from '../api/queries'
 import { useSlideDirection } from '../utils/navDirection'
 import { useAuth } from '../context/AuthContext'
 import { getSessionMessage } from '../utils/sessionMessages'
@@ -130,6 +130,8 @@ export default function Practice({ active = true }) {
   const { data: deck } = useDeck(id)
   const { data: sessionWords, isLoading, isError } = usePracticeSession(id, 10)
   const invalidateAfterReview = useInvalidateAfterReview()
+  const { data: bookmarks = [] } = useBookmarks()
+  const toggleBookmark = useToggleBookmark()
   const deckTitle = deck?.title || ''
   // Freeze the session batch once per deck: background refetches (invalidation,
   // tab-hover prefetch, window focus) must not swap the card mid-run.
@@ -450,6 +452,19 @@ export default function Practice({ active = true }) {
           onClick={() => setReversed((r) => !r)}
         >
           ⇄ Reverse
+        </Button>
+        <Button
+          variant="secondary"
+          aria-label={isStarred(bookmarks, current._id) ? `Remove ${current.word} from saved` : `Save ${current.word}`}
+          aria-pressed={isStarred(bookmarks, current._id)}
+          onClick={() =>
+            toggleBookmark.mutate(
+              { wordId: current._id, starred: isStarred(bookmarks, current._id) },
+              { onError: () => setToast({ variant: 'error', message: "Couldn't save that word." }) }
+            )
+          }
+        >
+          {isStarred(bookmarks, current._id) ? '★' : '☆'}
         </Button>
       </div>
 
