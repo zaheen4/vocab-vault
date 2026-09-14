@@ -6,6 +6,7 @@ import {
   useCreateList,
   useCustomList,
   useCustomLists,
+  useDecks,
   useDeleteList,
   useRemoveListWord,
   useRenameList,
@@ -20,13 +21,25 @@ import { speakWord, useTtsAvailable } from '../utils/speak'
 const inputClass =
   'w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-accent focus:outline-none'
 
-function WordRow({ entry, lists }) {
+function WordRow({ entry, lists, quickList, onQuickListUsed, notify }) {
   const word = entry.word || {}
   const toggle = useToggleBookmark()
   const addToList = useAddListWord()
   const ttsAvailable = useTtsAvailable()
   const [listId, setListId] = useState('')
-  const [toast, setToast] = useState(null)
+
+  function addTo(wordListId, wordId) {
+    addToList.mutate(
+      { id: wordListId, wordId },
+      {
+        onSuccess: () => {
+          setListId('')
+          onQuickListUsed(wordListId)
+        },
+        onError: () => notify("Couldn't add to that list."),
+      }
+    )
+  }
 
   return (
     <li className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
@@ -40,7 +53,7 @@ function WordRow({ entry, lists }) {
             onClick={() =>
               toggle.mutate(
                 { wordId: word._id, starred: true },
-                { onError: () => setToast({ variant: 'error', message: "Couldn't remove that word." }) }
+                { onError: () => notify("Couldn't remove that word.") }
               )
             }
           >
@@ -53,7 +66,7 @@ function WordRow({ entry, lists }) {
               aria-label={`Pronounce ${word.word}`}
               onClick={() =>
                 speakWord(word.word, {
-                  onError: () => setToast({ variant: 'error', message: "Couldn't play the pronunciation." }),
+                  onError: () => notify("Couldn't play the pronunciation."),
                 })
               }
             >
@@ -62,65 +75,90 @@ function WordRow({ entry, lists }) {
           )}
         </span>
       </div>
+      <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
+        {word.partOfSpeech && <span className="text-slate-400 italic">{word.partOfSpeech}</span>}
+        {word.group != null && (
+          <span className="rounded-full bg-slate-100 px-2 py-0.5 font-medium text-slate-600">
+            Group {word.group}
+          </span>
+        )}
+        {word.source === 'custom' && (
+          <span className="rounded-full bg-gold/50 px-2 py-0.5 font-medium text-primary">Yours</span>
+        )}
+      </div>
       <p className="mt-1 text-sm text-slate-600">{word.definition}</p>
       {word.example && <p className="mt-1 text-sm text-slate-400 italic">“{word.example}”</p>}
-      {lists.length > 0 && (
-        <div className="mt-3 flex items-center gap-2">
+      {quickList && (
+        <div className="mt-3">
+          <button
+            type="button"
+            disabled={addToList.isPending}
+            onClick={() => addTo(quickList._id, word._id)}
+            className="min-h-9 rounded-md border border-accent bg-gold/40 px-3 py-1.5 text-xs font-bold text-primary transition-colors hover:bg-gold disabled:opacity-50"
+          >
+            + {quickList.title}
+          </button>
+        </div>
+      )}
+      {lists.length > 1 && (
+        <div className="mt-2 flex items-center gap-2">
           <select
-            aria-label={`Add ${word.word} to a list`}
+            aria-label={`Add ${word.word} to a different list`}
             value={listId}
             onChange={(e) => setListId(e.target.value)}
             className="min-h-9 flex-1 rounded-md border border-slate-300 px-2 py-1.5 text-sm focus:border-accent focus:outline-none"
           >
-            <option value="">Add to a list…</option>
-            {lists.map((l) => (
-              <option key={l._id} value={l._id}>
-                {l.title}
-              </option>
-            ))}
+            <option value="">Another list…</option>
+            {lists
+              .filter((l) => !quickList || l._id !== quickList._id)
+              .map((l) => (
+                <option key={l._id} value={l._id}>
+                  {l.title}
+                </option>
+              ))}
           </select>
           <Button
             variant="secondary"
             disabled={!listId || addToList.isPending}
-            onClick={() =>
-              addToList.mutate(
-                { id: listId, wordId: word._id },
-                {
-                  onSuccess: () => setListId(''),
-                  onError: () => setToast({ variant: 'error', message: "Couldn't add to that list." }),
-                }
-              )
-            }
+            onClick={() => addTo(listId, word._id)}
           >
             Add
           </Button>
-        </div>
-      )}
-      {toast && (
-        <div className="mt-3">
-          <Toast variant={toast.variant} message={toast.message} onDismiss={() => setToast(null)} />
         </div>
       )}
     </li>
   )
 }
 
-function ListCard({ list, open, onToggle }) {
+function ListCard({ list, open, onToggle, notify }) {
   const detail = useCustomList(open ? list._id : null)
   const rename = useRenameList()
   const remove = useDeleteList()
   const removeWord = useRemoveListWord()
   const [editing, setEditing] = useState(false)
   const [title, setTitle] = useState(list.title)
-  const [toast, setToast] = useState(null)
+  const [confirming, setConfirming] = useState(false)
 
   function saveTitle() {
     rename.mutate(
       { id: list._id, title },
       {
         onSuccess: () => setEditing(false),
-        onError: () => setToast({ variant: 'error', message: "Couldn't rename that list." }),
+        onError: () => notify("Couldn't rename that list."),
       }
+    )
+  }
+
+  function handleDelete() {
+    if (!confirming) {
+      setConfirming(true)
+      setTimeout(() => setConfirming(false), 3000)
+      return
+    }
+    setConfirming(false)
+    remove.mutate(
+      { id: list._id },
+      { onError: () => notify("Couldn't delete that list.") }
     )
   }
 
@@ -166,16 +204,12 @@ function ListCard({ list, open, onToggle }) {
         )}
         <Button
           variant="secondary"
-          aria-label={`Delete ${list.title}`}
+          aria-label={confirming ? `Confirm delete ${list.title}` : `Delete ${list.title}`}
           disabled={remove.isPending}
-          onClick={() =>
-            remove.mutate(
-              { id: list._id },
-              { onError: () => setToast({ variant: 'error', message: "Couldn't delete that list." }) }
-            )
-          }
+          onClick={handleDelete}
+          className={confirming ? 'border-red-300 bg-red-50 text-red-700' : ''}
         >
-          Delete
+          {confirming ? 'Sure?' : 'Delete'}
         </Button>
       </div>
       {open && (
@@ -191,7 +225,7 @@ function ListCard({ list, open, onToggle }) {
                 onClick={() =>
                   removeWord.mutate(
                     { id: list._id, wordId: w._id },
-                    { onError: () => setToast({ variant: 'error', message: "Couldn't remove that word." }) }
+                    { onError: () => notify("Couldn't remove that word.") }
                   )
                 }
               >
@@ -205,11 +239,6 @@ function ListCard({ list, open, onToggle }) {
           )}
         </ul>
       )}
-      {toast && (
-        <div className="mt-3">
-          <Toast variant={toast.variant} message={toast.message} onDismiss={() => setToast(null)} />
-        </div>
-      )}
     </div>
   )
 }
@@ -217,10 +246,25 @@ function ListCard({ list, open, onToggle }) {
 export default function Bookmarks() {
   const { data: bookmarks = [], isLoading, isError } = useBookmarks()
   const { data: lists = [] } = useCustomLists()
+  const { data: decks = [] } = useDecks()
   const createList = useCreateList()
   const [newTitle, setNewTitle] = useState('')
   const [openId, setOpenId] = useState(null)
+  const [filter, setFilter] = useState('')
+  const [lastListId, setLastListId] = useState(null)
   const [toast, setToast] = useState(null)
+  const notify = (message) => setToast({ variant: 'error', message })
+
+  const myDeck = decks.find((d) => d.source === 'custom')
+  const quickList = lists.find((l) => l._id === lastListId) ?? lists[0] ?? null
+  const q = filter.trim().toLowerCase()
+  const visible = q
+    ? bookmarks.filter(
+        (b) =>
+          (b.word?.word || '').toLowerCase().includes(q) ||
+          (b.word?.definition || '').toLowerCase().includes(q)
+      )
+    : bookmarks
 
   function create() {
     createList.mutate(
@@ -263,6 +307,22 @@ export default function Bookmarks() {
             ? 'Star words from search to build your review shelf.'
             : `${bookmarks.length} starred word${bookmarks.length === 1 ? '' : 's'}.`}
         </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Link
+            to="/words/new"
+            className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-primary transition-colors hover:border-accent"
+          >
+            + Add word
+          </Link>
+          {myDeck && (
+            <Link
+              to={`/decks/${myDeck._id}`}
+              className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-primary transition-colors hover:border-accent"
+            >
+              My Words deck →
+            </Link>
+          )}
+        </div>
       </div>
 
       {bookmarks.length === 0 ? (
@@ -276,11 +336,39 @@ export default function Bookmarks() {
           }
         />
       ) : (
-        <ul className="space-y-2">
-          {bookmarks.map((b) => (
-            <WordRow key={b._id} entry={b} lists={lists} />
-          ))}
-        </ul>
+        <>
+          <input
+            type="search"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            placeholder="Filter saved words…"
+            aria-label="Filter saved words"
+            className={inputClass}
+          />
+          {q && (
+            <p className="-mt-4 text-xs text-slate-400">
+              {visible.length} of {bookmarks.length} shown
+            </p>
+          )}
+          {visible.length === 0 ? (
+            <p className="py-4 text-center text-sm text-slate-400">
+              Nothing saved matches “{filter.trim()}”.
+            </p>
+          ) : (
+            <ul className="space-y-2">
+              {visible.map((b) => (
+                <WordRow
+                  key={b._id}
+                  entry={b}
+                  lists={lists}
+                  quickList={quickList}
+                  onQuickListUsed={setLastListId}
+                  notify={notify}
+                />
+              ))}
+            </ul>
+          )}
+        </>
       )}
 
       <div>
@@ -305,6 +393,7 @@ export default function Bookmarks() {
               list={l}
               open={openId === l._id}
               onToggle={() => setOpenId((o) => (o === l._id ? null : l._id))}
+              notify={notify}
             />
           ))}
           {lists.length === 0 && (
