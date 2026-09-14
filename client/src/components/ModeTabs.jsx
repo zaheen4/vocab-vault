@@ -56,7 +56,7 @@ export default function ModeTabs({ deckId }) {
     >
       <span
         aria-hidden="true"
-        className="absolute inset-y-1 left-0 rounded-full bg-accent transition-[transform,width] duration-250 ease-out motion-reduce:transition-none"
+        className="absolute inset-y-1 left-0 rounded-full bg-accent transition-all duration-250 ease-out motion-reduce:transition-none"
         style={
           pill
             ? {

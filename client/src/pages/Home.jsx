@@ -109,7 +109,7 @@ export default function Home() {
         {totalProgress === 0 && firstDeck && (
           <Link
             to={`/decks/${firstDeck._id}`}
-            className="mt-6 flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:shadow active:scale-[0.99]"
+            className="mt-6 flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:shadow active:scale-99"
           >
             <div>
               <p className="font-display text-sm font-semibold text-primary">

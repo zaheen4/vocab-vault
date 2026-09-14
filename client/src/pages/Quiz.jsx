@@ -201,7 +201,7 @@ export default function Quiz() {
               key={n}
               onClick={() => setLength(n)}
               aria-pressed={length === n}
-              className={`rounded-md px-5 py-2.5 font-display text-sm font-bold transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:scale-[0.97] ${
+              className={`rounded-md px-5 py-2.5 font-display text-sm font-bold transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:scale-97 ${
                 length === n
                   ? 'bg-accent text-primary'
                   : 'border border-slate-300 bg-white text-slate-600 hover:bg-slate-50'
@@ -300,7 +300,7 @@ export default function Quiz() {
               onClick={() => choose(i)}
               disabled={picked !== null}
               style={picked === null ? { animationDelay: `${i * 50}ms` } : undefined}
-              className={`rounded-lg border-2 px-4 py-3 text-left font-display text-sm font-bold text-primary transition-all active:scale-[0.99] disabled:cursor-default ${picked === null ? 'animate-fade-up' : ''} ${cls}`}
+              className={`rounded-lg border-2 px-4 py-3 text-left font-display text-sm font-bold text-primary transition-all active:scale-99 disabled:cursor-default ${picked === null ? 'animate-fade-up' : ''} ${cls}`}
             >
               <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-500">
                 {picked !== null && i === q.answerIndex
