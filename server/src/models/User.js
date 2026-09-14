@@ -18,6 +18,10 @@ const userSchema = new mongoose.Schema(
     reviewsTodayDate: { type: Date },
     goalMetDate: { type: Date },
     goalsMet: { type: Number, default: 0 },
+    activityLog: {
+      type: [{ date: { type: Date }, reviews: { type: Number, default: 0 } }],
+      default: [],
+    },
     badges: {
       type: [{ id: { type: String, required: true }, awardedAt: { type: Date } }],
       default: [],

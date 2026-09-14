@@ -13,6 +13,7 @@ import {
   awardGoalRefill,
   awardBadges,
 } from '../utils/gamify.js'
+import { pushHistory, recordActivity } from '../utils/analytics.js'
 
 const router = Router()
 
@@ -24,6 +25,45 @@ router.get('/summary', requireDB, requireAuth, async (req, res) => {
     ])
     res.json({
       summary: Object.fromEntries(byStatus.map((s) => [s._id, s.count])),
+    })
+  } catch (err) {
+    res.status(500).json({ message: err.message })
+  }
+})
+
+router.get('/word/:wordId', requireDB, requireAuth, async (req, res) => {
+  try {
+    const { wordId } = req.params
+    if (!mongoose.isValidObjectId(wordId)) {
+      return res.status(400).json({ message: 'Valid wordId is required' })
+    }
+    const word = await Word.findById(wordId)
+    if (!word) return res.status(404).json({ message: 'Word not found' })
+
+    const progress = await Progress.findOne({ userId: req.user._id, wordId })
+    if (!progress) {
+      return res.json({
+        progress: {
+          wordId,
+          box: 1,
+          status: 'new',
+          streakCorrect: 0,
+          lastReviewed: null,
+          reviewDueAfter: null,
+          history: [],
+        },
+      })
+    }
+    res.json({
+      progress: {
+        wordId,
+        box: progress.box,
+        status: progress.status,
+        streakCorrect: progress.streakCorrect,
+        lastReviewed: progress.lastReviewed,
+        reviewDueAfter: progress.reviewDueAfter,
+        history: progress.history || [],
+      },
     })
   } catch (err) {
     res.status(500).json({ message: err.message })
@@ -90,6 +130,11 @@ router.post('/review', requireDB, requireAuth, async (req, res) => {
 
       // consecutive-correct run for the flawless badge
       user.perfectRun = correct ? (user.perfectRun || 0) + 1 : 0
+
+      // analytics logs (per-day activity + per-word history)
+      recordActivity(user, now)
+      pushHistory(progress, { correct, box: progress.box }, now)
+      await progress.save()
 
       // badges (idempotent: already-earned ids are skipped)
       const newBadges = awardBadges(user, now)

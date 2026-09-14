@@ -201,6 +201,29 @@ quizzes test recall, not first exposure. Empty array when nothing viewed yet.
 
 ---
 
+### `GET /api/progress/word/:wordId` — Get my progress on one word
+**Auth:** required  
+**Params:** `wordId` (ObjectId)  
+**Response 200:**
+```json
+{
+  "progress": {
+    "wordId": "...",
+    "box": 3,
+    "status": "learning",
+    "streakCorrect": 2,
+    "lastReviewed": "...",
+    "reviewDueAfter": "...",
+    "history": [{ "at": "...", "correct": true, "box": 3 }]
+  }
+}
+```
+`history` holds the last 20 reviews, newest last. A never-reviewed word
+returns the fresh shape (`box: 1`, `status: "new"`, `history: []`).  
+**Errors:** 400 (invalid wordId), 404 (unknown word), 500
+
+---
+
 ### `POST /api/progress/review` — Record a practice answer
 **Auth:** required  
 **Request:**
@@ -278,9 +301,12 @@ idempotent — an already-earned badge is never returned again.
     "dailyGoalTarget": 10,
     "reviewsToday": 8,
     "goalsMet": 3,
+    "activity": [{ "date": "2026-09-14", "reviews": 8 }],
     "badges": [{ "id": "first-word", "awardedAt": "..." }]
   }
 }
+```
+`activity` holds per-day review counts, newest last (kept to the last 60 days).
 ```
 **Errors:** 401 (unauthorized), 404 (user not found), 500
 
@@ -513,6 +539,7 @@ Idempotent (`$addToSet`).
 | reviewsTodayDate | Date | ❌ | date of current reviewsToday |
 | goalMetDate | Date | ❌ | last date daily goal was met |
 | goalsMet | number | ❌ | total goals met |
+| activityLog | object[] | ❌ | per-day `{ date, reviews }`, capped at 60 entries |
 | badges | object[] | ❌ | earned badges `{ id, awardedAt }`, default `[]` |
 | perfectRun | number | ❌ | current consecutive-correct run (for flawless), default 0 |
 | createdAt / updatedAt | Date | auto | |
@@ -539,6 +566,7 @@ a row across any mode, tracked by `perfectRun`).
 | lastReviewed | Date | ❌ | default now |
 | reviewDueAfter | Date | ❌ | set by review; SRS due date |
 | status | enum | ❌ | `new` \| `learning` \| `mastered`, default `new` |
+| history | object[] | ❌ | last 20 reviews `{ at, correct, box }`, newest last |
 | createdAt / updatedAt | Date | auto | |
 | unique index | | | `(userId, wordId)` |
 

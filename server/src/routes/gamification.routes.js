@@ -27,6 +27,11 @@ router.get('/me', requireDB, requireAuth, async (req, res) => {
         dailyGoalTarget: user.dailyGoalTarget || 10,
         reviewsToday: user.reviewsToday || 0,
         goalsMet: user.goalsMet || 0,
+        activity: (user.activityLog || []).slice(-14).map((a) => {
+          const d = new Date(a.date)
+          const day = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+          return { date: day, reviews: a.reviews || 0 }
+        }),
         badges: (user.badges || []).map((b) => ({
           id: b.id,
           awardedAt: b.awardedAt || null,

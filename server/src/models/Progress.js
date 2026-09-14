@@ -13,6 +13,10 @@ const progressSchema = new mongoose.Schema(
       enum: ['new', 'learning', 'mastered'],
       default: 'new',
     },
+    history: {
+      type: [{ at: { type: Date }, correct: { type: Boolean }, box: { type: Number } }],
+      default: [],
+    },
   },
   { timestamps: true }
 )
