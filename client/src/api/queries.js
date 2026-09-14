@@ -96,14 +96,21 @@ export function usePrefetchQuizPool() {
   }
 }
 
+// Invalidation to run after a review is recorded. The practice session is
+// marked stale with `refetchType: 'none'` on purpose: it is a fixed batch for
+// the current run, and refetching it mid-session swaps the card under the user
+// (answer -> pool shifts -> card jumps). staleTime is 0, so the next mount
+// still refetches.
+export function invalidateAfterReview(qc, deckId) {
+  qc.invalidateQueries({ queryKey: GAMIFICATION_KEY })
+  qc.invalidateQueries({ queryKey: SUMMARY_KEY })
+  if (deckId) {
+    qc.invalidateQueries({ queryKey: ['session', deckId], refetchType: 'none' })
+    qc.invalidateQueries({ queryKey: ['quizpool', deckId] })
+  }
+}
+
 export function useInvalidateAfterReview() {
   const qc = useQueryClient()
-  return (deckId) => {
-    qc.invalidateQueries({ queryKey: GAMIFICATION_KEY })
-    qc.invalidateQueries({ queryKey: SUMMARY_KEY })
-    if (deckId) {
-      qc.invalidateQueries({ queryKey: ['session', deckId] })
-      qc.invalidateQueries({ queryKey: ['quizpool', deckId] })
-    }
-  }
+  return (deckId) => invalidateAfterReview(qc, deckId)
 }
