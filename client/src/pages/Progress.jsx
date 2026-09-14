@@ -109,7 +109,7 @@ export default function Progress() {
                   Daily goal: {stats.reviewsToday || 0} / {stats.dailyGoalTarget || 10}
                 </p>
                 {stats.streakFreezes > 0 && (
-                  <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-600">
+                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
                     🧊 × {stats.streakFreezes}
                   </span>
                 )}
@@ -127,7 +127,7 @@ export default function Progress() {
                     onClick={() => setGoal.mutate(t)}
                     className={`rounded-md border px-2 py-0.5 text-xs font-medium transition-colors ${
                       (stats.dailyGoalTarget || 10) === t
-                        ? 'border-accent bg-accent text-white'
+                        ? 'border-accent bg-accent text-primary'
                         : 'border-slate-200 text-slate-500 hover:border-slate-300'
                     }`}
                   >
