@@ -5,6 +5,7 @@ import { isStarred, useBookmarks, useToggleBookmark } from '../api/queries'
 import Button from '../components/ui/Button'
 import SpeakerIcon from '../components/ui/SpeakerIcon'
 import Toast from '../components/ui/Toast'
+import WordHistory from '../components/WordHistory'
 import {
   claimTtsTip,
   speakWord,
@@ -23,6 +24,7 @@ export default function Search() {
   const [total, setTotal] = useState(0)
   const [status, setStatus] = useState('idle')
   const [toast, setToast] = useState(null)
+  const [openId, setOpenId] = useState(null)
   const { data: bookmarks = [] } = useBookmarks()
   const toggleBookmark = useToggleBookmark()
   const ttsAvailable = useTtsAvailable()
@@ -97,7 +99,17 @@ export default function Search() {
             className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
           >
             <div className="flex items-baseline justify-between gap-3">
-              <h3 className="font-display font-semibold text-primary">{w.word}</h3>
+              <button
+                type="button"
+                onClick={() => setOpenId((o) => (o === w._id ? null : w._id))}
+                aria-expanded={openId === w._id}
+                className="flex min-h-9 flex-1 items-baseline gap-1.5 text-left"
+              >
+                <span className="font-display font-semibold text-primary">{w.word}</span>
+                <span className="shrink-0 text-xs font-bold text-slate-300">
+                  {openId === w._id ? '▾' : '▸'}
+                </span>
+              </button>
               <span className="ml-auto flex shrink-0 items-center gap-1.5 self-center">
                 <Button
                   variant="secondary"
@@ -146,6 +158,14 @@ export default function Search() {
             <p className="mt-1 text-sm text-slate-600">{w.definition}</p>
             {w.example && (
               <p className="mt-1 text-sm text-slate-400 italic">“{w.example}”</p>
+            )}
+            {openId === w._id && (
+              <div className="mt-2 border-t border-slate-100 pt-2">
+                <p className="text-xs font-bold text-slate-500">History</p>
+                <div className="mt-1">
+                  <WordHistory wordId={w._id} active />
+                </div>
+              </div>
             )}
           </li>
         ))}

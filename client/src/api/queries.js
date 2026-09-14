@@ -179,6 +179,16 @@ export function useToggleBookmark() {
 
 export const fetchCustomLists = () => api.get('/lists').then((d) => d.lists)
 export const fetchCustomList = (id) => api.get(`/lists/${id}`).then((d) => d.list)
+export const fetchWordProgress = (id) => api.get(`/progress/word/${id}`).then((d) => d.progress)
+
+export function useWordProgress(id) {
+  return useQuery({
+    queryKey: ['word-progress', id],
+    queryFn: () => fetchWordProgress(id),
+    staleTime: 30 * 1000,
+    enabled: !!id,
+  })
+}
 
 export function useCustomLists() {
   return useQuery({

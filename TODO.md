@@ -103,9 +103,9 @@
 
 ### Analytics
 
-- [ ] @be Daily activity log + per-word history log on review (`GET /gamification/me` activity, `GET /progress/word/:wordId`)
-- [ ] @fe Weekly activity heatmap on dashboard (7-day strip on Progress)
-- [ ] @fe Per-word history (box path, last reviews) in Saved + Search rows — snapshot exists; path needs the @be history log
+- [x] @be Daily activity log + per-word history log on review (`GET /gamification/me` activity, `GET /progress/word/:wordId`) (`feat/analytics-be`)
+- [x] @fe Weekly activity heatmap on dashboard (7-day strip on Progress) (`feat/analytics-fe`)
+- [x] @fe Per-word history (box path, last reviews) in Saved + Search rows (`feat/analytics-fe`)
 - [ ] @docs Screenshots/numbers reserved for final report
 
 ## Week 4 — Deploy, Polish & Demo
