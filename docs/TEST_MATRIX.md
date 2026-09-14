@@ -38,3 +38,9 @@
 - Flow 1: all 8 steps pass (register 201 with no `passwordHash`; login redirect + name chip; 37 decks; `+14 XP` feedback; review 200 + both 400s; summary `{learning: 1}` + Level 1/14 XP/streak 1; temp account + data deleted, 0 left).
 - Flow 2: quiz renders + records, unviewed-deck empty state, typing correct/forgiven/wrong paths, audio clip 200, search ok, `test:e2e` 4/4, zero page errors.
 - Audit fixes in this PR: `passwordHash` no longer returned by register/login; bookmark POST shape documented with `status`/`box`.
+
+## Production smoke (2026-09-14, live URLs)
+
+- Seed: 37 decks / 1,110 words / audio 200 on `https://vvault.pages.dev`.
+- Temp register → practice (3 words) → review (`xpEarned` 14, streak 1, goal fields) → `first-word` badge → temp deleted.
+- CORS: prod origin reflected, foreign origin gets no header.
