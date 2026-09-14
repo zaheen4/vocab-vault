@@ -17,6 +17,57 @@ const BADGES = [
   { id: 'flawless', name: 'Flawless', icon: '💎', description: '10 correct in a row' },
 ]
 
+const DAY_LETTERS = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+
+function dayKey(d) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+// 7-day activity strip. Decorative: guards on missing activity, never blocks.
+function ActivityStrip({ activity }) {
+  const byDate = new Map((activity || []).map((a) => [a.date, a.reviews || 0]))
+  const today = new Date()
+  const days = []
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - i)
+    days.push({ key: dayKey(d), letter: DAY_LETTERS[d.getDay()], isToday: i === 0, reviews: byDate.get(dayKey(d)) || 0 })
+  }
+  const max = Math.max(1, ...days.map((d) => d.reviews))
+  const total = days.reduce((a, d) => a + d.reviews, 0)
+  const tone = (n) =>
+    n === 0
+      ? 'bg-slate-100'
+      : n / max < 0.34
+        ? 'bg-accent/30'
+        : n / max < 0.67
+          ? 'bg-accent/60'
+          : 'bg-accent'
+
+  return (
+    <div className="rounded-xl border border-primary/10 bg-white p-5">
+      <div className="flex items-baseline justify-between">
+        <h2 className="font-display text-base font-bold text-primary">This week</h2>
+        <p className="text-xs text-slate-500">
+          {total} review{total === 1 ? '' : 's'}
+        </p>
+      </div>
+      <div className="mt-3 grid grid-cols-7 gap-1.5">
+        {days.map((d) => (
+          <div key={d.key} className="flex flex-col items-center gap-1">
+            <span
+              title={`${d.key}: ${d.reviews} review${d.reviews === 1 ? '' : 's'}`}
+              className={`flex h-10 w-full items-center justify-center rounded-md text-xs font-bold text-primary ${tone(d.reviews)} ${d.isToday ? 'ring-2 ring-primary' : ''}`}
+            >
+              {d.reviews > 0 ? d.reviews : ''}
+            </span>
+            <span className="text-xs text-slate-400">{d.letter}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function Progress() {
   const { data: summary, isLoading, isError } = useProgressSummary()
   // Decorative gamification banner: never block the page on failure
@@ -94,6 +145,8 @@ export default function Progress() {
           </div>
         </div>
       )}
+
+      {stats && <ActivityStrip activity={stats.activity || []} />}
 
       {stats && (
         <div className="rounded-xl border border-primary/10 bg-white p-5">

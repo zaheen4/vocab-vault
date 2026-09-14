@@ -18,6 +18,7 @@ import Button from '../components/ui/Button'
 import EmptyState from '../components/ui/EmptyState'
 import SpeakerIcon from '../components/ui/SpeakerIcon'
 import Toast from '../components/ui/Toast'
+import WordHistory from '../components/WordHistory'
 import { speakWord, useTtsAvailable } from '../utils/speak'
 
 const inputClass =
@@ -134,6 +135,12 @@ function WordRow({ entry, lists, quickList, onQuickListUsed, notify, selectMode,
           </div>
           <p className="text-sm text-slate-600">{word.definition}</p>
           {word.example && <p className="text-sm text-slate-400 italic">“{word.example}”</p>}
+          <div>
+            <p className="text-xs font-bold text-slate-500">History</p>
+            <div className="mt-1">
+              <WordHistory wordId={word._id} active={expanded} />
+            </div>
+          </div>
           {quickList && (
             <button
               type="button"

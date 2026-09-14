@@ -34,7 +34,7 @@
 
 ## Last execution
 
-- Date: 2026-09-14 · Branch: `docs/test-matrix-audit` · Executor: agent
+- Date: 2026-09-14 · PR: [#46](https://github.com/zaheen4/vocab-vault/pull/46) · Executor: agent
 - Flow 1: all 8 steps pass (register 201 with no `passwordHash`; login redirect + name chip; 37 decks; `+14 XP` feedback; review 200 + both 400s; summary `{learning: 1}` + Level 1/14 XP/streak 1; temp account + data deleted, 0 left).
 - Flow 2: quiz renders + records, unviewed-deck empty state, typing correct/forgiven/wrong paths, audio clip 200, search ok, `test:e2e` 4/4, zero page errors.
 - Audit fixes in this PR: `passwordHash` no longer returned by register/login; bookmark POST shape documented with `status`/`box`.
