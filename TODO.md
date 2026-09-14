@@ -72,8 +72,8 @@
 
 ### Practice depth
 
-- [ ] @fe TTS pronunciation button on flashcard (Web Speech API, frontend-only)
-- [ ] @fe Reverse-card toggle (definition → word)
+- [x] @fe TTS pronunciation button on flashcard (Web Speech API, frontend-only) + per-row speakers on Search (`feat/practice-tts-reverse`)
+- [x] @fe Reverse-card toggle (definition → word) (`feat/practice-tts-reverse`)
 - [ ] @be Streak freeze — 1 grace day (`gamify.js` + User field), unit-test the streak edges
 - [x] @fe Tiered end-of-session messages shared by practice and quiz (round-robin, 70 lines)
 - [ ] @data Test matrix extend: quiz → typing → TTS flows

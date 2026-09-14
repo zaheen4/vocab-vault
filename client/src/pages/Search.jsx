@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { api } from '../api/client'
+import Button from '../components/ui/Button'
+import SpeakerIcon from '../components/ui/SpeakerIcon'
+import { isTtsSupported, speakWord, stopSpeaking } from '../utils/speak'
 
 const inputClass =
   'w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-accent focus:outline-none'
@@ -10,6 +13,9 @@ export default function Search() {
   const [total, setTotal] = useState(0)
   const [status, setStatus] = useState('idle')
   const timerRef = useRef(null)
+
+  // Never leave speech playing after navigating away from results.
+  useEffect(() => () => stopSpeaking(), [])
 
   useEffect(() => {
     clearTimeout(timerRef.current)
@@ -68,6 +74,16 @@ export default function Search() {
           >
             <div className="flex items-baseline justify-between gap-3">
               <h3 className="font-display font-semibold text-primary">{w.word}</h3>
+              {isTtsSupported() && (
+                <Button
+                  variant="secondary"
+                  className="shrink-0 self-center"
+                  aria-label={`Pronounce ${w.word}`}
+                  onClick={() => speakWord(w.word)}
+                >
+                  <SpeakerIcon />
+                </Button>
+              )}
               {w.partOfSpeech && (
                 <span className="text-xs text-slate-400 italic">{w.partOfSpeech}</span>
               )}

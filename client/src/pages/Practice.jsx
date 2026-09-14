@@ -5,41 +5,78 @@ import { useDeck, useInvalidateAfterReview, usePracticeSession } from '../api/qu
 import { useSlideDirection } from '../utils/navDirection'
 import { useAuth } from '../context/AuthContext'
 import { getSessionMessage } from '../utils/sessionMessages'
+import { isTtsSupported, speakWord, stopSpeaking } from '../utils/speak'
 import Button from '../components/ui/Button'
+import SpeakerIcon from '../components/ui/SpeakerIcon'
 import EmptyState from '../components/ui/EmptyState'
 import Confetti from '../components/Confetti'
 
 const BOX_LABELS = { 1: 'Box 1', 2: 'Box 2', 3: 'Box 3', 4: 'Box 4', 5: 'Mastered' }
 
-function Flashcard({ word, flipped, onFlip, shake }) {
+function Flashcard({ word, flipped, onFlip, shake, reversed }) {
+  const prompt = reversed ? (
+    <>
+      <p className="text-lg font-semibold text-primary">{word.definition}</p>
+      {word.example && (
+        <p className="mt-1 text-sm text-slate-500 italic">“{word.example}”</p>
+      )}
+      {word.synonyms?.length > 0 && (
+        <p className="mt-1 text-sm text-slate-400">Synonyms: {word.synonyms.join(', ')}</p>
+      )}
+    </>
+  ) : (
+    <>
+      <h2 className="text-3xl font-bold text-primary">{word.word}</h2>
+      {word.partOfSpeech && (
+        <p className="mt-1 text-sm text-slate-400 italic">{word.partOfSpeech}</p>
+      )}
+    </>
+  )
+  const reveal = reversed ? (
+    <>
+      <h2 className="text-3xl font-bold text-primary">{word.word}</h2>
+      {word.partOfSpeech && (
+        <p className="mt-1 text-sm text-slate-400 italic">{word.partOfSpeech}</p>
+      )}
+    </>
+  ) : (
+    <>
+      <p className="text-xs font-medium tracking-wide text-slate-400 uppercase">
+        {word.word}
+        {word.partOfSpeech && ` · ${word.partOfSpeech}`}
+      </p>
+      <p className="mt-2 text-lg font-semibold text-primary">{word.definition}</p>
+      {word.example && (
+        <p className="mt-1 text-sm text-slate-500 italic">“{word.example}”</p>
+      )}
+      {word.synonyms?.length > 0 && (
+        <p className="mt-1 text-sm text-slate-400">Synonyms: {word.synonyms.join(', ')}</p>
+      )}
+    </>
+  )
+  // Reversed front names no word: screen readers must not hear the answer.
+  const label = flipped
+    ? reversed
+      ? `Word ${word.word}`
+      : `Definition of ${word.word}`
+    : reversed
+      ? 'Definition, tap to reveal'
+      : `Word ${word.word}, tap to reveal`
   return (
     <div className={`flip-scene w-full ${shake ? 'animate-shake' : ''}`}>
       <button
         onClick={onFlip}
         className="flip-scene block w-full"
         aria-pressed={flipped}
-        aria-label={flipped ? `Definition of ${word.word}` : `Word ${word.word}, tap to reveal`}
+        aria-label={label}
       >
         <span className={`flip-inner relative flex min-h-64 w-full ${flipped ? 'flipped' : ''}`}>
           <span className="flip-face absolute inset-0 flex flex-col items-center justify-center rounded-xl border-2 border-slate-200 bg-white p-8 text-center shadow-sm">
-            <h2 className="text-3xl font-bold text-primary">{word.word}</h2>
-            {word.partOfSpeech && (
-              <p className="mt-1 text-sm text-slate-400 italic">{word.partOfSpeech}</p>
-            )}
+            {prompt}
             <p className="pt-4 text-xs tracking-wide text-slate-300 uppercase">Tap to reveal</p>
           </span>
           <span className="flip-back flip-face absolute inset-0 flex flex-col items-center justify-center rounded-xl border-2 border-slate-200 bg-white p-8 text-center shadow-sm">
-            <p className="text-xs font-medium tracking-wide text-slate-400 uppercase">
-              {word.word}
-              {word.partOfSpeech && ` · ${word.partOfSpeech}`}
-            </p>
-            <p className="mt-2 text-lg font-semibold text-primary">{word.definition}</p>
-            {word.example && (
-              <p className="mt-1 text-sm text-slate-500 italic">“{word.example}”</p>
-            )}
-            {word.synonyms?.length > 0 && (
-              <p className="mt-1 text-sm text-slate-400">Synonyms: {word.synonyms.join(', ')}</p>
-            )}
+            {reveal}
           </span>
         </span>
       </button>
@@ -96,6 +133,7 @@ export default function Practice() {
   const words = sessionWords ?? []
   const [index, setIndex] = useState(0)
   const [flipped, setFlipped] = useState(false)
+  const [reversed, setReversed] = useState(false)
   const [done, setDone] = useState(false)
   const [results, setResults] = useState([])
   const [submitting, setSubmitting] = useState(false)
@@ -122,12 +160,17 @@ export default function Practice() {
   // Timer cleanup only — data comes from the session query above.
   // (advanceTimer is read inside cleanup so the latest timer is cleared.)
   useEffect(() => {
-    return () => clearTimeout(advanceTimer.current)
+    return () => {
+      clearTimeout(advanceTimer.current)
+      stopSpeaking()
+    }
   }, [])
   // Fresh session state per deck (query key change remounts data, not UI).
   useEffect(() => {
+    stopSpeaking()
     setIndex(0)
     setFlipped(false)
+    setReversed(false)
     setDone(false)
     setResults([])
     setSubmitting(false)
@@ -197,6 +240,7 @@ export default function Practice() {
 
     const finished = index + 1 >= words.length
     advanceTimer.current = setTimeout(() => {
+      stopSpeaking()
       setShake(false)
       setFeedback(null)
       setSubmitting(false)
@@ -344,7 +388,38 @@ export default function Practice() {
         />
       </div>
 
-      <Flashcard word={current} flipped={flipped} onFlip={() => setFlipped((f) => !f)} shake={shake} />
+      {/* Study controls sit outside the flip button: no nested interactives.
+          Speaker stays silent in reverse mode until the word is revealed. */}
+      <div className="flex justify-end gap-2">
+        {isTtsSupported() && (
+          <Button
+            variant="secondary"
+            className="gap-1.5"
+            aria-label={`Pronounce ${current.word}`}
+            disabled={reversed && !flipped}
+            onClick={() => speakWord(current.word)}
+          >
+            <SpeakerIcon />
+            Say it
+          </Button>
+        )}
+        <Button
+          variant="secondary"
+          className={reversed ? 'ring-2 ring-accent' : ''}
+          aria-pressed={reversed}
+          onClick={() => setReversed((r) => !r)}
+        >
+          ⇄ Reverse
+        </Button>
+      </div>
+
+      <Flashcard
+        word={current}
+        flipped={flipped}
+        onFlip={() => setFlipped((f) => !f)}
+        shake={shake}
+        reversed={reversed}
+      />
 
       {flipped && !feedback && (
         <div className="grid grid-cols-2 gap-3">
