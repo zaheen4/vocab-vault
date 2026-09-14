@@ -11,7 +11,13 @@ import listsRoutes from './routes/lists.routes.js'
 import adminRoutes from './routes/admin.routes.js'
 
 const app = express()
-app.use(cors())
+// CORS: locked to CLIENT_URL (comma-separated) in production so only the
+// deployed web app can call the API. Unset locally keeps dev open.
+const allowedOrigins = (process.env.CLIENT_URL || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean)
+app.use(allowedOrigins.length > 0 ? cors({ origin: allowedOrigins }) : cors())
 app.use(express.json({ limit: '10mb' }))
 
 app.get('/api/health', (req, res) => {

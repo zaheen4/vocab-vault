@@ -1,0 +1,17 @@
+name: keepalive
+
+on:
+  schedule:
+    # Keep the Render free-tier API warm (it sleeps after ~15 min idle).
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping production health endpoint
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 90 https://vocab-vault-api.onrender.com/api/health)
+          echo "health status: $code"
+          test "$code" = "200"
