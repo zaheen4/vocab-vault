@@ -110,10 +110,10 @@
 
 ## Week 4 — Deploy, Polish & Demo
 
-- [ ] @data Render deployment (API) + Atlas production user; CORS locked to Vercel domain
-- [ ] @data Vercel deployment (client) + env vars
+- [x] @data Render deployment (API) + Atlas production user; CORS locked to Vercel domain ([#49](https://github.com/zaheen4/vocab-vault/pull/49), live 2026-09-14: health 200, CORS proof pass)
+- [x] @data Cloudflare Pages deployment (client, canonical `https://vvault.pages.dev`; Vercel kept as backup) + env vars ([#51](https://github.com/zaheen4/vocab-vault/pull/51), live 2026-09-14)
 - [x] @data Load the final 1,110-word dataset via importer; verify search/practice against it
-- [ ] @data Warm-up runbook for demo day (Render free tier sleeps — hit API 30s before showtime)
+- [x] @data Warm-up runbook for demo day (Render free tier sleeps — hit API 30s before showtime) (in-repo keepalive cron + `docs/DEPLOY.md` §6)
 - [ ] @fe Responsive pass — mobile-first check on all pages, tap-target sweep (24px min, 44px aim), touch-verify primary flows on a small viewport
 - [ ] @fe Loading/error/empty states on every fetch
 - [ ] All End-to-end regression: fresh account → practice → quiz → typing → review → import
