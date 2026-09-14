@@ -8,6 +8,9 @@ import DeckLayout from './components/DeckLayout'
 import Home from './pages/Home'
 import Progress from './pages/Progress'
 import Search from './pages/Search'
+import Bookmarks from './pages/Bookmarks'
+import SavedPractice from './pages/SavedPractice'
+import AddWord from './pages/AddWord'
 import Login from './pages/Login'
 import Register from './pages/Register'
 
@@ -34,6 +37,9 @@ export default function App() {
             <Route path="decks/:id/*" element={<DeckLayout />} />
             <Route path="progress" element={<Progress />} />
             <Route path="search" element={<Search />} />
+            <Route path="bookmarks" element={<Bookmarks />} />
+            <Route path="bookmarks/practice" element={<SavedPractice />} />
+            <Route path="words/new" element={<AddWord />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>

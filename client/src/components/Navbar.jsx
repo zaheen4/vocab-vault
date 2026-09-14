@@ -43,6 +43,9 @@ export default function Navbar() {
             <NavLink to="/search" className={linkClass}>
               Search
             </NavLink>
+            <NavLink to="/bookmarks" className={linkClass}>
+              Saved
+            </NavLink>
             <NavLink to="/progress" className={linkClass}>
               Progress
             </NavLink>

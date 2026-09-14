@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../api/client'
-import { useInvalidateAfterReview, useQuizPool } from '../api/queries'
+import { isStarred, useBookmarks, useInvalidateAfterReview, useQuizPool, useToggleBookmark } from '../api/queries'
 import { useSlideDirection } from '../utils/navDirection'
 import { isCorrectSpelling } from '../utils/fuzzyMatch'
 import { getSessionMessage } from '../utils/sessionMessages'
@@ -24,6 +24,8 @@ export default function Typing() {
   const { id } = useParams()
   const { data: poolData, isLoading, isError } = useQuizPool(id)
   const invalidateAfterReview = useInvalidateAfterReview()
+  const { data: bookmarks = [] } = useBookmarks()
+  const toggleBookmark = useToggleBookmark()
   const deckTitle = poolData?.title || ''
   const pool = poolData?.words ?? []
   const [status, setStatus] = useState('loading') // loading|error|empty|idle|ready|done
@@ -241,8 +243,23 @@ export default function Typing() {
         <Link to="/" className="text-slate-400 hover:text-primary">
           ← {deckTitle}
         </Link>
-        <span className="text-slate-400">
-          {index + 1} / {words.length} · ✓ {score}
+        <span className="flex items-center gap-2 text-slate-400">
+          <span>
+            {index + 1} / {words.length} · ✓ {score}
+          </span>
+          <Button
+            variant="secondary"
+            aria-label={isStarred(bookmarks, word._id) ? `Remove ${word.word} from saved` : `Save ${word.word}`}
+            aria-pressed={isStarred(bookmarks, word._id)}
+            onClick={() =>
+              toggleBookmark.mutate(
+                { wordId: word._id, starred: isStarred(bookmarks, word._id) },
+                { onError: () => setToast({ variant: 'error', message: "Couldn't save that word." }) }
+              )
+            }
+          >
+            {isStarred(bookmarks, word._id) ? '★' : '☆'}
+          </Button>
         </span>
       </div>
 

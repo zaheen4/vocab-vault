@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { api } from '../api/client'
-import { useDeck, useInvalidateAfterReview, usePracticeSession } from '../api/queries'
+import { isStarred, useBookmarks, useDeck, useInvalidateAfterReview, usePracticeSession, useToggleBookmark } from '../api/queries'
 import { useSlideDirection } from '../utils/navDirection'
 import { useAuth } from '../context/AuthContext'
 import { getSessionMessage } from '../utils/sessionMessages'
@@ -11,79 +11,9 @@ import SpeakerIcon from '../components/ui/SpeakerIcon'
 import Toast from '../components/ui/Toast'
 import EmptyState from '../components/ui/EmptyState'
 import Confetti from '../components/Confetti'
+import Flashcard from '../components/Flashcard'
 
 const BOX_LABELS = { 1: 'Box 1', 2: 'Box 2', 3: 'Box 3', 4: 'Box 4', 5: 'Mastered' }
-
-function Flashcard({ word, flipped, onFlip, shake, reversed }) {
-  const prompt = reversed ? (
-    <>
-      <p className="text-lg font-semibold text-primary">{word.definition}</p>
-      {word.example && (
-        <p className="mt-1 text-sm text-slate-500 italic">“{word.example}”</p>
-      )}
-      {word.synonyms?.length > 0 && (
-        <p className="mt-1 text-sm text-slate-400">Synonyms: {word.synonyms.join(', ')}</p>
-      )}
-    </>
-  ) : (
-    <>
-      <h2 className="text-3xl font-bold text-primary">{word.word}</h2>
-      {word.partOfSpeech && (
-        <p className="mt-1 text-sm text-slate-400 italic">{word.partOfSpeech}</p>
-      )}
-    </>
-  )
-  const reveal = reversed ? (
-    <>
-      <h2 className="text-3xl font-bold text-primary">{word.word}</h2>
-      {word.partOfSpeech && (
-        <p className="mt-1 text-sm text-slate-400 italic">{word.partOfSpeech}</p>
-      )}
-    </>
-  ) : (
-    <>
-      <p className="text-xs font-medium tracking-wide text-slate-400 uppercase">
-        {word.word}
-        {word.partOfSpeech && ` · ${word.partOfSpeech}`}
-      </p>
-      <p className="mt-2 text-lg font-semibold text-primary">{word.definition}</p>
-      {word.example && (
-        <p className="mt-1 text-sm text-slate-500 italic">“{word.example}”</p>
-      )}
-      {word.synonyms?.length > 0 && (
-        <p className="mt-1 text-sm text-slate-400">Synonyms: {word.synonyms.join(', ')}</p>
-      )}
-    </>
-  )
-  // Reversed front names no word: screen readers must not hear the answer.
-  const label = flipped
-    ? reversed
-      ? `Word ${word.word}`
-      : `Definition of ${word.word}`
-    : reversed
-      ? 'Definition, tap to reveal'
-      : `Word ${word.word}, tap to reveal`
-  return (
-    <div className={`flip-scene w-full ${shake ? 'animate-shake' : ''}`}>
-      <button
-        onClick={onFlip}
-        className="flip-scene block w-full"
-        aria-pressed={flipped}
-        aria-label={label}
-      >
-        <span className={`flip-inner relative flex min-h-64 w-full ${flipped ? 'flipped' : ''}`}>
-          <span className="flip-face absolute inset-0 flex flex-col items-center justify-center rounded-xl border-2 border-slate-200 bg-white p-8 text-center shadow-sm">
-            {prompt}
-            <p className="pt-4 text-xs tracking-wide text-slate-300 uppercase">Tap to reveal</p>
-          </span>
-          <span className="flip-back flip-face absolute inset-0 flex flex-col items-center justify-center rounded-xl border-2 border-slate-200 bg-white p-8 text-center shadow-sm">
-            {reveal}
-          </span>
-        </span>
-      </button>
-    </div>
-  )
-}
 
 // A count-up number for the end screen
 function ScoreRing({ correct, total }) {
@@ -130,6 +60,8 @@ export default function Practice({ active = true }) {
   const { data: deck } = useDeck(id)
   const { data: sessionWords, isLoading, isError } = usePracticeSession(id, 10)
   const invalidateAfterReview = useInvalidateAfterReview()
+  const { data: bookmarks = [] } = useBookmarks()
+  const toggleBookmark = useToggleBookmark()
   const deckTitle = deck?.title || ''
   // Freeze the session batch once per deck: background refetches (invalidation,
   // tab-hover prefetch, window focus) must not swap the card mid-run.
@@ -450,6 +382,19 @@ export default function Practice({ active = true }) {
           onClick={() => setReversed((r) => !r)}
         >
           ⇄ Reverse
+        </Button>
+        <Button
+          variant="secondary"
+          aria-label={isStarred(bookmarks, current._id) ? `Remove ${current.word} from saved` : `Save ${current.word}`}
+          aria-pressed={isStarred(bookmarks, current._id)}
+          onClick={() =>
+            toggleBookmark.mutate(
+              { wordId: current._id, starred: isStarred(bookmarks, current._id) },
+              { onError: () => setToast({ variant: 'error', message: "Couldn't save that word." }) }
+            )
+          }
+        >
+          {isStarred(bookmarks, current._id) ? '★' : '☆'}
         </Button>
       </div>
 

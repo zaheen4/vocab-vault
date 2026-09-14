@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
+import { isStarred, useBookmarks, useToggleBookmark } from '../api/queries'
 import Button from '../components/ui/Button'
 import SpeakerIcon from '../components/ui/SpeakerIcon'
 import Toast from '../components/ui/Toast'
@@ -15,11 +17,14 @@ const inputClass =
   'w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-accent focus:outline-none'
 
 export default function Search() {
-  const [query, setQuery] = useState('')
+  const [searchParams] = useSearchParams()
+  const [query, setQuery] = useState(searchParams.get('q') || '')
   const [words, setWords] = useState([])
   const [total, setTotal] = useState(0)
   const [status, setStatus] = useState('idle')
   const [toast, setToast] = useState(null)
+  const { data: bookmarks = [] } = useBookmarks()
+  const toggleBookmark = useToggleBookmark()
   const ttsAvailable = useTtsAvailable()
   const timerRef = useRef(null)
 
@@ -93,24 +98,42 @@ export default function Search() {
           >
             <div className="flex items-baseline justify-between gap-3">
               <h3 className="font-display font-semibold text-primary">{w.word}</h3>
-              {ttsAvailable !== null && (
-                <span
-                  title={ttsAvailable ? undefined : TTS_UNAVAILABLE_HINT}
-                  className={ttsAvailable ? '' : 'cursor-not-allowed'}
+              <span className="ml-auto flex shrink-0 items-center gap-1.5 self-center">
+                <Button
+                  variant="secondary"
+                  aria-label={isStarred(bookmarks, w._id) ? `Remove ${w.word} from saved` : `Save ${w.word}`}
+                  aria-pressed={isStarred(bookmarks, w._id)}
+                  onClick={() =>
+                    toggleBookmark.mutate(
+                      { wordId: w._id, starred: isStarred(bookmarks, w._id) },
+                      {
+                        onError: () =>
+                          setToast({ variant: 'error', message: "Couldn't save that word." }),
+                      }
+                    )
+                  }
                 >
-                  <Button
-                    variant="secondary"
-                    className="shrink-0 self-center"
-                    aria-label={
-                      ttsAvailable ? `Pronounce ${w.word}` : TTS_UNAVAILABLE_HINT
-                    }
-                    disabled={!ttsAvailable}
-                    onClick={() => speak(w.word)}
+                  {isStarred(bookmarks, w._id) ? '★' : '☆'}
+                </Button>
+                {ttsAvailable !== null && (
+                  <span
+                    title={ttsAvailable ? undefined : TTS_UNAVAILABLE_HINT}
+                    className={ttsAvailable ? '' : 'cursor-not-allowed'}
                   >
-                    <SpeakerIcon />
-                  </Button>
-                </span>
-              )}
+                    <Button
+                      variant="secondary"
+                      className="shrink-0 self-center"
+                      aria-label={
+                        ttsAvailable ? `Pronounce ${w.word}` : TTS_UNAVAILABLE_HINT
+                      }
+                      disabled={!ttsAvailable}
+                      onClick={() => speak(w.word)}
+                    >
+                      <SpeakerIcon />
+                    </Button>
+                  </span>
+                )}
+              </span>
               {w.partOfSpeech && (
                 <span className="text-xs text-slate-400 italic">{w.partOfSpeech}</span>
               )}
@@ -129,9 +152,15 @@ export default function Search() {
       </ul>
 
       {status === 'ready' && words.length === 0 && (
-        <p className="py-8 text-center text-sm text-slate-400">
-          No words match “{query}”.
-        </p>
+        <div className="space-y-3 py-8 text-center">
+          <p className="text-sm text-slate-400">No words match “{query}”.</p>
+          <Link
+            to={`/words/new?q=${encodeURIComponent(query.trim())}`}
+            className="inline-block rounded-md border border-accent bg-gold/40 px-4 py-2 font-display text-sm font-bold text-primary transition-colors hover:bg-gold"
+          >
+            + Add “{query.trim()}” as your own word
+          </Link>
+        </div>
       )}
 
       {toast && (

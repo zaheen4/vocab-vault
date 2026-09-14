@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { invalidateAfterReview } from './queries'
+import { invalidateAfterReview, isStarred } from './queries'
 
 function fakeClient() {
   return { invalidateQueries: vi.fn() }
@@ -36,5 +36,22 @@ describe('invalidateAfterReview', () => {
 
     const roots = callsOf(qc).map((c) => c.queryKey[0])
     expect(roots).toEqual(['gamification', 'progress'])
+  })
+})
+
+describe('isStarred', () => {
+  it('matches populated and optimistic entries', () => {
+    const bookmarks = [
+      { _id: 'b1', word: { _id: 'w1' } },
+      { _id: 'temp-w2', word: { _id: 'w2' } },
+    ]
+    expect(isStarred(bookmarks, 'w1')).toBe(true)
+    expect(isStarred(bookmarks, 'w2')).toBe(true)
+    expect(isStarred(bookmarks, 'w3')).toBe(false)
+  })
+
+  it('is false for an empty cache', () => {
+    expect(isStarred(undefined, 'w1')).toBe(false)
+    expect(isStarred([], 'w1')).toBe(false)
   })
 })
