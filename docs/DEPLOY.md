@@ -30,9 +30,6 @@
 
 ## 3. Cloudflare Pages — web client (canonical: `https://vvault.pages.dev`)
 
-> A Vercel deployment also exists as a backup, but Cloudflare is canonical —
-> its URL has no redundant suffix.
-
 1. Cloudflare dashboard → **Workers & Pages** → Create application → Pages →
    Connect to Git → select the `vocab-vault` repo (or deploy once via
    `npx wrangler pages deploy client/dist --project-name=vvault`).
@@ -65,7 +62,7 @@ temp account and its data. Then CORS proof:
 
 ```bash
 # prod origin: must include access-control-allow-origin
-curl -sI -H 'Origin: https://<your-app>.vercel.app' https://<your-api>.onrender.com/api/health | rg -i access-control-allow-origin
+curl -sI -H 'Origin: https://vvault.pages.dev' https://<your-api>.onrender.com/api/health | rg -i access-control-allow-origin
 # foreign origin: header must be absent
 curl -sI -H 'Origin: https://evil.test' https://<your-api>.onrender.com/api/health | rg -i access-control-allow-origin; echo "(empty = blocked)"
 ```
@@ -84,5 +81,5 @@ the repo Actions tab). If the demo still hits a cold instance:
 
 ## 7. After landing
 
-Check the three `@data` TODO lines (Render / Vercel / runbook) in the PR that
+Check the three `@data` TODO lines (Render / Cloudflare / runbook) in the PR that
 completes live verification — not before.
