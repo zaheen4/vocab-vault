@@ -9,7 +9,7 @@
 - [x] Proposal presentation
 - [x] Repo scaffold (React 19 + Vite 8 + Tailwind 4 / Express 5 + Mongoose)
 - [x] Branch protection + commitlint hooks
-- [x] MongoDB Atlas connected · 298 words seeded · 3 difficulty decks
+- [x] MongoDB Atlas connected · 298 words seeded · 3 difficulty decks (superseded — see GregMat line below)
 - [x] **GregMat dataset integrated** — 1,110 words × groups 1–37 (32 Oxford-style groups from `HFV Essential.pdf` + 5 filled-in groups), 37 group decks on Home (`feat/gregmat-dataset`)
 - [x] Auth API working end-to-end (register/login/me, JWT)
 - [x] Word search API (`GET /api/words?q=`)
@@ -22,7 +22,7 @@
 - [x] @fe Register page wired to `POST /api/auth/register` (#7)
 - [x] @fe AuthContext + JWT persistence (localStorage) + auto-inject via api client (#6)
 - [x] @fe ProtectedRoute wrapper + Navbar auth state (login/logout) (#6, #7)
-- [x] @fe Home page = deck grid of 37 GregMat group decks in group order, no badges (GET `/api/decks`) (#8, `feat/gregmat-dataset`)
+- [x] @fe Home page = deck grid of 37 GregMat group decks in group order, no badges (GET `/api/decks`) (#8, `feat/gregmat-dataset`) + personal My Words deck once the user adds words (`feat/custom-words-be`)
 - [x] @be Deck list response: add word counts per deck (#10)
 - [x] @fe Search page wired to `GET /api/words?q=` (#9)
 - [ ] ~@data Decide Bangla-meanings source dataset or manual entry (deferred — `banglaMeaning` field optional and unused)~
@@ -38,7 +38,7 @@
 - [x] @be Quiz pool limited to viewed words (`GET /api/decks/:id/quiz`, practice-first empty state)
 - [x] @fe ModeTabs navigation across practice/quiz/typing; deck cards link Practice only
 - [x] @fe Per-deck session persistence: switching modes keeps each in-progress session (`feat/deck-state-persistence`)
-- [ ] @data Test matrix: register → practice → review → dashboard flow
+- [x] @data Test matrix: register → practice → review → dashboard flow (`docs/TEST_MATRIX.md`, executed 2026-09-14)
 
 ## Week 2.5 — Gamified Practice (XP, Levels, Streaks) — landed on `main` (#22)
 
@@ -69,7 +69,7 @@
 
 - [x] @fe Quiz page — MCQ from deck words (4 options, instant right/wrong, session score) (#21)
 - [x] @be Quiz scoring reuses `POST /api/progress/review` (no new endpoint needed) (#21)
-- [ ] @docs `API_CONTRACT.md` update if any response shape changes
+- [x] @docs `API_CONTRACT.md` update if any response shape changes (audited in `docs/test-matrix-audit`; fixed hash leak + bookmark shape)
 
 ### Practice depth
 
@@ -77,7 +77,7 @@
 - [x] @fe Reverse-card toggle (definition → word) (`feat/practice-tts-reverse`)
 - [x] @be Streak freeze — 1 grace day (`gamify.js` + User field), unit-test the streak edges (`feat/streak-freeze`)
 - [x] @fe Tiered end-of-session messages shared by practice and quiz (round-robin, 70 lines)
-- [ ] @data Test matrix extend: quiz → typing → TTS flows
+- [x] @data Test matrix extend: quiz → typing → TTS flows (`docs/TEST_MATRIX.md`, executed 2026-09-14)
 
 ### Typing mode
 
@@ -96,11 +96,16 @@
 - [x] @fe Bookmarks — star toggle + bookmarks page (`feat/custom-words-fe`)
 - [x] @be Bookmark routes + CustomList model/routes (same CRUD shape) (`feat/custom-words-be`)
 - [x] @fe Custom lists — create/list/add-remove (`feat/custom-words-fe`)
+- [x] @be Bookmark mastery status + box on entries (`feat/saved-status`)
+- [x] @be Practice session from saved words (`GET /api/bookmarks/practice`) (`feat/saved-practice-be`)
+- [x] @fe Star toggle in practice/quiz/typing + saved review session page (`feat/custom-words-fe`)
+- [x] @fe Saved page v2 — mastery tabs, sort, batch select, visual lists (`feat/custom-words-fe`)
 
 ### Analytics
 
-- [ ] @fe Weekly activity heatmap on dashboard
-- [ ] @fe Per-word history (box path, last reviews) — data already exists
+- [ ] @be Daily activity log + per-word history log on review (`GET /gamification/me` activity, `GET /progress/word/:wordId`)
+- [ ] @fe Weekly activity heatmap on dashboard (7-day strip on Progress)
+- [ ] @fe Per-word history (box path, last reviews) in Saved + Search rows — snapshot exists; path needs the @be history log
 - [ ] @docs Screenshots/numbers reserved for final report
 
 ## Week 4 — Deploy, Polish & Demo

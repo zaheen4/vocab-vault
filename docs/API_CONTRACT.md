@@ -3,7 +3,8 @@
 **Base URL:** `/api`  
 **Auth:** JWT in `Authorization: Bearer <token>` header (all non-public endpoints)  
 **Error format:** `{ "message": "..." }`  
-**Content-Type:** `application/json`
+**Content-Type:** `application/json`  
+**Security:** auth responses carry the user profile only — `passwordHash` is never returned.
 
 ---
 
@@ -319,10 +320,11 @@ Newest first. `status`/`box` reflect the caller's SRS progress (`new`/`0` when u
 ```json
 { "wordId": "ObjectId" }
 ```
-Idempotent — starring an already-starred word returns 200 with the same shape.  
+Idempotent — starring an already-starred word returns 200 with the same shape
+(`status`/`box` reflect the SRS state, `new`/`0` when unreviewed).  
 **Response 200:**
 ```json
-{ "bookmark": { "_id": "...", "word": { ... }, "addedAt": "..." } }
+{ "bookmark": { "_id": "...", "word": { ... }, "status": "new", "box": 0, "addedAt": "..." } }
 ```
 **Errors:** 400 (invalid wordId), 404 (unknown word), 500
 
