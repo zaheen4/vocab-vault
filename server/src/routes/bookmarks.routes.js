@@ -1,23 +1,31 @@
 import { Router } from 'express'
 import mongoose from 'mongoose'
 import Bookmark from '../models/Bookmark.js'
+import Progress from '../models/Progress.js'
 import Word from '../models/Word.js'
 import { requireAuth } from '../middleware/auth.js'
 import { requireDB } from '../middleware/requireDB.js'
+import { masteryFor } from '../utils/bookmarks.js'
 
 const router = Router()
 
-function toBookmarkJson(doc) {
-  return { _id: doc._id, word: doc.wordId, addedAt: doc.createdAt }
+function toBookmarkJson(doc, progressByWord) {
+  const mastery = masteryFor(progressByWord?.get(doc.wordId?._id?.toString()))
+  return { _id: doc._id, word: doc.wordId, addedAt: doc.createdAt, ...mastery }
 }
 
-// List my starred words, newest first.
+// List my starred words, newest first, each with the user's SRS mastery.
 router.get('/', requireDB, requireAuth, async (req, res) => {
   try {
     const docs = await Bookmark.find({ userId: req.user._id })
       .populate('wordId')
       .sort({ createdAt: -1 })
-    res.json({ bookmarks: docs.map(toBookmarkJson) })
+    const progressDocs = await Progress.find({
+      userId: req.user._id,
+      wordId: { $in: docs.map((d) => d.wordId?._id).filter(Boolean) },
+    }).select('wordId status box')
+    const byWord = new Map(progressDocs.map((p) => [p.wordId.toString(), p]))
+    res.json({ bookmarks: docs.map((d) => toBookmarkJson(d, byWord)) })
   } catch (err) {
     res.status(500).json({ message: err.message })
   }
@@ -38,7 +46,7 @@ router.post('/', requireDB, requireAuth, async (req, res) => {
       doc = await Bookmark.create({ userId: req.user._id, wordId })
       doc = await doc.populate('wordId')
     }
-    res.json({ bookmark: toBookmarkJson(doc) })
+    res.json({ bookmark: toBookmarkJson(doc, new Map()) })
   } catch (err) {
     res.status(500).json({ message: err.message })
   }
