@@ -10,7 +10,11 @@ const router = Router()
 
 router.get('/', requireDB, requireAuth, async (req, res) => {
   try {
-    const decks = await Deck.find().select('-__v')
+    // Caller-scoped: shared decks (no creator) plus the caller's own
+    // personal decks — never another user's.
+    const decks = await Deck.find({
+      $or: [{ createdBy: null }, { createdBy: req.user._id }],
+    }).select('-__v')
     // Deterministic order: numeric group first, group-less decks last.
     const ordered = decks
       .map((deck) => ({

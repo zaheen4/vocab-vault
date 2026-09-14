@@ -94,7 +94,7 @@
 
 - [ ] @fe Add-your-own-word form (word/definition/example/pos) feeding SRS
 - [ ] @fe Bookmarks — star toggle + bookmarks page
-- [ ] @be Bookmark routes + CustomList model/routes (same CRUD shape)
+- [x] @be Bookmark routes + CustomList model/routes (same CRUD shape) (`feat/custom-words-be`)
 - [ ] @fe Custom lists — create/list/add-remove
 
 ### Analytics

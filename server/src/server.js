@@ -6,6 +6,8 @@ import deckRoutes from './routes/decks.routes.js'
 import wordRoutes from './routes/words.routes.js'
 import progressRoutes from './routes/progress.routes.js'
 import gamificationRoutes from './routes/gamification.routes.js'
+import bookmarksRoutes from './routes/bookmarks.routes.js'
+import listsRoutes from './routes/lists.routes.js'
 import adminRoutes from './routes/admin.routes.js'
 
 const app = express()
@@ -21,6 +23,8 @@ app.use('/api/decks', deckRoutes)
 app.use('/api/words', wordRoutes)
 app.use('/api/progress', progressRoutes)
 app.use('/api/gamification', gamificationRoutes)
+app.use('/api/bookmarks', bookmarksRoutes)
+app.use('/api/lists', listsRoutes)
 app.use('/api/admin', adminRoutes)
 
 // 404 handler

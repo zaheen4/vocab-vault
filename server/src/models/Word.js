@@ -14,7 +14,8 @@ const wordSchema = new mongoose.Schema(
       default: 'basic',
     },
     group: { type: Number },
-    source: { type: String, enum: ['gregmat'] },
+    source: { type: String, enum: ['gregmat', 'custom'] },
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   },
   { timestamps: true }
 )

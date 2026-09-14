@@ -11,7 +11,7 @@ const deckSchema = new mongoose.Schema(
     },
     wordIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Word' }],
     group: { type: Number },
-    source: { type: String, enum: ['gregmat'] },
+    source: { type: String, enum: ['gregmat', 'custom'] },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   },
   { timestamps: true }
