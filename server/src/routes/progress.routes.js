@@ -11,6 +11,7 @@ import {
   levelFor,
   applyDailyStreak,
   awardGoalRefill,
+  awardBadges,
 } from '../utils/gamify.js'
 
 const router = Router()
@@ -86,6 +87,13 @@ router.post('/review', requireDB, requireAuth, async (req, res) => {
       const newLevel = levelFor(user.xp)
       const levelUp = newLevel > prevLevel
       user.level = newLevel
+
+      // consecutive-correct run for the flawless badge
+      user.perfectRun = correct ? (user.perfectRun || 0) + 1 : 0
+
+      // badges (idempotent: already-earned ids are skipped)
+      const newBadges = awardBadges(user, now)
+
       await user.save()
 
       const newWordsLearned = before !== 'learning' && before !== 'mastered' && progress.status === 'learning' ? 1 : 0
@@ -108,6 +116,7 @@ router.post('/review', requireDB, requireAuth, async (req, res) => {
           reviewsCaughtUp,
           reviewsToday: user.reviewsToday,
           dailyGoalTarget: user.dailyGoalTarget || 10,
+          newBadges,
         },
       })
     } else {

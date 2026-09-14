@@ -27,6 +27,10 @@ router.get('/me', requireDB, requireAuth, async (req, res) => {
         dailyGoalTarget: user.dailyGoalTarget || 10,
         reviewsToday: user.reviewsToday || 0,
         goalsMet: user.goalsMet || 0,
+        badges: (user.badges || []).map((b) => ({
+          id: b.id,
+          awardedAt: b.awardedAt || null,
+        })),
       },
     })
   } catch (err) {

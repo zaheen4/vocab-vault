@@ -2,6 +2,47 @@
 // derived XP -> level via sqrt curve: level = floor(sqrt(xp / 100)) + 1
 const XP_PER_LEVEL_BASE = 100
 export const MAX_STREAK_FREEZES = 1
+export const PERFECT_RUN_TARGET = 10
+
+// Badge catalog: id, display name, icon, and how it is earned.
+export const BADGES = [
+  { id: 'first-word', name: 'First Word', icon: '🌱', description: 'Review your first word' },
+  { id: 'century', name: 'Century', icon: '💯', description: 'Review 100 words' },
+  { id: 'week-warrior', name: 'Week Warrior', icon: '🔥', description: 'Reach a 7-day streak' },
+  { id: 'level-5', name: 'Level 5', icon: '⭐', description: 'Reach level 5' },
+  {
+    id: 'flawless',
+    name: 'Flawless',
+    icon: '💎',
+    description: `Answer ${PERFECT_RUN_TARGET} in a row correctly`,
+  },
+]
+
+// Award badges whose conditions are met and not already earned.
+// Mutates user.badges (pushes { id, awardedAt }). Returns the catalog
+// entries that were newly earned, so routes can surface them.
+export function awardBadges(user, now = new Date()) {
+  const earned = new Set((user.badges || []).map((b) => b.id))
+  const fresh = []
+
+  const checks = {
+    'first-word': (user.totalReviewed || 0) >= 1,
+    century: (user.totalReviewed || 0) >= 100,
+    'week-warrior': (user.practiceStreakDays || 0) >= 7,
+    'level-5': (user.level || 1) >= 5,
+    flawless: (user.perfectRun || 0) >= PERFECT_RUN_TARGET,
+  }
+
+  for (const badge of BADGES) {
+    if (!earned.has(badge.id) && checks[badge.id]) {
+      user.badges = [...(user.badges || []), { id: badge.id, awardedAt: now }]
+      earned.add(badge.id)
+      fresh.push(badge)
+    }
+  }
+
+  return fresh
+}
 
 export function xpForAnswer(correct, box = 1) {
   // correct: more XP for higher boxes (well-retrieved = more valuable)

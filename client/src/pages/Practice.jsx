@@ -256,6 +256,10 @@ export default function Practice({ active = true }) {
     if (g.newWordsLearned) setNewLearned((n) => n + g.newWordsLearned)
     if (g.reviewsCaughtUp) setCaughtUp((n) => n + g.reviewsCaughtUp)
     if (g.levelUp) setLevelEvent({ newLevel: g.level, xp: g.xp })
+    if (g.newBadges?.length) {
+      const names = g.newBadges.map((b) => `${b.icon} ${b.name}`).join(' · ')
+      setToast({ variant: 'gold', message: `🏅 Badge earned: ${names}!` })
+    }
     invalidateAfterReview(id)
 
     setFlipped(false)

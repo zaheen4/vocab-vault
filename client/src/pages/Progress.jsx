@@ -8,6 +8,15 @@ const CARDS = [
 
 const GOAL_TARGETS = [5, 10, 15, 20, 25, 30, 40, 50]
 
+// Display catalog mirrors server/src/utils/gamify.js BADGES.
+const BADGES = [
+  { id: 'first-word', name: 'First Word', icon: '🌱', description: 'Review your first word' },
+  { id: 'century', name: 'Century', icon: '💯', description: 'Review 100 words' },
+  { id: 'week-warrior', name: 'Week Warrior', icon: '🔥', description: 'Reach a 7-day streak' },
+  { id: 'level-5', name: 'Level 5', icon: '⭐', description: 'Reach level 5' },
+  { id: 'flawless', name: 'Flawless', icon: '💎', description: '10 correct in a row' },
+]
+
 export default function Progress() {
   const { data: summary, isLoading, isError } = useProgressSummary()
   // Decorative gamification banner: never block the page on failure
@@ -148,6 +157,35 @@ export default function Progress() {
           </div>
         ))}
       </div>
+
+      {stats && (
+        <div className="rounded-xl border border-primary/10 bg-white p-5">
+          <h2 className="font-display text-base font-bold text-primary">Badges</h2>
+          <p className="mt-0.5 text-xs text-slate-500">
+            {(stats.badges || []).length} of {BADGES.length} earned — keep practicing to unlock the rest.
+          </p>
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
+            {BADGES.map((badge) => {
+              const earned = (stats.badges || []).find((b) => b.id === badge.id)
+              return (
+                <div
+                  key={badge.id}
+                  title={badge.description}
+                  className={`rounded-lg border p-3 text-center ${
+                    earned
+                      ? 'border-accent bg-gold/40'
+                      : 'border-slate-200 bg-slate-50 opacity-60'
+                  }`}
+                >
+                  <p className={`text-2xl ${earned ? '' : 'grayscale'}`}>{badge.icon}</p>
+                  <p className="mt-1 text-xs font-bold text-primary">{badge.name}</p>
+                  <p className="mt-0.5 text-xs text-slate-500">{badge.description}</p>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
