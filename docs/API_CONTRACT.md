@@ -68,11 +68,13 @@
       "synonyms": ["string"],
       "banglaMeaning": "string | null",
       "difficulty": "basic | intermediate | advanced",
+      "group": "number | null",
+      "source": "gregmat | null",
       "createdAt": "...",
       "updatedAt": "..."
     }
   ],
-  "total": 1200,
+  "total": 1110,
   "page": 1
 }
 ```
@@ -106,6 +108,8 @@
       "difficulty": "basic | intermediate | advanced",
       "wordIds": ["wordObjectId"],
       "wordCount": 42,
+      "group": "number | null",
+      "source": "gregmat | null",
       "createdBy": "userObjectId",
       "createdAt": "...",
       "updatedAt": "..."
@@ -114,6 +118,7 @@
 }
 ```
 **Note:** `wordCount` is derived from `wordIds.length` and must be present in every deck object.
+Decks are returned sorted by `group` ascending; decks without a group come last.
 
 **Errors:** 500
 
@@ -273,6 +278,8 @@ level increases; `newWordsLearned` is 1 when a word moves `new → learning`;
 | synonyms | string[] | ❌ | default `[]` |
 | banglaMeaning | string | ❌ | **deferred / optional** |
 | difficulty | enum | ❌ | `basic` \| `intermediate` \| `advanced`, default `basic` |
+| group | number | ❌ | GregMat group 1–37 |
+| source | enum | ❌ | `gregmat` |
 | createdAt / updatedAt | Date | auto | |
 
 ### Deck
@@ -282,6 +289,8 @@ level increases; `newWordsLearned` is 1 when a word moves `new → learning`;
 | description | string | ❌ | |
 | difficulty | enum | ❌ | default `basic` |
 | wordIds | ObjectId[] | ❌ | ref `Word`, default `[]` |
+| group | number | ❌ | GregMat group 1–37 |
+| source | enum | ❌ | `gregmat` |
 | createdBy | ObjectId | ❌ | ref `User` |
 | createdAt / updatedAt | Date | auto | |
 

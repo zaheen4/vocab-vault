@@ -13,6 +13,8 @@ const wordSchema = new mongoose.Schema(
       enum: ['basic', 'intermediate', 'advanced'],
       default: 'basic',
     },
+    group: { type: Number },
+    source: { type: String, enum: ['gregmat'] },
   },
   { timestamps: true }
 )

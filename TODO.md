@@ -10,6 +10,7 @@
 - [x] Repo scaffold (React 19 + Vite 8 + Tailwind 4 / Express 5 + Mongoose)
 - [x] Branch protection + commitlint hooks
 - [x] MongoDB Atlas connected · 298 words seeded · 3 difficulty decks
+- [x] **GregMat dataset integrated** — 1,110 words × groups 1–37 (32 Oxford-style groups from `HFV Essential.pdf` + 5 filled-in groups), 37 group decks on Home (`feat/gregmat-dataset`)
 - [x] Auth API working end-to-end (register/login/me, JWT)
 - [x] Word search API (`GET /api/words?q=`)
 - [x] Progress summary endpoint skeleton
@@ -21,7 +22,7 @@
 - [x] @fe Register page wired to `POST /api/auth/register` (#7)
 - [x] @fe AuthContext + JWT persistence (localStorage) + auto-inject via api client (#6)
 - [x] @fe ProtectedRoute wrapper + Navbar auth state (login/logout) (#6, #7)
-- [x] @fe Home page = deck grid grouped by difficulty (GET `/api/decks`) (#8)
+- [x] @fe Home page = deck grid of 37 GregMat group decks in group order, no badges (GET `/api/decks`) (#8, `feat/gregmat-dataset`)
 - [x] @be Deck list response: add word counts per deck (#10)
 - [x] @fe Search page wired to `GET /api/words?q=` (#9)
 - [ ] ~@data Decide Bangla-meanings source dataset or manual entry (deferred — `banglaMeaning` field optional and unused)~
@@ -31,16 +32,14 @@
 - [x] @fe Flashcard practice page (card flip, "knew it" / "didn't know it" actions) (#17)
 - [x] @be `POST /api/progress/review` — record answer, advance Leitner box (#15)
 - [x] @be Practice session endpoint — next batch of words for a deck (respecting SRS due dates) (#16)
-- [x] @fe Progress dashboard (per-deck mastered/learning/new counts; GET `/api/progress/summary`) (#18)
+- [x] @fe Progress dashboard (global mastered/learning/new counts; GET `/api/progress/summary`) (#18)
 - [x] @fe Quiz mode — MCQ generation from deck words + instant scoring
 - [x] @be Quiz scoring endpoint (reuse progress review recording)
 - [x] @be Quiz pool limited to viewed words (`GET /api/decks/:id/quiz`, practice-first empty state)
 - [x] @fe ModeTabs navigation across practice/quiz/typing; deck cards link Practice only
 - [ ] @data Test matrix: register → practice → review → dashboard flow
 
-## Week 2.5 — Gamified Practice (XP, Levels, Streaks) — branch `feat/gamified-practice`
-
-> **⚠️ NOT merged yet** — awaiting manual check & review. Other members may work on this branch directly.
+## Week 2.5 — Gamified Practice (XP, Levels, Streaks) — landed on `main` (#22)
 
 - [x] @all Manual check of gamified practice UI before merge
 - [x] @be User model: `xp`, `level`, `totalCorrect`, `totalReviewed`, `lastPracticeDate`, `practiceStreakDays`
@@ -63,12 +62,12 @@
 ### Merge gamified
 
 - [x] @all Manual check of gamified practice UI before merge
-- [ ] @all Open PR from `feat/gamified-practice`, squash-merge, delete branch
+- [x] @all Gamified practice merged to `main` via squash-merge, branch deleted (#22)
 
 ### Quiz mode
 
-- [ ] @fe Quiz page — MCQ from deck words (4 options, instant right/wrong, session score)
-- [ ] @be Quiz scoring reuses `POST /api/progress/review` (no new endpoint unless needed)
+- [x] @fe Quiz page — MCQ from deck words (4 options, instant right/wrong, session score) (#21)
+- [x] @be Quiz scoring reuses `POST /api/progress/review` (no new endpoint needed) (#21)
 - [ ] @docs `API_CONTRACT.md` update if any response shape changes
 
 ### Practice depth
@@ -107,7 +106,7 @@
 
 - [ ] @data Render deployment (API) + Atlas production user; CORS locked to Vercel domain
 - [ ] @data Vercel deployment (client) + env vars
-- [ ] @data Load the final 1200-word dataset via importer; verify search/practice against it
+- [x] @data Load the final 1,110-word dataset via importer; verify search/practice against it
 - [ ] @data Warm-up runbook for demo day (Render free tier sleeps — hit API 30s before showtime)
 - [ ] @fe Responsive pass — mobile-first check on all pages, tap-target sweep (24px min, 44px aim), touch-verify primary flows on a small viewport
 - [ ] @fe Loading/error/empty states on every fetch

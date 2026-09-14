@@ -3,12 +3,6 @@ import { usePrefetchDeck, useDecks, useGamification, useProgressSummary } from '
 import Card from '../components/ui/Card'
 import EmptyState from '../components/ui/EmptyState'
 
-const badgeClass = {
-  basic: 'bg-emerald-100 text-emerald-700',
-  intermediate: 'bg-amber-100 text-amber-700',
-  advanced: 'bg-red-100 text-red-700',
-}
-
 function DeckCard({ deck }) {
   const count = deck.wordCount ?? (deck.wordIds ? deck.wordIds.length : 0)
   const prefetchDeck = usePrefetchDeck()
@@ -20,17 +14,7 @@ function DeckCard({ deck }) {
       onMouseEnter={warm}
       onFocus={warm}
     >
-      <div className="flex items-start justify-between gap-2">
-        <h3 className="font-display text-lg font-bold text-primary">{deck.title}</h3>
-        <span
-          className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${badgeClass[deck.difficulty] || 'bg-slate-100 text-slate-600'}`}
-        >
-          {deck.difficulty}
-        </span>
-      </div>
-      {deck.description && (
-        <p className="mt-1 text-sm text-slate-500">{deck.description}</p>
-      )}
+      <h3 className="font-display text-lg font-bold text-primary">{deck.title}</h3>
       <div className="mt-auto pt-4">
         <p className="border-t border-slate-100 pt-3 text-xs font-semibold text-slate-500">
           {count} words
@@ -86,6 +70,11 @@ export default function Home() {
     ? Object.values(summary).reduce((a, b) => a + b, 0)
     : null
 
+  // Group decks in numeric order; decks without a group sink to the end.
+  // First-run guidance always starts at Group 1 when it exists.
+  const sorted = [...decks].sort((a, b) => (a.group ?? Infinity) - (b.group ?? Infinity))
+  const firstDeck = sorted.find((d) => d.group === 1) ?? sorted[0]
+
   return (
     <div className="animate-page -m-4 sm:-m-6">
       <div className="bg-primary px-4 pt-6 pb-28 sm:px-6">
@@ -105,7 +94,7 @@ export default function Home() {
       </div>
       <div className="-mt-24 bg-gold/40 px-4 pt-12 pb-10 sm:px-6">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {decks.map((deck, i) => (
+          {sorted.map((deck, i) => (
             <div
               key={deck._id}
               className="animate-fade-up"
@@ -117,14 +106,14 @@ export default function Home() {
         </div>
 
         {/* First-run guidance only: vanishes once the user has any progress */}
-        {totalProgress === 0 && decks[0] && (
+        {totalProgress === 0 && firstDeck && (
           <Link
-            to={`/decks/${decks[0]._id}`}
-            className="mt-6 flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:shadow active:scale-[0.99]"
+            to={`/decks/${firstDeck._id}`}
+            className="mt-6 flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:shadow active:scale-99"
           >
             <div>
               <p className="font-display text-sm font-semibold text-primary">
-                Start with {decks[0].title}
+                Start with {firstDeck.title}
               </p>
               <p className="mt-0.5 text-xs text-slate-500">
                 Flip through your first cards — reviews get scheduled automatically.

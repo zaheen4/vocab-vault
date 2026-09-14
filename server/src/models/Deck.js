@@ -10,6 +10,8 @@ const deckSchema = new mongoose.Schema(
       default: 'basic',
     },
     wordIds: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Word' }],
+    group: { type: Number },
+    source: { type: String, enum: ['gregmat'] },
     createdBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   },
   { timestamps: true }

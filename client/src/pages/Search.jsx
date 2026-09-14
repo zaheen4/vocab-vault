@@ -1,12 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { api } from '../api/client'
 
-const badgeClass = {
-  basic: 'bg-emerald-100 text-emerald-700',
-  intermediate: 'bg-amber-100 text-amber-700',
-  advanced: 'bg-red-100 text-red-700',
-}
-
 const inputClass =
   'w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-accent focus:outline-none'
 
@@ -77,11 +71,11 @@ export default function Search() {
               {w.partOfSpeech && (
                 <span className="text-xs text-slate-400 italic">{w.partOfSpeech}</span>
               )}
-              <span
-                className={`ml-auto shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${badgeClass[w.difficulty] || 'bg-slate-100 text-slate-600'}`}
-              >
-                {w.difficulty}
-              </span>
+              {w.group != null && (
+                <span className="ml-auto shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
+                  Group {w.group}
+                </span>
+              )}
             </div>
             <p className="mt-1 text-sm text-slate-600">{w.definition}</p>
             {w.example && (
