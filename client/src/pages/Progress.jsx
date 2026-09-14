@@ -1,4 +1,4 @@
-import { useGamification, useProgressSummary } from '../api/queries'
+import { useGamification, useProgressSummary, useSetGoalTarget } from '../api/queries'
 
 const CARDS = [
   { key: 'mastered', label: 'Mastered', class: 'border-emerald-200 bg-emerald-50', text: 'text-emerald-700' },
@@ -6,10 +6,13 @@ const CARDS = [
   { key: 'new', label: 'Not started', class: 'border-slate-200 bg-slate-50', text: 'text-slate-500' },
 ]
 
+const GOAL_TARGETS = [5, 10, 15, 20, 25, 30, 40, 50]
+
 export default function Progress() {
   const { data: summary, isLoading, isError } = useProgressSummary()
   // Decorative gamification banner: never block the page on failure
   const { data: stats } = useGamification()
+  const setGoal = useSetGoalTarget()
 
   if (isLoading) {
     return (
@@ -78,6 +81,60 @@ export default function Progress() {
               <p className="mt-1 text-right text-xs text-slate-400">
                 {Math.round((stats.progressToNext || 0) * 100)}% to next level
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {stats && (
+        <div className="rounded-xl border border-primary/10 bg-white p-5">
+          <div className="flex flex-wrap items-center gap-6">
+            {/* Goal ring */}
+            <div className="relative flex h-20 w-20 items-center justify-center">
+              <svg className="h-full w-full -rotate-90" viewBox="0 0 36 36">
+                <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--color-slate-200)" strokeWidth="3" />
+                <circle
+                  cx="18" cy="18" r="15.5" fill="none" stroke="var(--color-accent)"
+                  strokeWidth="3" strokeLinecap="round"
+                  strokeDasharray={`${Math.min(1, (stats.reviewsToday || 0) / (stats.dailyGoalTarget || 10)) * 97.4} 97.4`}
+                />
+              </svg>
+              <span className="absolute text-sm font-bold text-primary">
+                {stats.reviewsToday || 0}
+              </span>
+            </div>
+            <div className="min-w-56 flex-1">
+              <div className="flex items-center gap-3">
+                <p className="text-sm font-semibold text-primary">
+                  Daily goal: {stats.reviewsToday || 0} / {stats.dailyGoalTarget || 10}
+                </p>
+                {stats.streakFreezes > 0 && (
+                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                    🧊 × {stats.streakFreezes}
+                  </span>
+                )}
+                {stats.goalsMet > 0 && (
+                  <span className="text-xs text-slate-400">
+                    {stats.goalsMet} goal{stats.goalsMet > 1 ? 's' : ''} met
+                  </span>
+                )}
+              </div>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {GOAL_TARGETS.map((t) => (
+                  <button
+                    key={t}
+                    disabled={setGoal.isPending}
+                    onClick={() => setGoal.mutate(t)}
+                    className={`rounded-md border px-2 py-0.5 text-xs font-medium transition-colors ${
+                      (stats.dailyGoalTarget || 10) === t
+                        ? 'border-accent bg-accent text-primary'
+                        : 'border-slate-200 text-slate-500 hover:border-slate-300'
+                    }`}
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>

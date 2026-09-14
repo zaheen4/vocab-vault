@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from './client'
 
 // Central read layer. Quiz and Typing share one pool key; Practice
@@ -113,4 +113,12 @@ export function invalidateAfterReview(qc, deckId) {
 export function useInvalidateAfterReview() {
   const qc = useQueryClient()
   return (deckId) => invalidateAfterReview(qc, deckId)
+}
+
+export function useSetGoalTarget() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (target) => api.patch('/gamification/goal', { target }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: GAMIFICATION_KEY }),
+  })
 }

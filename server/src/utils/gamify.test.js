@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   applyDailyStreak,
+  awardGoalRefill,
   levelFor,
   xpForAnswer,
   xpForLevel,
@@ -47,30 +48,101 @@ describe('level curve (sqrt, base 100)', () => {
 
 describe('applyDailyStreak', () => {
   it('starts at 1 for first-ever practice', () => {
-    expect(applyDailyStreak({}, noon(2026, 9, 6))).toEqual({ dailyStreak: 1, streakIncreased: true })
+    const user = {}
+    const result = applyDailyStreak(user, noon(2026, 9, 6))
+    expect(result.dailyStreak).toBe(1)
+    expect(result.streakIncreased).toBe(true)
+    expect(result.freezeUsed).toBe(false)
   })
 
   it('is idempotent within the same day', () => {
     const user = { practiceStreakDays: 5, lastPracticeDate: noon(2026, 9, 6) }
-    expect(applyDailyStreak(user, new Date(2026, 8, 6, 20, 0, 0))).toEqual({
-      dailyStreak: 5,
-      streakIncreased: false,
-    })
+    const result = applyDailyStreak(user, noon(2026, 9, 6))
+    expect(result.dailyStreak).toBe(5)
+    expect(result.streakIncreased).toBe(false)
+    expect(result.freezeUsed).toBe(false)
   })
 
   it('increments on consecutive days', () => {
     const user = { practiceStreakDays: 5, lastPracticeDate: noon(2026, 9, 5) }
-    expect(applyDailyStreak(user, noon(2026, 9, 6))).toEqual({
-      dailyStreak: 6,
-      streakIncreased: true,
-    })
+    const result = applyDailyStreak(user, noon(2026, 9, 6))
+    expect(result.dailyStreak).toBe(6)
+    expect(result.streakIncreased).toBe(true)
+    expect(result.freezeUsed).toBe(false)
   })
 
-  it('resets to 1 after a 2+ day gap', () => {
-    const user = { practiceStreakDays: 12, lastPracticeDate: noon(2026, 9, 3) }
-    expect(applyDailyStreak(user, noon(2026, 9, 6))).toEqual({
-      dailyStreak: 1,
-      streakIncreased: true,
-    })
+  it('survives 1-day gap when freeze is available', () => {
+    const user = { practiceStreakDays: 5, lastPracticeDate: noon(2026, 9, 4), streakFreezes: 1 }
+    const result = applyDailyStreak(user, noon(2026, 9, 6))
+    expect(result.dailyStreak).toBe(6)
+    expect(result.streakIncreased).toBe(true)
+    expect(result.freezeUsed).toBe(true)
+    expect(user.streakFreezes).toBe(0)
+  })
+
+  it('breaks streak on 2-day gap when no freeze is available', () => {
+    const user = { practiceStreakDays: 12, lastPracticeDate: noon(2026, 9, 3), streakFreezes: 0 }
+    const result = applyDailyStreak(user, noon(2026, 9, 6))
+    expect(result.dailyStreak).toBe(1)
+    expect(result.streakIncreased).toBe(false)
+    expect(result.freezeUsed).toBe(false)
+  })
+
+  it('breaks streak on 3+ day gap even with freeze', () => {
+    const user = { practiceStreakDays: 8, lastPracticeDate: noon(2026, 9, 2), streakFreezes: 1 }
+    const result = applyDailyStreak(user, noon(2026, 9, 6))
+    expect(result.dailyStreak).toBe(1)
+    expect(result.freezeUsed).toBe(false)
+    expect(user.streakFreezes).toBe(1)
+  })
+
+  it('does not double-consume freeze on same-day re-entry', () => {
+    const user = { practiceStreakDays: 5, lastPracticeDate: noon(2026, 9, 4), streakFreezes: 1 }
+    const first = applyDailyStreak(user, noon(2026, 9, 6))
+    // simulate route writing back the result
+    user.practiceStreakDays = first.dailyStreak
+    user.lastPracticeDate = noon(2026, 9, 6)
+    const result = applyDailyStreak(user, noon(2026, 9, 6))
+    expect(result.dailyStreak).toBe(6)
+    expect(result.streakIncreased).toBe(false)
+    expect(result.freezeUsed).toBe(false)
+    expect(user.streakFreezes).toBe(0)
+  })
+})
+
+describe('awardGoalRefill', () => {
+  it('awards freeze when reviews meet target', () => {
+    const user = { reviewsToday: 10, dailyGoalTarget: 10, streakFreezes: 0 }
+    const result = awardGoalRefill(user, noon(2026, 9, 10))
+    expect(result.goalMet).toBe(true)
+    expect(result.freezeRefilled).toBe(true)
+    expect(user.streakFreezes).toBe(1)
+    expect(user.goalsMet).toBe(1)
+  })
+
+  it('does not award when reviews are below target', () => {
+    const user = { reviewsToday: 5, dailyGoalTarget: 10, streakFreezes: 0 }
+    const result = awardGoalRefill(user, noon(2026, 9, 10))
+    expect(result.goalMet).toBe(false)
+    expect(result.freezeRefilled).toBe(false)
+    expect(user.streakFreezes).toBe(0)
+  })
+
+  it('does not double-award on same day', () => {
+    const user = { reviewsToday: 10, dailyGoalTarget: 10, streakFreezes: 0, goalsMet: 0 }
+    awardGoalRefill(user, noon(2026, 9, 10))
+    const result = awardGoalRefill(user, noon(2026, 9, 10))
+    expect(result.goalMet).toBe(true)
+    expect(result.freezeRefilled).toBe(false)
+    expect(user.goalsMet).toBe(1)
+  })
+
+  it('awards again on the next day', () => {
+    const user = { reviewsToday: 10, dailyGoalTarget: 10, streakFreezes: 0, goalsMet: 0 }
+    awardGoalRefill(user, noon(2026, 9, 10))
+    const result = awardGoalRefill(user, noon(2026, 9, 11))
+    expect(result.goalMet).toBe(true)
+    expect(result.freezeRefilled).toBe(true)
+    expect(user.goalsMet).toBe(2)
   })
 })

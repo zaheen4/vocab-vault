@@ -205,8 +205,14 @@ quizzes test recall, not first exposure. Empty array when nothing viewed yet.
     "levelUp": false,
     "dailyStreak": 5,
     "streakIncreased": false,
+    "freezeUsed": false,
+    "streakFreezes": 1,
+    "dailyGoalMet": false,
+    "freezeRefilled": false,
     "newWordsLearned": 1,
-    "reviewsCaughtUp": 0
+    "reviewsCaughtUp": 0,
+    "reviewsToday": 8,
+    "dailyGoalTarget": 10
   }
 }
 ```
@@ -216,6 +222,11 @@ Status: first review → `learning`; box reaches 5 → `mastered`.
 XP/level/totals/daily streak updated atomically; `levelUp` true when the user's
 level increases; `newWordsLearned` is 1 when a word moves `new → learning`;
 `reviewsCaughtUp` is 1 when a word becomes `mastered`.
+**Streak freeze:** `freezeUsed` true when a 1-day gap was survived via a freeze;
+`streakFreezes` is the remaining freeze count (0–1).
+**Daily goal:** `reviewsToday` counts today's reviews; when it reaches
+`dailyGoalTarget`, `dailyGoalMet` becomes true and `freezeRefilled` true on the
+first cross per day (freeze count resets to 1).
 **Errors:** 400 (invalid wordId / non-boolean correct), 404 (unknown word), 500
 
 ---
@@ -234,11 +245,30 @@ level increases; `newWordsLearned` is 1 when a word moves `new → learning`;
     "totalCorrect": 21,
     "totalReviewed": 30,
     "nextLevelXp": 400,
-    "progressToNext": 0.6
+    "progressToNext": 0.6,
+    "streakFreezes": 1,
+    "dailyGoalTarget": 10,
+    "reviewsToday": 8,
+    "goalsMet": 3
   }
 }
 ```
 **Errors:** 401 (unauthorized), 404 (user not found), 500
+
+---
+
+### `PATCH /api/gamification/goal` — Set daily review target
+**Auth:** required  
+**Request:**
+```json
+{ "target": 10 }
+```
+Valid targets: `5 | 10 | 15 | 20 | 25 | 30 | 40 | 50`  
+**Response 200:**
+```json
+{ "dailyGoalTarget": 10 }
+```
+**Errors:** 400 (invalid target), 401 (unauthorized), 404 (user not found), 500
 
 ---
 
@@ -307,12 +337,21 @@ level increases; `newWordsLearned` is 1 when a word moves `new → learning`;
 | totalReviewed | number | ❌ | default 0 |
 | lastPracticeDate | Date | ❌ | last review date (for daily streak) |
 | practiceStreakDays | number | ❌ | default 0, consecutive daily-practice count |
+| streakFreezes | number | ❌ | default 1, available grace days (0–1) |
+| dailyGoalTarget | number | ❌ | default 10, reviews per day (1–50) |
+| reviewsToday | number | ❌ | today's review count |
+| reviewsTodayDate | Date | ❌ | date of current reviewsToday |
+| goalMetDate | Date | ❌ | last date daily goal was met |
+| goalsMet | number | ❌ | total goals met |
 | createdAt / updatedAt | Date | auto | |
 
 **Gamification XP/level rule:** `xpForAnswer`: `10 + box*2` for a correct answer,
 `3` for an incorrect one. `level = floor(sqrt(xp / 100)) + 1`. Daily streak
 increments when practicing on a new consecutive calendar day, resets to 1 after
 a gap of 2+ days, and is idempotent within the same day.
+**Streak freeze:** 1 grace day survives a missed practice day. Freezes are
+consumed when a 1-day gap is detected and refilled to 1 when the daily goal
+target is met. Max freeze count is 1.
 
 ### Progress
 | Field | Type | Required | Notes |
