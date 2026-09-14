@@ -306,9 +306,9 @@ Valid targets: `5 | 10 | 15 | 20 | 25 | 30 | 40 | 50`
 **Auth:** required  
 **Response 200:**
 ```json
-{ "bookmarks": [{ "_id": "...", "word": { ... }, "addedAt": "..." }] }
+{ "bookmarks": [{ "_id": "...", "word": { ... }, "status": "new | learning | mastered", "box": 0, "addedAt": "..." }] }
 ```
-Newest first.  
+Newest first. `status`/`box` reflect the caller's SRS progress (`new`/`0` when unreviewed).  
 **Errors:** 500
 
 ---
