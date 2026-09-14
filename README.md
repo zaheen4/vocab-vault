@@ -70,7 +70,7 @@ npm run seed                 # loads server/data/gregmat-words.json into MongoDB
 | POST   | `/api/auth/register`| Create account → JWT           |
 | POST   | `/api/auth/login`   | Login → JWT                    |
 | GET    | `/api/auth/me`      | Current user (auth required)   |
-| GET    | `/api/decks`        | All decks with populated words |
+| GET    | `/api/decks`        | All decks with word counts, group order |
 | GET    | `/api/words?q=`     | Search / list words            |
 | GET    | `/api/progress/summary` | Mastery counts per status  |
 | *      | `/api/admin/*`      | Admin-only (bulk import W10)   |

@@ -11,12 +11,14 @@ const router = Router()
 router.get('/', requireDB, requireAuth, async (req, res) => {
   try {
     const decks = await Deck.find().select('-__v')
-    res.json({
-      decks: decks.map((deck) => ({
+    // Deterministic order: numeric group first, group-less decks last.
+    const ordered = decks
+      .map((deck) => ({
         ...deck.toObject(),
         wordCount: deck.wordIds.length,
-      })),
-    })
+      }))
+      .sort((a, b) => (a.group ?? Infinity) - (b.group ?? Infinity))
+    res.json({ decks: ordered })
   } catch (err) {
     res.status(500).json({ message: err.message })
   }

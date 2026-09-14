@@ -118,6 +118,7 @@
 }
 ```
 **Note:** `wordCount` is derived from `wordIds.length` and must be present in every deck object.
+Decks are returned sorted by `group` ascending; decks without a group come last.
 
 **Errors:** 500
 
