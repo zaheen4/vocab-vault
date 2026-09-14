@@ -93,6 +93,27 @@
 
 ---
 
+### `POST /api/words` — Add your own word
+**Auth:** required  
+**Request:**
+```json
+{ "word": "string", "definition": "string", "example": "string | null", "partOfSpeech": "string | null", "difficulty": "basic | intermediate | advanced" }
+```
+`word` and `definition` are required (trimmed, non-empty); `difficulty` defaults to `basic`.  
+**Response 201:**
+```json
+{ "word": { ... }, "deckId": "my-words-deck-ObjectId" }
+```
+The word is created with `source: "custom"` and added to the caller's
+personal "My Words" deck (auto-created), so it is immediately practicable in
+practice/quiz/typing.  
+**Duplicate:** `word` is globally unique (case-insensitive) — re-adding an
+existing word returns **409** `{ "message": "...", "existingWordId": "..." }`
+so the client can link the existing entry instead.
+**Errors:** 400 (validation), 409 (duplicate), 500
+
+---
+
 ## Decks
 
 ### `GET /api/decks` — List decks
@@ -119,6 +140,8 @@
 ```
 **Note:** `wordCount` is derived from `wordIds.length` and must be present in every deck object.
 Decks are returned sorted by `group` ascending; decks without a group come last.
+**Scoping:** only shared decks (`createdBy` absent) and the caller's own
+personal decks are returned — never another user's.
 
 **Errors:** 500
 
@@ -277,6 +300,131 @@ Valid targets: `5 | 10 | 15 | 20 | 25 | 30 | 40 | 50`
 
 ---
 
+## Bookmarks
+
+### `GET /api/bookmarks` — List my starred words
+**Auth:** required  
+**Response 200:**
+```json
+{ "bookmarks": [{ "_id": "...", "word": { ... }, "addedAt": "..." }] }
+```
+Newest first.  
+**Errors:** 500
+
+---
+
+### `POST /api/bookmarks` — Star a word
+**Auth:** required  
+**Request:**
+```json
+{ "wordId": "ObjectId" }
+```
+Idempotent — starring an already-starred word returns 200 with the same shape.  
+**Response 200:**
+```json
+{ "bookmark": { "_id": "...", "word": { ... }, "addedAt": "..." } }
+```
+**Errors:** 400 (invalid wordId), 404 (unknown word), 500
+
+---
+
+### `DELETE /api/bookmarks/:wordId` — Unstar a word
+**Auth:** required  
+**Params:** `wordId` (ObjectId)  
+Idempotent — unstarring a non-starred word still returns 200.  
+**Response 200:**
+```json
+{ "removed": true }
+```
+**Errors:** 400 (invalid wordId), 500
+
+---
+
+## Custom lists
+
+### `GET /api/lists` — List my custom lists
+**Auth:** required  
+**Response 200:**
+```json
+{ "lists": [{ "_id": "...", "title": "string", "wordCount": 3 }] }
+```
+**Errors:** 500
+
+---
+
+### `POST /api/lists` — Create a custom list
+**Auth:** required  
+**Request:**
+```json
+{ "title": "string (1–60 chars)" }
+```
+**Response 201:**
+```json
+{ "list": { "_id": "...", "title": "string", "wordCount": 0 } }
+```
+**Errors:** 400 (validation), 500
+
+---
+
+### `GET /api/lists/:id` — Get one custom list with words
+**Auth:** required, owner only (`:id` of another user reads as 404)  
+**Response 200:**
+```json
+{ "list": { "_id": "...", "title": "string", "words": [{ ...word }] } }
+```
+**Errors:** 400 (invalid id), 404 (unknown list), 500
+
+---
+
+### `PATCH /api/lists/:id` — Rename a custom list
+**Auth:** required, owner only  
+**Request:**
+```json
+{ "title": "string (1–60 chars)" }
+```
+**Response 200:**
+```json
+{ "list": { "_id": "...", "title": "string", "wordCount": 3 } }
+```
+**Errors:** 400 (validation / invalid id), 404 (unknown list), 500
+
+---
+
+### `DELETE /api/lists/:id` — Delete a custom list
+**Auth:** required, owner only  
+**Response 200:**
+```json
+{ "removed": true }
+```
+**Errors:** 400 (invalid id), 404 (unknown list), 500
+
+---
+
+### `POST /api/lists/:id/words` — Add a word to a list
+**Auth:** required, owner only  
+**Request:**
+```json
+{ "wordId": "ObjectId" }
+```
+Idempotent (`$addToSet`).  
+**Response 200:**
+```json
+{ "list": { "_id": "...", "title": "string", "wordCount": 4 } }
+```
+**Errors:** 400 (invalid id / wordId), 404 (unknown list or word), 500
+
+---
+
+### `DELETE /api/lists/:id/words/:wordId` — Remove a word from a list
+**Auth:** required, owner only  
+**Response 200:**
+```json
+{ "list": { "_id": "...", "title": "string", "wordCount": 3 } }
+```
+**Errors:** 400 (invalid id / wordId), 404 (unknown list), 500
+
+---
+
 ## Admin
 
 ### `GET /api/admin/ping` — Admin health check
@@ -314,7 +462,8 @@ Valid targets: `5 | 10 | 15 | 20 | 25 | 30 | 40 | 50`
 | banglaMeaning | string | ❌ | **deferred / optional** |
 | difficulty | enum | ❌ | `basic` \| `intermediate` \| `advanced`, default `basic` |
 | group | number | ❌ | GregMat group 1–37 |
-| source | enum | ❌ | `gregmat` |
+| source | enum | ❌ | `gregmat` \| `custom` |
+| createdBy | ObjectId | ❌ | ref `User`; set for user-added words, absent for curated |
 | createdAt / updatedAt | Date | auto | |
 
 ### Deck
@@ -325,8 +474,8 @@ Valid targets: `5 | 10 | 15 | 20 | 25 | 30 | 40 | 50`
 | difficulty | enum | ❌ | default `basic` |
 | wordIds | ObjectId[] | ❌ | ref `Word`, default `[]` |
 | group | number | ❌ | GregMat group 1–37 |
-| source | enum | ❌ | `gregmat` |
-| createdBy | ObjectId | ❌ | ref `User` |
+| source | enum | ❌ | `gregmat` \| `custom` (`custom` = personal "My Words" deck) |
+| createdBy | ObjectId | ❌ | ref `User`; set for personal decks, absent for shared |
 | createdAt / updatedAt | Date | auto | |
 
 ### User
@@ -376,6 +525,22 @@ a row across any mode, tracked by `perfectRun`).
 | status | enum | ❌ | `new` \| `learning` \| `mastered`, default `new` |
 | createdAt / updatedAt | Date | auto | |
 | unique index | | | `(userId, wordId)` |
+
+### Bookmark
+| Field | Type | Required | Notes |
+|-------|------|----------|-------|
+| userId | ObjectId | ✅ | ref `User` |
+| wordId | ObjectId | ✅ | ref `Word` |
+| createdAt / updatedAt | Date | auto | |
+| unique index | | | `(userId, wordId)` |
+
+### CustomList
+| Field | Type | Required | Notes |
+|-------|------|----------|-------|
+| userId | ObjectId | ✅ | ref `User` (owner) |
+| title | string | ✅ | trimmed, 1–60 chars |
+| wordIds | ObjectId[] | ❌ | ref `Word`, default `[]` |
+| createdAt / updatedAt | Date | auto | |
 
 ---
 

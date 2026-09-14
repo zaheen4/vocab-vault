@@ -64,11 +64,12 @@ async function main() {
   }
   console.log(`Seed upserted ${inserted} words`)
 
-  // retire the previous auto-built difficulty decks and their words
-  const wordCount = await Word.countDocuments({ source: { $ne: 'gregmat' } })
-  const deckCount = await Deck.countDocuments({ source: { $ne: 'gregmat' } })
-  await Word.deleteMany({ source: { $ne: 'gregmat' } })
-  await Deck.deleteMany({ source: { $ne: 'gregmat' } })
+  // retire the previous auto-built difficulty decks and their words —
+  // never touch user-created content (source 'custom')
+  const wordCount = await Word.countDocuments({ source: { $nin: ['gregmat', 'custom'] } })
+  const deckCount = await Deck.countDocuments({ source: { $nin: ['gregmat', 'custom'] } })
+  await Word.deleteMany({ source: { $nin: ['gregmat', 'custom'] } })
+  await Deck.deleteMany({ source: { $nin: ['gregmat', 'custom'] } })
   console.log(
     `Removed ${wordCount} legacy words (not in GregMat) and ${deckCount} legacy decks`
   )
