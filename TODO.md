@@ -75,7 +75,7 @@
 
 - [x] @fe TTS pronunciation: pre-rendered Kokoro clips (all words) with Web Speech API fallback + per-row speakers on Search (`feat/prerendered-audio`)
 - [x] @fe Reverse-card toggle (definition → word) (`feat/practice-tts-reverse`)
-- [ ] @be Streak freeze — 1 grace day (`gamify.js` + User field), unit-test the streak edges
+- [x] @be Streak freeze — 1 grace day (`gamify.js` + User field), unit-test the streak edges (`feat/streak-freeze`)
 - [x] @fe Tiered end-of-session messages shared by practice and quiz (round-robin, 70 lines)
 - [ ] @data Test matrix extend: quiz → typing → TTS flows
 
@@ -87,7 +87,7 @@
 ### Badges & goals
 
 - [ ] @be Badge rules (first word, 7-day streak, 100 reviews, Level 5, perfect session) + award on review
-- [ ] @fe Daily goal setting + ring on dashboard/HUD
+- [x] @fe Daily goal setting + ring on dashboard/HUD (`feat/streak-freeze`)
 - [ ] @fe Badge toast + badge shelf on Progress page
 
 ### Personal words & lists

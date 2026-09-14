@@ -1,6 +1,7 @@
 // XP curve: level 1 at 0 XP, next levels require progressively more XP.
 // derived XP -> level via sqrt curve: level = floor(sqrt(xp / 100)) + 1
 const XP_PER_LEVEL_BASE = 100
+export const MAX_STREAK_FREEZES = 1
 
 export function xpForAnswer(correct, box = 1) {
   // correct: more XP for higher boxes (well-retrieved = more valuable)
@@ -25,32 +26,58 @@ export function xpProgress(level, xp) {
   return { current, next, progress: span <= 0 ? 0 : Math.min(1, into / span) }
 }
 
+// Strip time and return a UTC-only date bucket (avoids DST drift).
+function toDayKey(date) {
+  return Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
+}
+
 // Update a user's daily practice streak. Idempotent within a day.
-// Returns { dailyStreak, streakIncreased }
+// Returns { dailyStreak, streakIncreased, freezeUsed }
 export function applyDailyStreak(user, now = new Date()) {
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const todayKey = toDayKey(now)
   let streak = user.practiceStreakDays || 0
-  let increased = false
+  let freezeUsed = false
 
   if (!user.lastPracticeDate) {
     streak = 1
-    increased = true
   } else {
-    const last = new Date(user.lastPracticeDate)
-    const lastDay = new Date(last.getFullYear(), last.getMonth(), last.getDate())
-    const diffDays = Math.round((today - lastDay) / 86400000)
-    if (today.getTime() === lastDay.getTime()) {
+    const lastKey = toDayKey(new Date(user.lastPracticeDate))
+    const diffDays = Math.round((todayKey - lastKey) / 86400000)
+
+    if (diffDays === 0) {
       // already practiced today — keep streak
-      increased = false
     } else if (diffDays === 1) {
       streak += 1
-      increased = true
+    } else if (diffDays === 2 && (user.streakFreezes || 0) > 0) {
+      // 1-day gap: survive via freeze
+      streak += 1
+      freezeUsed = true
+      user.streakFreezes = (user.streakFreezes || 1) - 1
     } else {
-      // gap of 2+ days — streak breaks and restarts
+      // gap of 2+ without freeze, or 3+ — streak breaks
       streak = 1
-      increased = true
     }
   }
 
-  return { dailyStreak: streak, streakIncreased: increased }
+  return { dailyStreak: streak, streakIncreased: streak > (user.practiceStreakDays || 0), freezeUsed }
+}
+
+// Check whether daily goal has been met and award a freeze refill.
+// Returns { goalMet, freezeRefilled }
+export function awardGoalRefill(user, now = new Date()) {
+  const todayKey = toDayKey(now)
+  const reviewsToday = user.reviewsToday || 0
+  const target = user.dailyGoalTarget || 10
+
+  if (reviewsToday < target) return { goalMet: false, freezeRefilled: false }
+
+  // Already awarded today?
+  if (user.goalMetDate && toDayKey(new Date(user.goalMetDate)) === todayKey) {
+    return { goalMet: true, freezeRefilled: false }
+  }
+
+  user.streakFreezes = MAX_STREAK_FREEZES
+  user.goalsMet = (user.goalsMet || 0) + 1
+  user.goalMetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  return { goalMet: true, freezeRefilled: true }
 }

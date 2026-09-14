@@ -10,6 +10,7 @@ import {
   xpForAnswer,
   levelFor,
   applyDailyStreak,
+  awardGoalRefill,
 } from '../utils/gamify.js'
 
 const router = Router()
@@ -54,13 +55,33 @@ router.post('/review', requireDB, requireAuth, async (req, res) => {
     if (user) {
       const xpGained = xpForAnswer(correct, progress.box)
       const prevLevel = user.level || 1
+      const now = new Date()
 
       user.xp = (user.xp || 0) + xpGained
       user.totalReviewed = (user.totalReviewed || 0) + 1
       if (correct) user.totalCorrect = (user.totalCorrect || 0) + 1
-      const streak = applyDailyStreak(user)
+
+      // daily review counter (resets when the day rolls over)
+      const todayKey = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())
+      const lastKey = user.reviewsTodayDate
+        ? Date.UTC(
+            new Date(user.reviewsTodayDate).getFullYear(),
+            new Date(user.reviewsTodayDate).getMonth(),
+            new Date(user.reviewsTodayDate).getDate()
+          )
+        : 0
+      if (todayKey !== lastKey) {
+        user.reviewsToday = 0
+      }
+      user.reviewsToday = (user.reviewsToday || 0) + 1
+      user.reviewsTodayDate = now
+
+      const streak = applyDailyStreak(user, now)
       user.practiceStreakDays = streak.dailyStreak
-      user.lastPracticeDate = new Date()
+      user.lastPracticeDate = now
+
+      // goal check + freeze refill (awards once per day)
+      const goal = awardGoalRefill(user, now)
 
       const newLevel = levelFor(user.xp)
       const levelUp = newLevel > prevLevel
@@ -79,8 +100,14 @@ router.post('/review', requireDB, requireAuth, async (req, res) => {
           levelUp,
           dailyStreak: user.practiceStreakDays,
           streakIncreased: streak.streakIncreased,
+          freezeUsed: streak.freezeUsed,
+          streakFreezes: user.streakFreezes || 0,
+          dailyGoalMet: goal.goalMet,
+          freezeRefilled: goal.freezeRefilled,
           newWordsLearned,
           reviewsCaughtUp,
+          reviewsToday: user.reviewsToday,
+          dailyGoalTarget: user.dailyGoalTarget || 10,
         },
       })
     } else {

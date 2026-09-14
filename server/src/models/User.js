@@ -12,6 +12,12 @@ const userSchema = new mongoose.Schema(
     totalReviewed: { type: Number, default: 0 },
     lastPracticeDate: { type: Date },
     practiceStreakDays: { type: Number, default: 0 },
+    streakFreezes: { type: Number, default: 1 },
+    dailyGoalTarget: { type: Number, default: 10, min: 1, max: 50 },
+    reviewsToday: { type: Number, default: 0 },
+    reviewsTodayDate: { type: Date },
+    goalMetDate: { type: Date },
+    goalsMet: { type: Number, default: 0 },
   },
   { timestamps: true }
 )
