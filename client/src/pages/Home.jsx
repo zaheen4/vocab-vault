@@ -3,12 +3,6 @@ import { usePrefetchDeck, useDecks, useGamification, useProgressSummary } from '
 import Card from '../components/ui/Card'
 import EmptyState from '../components/ui/EmptyState'
 
-const badgeClass = {
-  basic: 'bg-emerald-100 text-emerald-700',
-  intermediate: 'bg-amber-100 text-amber-700',
-  advanced: 'bg-red-100 text-red-700',
-}
-
 function DeckCard({ deck }) {
   const count = deck.wordCount ?? (deck.wordIds ? deck.wordIds.length : 0)
   const prefetchDeck = usePrefetchDeck()
@@ -20,14 +14,7 @@ function DeckCard({ deck }) {
       onMouseEnter={warm}
       onFocus={warm}
     >
-      <div className="flex items-start justify-between gap-2">
-        <h3 className="font-display text-lg font-bold text-primary">{deck.title}</h3>
-        <span
-          className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${badgeClass[deck.difficulty] || 'bg-slate-100 text-slate-600'}`}
-        >
-          {deck.difficulty}
-        </span>
-      </div>
+      <h3 className="font-display text-lg font-bold text-primary">{deck.title}</h3>
       <div className="mt-auto pt-4">
         <p className="border-t border-slate-100 pt-3 text-xs font-semibold text-slate-500">
           {count} words

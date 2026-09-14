@@ -22,7 +22,7 @@
 - [x] @fe Register page wired to `POST /api/auth/register` (#7)
 - [x] @fe AuthContext + JWT persistence (localStorage) + auto-inject via api client (#6)
 - [x] @fe ProtectedRoute wrapper + Navbar auth state (login/logout) (#6, #7)
-- [x] @fe Home page = deck grid of 37 GregMat group decks, band badges, group order (GET `/api/decks`) (#8, `feat/gregmat-dataset`)
+- [x] @fe Home page = deck grid of 37 GregMat group decks in group order, no badges (GET `/api/decks`) (#8, `feat/gregmat-dataset`)
 - [x] @be Deck list response: add word counts per deck (#10)
 - [x] @fe Search page wired to `GET /api/words?q=` (#9)
 - [ ] ~@data Decide Bangla-meanings source dataset or manual entry (deferred — `banglaMeaning` field optional and unused)~
