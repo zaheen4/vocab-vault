@@ -115,7 +115,7 @@ export default function SavedPractice() {
     }
     invalidateAfterReview(undefined)
 
-    setFlipped(false)
+    setFlipped(true)
     if (!correct) setShake(true)
     setFeedback({
       correct,
@@ -127,6 +127,7 @@ export default function SavedPractice() {
     advanceTimer.current = setTimeout(() => {
       stopSpeaking()
       setShake(false)
+      setFlipped(false)
       setFeedback(null)
       setSubmitting(false)
       busyRef.current = false

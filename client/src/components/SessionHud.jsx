@@ -30,19 +30,20 @@ export default function SessionHud({
         </span>
       </div>
 
-      <div className="flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold dark:border-white/10 dark:bg-night-900">
-        <span className="text-primary dark:text-cream-100">✓ {score}</span>
-        {combo >= 2 && (
-          <span className="animate-pop rounded-full bg-accent px-2 py-0.5 text-primary dark:text-night-950">
-            {combo} combo 🔥
-          </span>
-        )}
-        {sessionXp !== null && (
-          <span className="ml-auto rounded bg-gold px-2 py-0.5 text-primary dark:bg-accent/20 dark:text-accent">
-            +{sessionXp} XP
-          </span>
-        )}
-      </div>
+      {(combo >= 2 || sessionXp !== null) && (
+        <div className="flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold dark:border-white/10 dark:bg-night-900">
+          {combo >= 2 && (
+            <span className="animate-pop rounded-full bg-accent px-2 py-0.5 text-primary dark:text-night-950">
+              {combo} combo 🔥
+            </span>
+          )}
+          {sessionXp !== null && (
+            <span className="ml-auto rounded bg-gold px-2 py-0.5 text-primary dark:bg-accent/20 dark:text-accent">
+              +{sessionXp} XP
+            </span>
+          )}
+        </div>
+      )}
 
       <div className="h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-night-800">
         <div
