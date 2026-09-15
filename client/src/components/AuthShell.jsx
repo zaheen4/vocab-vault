@@ -12,7 +12,7 @@ const PITCH = [
 // drift apart again.
 export default function AuthShell({ title, children }) {
   return (
-    <div className="animate-page flex min-h-screen items-center justify-center bg-gold px-4 py-10 dark:bg-night-950">
+    <div className="animate-page flex min-h-screen supports-[height:100dvh]:min-h-dvh items-center justify-center bg-gold px-4 py-10 dark:bg-night-950">
       <div className="grid w-full max-w-3xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl sm:grid-cols-2 dark:border-white/10 dark:bg-night-900 dark:shadow-none">
         <div className="flex flex-col justify-center gap-5 bg-primary p-8 text-white dark:bg-night-800">
           <div className="flex items-center gap-2.5">

@@ -15,7 +15,9 @@ export default function Input({
 }) {
   const inputId = id || (label ? `input-${String(label).toLowerCase().replace(/[^a-z0-9]+/g, '-')}` : undefined)
   const fieldClass = cn(
-    'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400',
+    // 16px on touch (text-base): iOS Safari auto-zooms smaller fields and
+    // breaks layout on focus. Desktop keeps text-sm density.
+    'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 placeholder:text-slate-400 sm:text-sm',
     'transition-colors focus:border-accent focus:ring-2 focus:ring-accent/40 focus:outline-none',
     'dark:border-white/15 dark:bg-night-800 dark:text-cream-100 dark:placeholder:text-cream-300/40 dark:focus:border-accent',
     icon && 'pl-9',
