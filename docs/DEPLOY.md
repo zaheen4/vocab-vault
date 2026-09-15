@@ -83,7 +83,15 @@ temp account and its data. Then CORS proof:
 curl -sI -H 'Origin: https://vvault.pages.dev' https://<your-api>.onrender.com/api/health | rg -i access-control-allow-origin
 # foreign origin: header must be absent
 curl -sI -H 'Origin: https://evil.test' https://<your-api>.onrender.com/api/health | rg -i access-control-allow-origin; echo "(empty = blocked)"
+# deploy gate: must report the merged short SHA, not an older one
+curl -fsSL https://<your-api>.onrender.com/api/health | python3 -c 'import json,sys; print(json.load(sys.stdin)["deploy"])'
 ```
+
+> Render posts no commit statuses to GitHub, so a failed prod deploy is
+> silent here. The `deploy-gate` workflow covers it: after every `main`
+> push touching `server/` or `render.yaml` it polls `/api/health` until
+> `deploy` equals the pushed SHA (20 min cap, then red). Docs-only pushes
+> skip. Manual re-check anytime via Actions → deploy-gate → Run workflow.
 
 ## 6. Warm-up runbook (backup ritual before showtime)
 

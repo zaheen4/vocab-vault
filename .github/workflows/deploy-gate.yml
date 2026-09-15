@@ -1,0 +1,65 @@
+name: deploy-gate
+
+# Render posts no commit statuses to GitHub, so a failed prod deploy is
+# silent here. This gate polls /api/health after every main push until it
+# serves the pushed SHA (or times out red). Skips fast when the push touches
+# no backend-affecting paths. Manual runs via workflow_dispatch for backfill.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      expected_sha:
+        description: 'Short SHA the API should serve (default: main HEAD)'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  render-health:
+    name: render serving pushed sha
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Check backend-affecting paths
+        id: paths
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "backend=true" >> "$GITHUB_OUTPUT"
+          elif git diff --name-only HEAD~1 -- server render.yaml | grep -q .; then
+            echo "backend=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "backend=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Wait for Render to serve this SHA
+        if: steps.paths.outputs.backend == 'true'
+        env:
+          EXPECT_FULL: ${{ inputs.expected_sha || github.sha }}
+          API_URL: https://vocab-vault-api.onrender.com/api/health
+        run: |
+          expect="${EXPECT_FULL:0:7}"
+          echo "waiting for deploy=$expect"
+          for i in $(seq 1 40); do
+            got=$(curl -fsSL -m 20 "$API_URL" 2>/dev/null \
+              | python3 -c 'import json,sys; print(json.load(sys.stdin).get("deploy",""))' 2>/dev/null || true)
+            echo "poll $i: got=${got:-<none>}"
+            if [ "$got" = "$expect" ]; then
+              echo "live on $expect"
+              exit 0
+            fi
+            sleep 30
+          done
+          echo "timed out waiting for $expect — check Render dashboard Deploys tab"
+          exit 1
+
+      - name: Skip note (no backend paths)
+        if: steps.paths.outputs.backend == 'false'
+        run: echo "No server/ or render.yaml changes — Render rebuild is a no-op restart."
