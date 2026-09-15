@@ -12,7 +12,7 @@ export default function Layout() {
     window.scrollTo(0, 0)
   }, [pathname])
   return (
-    <div className="flex min-h-screen flex-col bg-stone-50 dark:bg-night-950">
+    <div className="flex min-h-screen supports-[height:100dvh]:min-h-dvh flex-col bg-stone-50 dark:bg-night-950">
       <Navbar />
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-4 pb-24 sm:px-6 sm:py-6 sm:pb-6">
         <Outlet />

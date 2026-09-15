@@ -22,7 +22,7 @@ function GuestRoute({ children }) {
   const { token, loading } = useAuth()
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center text-slate-500 dark:text-cream-300/70">
+      <div className="flex min-h-screen supports-[height:100dvh]:min-h-dvh items-center justify-center text-slate-500 dark:text-cream-300/70">
         Loading…
       </div>
     )
