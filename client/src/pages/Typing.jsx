@@ -5,7 +5,10 @@ import { isStarred, useBookmarks, useInvalidateAfterReview, useQuizPool, useTogg
 import { useSlideDirection } from '../utils/navDirection'
 import { isCorrectSpelling } from '../utils/fuzzyMatch'
 import { getSessionMessage } from '../utils/sessionMessages'
+import { shouldCelebrate } from '../utils/celebrate'
 import Button from '../components/ui/Button'
+import Confetti from '../components/Confetti'
+import ScoreRing from '../components/ScoreRing'
 import DeckTile from '../components/DeckTile'
 import EmptyState from '../components/ui/EmptyState'
 import EmptyArt from '../components/art/EmptyArt'
@@ -41,6 +44,7 @@ export default function Typing() {
   const [results, setResults] = useState([])
   const [score, setScore] = useState(0)
   const [levelEvent, setLevelEvent] = useState(null)
+  const [confetti, setConfetti] = useState(false)
   const [toast, setToast] = useState(null)
   const [finalMessage, setFinalMessage] = useState(null)
   const slideCls = useSlideDirection()
@@ -70,6 +74,7 @@ export default function Typing() {
     setResults([])
     setScore(0)
     setLevelEvent(null)
+    setConfetti(false)
     setToast(null)
     setFinalMessage(null)
     busyRef.current = false
@@ -122,6 +127,9 @@ export default function Typing() {
     busyRef.current = false
     if (index + 1 >= words.length) {
       const correctCount = results.filter((r) => r.correct).length
+      if (shouldCelebrate({ correct: correctCount, total: results.length, levelUp: !!levelEvent })) {
+        setConfetti(true)
+      }
       setFinalMessage(
         getSessionMessage({
           correct: correctCount,
@@ -204,10 +212,12 @@ export default function Typing() {
     const pct = results.length === 0 ? 0 : Math.round((correctCount / results.length) * 100)
     return (
       <div className="animate-page mx-auto max-w-2xl space-y-6 py-6 text-center">
+        <Confetti active={confetti} pieces={70} />
         <h1 className="font-display text-3xl font-bold text-primary dark:text-cream-100">{finalMessage || 'Session complete!'}</h1>
         <p className="text-slate-500 dark:text-cream-300/80">
           You spelled {correctCount} of {results.length} right ({pct}%).
         </p>
+        <ScoreRing correct={correctCount} total={results.length} />
         {results.length > 0 && (
           <div className="flex flex-wrap justify-center gap-1.5">
             {results.map((r, i) => (
