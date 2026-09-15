@@ -5,6 +5,7 @@ import { useTheme } from '../context/ThemeContext'
 import { useGamification } from '../api/queries'
 import { pickSeeded } from './art/seed'
 import { TILE_STYLES } from './DeckTile'
+import { FlameIcon, StarIcon } from './art/icons'
 import Logo from './Logo'
 import Button from './ui/Button'
 
@@ -77,10 +78,18 @@ function StatsChip() {
         </svg>
         <span className="text-xs font-bold text-primary dark:text-cream-100">{stats.level}</span>
       </span>
-      <span className="hidden items-center gap-2 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-primary sm:inline-flex dark:border-white/10 dark:bg-night-800 dark:text-cream-100">
-        <span className="rounded bg-gold px-1.5 py-0.5 dark:bg-accent/20 dark:text-accent">⭐ {stats.level}</span>
-        {stats.dailyStreak > 0 && <span>🔥 {stats.dailyStreak}d</span>}
-        <span className="text-slate-400 dark:text-cream-300/70">+{stats.xp} XP</span>
+      <span className="hidden items-center gap-3 rounded-full bg-slate-100 px-3.5 py-1.5 text-xs font-bold text-primary sm:inline-flex dark:bg-white/10 dark:text-cream-100">
+        <span className="inline-flex items-center gap-1">
+          <StarIcon size={14} className="text-accent-deep dark:text-accent" />
+          {stats.level}
+        </span>
+        {stats.dailyStreak > 0 && (
+          <span className="inline-flex items-center gap-1">
+            <FlameIcon size={14} className="text-accent-deep dark:text-accent" />
+            {stats.dailyStreak}d
+          </span>
+        )}
+        <span className="font-semibold text-slate-500 dark:text-cream-300/70">+{stats.xp} XP</span>
       </span>
     </>
   )

@@ -125,7 +125,7 @@ function GoalSection({ stats, setGoal }) {
                     key={t}
                     disabled={setGoal.isPending}
                     onClick={() => setGoal.mutate(t)}
-                    className={`min-h-11 rounded-md border px-3 py-0.5 text-xs font-medium transition-colors ${
+                    className={`relative rounded-md border px-3 py-0.5 text-xs font-medium transition-colors before:absolute before:inset-x-0 before:-inset-y-2.5 before:content-[''] ${
                       target === t
                         ? 'border-accent bg-accent text-primary'
                         : 'border-slate-200 text-slate-500 hover:border-slate-300 dark:border-white/15 dark:text-cream-300/80 dark:hover:border-white/30'
