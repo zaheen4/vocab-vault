@@ -307,7 +307,7 @@ export default function Typing() {
           autoCorrect="off"
           spellCheck={false}
           aria-label="Your spelling"
-          className="w-full rounded-lg border-2 border-slate-200 bg-white px-4 py-3 text-center text-xl font-semibold text-primary placeholder:font-normal placeholder:text-slate-300 focus:border-accent focus:ring-2 focus:ring-accent/40 focus:outline-none disabled:bg-slate-50 dark:border-white/15 dark:bg-night-800 dark:text-cream-100 dark:placeholder:text-cream-300/40 dark:disabled:bg-night-900"
+          className={`w-full rounded-lg border-2 border-slate-200 bg-white px-4 py-3 text-center text-xl font-semibold text-primary placeholder:font-normal placeholder:text-slate-300 focus:border-accent focus:ring-2 focus:ring-accent/40 focus:outline-none disabled:bg-slate-50 dark:border-white/15 dark:bg-night-800 dark:text-cream-100 dark:placeholder:text-cream-300/40 dark:disabled:bg-night-900${answered && !answered.correct ? ' animate-shake' : ''}`}
         />
         {!answered && (
           <Button type="submit" fullWidth disabled={!value.trim()}>

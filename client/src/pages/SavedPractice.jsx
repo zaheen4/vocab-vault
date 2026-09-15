@@ -30,6 +30,7 @@ export default function SavedPractice() {
   const [results, setResults] = useState([])
   const [submitting, setSubmitting] = useState(false)
   const [feedback, setFeedback] = useState(null)
+  const [shake, setShake] = useState(false)
   const [sessionXp, setSessionXp] = useState(0)
   const [score, setScore] = useState(0)
   const [levelEvent, setLevelEvent] = useState(null)
@@ -115,6 +116,7 @@ export default function SavedPractice() {
     invalidateAfterReview(undefined)
 
     setFlipped(false)
+    if (!correct) setShake(true)
     setFeedback({
       correct,
       xpEarned: g.xpEarned,
@@ -124,6 +126,7 @@ export default function SavedPractice() {
     const finished = index + 1 >= words.length
     advanceTimer.current = setTimeout(() => {
       stopSpeaking()
+      setShake(false)
       setFeedback(null)
       setSubmitting(false)
       busyRef.current = false
@@ -240,7 +243,7 @@ export default function SavedPractice() {
         word={current}
         flipped={flipped}
         onFlip={() => setFlipped((f) => !f)}
-        shake={false}
+        shake={shake}
         reversed={false}
       />
 

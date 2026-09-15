@@ -212,8 +212,12 @@ export default function Progress() {
       )}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {CARDS.map(({ key, label, class: cardClass, text }) => (
-          <div key={key} className={`rounded-lg border p-5 ${cardClass}`}>
+        {CARDS.map(({ key, label, class: cardClass, text }, i) => (
+          <div
+            key={key}
+            className={`animate-fade-up rounded-lg border p-5 ${cardClass}`}
+            style={{ animationDelay: `${i * 60}ms` }}
+          >
             <p className={`text-3xl font-bold ${text}`}>{summary[key] || 0}</p>
             <p className="mt-1 text-sm font-medium text-slate-500 dark:text-cream-300/80">{label}</p>
           </div>
@@ -227,18 +231,19 @@ export default function Progress() {
             {(stats.badges || []).length} of {BADGES.length} earned — keep practicing to unlock the rest.
           </p>
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
-            {BADGES.map((badge) => {
+            {BADGES.map((badge, i) => {
               const earned = (stats.badges || []).find((b) => b.id === badge.id)
               const Icon = badge.Icon
               return (
                 <div
                   key={badge.id}
                   title={badge.description}
-                  className={`rounded-lg border p-3 text-center ${
+                  className={`animate-fade-up rounded-lg border p-3 text-center ${
                     earned
                       ? 'border-accent bg-gold/40 dark:border-accent/30 dark:bg-accent/10'
                       : 'border-slate-200 bg-slate-50 opacity-60 dark:border-white/10 dark:bg-night-800'
                   }`}
+                  style={{ animationDelay: `${i * 60}ms` }}
                 >
                   <p className={`${earned ? '' : 'opacity-70 grayscale'} ${badge.iconClass}`}>
                     <Icon size={28} />
