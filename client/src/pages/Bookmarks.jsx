@@ -16,6 +16,7 @@ import {
 } from '../api/queries'
 import Button from '../components/ui/Button'
 import EmptyState from '../components/ui/EmptyState'
+import EmptyArt from '../components/art/EmptyArt'
 import Input from '../components/ui/Input'
 import PageHeader from '../components/PageHeader'
 import SpeakerIcon from '../components/ui/SpeakerIcon'
