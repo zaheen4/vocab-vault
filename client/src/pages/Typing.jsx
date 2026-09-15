@@ -9,6 +9,7 @@ import { shouldCelebrate } from '../utils/celebrate'
 import Button from '../components/ui/Button'
 import Confetti from '../components/Confetti'
 import ScoreRing from '../components/ScoreRing'
+import LevelUpBanner from '../components/LevelUpBanner'
 import SessionHud from '../components/SessionHud'
 import DeckTile from '../components/DeckTile'
 import EmptyState from '../components/ui/EmptyState'
@@ -344,9 +345,7 @@ export default function Typing() {
       )}
 
       {levelEvent && (
-        <div className="animate-pop animate-glow rounded-lg border-2 border-accent bg-gold px-4 py-2 text-center text-sm font-bold text-primary dark:bg-accent/15 dark:text-accent">
-          🎊 Level up! You reached Level {levelEvent.newLevel}
-        </div>
+        <LevelUpBanner level={levelEvent.newLevel} />
       )}
 
       {toast && (
