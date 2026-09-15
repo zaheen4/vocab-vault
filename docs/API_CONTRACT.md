@@ -155,6 +155,7 @@ so the client can link the existing entry instead.
       "wordIds": ["wordObjectId"],
       "wordCount": 42,
       "progress": { "new": 30, "learning": 10, "mastered": 2 },
+      "dueCount": 12,
       "group": "number | null",
       "source": "gregmat | null",
       "createdBy": "userObjectId",
@@ -166,7 +167,9 @@ so the client can link the existing entry instead.
 ```
 **Note:** `wordCount` is derived from `wordIds.length` and must be present in every deck object.
 `progress` counts the caller's SRS states across the deck's words (unreviewed words
-count as `new`), joined in one query — no per-deck fan-out.
+count as `new`), joined in one query — no per-deck fan-out. `dueCount` is the
+practicable subset right now (unseen plus due), mirroring the practice-pool
+selection order exactly.
 Decks are returned sorted by `group` ascending; decks without a group come last.
 **Scoping:** only shared decks (`createdBy` absent) and the caller's own
 personal decks are returned — never another user's.
