@@ -2,24 +2,38 @@ import { Link } from 'react-router-dom'
 import { usePrefetchDeck, useDecks, useGamification, useProgressSummary } from '../api/queries'
 import Card from '../components/ui/Card'
 import EmptyState from '../components/ui/EmptyState'
-import DeckCover from '../components/art/DeckCover'
 import EmptyArt from '../components/art/EmptyArt'
+import { pickSeeded } from '../components/art/seed.js'
+
+// Seeded tile tints (owner call: covers removed, color carries the card).
+const TILE_STYLES = [
+  'bg-accent/15 text-accent-deep dark:bg-accent/20 dark:text-accent',
+  'bg-gold text-accent-deep dark:bg-gold/15 dark:text-gold',
+  'bg-primary/10 text-primary dark:bg-white/10 dark:text-cream-100',
+  'bg-emerald-500/10 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300',
+]
 
 function DeckCard({ deck }) {
   const count = deck.wordCount ?? (deck.wordIds ? deck.wordIds.length : 0)
   const prefetchDeck = usePrefetchDeck()
   const warm = () => prefetchDeck(deck._id)
+  const tile = pickSeeded(TILE_STYLES, deck._id) ?? TILE_STYLES[0]
   return (
     <Card
       hoverable
-      className="relative flex h-full flex-col overflow-hidden border-2 p-5 pt-0 shadow-md"
+      className="relative flex h-full flex-col border-2 p-5 shadow-md"
       onMouseEnter={warm}
       onFocus={warm}
     >
-      <div className="-mx-5 mb-4">
-        <DeckCover seed={deck._id} className="h-20 w-full" />
+      <div className="flex items-center gap-3">
+        <span
+          aria-hidden="true"
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg font-display text-xl font-bold ${tile}`}
+        >
+          {(deck.title || '?').trim().charAt(0).toUpperCase()}
+        </span>
+        <h3 className="font-display text-lg font-bold text-primary dark:text-cream-100">{deck.title}</h3>
       </div>
-      <h3 className="font-display text-lg font-bold text-primary dark:text-cream-100">{deck.title}</h3>
       <div className="mt-auto pt-4">
         <p className="border-t border-slate-100 pt-3 text-xs font-semibold text-slate-500 dark:border-white/10 dark:text-cream-300/80">
           {count} words
