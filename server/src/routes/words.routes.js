@@ -4,26 +4,45 @@ import Word from '../models/Word.js'
 import Deck from '../models/Deck.js'
 import { requireAuth } from '../middleware/auth.js'
 import { requireDB } from '../middleware/requireDB.js'
-import { validateCustomWord } from '../utils/words.js'
+import { validateCustomWord, WORD_DIFFICULTIES } from '../utils/words.js'
+import {
+  MAX_QUERY_LENGTH,
+  escapeRegExp,
+  isDuplicateKeyError,
+  parsePagination,
+  toSafeMessage,
+} from '../utils/security.js'
 
 const router = Router()
 
 router.get('/', requireDB, requireAuth, async (req, res) => {
   try {
-    const { q, difficulty, page = 1, limit = 20 } = req.query
+    const { q, difficulty } = req.query
+    const { page, limit } = parsePagination(req.query, { defaultPage: 1, defaultLimit: 20, maxLimit: 100 })
     const filter = {}
-    if (q) filter.word = { $regex: q.toLowerCase(), $options: 'i' }
-    if (difficulty) filter.difficulty = difficulty
+    if (typeof q === 'string' && q.trim()) {
+      // Escaped substring search, capped length: meta-characters are matched
+      // literally (no ReDoS payloads) and leading wildcards stay bounded.
+      filter.word = { $regex: escapeRegExp(q.trim().slice(0, MAX_QUERY_LENGTH)), $options: 'i' }
+    } else if (q !== undefined && typeof q !== 'string') {
+      return res.status(400).json({ message: 'q must be a string' })
+    }
+    if (difficulty !== undefined) {
+      if (!WORD_DIFFICULTIES.includes(difficulty)) {
+        return res.status(400).json({ message: `difficulty must be one of: ${WORD_DIFFICULTIES.join(', ')}` })
+      }
+      filter.difficulty = difficulty
+    }
 
     const [words, total] = await Promise.all([
       Word.find(filter)
         .skip((page - 1) * limit)
-        .limit(Number(limit)),
+        .limit(limit),
       Word.countDocuments(filter),
     ])
-    res.json({ words, total, page: Number(page) })
+    res.json({ words, total, page })
   } catch (err) {
-    res.status(500).json({ message: err.message })
+    res.status(500).json({ message: toSafeMessage(err) })
   }
 })
 
@@ -36,7 +55,7 @@ router.get('/:id', requireDB, requireAuth, async (req, res) => {
     if (!word) return res.status(404).json({ message: 'Word not found' })
     res.json({ word })
   } catch (err) {
-    res.status(500).json({ message: err.message })
+    res.status(500).json({ message: toSafeMessage(err) })
   }
 })
 
@@ -78,7 +97,15 @@ router.post('/', requireDB, requireAuth, async (req, res) => {
 
     res.status(201).json({ word: created, deckId: deck._id })
   } catch (err) {
-    res.status(500).json({ message: err.message })
+    // Concurrent same-word posts can both pass the findOne check; the unique
+    // index settles the race — report it as 409, not 500.
+    if (isDuplicateKeyError(err)) {
+      return res.status(409).json({ message: 'That word already exists' })
+    }
+    if (err?.name === 'ValidationError') {
+      return res.status(400).json({ message: err.message })
+    }
+    res.status(500).json({ message: toSafeMessage(err) })
   }
 })
 

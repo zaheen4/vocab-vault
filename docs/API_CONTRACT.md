@@ -1,10 +1,16 @@
 # VocabVault REST API Contract
 
 **Base URL:** `/api`  
-**Auth:** JWT in `Authorization: Bearer <token>` header (all non-public endpoints)  
-**Error format:** `{ "message": "..." }`  
+**Auth:** JWT in `Authorization: Bearer <token>` header (all non-public endpoints).
+Tokens are HS256, expire after **1 day** (`expiresIn: 1d`), and carry
+`iss: vocabvault` / `aud: vocabvault-web`.  
+**Error format:** `{ "message": "..." }`. Unexpected failures return generic
+`500 { "message": "Server error" }` / `503 { "message": "Service temporarily unavailable" }`
+— Mongo internals are never exposed.  
 **Content-Type:** `application/json`  
 **Security:** auth responses carry the user profile only — `passwordHash` is never returned.
+**Rate limits:** `/api` 1000 req/15 min per IP; `/api/auth/*` 30 req/15 min;
+`POST /api/progress/review` 200 req/15 min. Exceeding a limit returns 429.
 
 ---
 
@@ -13,13 +19,16 @@
 ### `POST /api/auth/register` — Create new user
 **Request:**
 ```json
-{ "name": "string", "email": "string", "password": "string (min 6)" }
+{ "name": "string (1–100 chars)", "email": "string (valid, max 254)", "password": "string (6–128 chars)" }
 ```
+Email is trimmed + lowercased before lookup/creation.
 **Response 201:**
 ```json
 { "token": "jwt-string", "user": { "_id": "...", "name": "...", "email": "...", "role": "user", "createdAt": "...", "updatedAt": "..." } }
 ```
-**Errors:** 400 (validation), 409 (email exists), 500
+Note: the user object is a superset of the shape above (XP/streak/goal fields
+are also returned) — clients must not assume an exact shape.
+**Errors:** 400 (validation), 409 (unable to create account — generic, no enumeration), 429 (rate limit), 500
 
 ---
 
@@ -32,7 +41,7 @@
 ```json
 { "token": "jwt-string", "user": { "_id": "...", "name": "...", "email": "...", "role": "user", "createdAt": "...", "updatedAt": "..." } }
 ```
-**Errors:** 400 (validation), 401 (invalid credentials), 500
+**Errors:** 401 (invalid credentials or malformed input — same shape), 429 (rate limit), 500
 
 ---
 
@@ -41,6 +50,19 @@
 **Response 200:**
 ```json
 { "user": { "_id": "...", "name": "...", "email": "...", "role": "user", "createdAt": "...", "updatedAt": "..." } }
+```
+Same superset note as register — extra profile fields may be present.
+**Errors:** 401 (unauthorized), 500
+
+---
+
+### `POST /api/auth/logout` — End session (acknowledgement)
+**Auth:** required  
+Logout is client-driven (discard token + clear cache); this endpoint records
+the intent server-side and is the hook for future token revocation.
+**Response 200:**
+```json
+{ "ok": true }
 ```
 **Errors:** 401 (unauthorized), 500
 
@@ -51,10 +73,11 @@
 ### `GET /api/words` — List words with filtering & pagination
 **Auth:** required  
 **Query params:**
-- `q` (string, optional) — case-insensitive prefix search on `word`
-- `difficulty` (enum: `basic` | `intermediate` | `advanced`, optional)
-- `page` (number, default 1)
-- `limit` (number, default 20)
+- `q` (string, optional) — case-insensitive **substring** search on `word`
+  (regex meta-characters matched literally, capped at 100 chars)
+- `difficulty` (enum: `basic` | `intermediate` | `advanced`, optional — anything else is 400)
+- `page` (number, default 1, clamped 1–10000)
+- `limit` (number, default 20, clamped 1–100)
 
 **Response 200:**
 ```json
@@ -100,7 +123,8 @@
 ```json
 { "word": "string", "definition": "string", "example": "string | null", "partOfSpeech": "string | null", "difficulty": "basic | intermediate | advanced" }
 ```
-`word` and `definition` are required (trimmed, non-empty); `difficulty` defaults to `basic`.  
+`word` and `definition` are required (trimmed, non-empty; word max 100 chars,
+definition/example max 2000, partOfSpeech max 50); `difficulty` defaults to `basic`.  
 **Response 201:**
 ```json
 { "word": { ... }, "deckId": "my-words-deck-ObjectId" }
@@ -149,7 +173,7 @@ personal decks are returned — never another user's.
 ---
 
 ### `GET /api/decks/:id` — Get single deck
-**Auth:** required  
+**Auth:** required, owner-scoped (shared decks + caller's own; anyone else's id reads as 404)  
 **Params:** `id` (ObjectId)  
 **Response 200:**
 ```json
@@ -160,7 +184,7 @@ personal decks are returned — never another user's.
 ---
 
 ### `GET /api/decks/:id/practice?limit=10` — Get a practice session for a deck
-**Auth:** required  
+**Auth:** required, owner-scoped (shared + own; other users' ids read as 404)  
 **Params:** `id` (ObjectId)  
 **Query:** `limit` (number, default 10, max 50)  
 **Selection order:** words never seen by this user first (deck order), then seen
@@ -175,7 +199,7 @@ Seen-but-not-yet-due words are excluded.
 ---
 
 ### `GET /api/decks/:id/quiz?limit=50` — Get viewed words for a quiz
-**Auth:** required  
+**Auth:** required, owner-scoped (shared + own; other users' ids read as 404)  
 **Params:** `id` (ObjectId)  
 **Query:** `limit` (number, default 50, max 100)  
 Only words this user has already viewed (has a Progress record for) are
@@ -197,6 +221,7 @@ quizzes test recall, not first exposure. Empty array when nothing viewed yet.
 ```json
 { "summary": { "new": 45, "learning": 12, "mastered": 8 } }
 ```
+Keys are zero-filled — a fresh user gets `{ "new": 0, "learning": 0, "mastered": 0 }`.
 **Errors:** 500
 
 ---
@@ -306,8 +331,8 @@ idempotent — an already-earned badge is never returned again.
   }
 }
 ```
-`activity` holds per-day review counts, newest last (kept to the last 60 days).
-```
+`activity` holds per-day review counts, newest last (response window: last 14 days;
+storage retains 60 days).
 **Errors:** 401 (unauthorized), 404 (user not found), 500
 
 ---
@@ -346,8 +371,9 @@ Newest first. `status`/`box` reflect the caller's SRS progress (`new`/`0` when u
 ```json
 { "wordId": "ObjectId" }
 ```
-Idempotent — starring an already-starred word returns 200 with the same shape
-(`status`/`box` reflect the SRS state, `new`/`0` when unreviewed).  
+Idempotent — starring an already-starred word returns 200 with the same shape.
+Note: the create response always reports `status: "new"`, `box: 0`; the SRS
+state is joined only on `GET /api/bookmarks`.  
 **Response 200:**
 ```json
 { "bookmark": { "_id": "...", "word": { ... }, "status": "new", "box": 0, "addedAt": "..." } }
@@ -539,7 +565,7 @@ database is down.
 | lastPracticeDate | Date | ❌ | last review date (for daily streak) |
 | practiceStreakDays | number | ❌ | default 0, consecutive daily-practice count |
 | streakFreezes | number | ❌ | default 1, available grace days (0–1) |
-| dailyGoalTarget | number | ❌ | default 10, reviews per day (1–50) |
+| dailyGoalTarget | number | ❌ | default 10; settable only to `5, 10, 15, 20, 25, 30, 40, 50` via `PATCH /goal` |
 | reviewsToday | number | ❌ | today's review count |
 | reviewsTodayDate | Date | ❌ | date of current reviewsToday |
 | goalMetDate | Date | ❌ | last date daily goal was met |
