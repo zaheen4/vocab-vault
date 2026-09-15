@@ -15,7 +15,7 @@ export default function SessionHud({
 }) {
   return (
     <>
-      <div className="flex items-center justify-between text-sm">
+      <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
         <Link
           to={backTo}
           className="text-slate-400 hover:text-primary dark:text-cream-300/60 dark:hover:text-cream-100"

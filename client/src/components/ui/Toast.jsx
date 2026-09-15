@@ -28,7 +28,7 @@ export default function Toast({ message, variant = 'info', onDismiss, duration =
           type="button"
           onClick={onDismiss}
           aria-label="Dismiss"
-          className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded text-base leading-none opacity-60 hover:opacity-100"
+          className="ml-auto flex h-9 w-9 shrink-0 items-center justify-center rounded text-base leading-none opacity-60 hover:opacity-100"
         >
           ✕
         </button>

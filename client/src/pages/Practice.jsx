@@ -315,7 +315,7 @@ export default function Practice({ active = true }) {
 
       {/* Study controls sit outside the flip button: no nested interactives.
           Speaker stays silent in reverse mode until the word is revealed. */}
-      <div className="flex justify-end gap-2">
+      <div className="flex flex-wrap justify-end gap-2">
         {ttsAvailable !== null && (
           <span
             title={ttsAvailable ? undefined : TTS_UNAVAILABLE_HINT}

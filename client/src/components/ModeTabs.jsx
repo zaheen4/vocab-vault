@@ -81,7 +81,7 @@ export default function ModeTabs({ deckId }) {
           onFocus={warm(kind)}
           onClick={() => noteTabSwitch(pathname, to(deckId))}
           className={({ isActive }) =>
-            `relative z-10 rounded-full px-4 py-1.5 font-display text-sm font-bold transition-colors ${
+            `relative z-10 min-h-11 rounded-full px-4 py-1.5 font-display text-sm font-bold transition-colors ${
               isActive ? 'text-primary dark:text-night-950' : 'text-slate-500 hover:text-primary dark:text-cream-300/80 dark:hover:text-cream-100'
             }`
           }

@@ -120,20 +120,20 @@ function GoalSection({ stats, setGoal }) {
           )}
         </div>
         <div className="mt-2 flex flex-wrap gap-1.5">
-          {GOAL_TARGETS.map((t) => (
-            <button
-              key={t}
-              disabled={setGoal.isPending}
-              onClick={() => setGoal.mutate(t)}
-              className={`rounded-md border px-2 py-0.5 text-xs font-medium transition-colors ${
-                target === t
-                  ? 'border-accent bg-accent text-primary'
-                  : 'border-slate-200 text-slate-500 hover:border-slate-300 dark:border-white/15 dark:text-cream-300/80 dark:hover:border-white/30'
-              }`}
-            >
-              {t}
-            </button>
-          ))}
+                {GOAL_TARGETS.map((t) => (
+                  <button
+                    key={t}
+                    disabled={setGoal.isPending}
+                    onClick={() => setGoal.mutate(t)}
+                    className={`min-h-11 rounded-md border px-3 py-0.5 text-xs font-medium transition-colors ${
+                      target === t
+                        ? 'border-accent bg-accent text-primary'
+                        : 'border-slate-200 text-slate-500 hover:border-slate-300 dark:border-white/15 dark:text-cream-300/80 dark:hover:border-white/30'
+                    }`}
+                  >
+                    {t}
+                  </button>
+                ))}
         </div>
       </div>
     </div>
