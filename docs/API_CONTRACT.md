@@ -485,10 +485,13 @@ Idempotent (`$addToSet`).
 **Auth:** none  
 **Response 200:**
 ```json
-{ "status": "ok", "uptime": 123.45, "db": true }
+{ "status": "ok", "uptime": 123.45, "db": true, "deploy": "6faab1c" }
 ```
-`db` reflects Mongo connectivity. Status stays 200 so the Render health
-check passes; routes 503 via `requireDB` when the database is down.
+`db` reflects Mongo connectivity. `deploy` is the short commit SHA baked in
+by the platform at build time (`RENDER_GIT_COMMIT` / `SOURCE_VERSION`, or
+`dev` locally) — use it to confirm a specific push went live. Status stays
+200 so the Render health check passes; routes 503 via `requireDB` when the
+database is down.
 **Errors:** 500
 
 ---
