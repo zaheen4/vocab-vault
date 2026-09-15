@@ -24,16 +24,17 @@ function DeckCard({ deck }) {
       <div className="flex items-center gap-3">
         <DeckTile id={deck._id} title={deck.title} />
         <h3 className="font-display text-lg font-bold text-primary dark:text-cream-100">{deck.title}</h3>
-        {due > 0 && (
-          <span className="ml-auto shrink-0 rounded-full bg-accent px-2.5 py-1 text-xs font-bold text-primary dark:text-night-950">
-            {due} due
-          </span>
-        )}
       </div>
       <div className="mt-auto border-t border-slate-100 pt-3 dark:border-white/10">
         <div className="flex items-baseline justify-between gap-2">
           <p className="text-xs font-semibold text-slate-500 dark:text-cream-300/80">
             {count} words
+            {due > 0 && (
+              <>
+                <span aria-hidden="true"> · </span>
+                <span className="font-bold text-accent">{due} due</span>
+              </>
+            )}
           </p>
           {count > 0 && (mastered > 0 || (deck.progress?.learning || 0) > 0) && (
             <p className="text-xs font-bold text-emerald-600 dark:text-emerald-300">
