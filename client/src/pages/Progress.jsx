@@ -57,7 +57,7 @@ function ActivityStrip({ activity }) {
           {total} review{total === 1 ? '' : 's'}
         </p>
       </div>
-      <div className="mt-3 grid grid-cols-7 gap-1.5">
+      <div className="mt-3 grid grid-cols-7 gap-1">
         {days.map((d) => (
           <div key={d.key} className="flex flex-col items-center gap-1">
             <span

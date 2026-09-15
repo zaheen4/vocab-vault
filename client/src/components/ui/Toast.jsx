@@ -1,8 +1,11 @@
 import { useEffect } from 'react'
+import { cn } from '../../utils/cn'
 
 // Lightweight status toast. Auto-dismisses; pass onDismiss to render a close
 // control. Voice surface per DESIGN_SYSTEM, so it reads in font-display.
-export default function Toast({ message, variant = 'info', onDismiss, duration = 5000 }) {
+// className override lets stacked contexts (e.g. bookmarks select mode with
+// its sticky BatchBar) lift the toast clear of bottom-anchored chrome.
+export default function Toast({ message, variant = 'info', onDismiss, duration = 5000, className = '' }) {
   useEffect(() => {
     if (!onDismiss || duration == null) return undefined
     const timer = setTimeout(onDismiss, duration)
@@ -20,7 +23,11 @@ export default function Toast({ message, variant = 'info', onDismiss, duration =
     <div
       role={variant === 'error' ? 'alert' : 'status'}
       aria-live={variant === 'error' ? 'assertive' : 'polite'}
-      className={`fixed inset-x-4 bottom-4 z-50 mx-auto flex max-w-sm items-center gap-3 rounded-xl border-2 px-4 py-3 font-display text-sm font-bold shadow-lg ${tone}`}
+      className={cn(
+        'fixed inset-x-4 bottom-4 z-50 mx-auto flex max-w-sm items-center gap-3 rounded-xl border-2 px-4 py-3 font-display text-sm font-bold shadow-lg',
+        tone,
+        className
+      )}
     >
       <span>{message}</span>
       {onDismiss && (

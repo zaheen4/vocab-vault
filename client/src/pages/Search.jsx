@@ -114,19 +114,19 @@ export default function Search() {
             className="animate-fade-up rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-night-900 dark:shadow-none"
             style={{ animationDelay: `${Math.min(i, 8) * 50}ms` }}
           >
-            <div className="flex items-baseline justify-between gap-3">
+            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-2">
               <button
                 type="button"
                 onClick={() => setOpenId((o) => (o === w._id ? null : w._id))}
                 aria-expanded={openId === w._id}
-                className="flex min-h-9 flex-1 items-baseline gap-1.5 text-left"
+                className="flex min-h-9 min-w-0 flex-1 items-baseline gap-1.5 text-left"
               >
-                <span className="font-display font-semibold text-primary dark:text-cream-100">{w.word}</span>
+                <span className="font-display font-semibold break-words text-primary dark:text-cream-100">{w.word}</span>
                 <span className="shrink-0 text-xs font-bold text-slate-400 dark:text-cream-300/60">
                   {openId === w._id ? '▾' : '▸'}
                 </span>
               </button>
-              <span className="ml-auto flex shrink-0 items-center gap-1.5 self-center">
+              <span className="flex shrink-0 items-center gap-1.5 self-center">
                 <Button
                   variant="secondary"
                   aria-label={isStarred(bookmarks, w._id) ? `Remove ${w.word} from saved` : `Save ${w.word}`}
