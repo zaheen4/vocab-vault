@@ -1,4 +1,5 @@
 import { useGamification, useProgressSummary, useSetGoalTarget } from '../api/queries'
+import { FlameIcon, GemIcon, HundredIcon, SproutIcon, StarIcon } from '../components/art/icons'
 
 const CARDS = [
   { key: 'mastered', label: 'Mastered', class: 'border-emerald-200 bg-emerald-50 dark:border-emerald-400/20 dark:bg-emerald-950/40', text: 'text-emerald-700 dark:text-emerald-300' },
@@ -10,11 +11,11 @@ const GOAL_TARGETS = [5, 10, 15, 20, 25, 30, 40, 50]
 
 // Display catalog mirrors server/src/utils/gamify.js BADGES.
 const BADGES = [
-  { id: 'first-word', name: 'First Word', icon: '🌱', description: 'Review your first word' },
-  { id: 'century', name: 'Century', icon: '💯', description: 'Review 100 words' },
-  { id: 'week-warrior', name: 'Week Warrior', icon: '🔥', description: 'Reach a 7-day streak' },
-  { id: 'level-5', name: 'Level 5', icon: '⭐', description: 'Reach level 5' },
-  { id: 'flawless', name: 'Flawless', icon: '💎', description: '10 correct in a row' },
+  { id: 'first-word', name: 'First Word', Icon: SproutIcon, iconClass: 'text-emerald-600 dark:text-emerald-300', description: 'Review your first word' },
+  { id: 'century', name: 'Century', Icon: HundredIcon, iconClass: 'text-accent-deep dark:text-accent', description: 'Review 100 words' },
+  { id: 'week-warrior', name: 'Week Warrior', Icon: FlameIcon, iconClass: 'text-accent', description: 'Reach a 7-day streak' },
+  { id: 'level-5', name: 'Level 5', Icon: StarIcon, iconClass: 'text-amber-500 dark:text-amber-300', description: 'Reach level 5' },
+  { id: 'flawless', name: 'Flawless', Icon: GemIcon, iconClass: 'text-primary dark:text-cream-100', description: '10 correct in a row' },
 ]
 
 const DAY_LETTERS = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
@@ -113,11 +114,15 @@ export default function Progress() {
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-6">
               <div className="text-center">
-                <p className="text-3xl font-bold text-primary dark:text-cream-100">⭐ {stats.level}</p>
+                <p className="flex items-center justify-center gap-1.5 text-3xl font-bold text-primary dark:text-cream-100">
+                  <StarIcon size={26} className="text-accent" /> {stats.level}
+                </p>
                 <p className="text-xs text-slate-500 dark:text-cream-300/80">Level</p>
               </div>
               <div className="text-center">
-                <p className="text-3xl font-bold text-primary dark:text-cream-100">🔥 {stats.dailyStreak}</p>
+                <p className="flex items-center justify-center gap-1.5 text-3xl font-bold text-primary dark:text-cream-100">
+                  <FlameIcon size={26} className="text-accent" /> {stats.dailyStreak}
+                </p>
                 <p className="text-xs text-slate-500 dark:text-cream-300/80">Day streak</p>
               </div>
               <div className="text-center">
@@ -220,6 +225,7 @@ export default function Progress() {
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
             {BADGES.map((badge) => {
               const earned = (stats.badges || []).find((b) => b.id === badge.id)
+              const Icon = badge.Icon
               return (
                 <div
                   key={badge.id}
@@ -230,7 +236,9 @@ export default function Progress() {
                       : 'border-slate-200 bg-slate-50 opacity-60 dark:border-white/10 dark:bg-night-800'
                   }`}
                 >
-                  <p className={`text-2xl ${earned ? '' : 'grayscale'}`}>{badge.icon}</p>
+                  <p className={`${earned ? '' : 'opacity-70 grayscale'} ${badge.iconClass}`}>
+                    <Icon size={28} />
+                  </p>
                   <p className="mt-1 text-xs font-bold text-primary dark:text-cream-100">{badge.name}</p>
                   <p className="mt-0.5 text-xs text-slate-500 dark:text-cream-300/80">{badge.description}</p>
                 </div>

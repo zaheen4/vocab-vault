@@ -9,6 +9,7 @@ import Button from '../components/ui/Button'
 import SpeakerIcon from '../components/ui/SpeakerIcon'
 import Toast from '../components/ui/Toast'
 import EmptyState from '../components/ui/EmptyState'
+import EmptyArt from '../components/art/EmptyArt'
 import Confetti from '../components/Confetti'
 import Flashcard from '../components/Flashcard'
 
@@ -161,6 +162,7 @@ export default function SavedPractice() {
         </Link>
         <h1 className="font-display text-2xl font-bold text-primary dark:text-cream-100">Review saved</h1>
         <EmptyState
+        art={<EmptyArt variant="saved" />}
           title="Nothing due right now"
           message="Star some words, or come back when your saved reviews are due."
           action={

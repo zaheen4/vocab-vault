@@ -7,9 +7,11 @@ import { useAuth } from '../context/AuthContext'
 import { getSessionMessage } from '../utils/sessionMessages'
 import { claimTtsTip, speakWord, stopSpeaking, TTS_UNAVAILABLE_HINT, useTtsAvailable } from '../utils/speak'
 import Button from '../components/ui/Button'
+import { FlameIcon } from '../components/art/icons'
 import SpeakerIcon from '../components/ui/SpeakerIcon'
 import Toast from '../components/ui/Toast'
 import EmptyState from '../components/ui/EmptyState'
+import EmptyArt from '../components/art/EmptyArt'
 import Confetti from '../components/Confetti'
 import Flashcard from '../components/Flashcard'
 
@@ -248,6 +250,7 @@ export default function Practice({ active = true }) {
   if (words.length === 0) {
     return (
       <EmptyState
+        art={<EmptyArt variant="review" />}
         title="No words due right now"
         message="Everything here is scheduled for review. Come back tomorrow to keep your streak going and earn more XP!"
       />
@@ -261,7 +264,7 @@ export default function Practice({ active = true }) {
       <div className="animate-page mx-auto max-w-2xl space-y-6 py-6 text-center">
         <Confetti active={confetti} pieces={70} />
         <h1 className="font-display text-3xl font-bold text-primary dark:text-cream-100">
-          {finalMessage || 'Session complete! 🎉'}
+          {finalMessage || 'Session complete!'}
         </h1>
         {firstName && (
           <p className="-mt-3 text-slate-500 dark:text-cream-300/80">
@@ -281,7 +284,9 @@ export default function Practice({ active = true }) {
             <p className="text-xs text-slate-400 dark:text-cream-300/70">XP earned</p>
           </div>
           <div className="rounded-lg border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-night-900">
-            <p className="text-2xl font-bold text-primary dark:text-cream-100">{bestCombo}🔥</p>
+            <p className="flex items-center justify-center gap-1 text-2xl font-bold text-primary dark:text-cream-100">
+              {bestCombo}<FlameIcon size={22} className="text-accent" />
+            </p>
             <p className="text-xs text-slate-400 dark:text-cream-300/70">Best combo</p>
           </div>
           <div className="rounded-lg border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-night-900">

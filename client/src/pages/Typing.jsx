@@ -7,6 +7,7 @@ import { isCorrectSpelling } from '../utils/fuzzyMatch'
 import { getSessionMessage } from '../utils/sessionMessages'
 import Button from '../components/ui/Button'
 import EmptyState from '../components/ui/EmptyState'
+import EmptyArt from '../components/art/EmptyArt'
 import Toast from '../components/ui/Toast'
 
 const LENGTHS = [5, 10, 20]
@@ -152,6 +153,7 @@ export default function Typing() {
   if (status === 'empty') {
     return (
       <EmptyState
+        art={<EmptyArt variant="review" />}
         title="Practice first!"
         message="Typing tests words you've already seen. Run through the flashcards once, then come back and spell them."
         action={
