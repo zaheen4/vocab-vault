@@ -1,4 +1,5 @@
 import { useGamification, useProgressSummary, useSetGoalTarget } from '../api/queries'
+import { useCountUp } from '../utils/countUp'
 import { FlameIcon, GemIcon, HundredIcon, SproutIcon, StarIcon } from '../components/art/icons'
 
 const CARDS = [
@@ -74,6 +75,9 @@ export default function Progress() {
   // Decorative gamification banner: never block the page on failure
   const { data: stats } = useGamification()
   const setGoal = useSetGoalTarget()
+  const shownLevel = useCountUp(stats?.level || 0)
+  const shownStreak = useCountUp(stats?.dailyStreak || 0)
+  const shownXp = useCountUp(stats?.xp || 0)
 
   if (isLoading) {
     return (
@@ -115,18 +119,18 @@ export default function Progress() {
             <div className="flex items-center gap-6">
               <div className="text-center">
                 <p className="flex items-center justify-center gap-1.5 text-3xl font-bold text-primary dark:text-cream-100">
-                  <StarIcon size={26} className="text-accent" /> {stats.level}
+                  <StarIcon size={26} className="text-accent" /> {shownLevel}
                 </p>
                 <p className="text-xs text-slate-500 dark:text-cream-300/80">Level</p>
               </div>
               <div className="text-center">
                 <p className="flex items-center justify-center gap-1.5 text-3xl font-bold text-primary dark:text-cream-100">
-                  <FlameIcon size={26} className="text-accent" /> {stats.dailyStreak}
+                  <FlameIcon size={26} className="text-accent" /> {shownStreak}
                 </p>
                 <p className="text-xs text-slate-500 dark:text-cream-300/80">Day streak</p>
               </div>
               <div className="text-center">
-                <p className="text-3xl font-bold text-accent">+{stats.xp} XP</p>
+                <p className="text-3xl font-bold text-accent">+{shownXp} XP</p>
                 <p className="text-xs text-slate-500 dark:text-cream-300/80">Total xp</p>
               </div>
             </div>
