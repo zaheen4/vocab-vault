@@ -632,7 +632,7 @@ export default function Bookmarks() {
           variant={toast.variant}
           message={toast.message}
           onDismiss={() => setToast(null)}
-          className={selectMode ? 'bottom-24' : ''}
+          className={selectMode ? 'bottom-28 sm:bottom-24' : ''}
         />
       )}
     </div>

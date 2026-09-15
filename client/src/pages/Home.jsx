@@ -117,7 +117,7 @@ export default function Home() {
 
   return (
     <div className="animate-page -m-4 sm:-m-6">
-      <div className="bg-gradient-to-br from-primary via-primary to-night-800 px-4 pt-6 pb-28 sm:px-6 dark:border-b dark:border-white/10 dark:from-night-900 dark:via-night-900 dark:to-night-950">
+      <div className="bg-gradient-to-br from-primary via-primary to-night-800 px-4 pt-6 pb-20 sm:px-6 sm:pb-28 dark:border-b dark:border-white/10 dark:from-night-900 dark:via-night-900 dark:to-night-950">
         <p className="font-display text-xs font-bold tracking-widest text-accent uppercase">VocabVault</p>
         <h1 className="mt-1 font-display text-2xl font-bold text-white sm:text-3xl dark:text-cream-100">Master your words.</h1>
         <p className="mt-1 max-w-md text-sm text-white/70 dark:text-cream-300/80">
@@ -146,7 +146,7 @@ export default function Home() {
           )}
         </div>
       </div>
-      <div className="-mt-24 bg-gold/40 px-4 pt-12 pb-10 sm:px-6 dark:bg-night-950">
+      <div className="-mt-24 bg-gold/40 px-4 pt-8 pb-10 sm:px-6 sm:pt-12 dark:bg-night-950">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {sorted.map((deck, i) => (
             <div

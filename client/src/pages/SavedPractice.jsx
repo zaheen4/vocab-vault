@@ -249,7 +249,7 @@ export default function SavedPractice() {
       />
 
       {flipped && !feedback && (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="sticky bottom-24 z-30 grid grid-cols-2 gap-3">
           <Button variant="danger" onClick={() => answer(false)} fullWidth disabled={submitting} chunky>
             Not yet
           </Button>

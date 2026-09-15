@@ -57,15 +57,15 @@ export default function Flashcard({ word, flipped, onFlip, shake, reversed }) {
         aria-pressed={flipped}
         aria-label={label}
       >
-        <span className={`flip-inner relative flex min-h-64 w-full ${flipped ? 'flipped' : ''}`}>
+        <span className={`flip-inner relative flex min-h-48 w-full sm:min-h-64 ${flipped ? 'flipped' : ''}`}>
           <span className="flip-face absolute inset-0 overflow-y-auto overscroll-contain rounded-xl border-2 border-slate-200 bg-white text-center shadow-sm dark:border-white/10 dark:bg-night-900 dark:shadow-none">
-            <span className="flex min-h-full flex-col items-center justify-center p-8">
+            <span className="flex min-h-full flex-col items-center justify-center p-5 sm:p-8">
               {prompt}
               <p className="pt-4 text-xs tracking-wide text-slate-400 uppercase dark:text-cream-300/60">Tap to reveal</p>
             </span>
           </span>
           <span className="flip-back flip-face absolute inset-0 overflow-y-auto overscroll-contain rounded-xl border-2 border-slate-200 bg-white text-center shadow-sm dark:border-white/10 dark:bg-night-900 dark:shadow-none">
-            <span className="flex min-h-full flex-col items-center justify-center p-8">
+            <span className="flex min-h-full flex-col items-center justify-center p-5 sm:p-8">
               {reveal}
             </span>
           </span>

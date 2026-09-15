@@ -14,7 +14,7 @@ export default function Layout() {
   return (
     <div className="flex min-h-screen flex-col bg-stone-50 dark:bg-night-950">
       <Navbar />
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-6 pb-24 sm:pb-6">
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-4 pb-24 sm:px-6 sm:py-6 sm:pb-6">
         <Outlet />
       </main>
       <footer className="mx-auto w-full max-w-5xl px-4 pb-6">
