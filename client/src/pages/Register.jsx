@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import AuthShell from '../components/AuthShell'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 
@@ -36,13 +37,8 @@ export default function Register() {
   }
 
   return (
-    <div className="animate-page flex min-h-screen items-center justify-center bg-gold px-4 dark:bg-night-950">
-      <form
-        onSubmit={handleSubmit}
-        className="w-full max-w-sm space-y-4 rounded-lg bg-white p-6 shadow dark:border dark:border-white/10 dark:bg-night-900 dark:shadow-none"
-      >
-        <h1 className="font-display text-2xl font-bold text-primary dark:text-cream-100">Create your account</h1>
-
+    <AuthShell title="Create your account">
+      <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
           <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-950/50 dark:text-red-300">{error}</p>
         )}
@@ -92,6 +88,6 @@ export default function Register() {
           </Link>
         </p>
       </form>
-    </div>
+    </AuthShell>
   )
 }

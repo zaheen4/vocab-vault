@@ -5,6 +5,7 @@ import { isStarred, useBookmarks, useInvalidateAfterReview, useQuizPool, useTogg
 import { useSlideDirection } from '../utils/navDirection'
 import { getSessionMessage } from '../utils/sessionMessages'
 import Button from '../components/ui/Button'
+import DeckTile from '../components/DeckTile'
 import EmptyState from '../components/ui/EmptyState'
 import EmptyArt from '../components/art/EmptyArt'
 import Toast from '../components/ui/Toast'
@@ -201,6 +202,9 @@ export default function Quiz() {
         <Link to="/" className="inline-block text-sm text-slate-400 hover:text-primary dark:text-cream-300/60 dark:hover:text-cream-100">
           ← {deckTitle}
         </Link>
+        <div className="flex justify-center">
+          <DeckTile id={id} title={deckTitle} size="lg" />
+        </div>
         <h1 className="font-display text-2xl font-bold text-primary dark:text-cream-100">Quiz yourself</h1>
         <p className="text-sm text-slate-500 dark:text-cream-300/80">
           {pool.length} viewed word{pool.length === 1 ? '' : 's'} ready. Pick a

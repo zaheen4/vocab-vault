@@ -13,6 +13,9 @@ import SavedPractice from './pages/SavedPractice'
 import AddWord from './pages/AddWord'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import NotFound from './pages/NotFound'
+import Privacy from './pages/Privacy'
+import Contact from './pages/Contact'
 
 // Authenticated users never need the auth forms: send them home instead of
 // letting a re-submit silently overwrite the active session.
@@ -51,7 +54,9 @@ export default function App() {
             <Route path="bookmarks" element={<Bookmarks />} />
             <Route path="bookmarks/practice" element={<SavedPractice />} />
             <Route path="words/new" element={<AddWord />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="privacy" element={<Privacy />} />
+            <Route path="contact" element={<Contact />} />
+            <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
         </AuthProvider>
