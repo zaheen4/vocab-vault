@@ -16,8 +16,8 @@ import {
 } from '../api/queries'
 import Button from '../components/ui/Button'
 import EmptyState from '../components/ui/EmptyState'
-import EmptyArt from '../components/art/EmptyArt'
 import Input from '../components/ui/Input'
+import PageHeader from '../components/PageHeader'
 import SpeakerIcon from '../components/ui/SpeakerIcon'
 import Toast from '../components/ui/Toast'
 import WordHistory from '../components/WordHistory'
@@ -445,12 +445,15 @@ export default function Bookmarks() {
   return (
     <div className="animate-page space-y-6">
       <div>
-        <h1 className="font-display text-2xl font-bold text-primary dark:text-cream-100">Saved words</h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-cream-300/80">
-          {bookmarks.length === 0
-            ? 'Star words from search to build your review shelf.'
-            : `${counts.learning} still learning · ${counts.mastered} mastered.`}
-        </p>
+        <PageHeader
+          eyebrow="Library"
+          title="Saved words"
+          sub={
+            bookmarks.length === 0
+              ? 'Star words from search to build your review shelf.'
+              : `${counts.learning} still learning · ${counts.mastered} mastered.`
+          }
+        />
         <div className="mt-3 flex flex-wrap gap-2">
           {bookmarks.length > 0 && (
             <Link to="/bookmarks/practice">
