@@ -9,6 +9,7 @@ import { shouldCelebrate } from '../utils/celebrate'
 import Button from '../components/ui/Button'
 import Confetti from '../components/Confetti'
 import ScoreRing from '../components/ScoreRing'
+import SessionHud from '../components/SessionHud'
 import DeckTile from '../components/DeckTile'
 import EmptyState from '../components/ui/EmptyState'
 import EmptyArt from '../components/art/EmptyArt'
@@ -254,14 +255,13 @@ export default function Typing() {
 
   return (
     <div className={`mx-auto max-w-xl space-y-4 ${slideCls}`}>
-      <div className="flex items-center justify-between text-sm">
-        <Link to="/" className="text-slate-400 hover:text-primary dark:text-cream-300/60 dark:hover:text-cream-100">
-          ← {deckTitle}
-        </Link>
-        <span className="flex items-center gap-2 text-slate-400 dark:text-cream-300/60">
-          <span>
-            {index + 1} / {words.length} · ✓ {score}
-          </span>
+      <SessionHud
+        backTo="/"
+        backLabel={deckTitle}
+        index={index}
+        total={words.length}
+        score={score}
+        actions={
           <Button
             variant="secondary"
             aria-label={isStarred(bookmarks, word._id) ? `Remove ${word.word} from saved` : `Save ${word.word}`}
@@ -275,15 +275,8 @@ export default function Typing() {
           >
             {isStarred(bookmarks, word._id) ? '★' : '☆'}
           </Button>
-        </span>
-      </div>
-
-      <div className="h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-night-800">
-        <div
-          className="h-full rounded-full bg-accent transition-all duration-300"
-          style={{ width: `${(index / words.length) * 100}%` }}
-        />
-      </div>
+        }
+      />
 
       <div className="rounded-xl border-2 border-slate-200 bg-white p-8 text-center shadow-sm dark:border-white/10 dark:bg-night-900 dark:shadow-none">
         <p className="text-xs font-medium tracking-wide text-slate-400 uppercase dark:text-cream-300/70">

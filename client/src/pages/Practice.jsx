@@ -16,6 +16,7 @@ import EmptyArt from '../components/art/EmptyArt'
 import Confetti from '../components/Confetti'
 import Flashcard from '../components/Flashcard'
 import ScoreRing from '../components/ScoreRing'
+import SessionHud from '../components/SessionHud'
 
 const BOX_LABELS = { 1: 'Box 1', 2: 'Box 2', 3: 'Box 3', 4: 'Box 4', 5: 'Mastered' }
 
@@ -301,31 +302,15 @@ export default function Practice({ active = true }) {
   return (
     <div className={`mx-auto max-w-xl space-y-4 ${slideCls}`}>
       {/* HUD */}
-      <div className="flex items-center justify-between text-sm">
-        <Link to="/" className="text-slate-400 hover:text-primary dark:text-cream-300/60 dark:hover:text-cream-100">
-          ← {deckTitle}
-        </Link>
-        <span className="text-sm text-slate-400 dark:text-cream-300/60">
-          {index + 1} / {words.length}
-        </span>
-      </div>
-
-      <div className="flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold dark:border-white/10 dark:bg-night-900">
-        <span className="text-primary dark:text-cream-100">✓ {score}</span>
-        {combo >= 2 && (
-          <span className="animate-pop rounded-full bg-accent px-2 py-0.5 text-primary dark:text-night-950">
-            {combo} combo 🔥
-          </span>
-        )}
-        <span className="ml-auto rounded bg-gold px-2 py-0.5 text-primary dark:bg-accent/20 dark:text-accent">+{sessionXp} XP</span>
-      </div>
-
-      <div className="h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-night-800">
-        <div
-          className="h-full rounded-full bg-accent transition-all duration-300"
-          style={{ width: `${(index / words.length) * 100}%` }}
-        />
-      </div>
+      <SessionHud
+        backTo="/"
+        backLabel={deckTitle}
+        index={index}
+        total={words.length}
+        score={score}
+        combo={combo}
+        sessionXp={sessionXp}
+      />
 
       {/* Study controls sit outside the flip button: no nested interactives.
           Speaker stays silent in reverse mode until the word is revealed. */}
