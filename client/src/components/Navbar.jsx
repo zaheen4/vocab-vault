@@ -8,6 +8,20 @@ import { TILE_STYLES } from './DeckTile'
 import Logo from './Logo'
 import Button from './ui/Button'
 
+const linkClass = ({ isActive }) =>
+  `rounded-md px-2 py-1 text-sm font-medium transition-colors ${
+    isActive
+      ? 'bg-gold text-primary dark:bg-accent/20 dark:text-accent'
+      : 'text-slate-600 hover:text-primary dark:text-cream-300 dark:hover:text-cream-100'
+  }`
+
+const DESKTOP_LINKS = [
+  { to: '/', end: true, label: 'Decks' },
+  { to: '/search', end: false, label: 'Search' },
+  { to: '/bookmarks', end: false, label: 'Saved' },
+  { to: '/progress', end: false, label: 'Progress' },
+]
+
 const TABS = [
   { to: '/', end: true, label: 'Decks', glyph: 'M4 5h16v14H4z M4 9h16' },
   { to: '/search', end: false, label: 'Search', glyph: 'M11 5a6 6 0 1 0 0 12 6 6 0 0 0 0-12 M15.5 15.5 20 20' },
@@ -158,11 +172,20 @@ export default function Navbar() {
           </Link>
 
           {user ? (
-            <div className="flex shrink-0 items-center gap-2 sm:gap-3">
-              <StatsChip />
-              <ThemeToggle theme={theme} onToggle={toggle} />
-              <AccountMenu />
-            </div>
+            <>
+              <div className="hidden min-w-0 items-center gap-1 sm:flex" aria-label="Primary">
+                {DESKTOP_LINKS.map((l) => (
+                  <NavLink key={l.label} to={l.to} end={l.end} className={linkClass}>
+                    {l.label}
+                  </NavLink>
+                ))}
+              </div>
+              <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+                <StatsChip />
+                <ThemeToggle theme={theme} onToggle={toggle} />
+                <AccountMenu />
+              </div>
+            </>
           ) : (
             <div className="flex shrink-0 items-center gap-3">
               <ThemeToggle theme={theme} onToggle={toggle} />
