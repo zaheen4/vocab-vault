@@ -116,7 +116,7 @@
 - [x] @data Warm-up runbook for demo day (Render free tier sleeps — hit API 30s before showtime) (in-repo keepalive cron + `docs/DEPLOY.md` §6)
 - [x] @fe Responsive pass — mobile-first check on all pages, tap-target sweep (24px min, 44px aim), touch-verify primary flows on a small viewport (tab bar + avatar menu + 44px targets in #72; touch inputs, dvh, PWA in #73; fluid type + sticky answers on #72's follow-ups)
 - [x] @fe Loading/error/empty states on every fetch (shared skeletons + error boxes + illustrated EmptyState across all routes; zero-errors E2E gate green)
-- [ ] All End-to-end regression: fresh account → practice → quiz → typing → review → import
+- [x] All End-to-end regression: fresh account → practice → quiz → typing → review (automated in `e2e/study-flows.spec.js`; import flow N/A — no bulk-import endpoint exists yet)
 - [ ] All Final report write-up + screenshots (heatmap + badge + quiz numbers)
 - [ ] All Demo rehearsal (scripted walkthrough, TTS fallback line) + presentation slides update + re-enable keepalive cron
 - [ ] All Confirm presentation-machine audio for TTS; fallback line ready
