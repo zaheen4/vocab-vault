@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom'
+import { useCountUp } from '../utils/countUp'
 
-// Shared session HUD: back link + position/score, stat strip, progress bar.
-// Practice/Quiz/Typing render the same moment; SavedPractice stays bespoke
-// (no bar by design). Combo/XP pills and header actions are optional slots.
+// Shared session HUD, v2: one compact header row (back, counter with live
+// score/combo/XP, optional actions) plus a full-width progress bar with pct.
+// No separate pill strip — it cost ~50px on phones for info the row carries.
+// Practice/Quiz/Typing share it; SavedPractice stays bespoke (no bar).
 export default function SessionHud({
   backTo,
   backLabel,
@@ -13,43 +15,41 @@ export default function SessionHud({
   sessionXp = null,
   actions = null,
 }) {
+  const shownXp = useCountUp(sessionXp ?? 0)
+  const pct = total === 0 ? 0 : Math.round((index / total) * 100)
   return (
     <>
-      <div className="flex flex-wrap items-center justify-between gap-2 text-sm">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-sm">
         <Link
           to={backTo}
-          className="text-slate-400 hover:text-primary dark:text-cream-300/60 dark:hover:text-cream-100"
+          className="truncate text-slate-400 hover:text-primary dark:text-cream-300/60 dark:hover:text-cream-100"
         >
           ← {backLabel}
         </Link>
         <span className="flex items-center gap-2 text-slate-400 dark:text-cream-300/60">
-          <span>
+          <span className="font-semibold text-slate-600 tabular-nums dark:text-cream-100">
             {index + 1} / {total} · ✓ {score}
+            {combo >= 2 && <span className="text-accent"> · 🔥×{combo}</span>}
           </span>
+          {sessionXp !== null && (
+            <span className="rounded bg-gold px-1.5 py-0.5 text-xs font-bold text-primary tabular-nums dark:bg-accent/20 dark:text-accent">
+              +{shownXp} XP
+            </span>
+          )}
           {actions}
         </span>
       </div>
 
-      {(combo >= 2 || sessionXp !== null) && (
-        <div className="flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold dark:border-white/10 dark:bg-night-900">
-          {combo >= 2 && (
-            <span className="animate-pop rounded-full bg-accent px-2 py-0.5 text-primary dark:text-night-950">
-              {combo} combo 🔥
-            </span>
-          )}
-          {sessionXp !== null && (
-            <span className="ml-auto rounded bg-gold px-2 py-0.5 text-primary dark:bg-accent/20 dark:text-accent">
-              +{sessionXp} XP
-            </span>
-          )}
+      <div>
+        <div className="h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-night-800">
+          <div
+            className="h-full rounded-full bg-accent transition-all duration-300"
+            style={{ width: `${pct}%` }}
+          />
         </div>
-      )}
-
-      <div className="h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-night-800">
-        <div
-          className="h-full rounded-full bg-accent transition-all duration-300"
-          style={{ width: `${total === 0 ? 0 : (index / total) * 100}%` }}
-        />
+        <p className="mt-1 text-right text-xs text-slate-400 tabular-nums dark:text-cream-300/60">
+          {pct}%
+        </p>
       </div>
     </>
   )
