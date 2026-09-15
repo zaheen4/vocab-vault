@@ -17,12 +17,37 @@ function StatsChip() {
   // refreshed by review-post invalidation instead of per-route refetching.
   const { data: stats } = useGamification()
   if (!stats) return null
+  const ringPct = stats.progressToNext || 0
+  const r = 13
+  const c = 2 * Math.PI * r
   return (
-    <span className="hidden items-center gap-2 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-primary sm:inline-flex dark:border-white/10 dark:bg-night-800 dark:text-cream-100">
-      <span className="rounded bg-gold px-1.5 py-0.5 dark:bg-accent/20 dark:text-accent">⭐ {stats.level}</span>
-      {stats.dailyStreak > 0 && <span>🔥 {stats.dailyStreak}d</span>}
-      <span className="text-slate-400 dark:text-cream-300/70">+{stats.xp} XP</span>
-    </span>
+    <>
+      <span
+        className="relative inline-flex h-9 w-9 items-center justify-center sm:hidden"
+        title={`Level ${stats.level} · ${Math.round(ringPct * 100)}% to next`}
+        aria-label={`Level ${stats.level}, ${Math.round(ringPct * 100)} percent to next level`}
+      >
+        <svg viewBox="0 0 32 32" className="absolute inset-0 h-full w-full -rotate-90" aria-hidden="true">
+          <circle cx="16" cy="16" r={r} fill="none" strokeWidth="3.5" className="stroke-slate-200 dark:stroke-white/15" />
+          <circle
+            cx="16"
+            cy="16"
+            r={r}
+            fill="none"
+            strokeWidth="3.5"
+            strokeLinecap="round"
+            className="stroke-accent"
+            strokeDasharray={`${ringPct * c} ${c}`}
+          />
+        </svg>
+        <span className="text-xs font-bold text-primary dark:text-cream-100">{stats.level}</span>
+      </span>
+      <span className="hidden items-center gap-2 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-primary sm:inline-flex dark:border-white/10 dark:bg-night-800 dark:text-cream-100">
+        <span className="rounded bg-gold px-1.5 py-0.5 dark:bg-accent/20 dark:text-accent">⭐ {stats.level}</span>
+        {stats.dailyStreak > 0 && <span>🔥 {stats.dailyStreak}d</span>}
+        <span className="text-slate-400 dark:text-cream-300/70">+{stats.xp} XP</span>
+      </span>
+    </>
   )
 }
 

@@ -4,7 +4,11 @@ import { api } from '../api/client'
 import { isStarred, useBookmarks, useInvalidateAfterReview, useQuizPool, useToggleBookmark } from '../api/queries'
 import { useSlideDirection } from '../utils/navDirection'
 import { getSessionMessage } from '../utils/sessionMessages'
+import { shouldCelebrate } from '../utils/celebrate'
 import Button from '../components/ui/Button'
+import Confetti from '../components/Confetti'
+import ScoreRing from '../components/ScoreRing'
+import SessionHud from '../components/SessionHud'
 import DeckTile from '../components/DeckTile'
 import EmptyState from '../components/ui/EmptyState'
 import EmptyArt from '../components/art/EmptyArt'
@@ -64,6 +68,7 @@ export default function Quiz() {
   const [results, setResults] = useState([])
   const [score, setScore] = useState(0)
   const [levelEvent, setLevelEvent] = useState(null)
+  const [confetti, setConfetti] = useState(false)
   const [toast, setToast] = useState(null)
   const [finalMessage, setFinalMessage] = useState(null)
   const slideCls = useSlideDirection()
@@ -102,6 +107,7 @@ export default function Quiz() {
     setResults([])
     setScore(0)
     setLevelEvent(null)
+    setConfetti(false)
     setToast(null)
     setFinalMessage(null)
     busyRef.current = false
@@ -152,6 +158,9 @@ export default function Quiz() {
     busyRef.current = false
     if (index + 1 >= questions.length) {
       const correctCount = results.filter((r) => r.correct).length
+      if (shouldCelebrate({ correct: correctCount, total: results.length, levelUp: !!levelEvent })) {
+        setConfetti(true)
+      }
       setFinalMessage(
         getSessionMessage({
           correct: correctCount,
@@ -236,10 +245,12 @@ export default function Quiz() {
     const pct = results.length === 0 ? 0 : Math.round((correctCount / results.length) * 100)
     return (
       <div className="animate-page mx-auto max-w-2xl space-y-6 py-6 text-center">
+        <Confetti active={confetti} pieces={70} />
         <h1 className="font-display text-3xl font-bold text-primary dark:text-cream-100">{finalMessage || 'Quiz complete!'}</h1>
         <p className="text-slate-500 dark:text-cream-300/80">
           You scored {correctCount} of {results.length} ({pct}%).
         </p>
+        <ScoreRing correct={correctCount} total={results.length} />
         {results.length > 0 && (
           <div className="flex flex-wrap justify-center gap-1.5">
             {results.map((r, i) => (
@@ -277,14 +288,13 @@ export default function Quiz() {
 
   return (
     <div className={`mx-auto max-w-xl space-y-4 ${slideCls}`}>
-      <div className="flex items-center justify-between text-sm">
-        <Link to="/" className="text-slate-400 hover:text-primary dark:text-cream-300/60 dark:hover:text-cream-100">
-          ← {deckTitle}
-        </Link>
-        <span className="flex items-center gap-2 text-slate-400 dark:text-cream-300/60">
-          <span>
-            {index + 1} / {questions.length} · ✓ {score}
-          </span>
+      <SessionHud
+        backTo="/"
+        backLabel={deckTitle}
+        index={index}
+        total={questions.length}
+        score={score}
+        actions={
           <Button
             variant="secondary"
             aria-label={isStarred(bookmarks, q.word._id) ? `Remove ${q.word.word} from saved` : `Save ${q.word.word}`}
@@ -298,15 +308,8 @@ export default function Quiz() {
           >
             {isStarred(bookmarks, q.word._id) ? '★' : '☆'}
           </Button>
-        </span>
-      </div>
-
-      <div className="h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-night-800">
-        <div
-          className="h-full rounded-full bg-accent transition-all duration-300"
-          style={{ width: `${(index / questions.length) * 100}%` }}
-        />
-      </div>
+        }
+      />
 
       <div className="rounded-xl border-2 border-slate-200 bg-white p-8 text-center shadow-sm dark:border-white/10 dark:bg-night-900 dark:shadow-none">
         <p className="text-xs font-medium tracking-wide text-slate-400 uppercase dark:text-cream-300/70">
@@ -331,7 +334,7 @@ export default function Quiz() {
               onClick={() => choose(i)}
               disabled={picked !== null}
               style={picked === null ? { animationDelay: `${i * 50}ms` } : undefined}
-              className={`rounded-lg border-2 px-4 py-3 text-left font-display text-sm font-bold text-primary transition-all active:scale-99 disabled:cursor-default dark:text-cream-100 ${picked === null ? 'animate-fade-up' : ''} ${cls}`}
+              className={`rounded-lg border-2 px-4 py-3 text-left font-display text-sm font-bold text-primary transition-all active:scale-99 disabled:cursor-default dark:text-cream-100 ${picked === null ? 'animate-fade-up' : 'animate-pop'} ${cls}`}
             >
               <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-500 dark:bg-night-800 dark:text-cream-300">
                 {picked !== null && i === q.answerIndex

@@ -1,4 +1,5 @@
 import { useGamification, useProgressSummary, useSetGoalTarget } from '../api/queries'
+import { useCountUp } from '../utils/countUp'
 import { FlameIcon, GemIcon, HundredIcon, SproutIcon, StarIcon } from '../components/art/icons'
 
 const CARDS = [
@@ -10,12 +11,15 @@ const CARDS = [
 const GOAL_TARGETS = [5, 10, 15, 20, 25, 30, 40, 50]
 
 // Display catalog mirrors server/src/utils/gamify.js BADGES.
+// progress() derives the locked-state X/Y hint from the gamification payload
+// (null when the payload carries no measure — flawless needs perfectRun,
+// which the endpoint doesn't return).
 const BADGES = [
-  { id: 'first-word', name: 'First Word', Icon: SproutIcon, iconClass: 'text-emerald-600 dark:text-emerald-300', description: 'Review your first word' },
-  { id: 'century', name: 'Century', Icon: HundredIcon, iconClass: 'text-accent-deep dark:text-accent', description: 'Review 100 words' },
-  { id: 'week-warrior', name: 'Week Warrior', Icon: FlameIcon, iconClass: 'text-accent', description: 'Reach a 7-day streak' },
-  { id: 'level-5', name: 'Level 5', Icon: StarIcon, iconClass: 'text-amber-500 dark:text-amber-300', description: 'Reach level 5' },
-  { id: 'flawless', name: 'Flawless', Icon: GemIcon, iconClass: 'text-primary dark:text-cream-100', description: '10 correct in a row' },
+  { id: 'first-word', name: 'First Word', Icon: SproutIcon, iconClass: 'text-emerald-600 dark:text-emerald-300', description: 'Review your first word', progress: (s) => `${Math.min(s.totalReviewed || 0, 1)}/1 review` },
+  { id: 'century', name: 'Century', Icon: HundredIcon, iconClass: 'text-accent-deep dark:text-accent', description: 'Review 100 words', progress: (s) => `${Math.min(s.totalReviewed || 0, 100)}/100 reviews` },
+  { id: 'week-warrior', name: 'Week Warrior', Icon: FlameIcon, iconClass: 'text-accent', description: 'Reach a 7-day streak', progress: (s) => `${Math.min(s.dailyStreak || 0, 7)}/7 day streak` },
+  { id: 'level-5', name: 'Level 5', Icon: StarIcon, iconClass: 'text-amber-500 dark:text-amber-300', description: 'Reach level 5', progress: (s) => `level ${Math.min(s.level || 1, 5)}/5` },
+  { id: 'flawless', name: 'Flawless', Icon: GemIcon, iconClass: 'text-primary dark:text-cream-100', description: '10 correct in a row', progress: null },
 ]
 
 const DAY_LETTERS = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
@@ -69,11 +73,80 @@ function ActivityStrip({ activity }) {
   )
 }
 
+// Daily-goal section: ring + target picker. The ring glows once the goal
+// is met — the day's payoff moment.
+function GoalSection({ stats, setGoal }) {
+  const target = stats.dailyGoalTarget || 10
+  const done = (stats.reviewsToday || 0)
+  const met = done >= target
+  return (
+    <div className="flex flex-wrap items-center gap-6">
+      <div
+        className={`relative flex h-20 w-20 items-center justify-center rounded-full ${met ? 'animate-glow' : ''}`}
+      >
+        <svg className="h-full w-full -rotate-90" viewBox="0 0 36 36">
+          <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--color-slate-200)" strokeWidth="3" />
+          <circle
+            cx="18" cy="18" r="15.5" fill="none" stroke="var(--color-accent)"
+            strokeWidth="3" strokeLinecap="round"
+            strokeDasharray={`${Math.min(1, done / target) * 97.4} 97.4`}
+          />
+        </svg>
+        <span className="absolute text-sm font-bold text-primary dark:text-cream-100">
+          {done}
+        </span>
+      </div>
+      <div className="min-w-56 flex-1">
+        <div className="flex flex-wrap items-center gap-3">
+          <p className="text-sm font-semibold text-primary dark:text-cream-100">
+            {met ? 'Daily goal met — nice work!' : `Daily goal: ${done} / ${target}`}
+          </p>
+          {stats.streakFreezes > 0 && (
+            <span
+              title="A freeze survives one missed practice day. It refills when you meet your daily goal."
+              className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary dark:bg-accent/15 dark:text-accent"
+            >
+              🧊 × {stats.streakFreezes}
+            </span>
+          )}
+          {stats.goalsMet > 0 && (
+            <span
+              title="Daily goals met, all time."
+              className="text-xs text-slate-400 dark:text-cream-300/70"
+            >
+              {stats.goalsMet} goal{stats.goalsMet > 1 ? 's' : ''} met
+            </span>
+          )}
+        </div>
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {GOAL_TARGETS.map((t) => (
+            <button
+              key={t}
+              disabled={setGoal.isPending}
+              onClick={() => setGoal.mutate(t)}
+              className={`rounded-md border px-2 py-0.5 text-xs font-medium transition-colors ${
+                target === t
+                  ? 'border-accent bg-accent text-primary'
+                  : 'border-slate-200 text-slate-500 hover:border-slate-300 dark:border-white/15 dark:text-cream-300/80 dark:hover:border-white/30'
+              }`}
+            >
+              {t}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function Progress() {
   const { data: summary, isLoading, isError } = useProgressSummary()
   // Decorative gamification banner: never block the page on failure
   const { data: stats } = useGamification()
   const setGoal = useSetGoalTarget()
+  const shownLevel = useCountUp(stats?.level || 0)
+  const shownStreak = useCountUp(stats?.dailyStreak || 0)
+  const shownXp = useCountUp(stats?.xp || 0)
 
   if (isLoading) {
     return (
@@ -115,19 +188,19 @@ export default function Progress() {
             <div className="flex items-center gap-6">
               <div className="text-center">
                 <p className="flex items-center justify-center gap-1.5 text-3xl font-bold text-primary dark:text-cream-100">
-                  <StarIcon size={26} className="text-accent" /> {stats.level}
+                  <StarIcon size={26} className="text-accent" /> {shownLevel}
                 </p>
                 <p className="text-xs text-slate-500 dark:text-cream-300/80">Level</p>
               </div>
               <div className="text-center">
                 <p className="flex items-center justify-center gap-1.5 text-3xl font-bold text-primary dark:text-cream-100">
-                  <FlameIcon size={26} className="text-accent" /> {stats.dailyStreak}
+                  <FlameIcon size={26} className="text-accent" /> {shownStreak}
                 </p>
                 <p className="text-xs text-slate-500 dark:text-cream-300/80">Day streak</p>
               </div>
               <div className="text-center">
-                <p className="text-3xl font-bold text-accent">+{stats.xp} XP</p>
-                <p className="text-xs text-slate-500 dark:text-cream-300/80">Total xp</p>
+                <p className="text-3xl font-bold text-accent">+{shownXp} XP</p>
+                <p className="text-xs text-slate-500 dark:text-cream-300/80">Total XP</p>
               </div>
             </div>
             <div className="min-w-56 flex-1">
@@ -155,61 +228,17 @@ export default function Progress() {
 
       {stats && (
         <div className="rounded-xl border border-primary/10 bg-white p-5 dark:border-white/10 dark:bg-night-900">
-          <div className="flex flex-wrap items-center gap-6">
-            {/* Goal ring */}
-            <div className="relative flex h-20 w-20 items-center justify-center">
-              <svg className="h-full w-full -rotate-90" viewBox="0 0 36 36">
-                <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--color-slate-200)" strokeWidth="3" />
-                <circle
-                  cx="18" cy="18" r="15.5" fill="none" stroke="var(--color-accent)"
-                  strokeWidth="3" strokeLinecap="round"
-                  strokeDasharray={`${Math.min(1, (stats.reviewsToday || 0) / (stats.dailyGoalTarget || 10)) * 97.4} 97.4`}
-                />
-              </svg>
-              <span className="absolute text-sm font-bold text-primary dark:text-cream-100">
-                {stats.reviewsToday || 0}
-              </span>
-            </div>
-            <div className="min-w-56 flex-1">
-              <div className="flex items-center gap-3">
-                <p className="text-sm font-semibold text-primary dark:text-cream-100">
-                  Daily goal: {stats.reviewsToday || 0} / {stats.dailyGoalTarget || 10}
-                </p>
-                {stats.streakFreezes > 0 && (
-                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary dark:bg-accent/15 dark:text-accent">
-                    🧊 × {stats.streakFreezes}
-                  </span>
-                )}
-                {stats.goalsMet > 0 && (
-                  <span className="text-xs text-slate-400 dark:text-cream-300/70">
-                    {stats.goalsMet} goal{stats.goalsMet > 1 ? 's' : ''} met
-                  </span>
-                )}
-              </div>
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                {GOAL_TARGETS.map((t) => (
-                  <button
-                    key={t}
-                    disabled={setGoal.isPending}
-                    onClick={() => setGoal.mutate(t)}
-                    className={`rounded-md border px-2 py-0.5 text-xs font-medium transition-colors ${
-                      (stats.dailyGoalTarget || 10) === t
-                        ? 'border-accent bg-accent text-primary'
-                        : 'border-slate-200 text-slate-500 hover:border-slate-300 dark:border-white/15 dark:text-cream-300/80 dark:hover:border-white/30'
-                    }`}
-                  >
-                    {t}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
+          <GoalSection stats={stats} setGoal={setGoal} />
         </div>
       )}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {CARDS.map(({ key, label, class: cardClass, text }) => (
-          <div key={key} className={`rounded-lg border p-5 ${cardClass}`}>
+        {CARDS.map(({ key, label, class: cardClass, text }, i) => (
+          <div
+            key={key}
+            className={`animate-fade-up rounded-lg border p-5 ${cardClass}`}
+            style={{ animationDelay: `${i * 60}ms` }}
+          >
             <p className={`text-3xl font-bold ${text}`}>{summary[key] || 0}</p>
             <p className="mt-1 text-sm font-medium text-slate-500 dark:text-cream-300/80">{label}</p>
           </div>
@@ -223,24 +252,27 @@ export default function Progress() {
             {(stats.badges || []).length} of {BADGES.length} earned — keep practicing to unlock the rest.
           </p>
           <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
-            {BADGES.map((badge) => {
+            {BADGES.map((badge, i) => {
               const earned = (stats.badges || []).find((b) => b.id === badge.id)
               const Icon = badge.Icon
               return (
                 <div
                   key={badge.id}
                   title={badge.description}
-                  className={`rounded-lg border p-3 text-center ${
+                  className={`animate-fade-up rounded-lg border p-3 text-center ${
                     earned
                       ? 'border-accent bg-gold/40 dark:border-accent/30 dark:bg-accent/10'
                       : 'border-slate-200 bg-slate-50 opacity-60 dark:border-white/10 dark:bg-night-800'
                   }`}
+                  style={{ animationDelay: `${i * 60}ms` }}
                 >
                   <p className={`${earned ? '' : 'opacity-70 grayscale'} ${badge.iconClass}`}>
                     <Icon size={28} />
                   </p>
                   <p className="mt-1 text-xs font-bold text-primary dark:text-cream-100">{badge.name}</p>
-                  <p className="mt-0.5 text-xs text-slate-500 dark:text-cream-300/80">{badge.description}</p>
+                  <p className="mt-0.5 text-xs text-slate-500 dark:text-cream-300/80">
+                    {earned || !badge.progress ? badge.description : badge.progress(stats)}
+                  </p>
                 </div>
               )
             })}

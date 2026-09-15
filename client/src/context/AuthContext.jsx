@@ -47,6 +47,9 @@ export function AuthProvider({ children }) {
   }, [logout])
 
   // Revalidate whenever the token changes (login, logout, multi-tab writes).
+  // Only a 401 ends the session: aborts (unload/navigation races), timeouts,
+  // and transient network failures must never wipe a stored session — the
+  // request layer surfaces those to the failing query instead.
   useEffect(() => {
     if (!token) {
       setLoading(false)
@@ -62,9 +65,9 @@ export function AuthProvider({ children }) {
         localStorage.setItem(USER_KEY, JSON.stringify(data.user))
         setLoading(false)
       })
-      .catch(() => {
+      .catch((err) => {
         if (cancelled) return
-        logout()
+        if (err?.status === 401) logout()
         setLoading(false)
       })
     return () => {

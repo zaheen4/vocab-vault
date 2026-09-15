@@ -47,7 +47,7 @@ function masteryLabel(entry) {
   return 'Not started'
 }
 
-function WordRow({ entry, lists, quickList, onQuickListUsed, notify, selectMode, selected, onSelect }) {
+function WordRow({ entry, index = 0, lists, quickList, onQuickListUsed, notify, selectMode, selected, onSelect }) {
   const word = entry.word || {}
   const toggle = useToggleBookmark()
   const addToList = useAddListWord()
@@ -69,7 +69,10 @@ function WordRow({ entry, lists, quickList, onQuickListUsed, notify, selectMode,
   }
 
   return (
-    <li className="rounded-lg border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-night-900 dark:shadow-none">
+    <li
+      className="animate-fade-up rounded-lg border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-night-900 dark:shadow-none"
+      style={{ animationDelay: `${Math.min(index, 8) * 50}ms` }}
+    >
       <div className="flex items-center gap-2 p-3">
         {selectMode && (
           <input
@@ -551,10 +554,11 @@ export default function Bookmarks() {
             </p>
           ) : (
             <ul className="space-y-2">
-              {visible.map((b) => (
+              {visible.map((b, i) => (
                 <WordRow
                   key={b._id}
                   entry={b}
+                  index={i}
                   lists={lists}
                   quickList={quickList}
                   onQuickListUsed={setLastListId}
@@ -599,14 +603,19 @@ export default function Bookmarks() {
           </Button>
         </div>
         <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-          {lists.map((l) => (
-            <ListCard
+          {lists.map((l, i) => (
+            <div
               key={l._id}
+              className="animate-fade-up"
+              style={{ animationDelay: `${Math.min(i, 8) * 50}ms` }}
+            >
+            <ListCard
               list={l}
               open={openId === l._id}
               onToggle={() => setOpenId((o) => (o === l._id ? null : l._id))}
               notify={notify}
             />
+            </div>
           ))}
           {lists.length === 0 && (
             <p className="text-sm text-slate-400 dark:text-cream-300/70">No lists yet — group words for a test, a class, a trip.</p>

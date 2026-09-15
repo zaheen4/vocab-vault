@@ -5,7 +5,11 @@ import { isStarred, useBookmarks, useInvalidateAfterReview, useQuizPool, useTogg
 import { useSlideDirection } from '../utils/navDirection'
 import { isCorrectSpelling } from '../utils/fuzzyMatch'
 import { getSessionMessage } from '../utils/sessionMessages'
+import { shouldCelebrate } from '../utils/celebrate'
 import Button from '../components/ui/Button'
+import Confetti from '../components/Confetti'
+import ScoreRing from '../components/ScoreRing'
+import SessionHud from '../components/SessionHud'
 import DeckTile from '../components/DeckTile'
 import EmptyState from '../components/ui/EmptyState'
 import EmptyArt from '../components/art/EmptyArt'
@@ -41,6 +45,7 @@ export default function Typing() {
   const [results, setResults] = useState([])
   const [score, setScore] = useState(0)
   const [levelEvent, setLevelEvent] = useState(null)
+  const [confetti, setConfetti] = useState(false)
   const [toast, setToast] = useState(null)
   const [finalMessage, setFinalMessage] = useState(null)
   const slideCls = useSlideDirection()
@@ -70,6 +75,7 @@ export default function Typing() {
     setResults([])
     setScore(0)
     setLevelEvent(null)
+    setConfetti(false)
     setToast(null)
     setFinalMessage(null)
     busyRef.current = false
@@ -122,6 +128,9 @@ export default function Typing() {
     busyRef.current = false
     if (index + 1 >= words.length) {
       const correctCount = results.filter((r) => r.correct).length
+      if (shouldCelebrate({ correct: correctCount, total: results.length, levelUp: !!levelEvent })) {
+        setConfetti(true)
+      }
       setFinalMessage(
         getSessionMessage({
           correct: correctCount,
@@ -204,10 +213,12 @@ export default function Typing() {
     const pct = results.length === 0 ? 0 : Math.round((correctCount / results.length) * 100)
     return (
       <div className="animate-page mx-auto max-w-2xl space-y-6 py-6 text-center">
+        <Confetti active={confetti} pieces={70} />
         <h1 className="font-display text-3xl font-bold text-primary dark:text-cream-100">{finalMessage || 'Session complete!'}</h1>
         <p className="text-slate-500 dark:text-cream-300/80">
           You spelled {correctCount} of {results.length} right ({pct}%).
         </p>
+        <ScoreRing correct={correctCount} total={results.length} />
         {results.length > 0 && (
           <div className="flex flex-wrap justify-center gap-1.5">
             {results.map((r, i) => (
@@ -244,14 +255,13 @@ export default function Typing() {
 
   return (
     <div className={`mx-auto max-w-xl space-y-4 ${slideCls}`}>
-      <div className="flex items-center justify-between text-sm">
-        <Link to="/" className="text-slate-400 hover:text-primary dark:text-cream-300/60 dark:hover:text-cream-100">
-          ← {deckTitle}
-        </Link>
-        <span className="flex items-center gap-2 text-slate-400 dark:text-cream-300/60">
-          <span>
-            {index + 1} / {words.length} · ✓ {score}
-          </span>
+      <SessionHud
+        backTo="/"
+        backLabel={deckTitle}
+        index={index}
+        total={words.length}
+        score={score}
+        actions={
           <Button
             variant="secondary"
             aria-label={isStarred(bookmarks, word._id) ? `Remove ${word.word} from saved` : `Save ${word.word}`}
@@ -265,15 +275,8 @@ export default function Typing() {
           >
             {isStarred(bookmarks, word._id) ? '★' : '☆'}
           </Button>
-        </span>
-      </div>
-
-      <div className="h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-night-800">
-        <div
-          className="h-full rounded-full bg-accent transition-all duration-300"
-          style={{ width: `${(index / words.length) * 100}%` }}
-        />
-      </div>
+        }
+      />
 
       <div className="rounded-xl border-2 border-slate-200 bg-white p-8 text-center shadow-sm dark:border-white/10 dark:bg-night-900 dark:shadow-none">
         <p className="text-xs font-medium tracking-wide text-slate-400 uppercase dark:text-cream-300/70">
@@ -297,7 +300,7 @@ export default function Typing() {
           autoCorrect="off"
           spellCheck={false}
           aria-label="Your spelling"
-          className="w-full rounded-lg border-2 border-slate-200 bg-white px-4 py-3 text-center text-xl font-semibold text-primary placeholder:font-normal placeholder:text-slate-300 focus:border-accent focus:ring-2 focus:ring-accent/40 focus:outline-none disabled:bg-slate-50 dark:border-white/15 dark:bg-night-800 dark:text-cream-100 dark:placeholder:text-cream-300/40 dark:disabled:bg-night-900"
+          className={`w-full rounded-lg border-2 border-slate-200 bg-white px-4 py-3 text-center text-xl font-semibold text-primary placeholder:font-normal placeholder:text-slate-300 focus:border-accent focus:ring-2 focus:ring-accent/40 focus:outline-none disabled:bg-slate-50 dark:border-white/15 dark:bg-night-800 dark:text-cream-100 dark:placeholder:text-cream-300/40 dark:disabled:bg-night-900${answered && !answered.correct ? ' animate-shake' : ''}`}
         />
         {!answered && (
           <Button type="submit" fullWidth disabled={!value.trim()}>

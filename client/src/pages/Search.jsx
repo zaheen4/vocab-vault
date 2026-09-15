@@ -108,10 +108,11 @@ export default function Search() {
       )}
 
       <ul className="space-y-2">
-        {words.map((w) => (
+        {words.map((w, i) => (
           <li
             key={w._id}
-            className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-night-900 dark:shadow-none"
+            className="animate-fade-up rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-night-900 dark:shadow-none"
+            style={{ animationDelay: `${Math.min(i, 8) * 50}ms` }}
           >
             <div className="flex items-baseline justify-between gap-3">
               <button

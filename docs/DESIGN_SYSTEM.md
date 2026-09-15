@@ -55,6 +55,11 @@ never raw hex in components.
   confetti, page fade-slide, fade-up entrances with per-index stagger.
 - Playful easing belongs on progress moments (unlock pop uses
   `cubic-bezier(0.34, 1.56, 0.64, 1)`); everyday motion stays linear/ease-out.
+- Celebration rule: confetti fires on strong sessions (≥60%) or level-ups —
+  never on a shutout (`utils/celebrate.js`). All four study modes share
+  `ScoreRing` + `SessionHud` so results read the same.
+- Count-up numbers (`utils/countUp.js`) jump straight to target under
+  reduced-motion, same contract as the CSS kill-switch.
 - Every new keyframe must be covered by the `prefers-reduced-motion`
   kill-switch in `index.css`. Verify under emulation, not by assumption.
 

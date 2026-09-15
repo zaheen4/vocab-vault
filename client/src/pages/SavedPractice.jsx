@@ -4,6 +4,7 @@ import { api } from '../api/client'
 import { useInvalidateAfterReview, useSavedPracticeSession } from '../api/queries'
 import { useSlideDirection } from '../utils/navDirection'
 import { getSessionMessage } from '../utils/sessionMessages'
+import { shouldCelebrate } from '../utils/celebrate'
 import { speakWord, stopSpeaking, TTS_UNAVAILABLE_HINT, useTtsAvailable } from '../utils/speak'
 import Button from '../components/ui/Button'
 import SpeakerIcon from '../components/ui/SpeakerIcon'
@@ -12,6 +13,7 @@ import EmptyState from '../components/ui/EmptyState'
 import EmptyArt from '../components/art/EmptyArt'
 import Confetti from '../components/Confetti'
 import Flashcard from '../components/Flashcard'
+import ScoreRing from '../components/ScoreRing'
 
 const BOX_LABELS = { 1: 'Box 1', 2: 'Box 2', 3: 'Box 3', 4: 'Box 4', 5: 'Mastered' }
 
@@ -28,6 +30,7 @@ export default function SavedPractice() {
   const [results, setResults] = useState([])
   const [submitting, setSubmitting] = useState(false)
   const [feedback, setFeedback] = useState(null)
+  const [shake, setShake] = useState(false)
   const [sessionXp, setSessionXp] = useState(0)
   const [score, setScore] = useState(0)
   const [levelEvent, setLevelEvent] = useState(null)
@@ -113,6 +116,7 @@ export default function SavedPractice() {
     invalidateAfterReview(undefined)
 
     setFlipped(false)
+    if (!correct) setShake(true)
     setFeedback({
       correct,
       xpEarned: g.xpEarned,
@@ -122,13 +126,16 @@ export default function SavedPractice() {
     const finished = index + 1 >= words.length
     advanceTimer.current = setTimeout(() => {
       stopSpeaking()
+      setShake(false)
       setFeedback(null)
       setSubmitting(false)
       busyRef.current = false
       clearTimeout(advanceTimer.current)
       if (finished) {
-        setConfetti(true)
         const s = sessionRef.current
+        if (shouldCelebrate({ correct: s.correct, total: s.total, levelUp: s.levelUp })) {
+          setConfetti(true)
+        }
         setFinalMessage(
           getSessionMessage({ correct: s.correct, total: s.total, levelUp: s.levelUp, level: s.level })
         )
@@ -179,11 +186,12 @@ export default function SavedPractice() {
     const correctCount = results.filter((r) => r.correct).length
     return (
       <div className="animate-page mx-auto max-w-xl space-y-4 text-center">
-        {confetti && <Confetti />}
+        {confetti && <Confetti active={confetti} pieces={70} />}
         <h1 className="font-display text-2xl font-bold text-primary dark:text-cream-100">{finalMessage || 'Session complete!'}</h1>
         <p className="text-slate-500 dark:text-cream-300/80">
           You got {correctCount} of {results.length} right · +{sessionXp} XP
         </p>
+        <ScoreRing correct={correctCount} total={results.length} />
         <div className="flex justify-center gap-3">
           <Button variant="secondary" onClick={restart}>
             Review again
@@ -235,7 +243,7 @@ export default function SavedPractice() {
         word={current}
         flipped={flipped}
         onFlip={() => setFlipped((f) => !f)}
-        shake={false}
+        shake={shake}
         reversed={false}
       />
 
