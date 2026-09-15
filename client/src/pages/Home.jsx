@@ -11,6 +11,8 @@ function DeckCard({ deck }) {
   const count = deck.wordCount ?? (deck.wordIds ? deck.wordIds.length : 0)
   const prefetchDeck = usePrefetchDeck()
   const warm = () => prefetchDeck(deck._id)
+  const mastered = deck.progress?.mastered || 0
+  const pct = count > 0 ? Math.round((mastered / count) * 100) : 0
   return (
     <Card
       hoverable
@@ -22,10 +24,32 @@ function DeckCard({ deck }) {
         <DeckTile id={deck._id} title={deck.title} />
         <h3 className="font-display text-lg font-bold text-primary dark:text-cream-100">{deck.title}</h3>
       </div>
-      <div className="mt-auto pt-4">
-        <p className="border-t border-slate-100 pt-3 text-xs font-semibold text-slate-500 dark:border-white/10 dark:text-cream-300/80">
-          {count} words
-        </p>
+      <div className="mt-auto border-t border-slate-100 pt-3 dark:border-white/10">
+        <div className="flex items-baseline justify-between gap-2">
+          <p className="text-xs font-semibold text-slate-500 dark:text-cream-300/80">
+            {count} words
+          </p>
+          {count > 0 && (mastered > 0 || (deck.progress?.learning || 0) > 0) && (
+            <p className="text-xs font-bold text-emerald-600 dark:text-emerald-300">
+              {pct}% mastered
+            </p>
+          )}
+        </div>
+        {count > 0 && mastered > 0 && (
+          <div
+            className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-night-800"
+            role="progressbar"
+            aria-valuenow={pct}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label={`${deck.title} mastered`}
+          >
+            <div
+              className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+        )}
       </div>
       {/* stretched link: the whole card is the Practice entry; modes live in ModeTabs */}
       <Link

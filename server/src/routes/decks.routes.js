@@ -5,6 +5,7 @@ import Word from '../models/Word.js'
 import Progress from '../models/Progress.js'
 import { requireAuth } from '../middleware/auth.js'
 import { requireDB } from '../middleware/requireDB.js'
+import { summarizeDeckProgress } from '../utils/decks.js'
 import { toSafeMessage } from '../utils/security.js'
 
 const router = Router()
@@ -23,11 +24,19 @@ router.get('/', requireDB, requireAuth, async (req, res) => {
     const decks = await Deck.find({
       $or: [{ createdBy: null }, { createdBy: req.user._id }],
     }).select('-__v')
+    // Caller-scoped progress join: one extra query for all of the user's
+    // progress, matched to deck words in memory (no per-deck fan-out).
+    const progressDocs = await Progress.find({ userId: req.user._id }).select('wordId status')
+    const byWord = new Map(progressDocs.map((p) => [String(p.wordId), p.status]))
+    const progressByDeck = new Map(
+      summarizeDeckProgress(decks, byWord).map((s) => [s.deckId, s.progress])
+    )
     // Deterministic order: numeric group first, group-less decks last.
     const ordered = decks
       .map((deck) => ({
         ...deck.toObject(),
         wordCount: deck.wordIds.length,
+        progress: progressByDeck.get(String(deck._id)) || { new: 0, learning: 0, mastered: 0 },
       }))
       .sort((a, b) => (a.group ?? Infinity) - (b.group ?? Infinity))
     res.json({ decks: ordered })
