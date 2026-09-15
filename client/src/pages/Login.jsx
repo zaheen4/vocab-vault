@@ -2,9 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Button from '../components/ui/Button'
-
-const inputClass =
-  'w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-accent focus:outline-none'
+import Input from '../components/ui/Input'
 
 export default function Login() {
   const { login } = useAuth()
@@ -29,42 +27,36 @@ export default function Login() {
   }
 
   return (
-    <div className="animate-page flex min-h-screen items-center justify-center bg-gold px-4">
+    <div className="animate-page flex min-h-screen items-center justify-center bg-gold px-4 dark:bg-night-950">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
+        className="w-full max-w-sm space-y-4 rounded-lg border border-slate-200 bg-white p-6 shadow-sm dark:border-white/10 dark:bg-night-900 dark:shadow-none"
       >
-        <h1 className="font-display text-2xl font-bold text-primary">Log in to VocabVault</h1>
+        <h1 className="font-display text-2xl font-bold text-primary dark:text-cream-100">Log in to VocabVault</h1>
 
         {error && (
-          <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
+          <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-950/50 dark:text-red-300">{error}</p>
         )}
 
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-slate-700">Email</span>
-          <input
-            type="email"
-            required
-            autoComplete="email"
-            maxLength={254}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className={inputClass}
-          />
-        </label>
+        <Input
+          label="Email"
+          type="email"
+          required
+          autoComplete="email"
+          maxLength={254}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-slate-700">Password</span>
-          <input
-            type="password"
-            required
-            autoComplete="current-password"
-            maxLength={128}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className={inputClass}
-          />
-        </label>
+        <Input
+          label="Password"
+          type="password"
+          required
+          autoComplete="current-password"
+          maxLength={128}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
 
         <Button
           type="submit"
@@ -74,7 +66,7 @@ export default function Login() {
           {submitting ? 'Logging in…' : 'Log in'}
         </Button>
 
-        <p className="text-center text-sm text-slate-500">
+        <p className="text-center text-sm text-slate-500 dark:text-cream-300/80">
           No account yet?{' '}
           <Link to="/register" className="font-medium text-accent hover:underline">
             Register

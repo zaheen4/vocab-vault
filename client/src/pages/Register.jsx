@@ -2,9 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Button from '../components/ui/Button'
-
-const inputClass =
-  'w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-accent focus:outline-none'
+import Input from '../components/ui/Input'
 
 export default function Register() {
   const { register } = useAuth()
@@ -38,46 +36,40 @@ export default function Register() {
   }
 
   return (
-    <div className="animate-page flex min-h-screen items-center justify-center bg-gold px-4">
+    <div className="animate-page flex min-h-screen items-center justify-center bg-gold px-4 dark:bg-night-950">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm space-y-4 rounded-lg bg-white p-6 shadow"
+        className="w-full max-w-sm space-y-4 rounded-lg bg-white p-6 shadow dark:border dark:border-white/10 dark:bg-night-900 dark:shadow-none"
       >
-        <h1 className="font-display text-2xl font-bold text-primary">Create your account</h1>
+        <h1 className="font-display text-2xl font-bold text-primary dark:text-cream-100">Create your account</h1>
 
         {error && (
-          <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
+          <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-950/50 dark:text-red-300">{error}</p>
         )}
 
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-slate-700">Name</span>
-          <input
-            type="text"
-            required
-            autoComplete="name"
-            maxLength={100}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className={inputClass}
-          />
-        </label>
+        <Input
+          label="Name"
+          type="text"
+          required
+          autoComplete="name"
+          maxLength={100}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
 
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-slate-700">Email</span>
-          <input
-            type="email"
-            required
-            autoComplete="email"
-            maxLength={254}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className={inputClass}
-          />
-        </label>
+        <Input
+          label="Email"
+          type="email"
+          required
+          autoComplete="email"
+          maxLength={254}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
 
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-slate-700">Password</span>
-          <input
+        <div>
+          <Input
+            label="Password"
             type="password"
             required
             minLength={6}
@@ -85,16 +77,15 @@ export default function Register() {
             autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className={inputClass}
           />
-          <span className="mt-1 block text-xs text-slate-400">At least 6 characters</span>
-        </label>
+          <span className="mt-1 block text-xs text-slate-400 dark:text-cream-300/60">At least 6 characters</span>
+        </div>
 
         <Button type="submit" fullWidth loading={submitting}>
           {submitting ? 'Creating account…' : 'Register'}
         </Button>
 
-        <p className="text-center text-sm text-slate-500">
+        <p className="text-center text-sm text-slate-500 dark:text-cream-300/80">
           Already have an account?{' '}
           <Link to="/login" className="font-medium text-accent hover:underline">
             Log in

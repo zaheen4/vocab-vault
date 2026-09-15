@@ -231,12 +231,12 @@ export default function Practice({ active = true }) {
   }
 
   if (isLoading) {
-    return <div className="mx-auto h-64 max-w-xl animate-pulse rounded-xl bg-slate-200" />
+    return <div className="mx-auto h-64 max-w-xl animate-pulse rounded-xl bg-slate-200 dark:bg-night-800" />
   }
 
   if (isError) {
     return (
-      <div className="rounded-lg bg-red-50 p-4 text-center text-sm text-red-600">
+      <div className="rounded-lg bg-red-50 p-4 text-center text-sm text-red-600 dark:bg-red-950/50 dark:text-red-300">
         Failed to load the practice session.{' '}
         <button className="underline" onClick={() => window.location.reload()}>
           Retry
@@ -260,37 +260,37 @@ export default function Practice({ active = true }) {
     return (
       <div className="animate-page mx-auto max-w-2xl space-y-6 py-6 text-center">
         <Confetti active={confetti} pieces={70} />
-        <h1 className="font-display text-3xl font-bold text-primary">
+        <h1 className="font-display text-3xl font-bold text-primary dark:text-cream-100">
           {finalMessage || 'Session complete! 🎉'}
         </h1>
         {firstName && (
-          <p className="-mt-3 text-slate-500">
+          <p className="-mt-3 text-slate-500 dark:text-cream-300/80">
             {firstName}, you got {correctCount} of {results.length} right.
           </p>
         )}
         {levelEvent && (
-          <div className="animate-pop animate-glow mx-auto max-w-sm rounded-xl border-2 border-accent bg-gold px-4 py-3 text-primary">
+          <div className="animate-pop animate-glow mx-auto max-w-sm rounded-xl border-2 border-accent bg-gold px-4 py-3 text-primary dark:bg-accent/15 dark:text-accent">
             <span className="text-sm font-bold">🎊 Level up! You reached Level {levelEvent.newLevel}</span>
           </div>
         )}
         <ScoreRing correct={correctCount} total={results.length} />
 
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <div className="rounded-lg border border-slate-200 bg-white p-4">
+          <div className="rounded-lg border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-night-900">
             <p className="text-2xl font-bold text-accent">+{sessionXp}</p>
-            <p className="text-xs text-slate-400">XP earned</p>
+            <p className="text-xs text-slate-400 dark:text-cream-300/70">XP earned</p>
           </div>
-          <div className="rounded-lg border border-slate-200 bg-white p-4">
-            <p className="text-2xl font-bold text-primary">{bestCombo}🔥</p>
-            <p className="text-xs text-slate-400">Best combo</p>
+          <div className="rounded-lg border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-night-900">
+            <p className="text-2xl font-bold text-primary dark:text-cream-100">{bestCombo}🔥</p>
+            <p className="text-xs text-slate-400 dark:text-cream-300/70">Best combo</p>
           </div>
-          <div className="rounded-lg border border-slate-200 bg-white p-4">
-            <p className="text-2xl font-bold text-emerald-600">{newLearned}</p>
-            <p className="text-xs text-slate-400">New words learned</p>
+          <div className="rounded-lg border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-night-900">
+            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-300">{newLearned}</p>
+            <p className="text-xs text-slate-400 dark:text-cream-300/70">New words learned</p>
           </div>
-          <div className="rounded-lg border border-slate-200 bg-white p-4">
-            <p className="text-2xl font-bold text-violet-600">{caughtUp}</p>
-            <p className="text-xs text-slate-400">Mastered</p>
+          <div className="rounded-lg border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-night-900">
+            <p className="text-2xl font-bold text-violet-600 dark:text-violet-300">{caughtUp}</p>
+            <p className="text-xs text-slate-400 dark:text-cream-300/70">Mastered</p>
           </div>
         </div>
 
@@ -301,7 +301,9 @@ export default function Practice({ active = true }) {
                 key={i}
                 title={r.word}
                 className={`rounded px-1.5 py-0.5 text-xs font-semibold ${
-                  r.correct ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'
+                  r.correct
+                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
+                    : 'bg-red-100 text-red-600 dark:bg-red-950/60 dark:text-red-300'
                 }`}
               >
                 {r.correct ? '✓' : '✗'}
@@ -328,25 +330,25 @@ export default function Practice({ active = true }) {
     <div className={`mx-auto max-w-xl space-y-4 ${slideCls}`}>
       {/* HUD */}
       <div className="flex items-center justify-between text-sm">
-        <Link to="/" className="text-slate-400 hover:text-primary">
+        <Link to="/" className="text-slate-400 hover:text-primary dark:text-cream-300/60 dark:hover:text-cream-100">
           ← {deckTitle}
         </Link>
-        <span className="text-sm text-slate-400">
+        <span className="text-sm text-slate-400 dark:text-cream-300/60">
           {index + 1} / {words.length}
         </span>
       </div>
 
-      <div className="flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold">
-        <span className="text-primary">✓ {score}</span>
+      <div className="flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-semibold dark:border-white/10 dark:bg-night-900">
+        <span className="text-primary dark:text-cream-100">✓ {score}</span>
         {combo >= 2 && (
-          <span className="animate-pop rounded-full bg-accent px-2 py-0.5 text-primary">
+          <span className="animate-pop rounded-full bg-accent px-2 py-0.5 text-primary dark:text-night-950">
             {combo} combo 🔥
           </span>
         )}
-        <span className="ml-auto rounded bg-gold px-2 py-0.5 text-primary">+{sessionXp} XP</span>
+        <span className="ml-auto rounded bg-gold px-2 py-0.5 text-primary dark:bg-accent/20 dark:text-accent">+{sessionXp} XP</span>
       </div>
 
-      <div className="h-1.5 overflow-hidden rounded-full bg-slate-200">
+      <div className="h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-night-800">
         <div
           className="h-full rounded-full bg-accent transition-all duration-300"
           style={{ width: `${(index / words.length) * 100}%` }}
@@ -418,7 +420,7 @@ export default function Practice({ active = true }) {
       )}
 
       {feedback?.error && (
-        <div className="animate-pop flex items-center justify-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+        <div className="animate-pop flex items-center justify-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 dark:border-red-400/30 dark:bg-red-950/50 dark:text-red-300">
           <span>Couldn&apos;t save that review. Check your connection and try again.</span>
           <button className="ml-auto underline" onClick={() => setFeedback(null)}>
             Dismiss
@@ -430,8 +432,8 @@ export default function Practice({ active = true }) {
         <div
           className={`animate-pop flex items-center justify-center gap-3 rounded-lg border px-4 py-3 text-sm font-semibold ${
             feedback.correct
-              ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-              : 'border-red-200 bg-red-50 text-red-700'
+              ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-950/50 dark:text-emerald-300'
+              : 'border-red-200 bg-red-50 text-red-700 dark:border-red-400/30 dark:bg-red-950/50 dark:text-red-300'
           }`}
         >
           <span className="text-lg">{feedback.correct ? '✓' : '✗'}</span>
@@ -446,7 +448,7 @@ export default function Practice({ active = true }) {
       )}
 
       {levelEvent && (
-        <div className="animate-pop animate-glow rounded-lg border-2 border-accent bg-gold px-4 py-2 text-center text-sm font-bold text-primary">
+        <div className="animate-pop animate-glow rounded-lg border-2 border-accent bg-gold px-4 py-2 text-center text-sm font-bold text-primary dark:bg-accent/15 dark:text-accent">
           🎊 Level up! You reached Level {levelEvent.newLevel}
         </div>
       )}

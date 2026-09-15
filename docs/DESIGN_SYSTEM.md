@@ -13,10 +13,15 @@ never raw hex in components.
 | `primary` | `#28324E` | Structure (darkest): headings, brand, text on accent fills |
 | `accent` | `#EE964B` | Interaction (warm): CTAs, focus rings, links |
 | `gold` | `#FAF0CA` | Surface (lightest): auth backgrounds, nav highlight |
+| `night-950/900/800` | `#0F1430` / `#171D3A` / `#232B52` | Dark surfaces: page / card / raised |
+| `cream-100/300` | `#F7F1DE` / `#CFC6AB` | Dark ink: headings / muted body text |
 | Neutrals | — | Tailwind `slate` for body text, `stone-50` page shell |
 
 - Darkest → foreground, most saturated → interactive, lightest → surfaces.
 - Never white text on `accent` (contrast ~2.5:1 fails); use `text-primary`.
+- Dark mode is class-driven (`.dark` on `<html>`, see `ThemeContext`): every
+  `dark:` utility pairs with a light default, and new dark surfaces use the
+  `night` scale with `cream` ink — never raw slate-on-navy guesses.
 
 ## Typography: voice vs. reading
 
@@ -55,16 +60,16 @@ never raw hex in components.
 
 ## Components
 
-- Compose from `Button`, `Card`, `EmptyState` — no raw `<button>` or ad-hoc
-  card markup without a documented exception.
-- Join conditional classes with `utils/cn.js`. It joins only — it does not
-  dedupe conflicting Tailwind classes, so order colliding utilities
-  carefully (or better: branch them so they never collide).
+- Compose from `Button`, `Card`, `EmptyState`, `Input` — no raw `<button>`,
+  raw `<input>`, or ad-hoc card markup without a documented exception.
+- Join conditional classes with `utils/cn.js` (tailwind-merge: later colliding
+  utilities win, so call-site overrides of base styles are safe).
 
 ## Anti-list (closed — additions need team agreement)
 
 No new fonts, no new accent colors, no glassmorphism, no kinetic body text,
-no custom cursor or magnetic effects, no dark mode before demo week.
+no custom cursor or magnetic effects. (Dark mode shipped in the UI-overhaul
+foundation pass — the old "no dark mode before demo week" rule is retired.)
 
 ## Checking a PR against this doc
 

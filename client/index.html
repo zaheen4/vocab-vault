@@ -4,7 +4,11 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
     <title>VocabVault</title>
+    <!-- Theme init: applies stored/OS theme before React mounts (no flash).
+         Hash allowlisted in public/_headers CSP script-src — keep in sync. -->
+    <script>try{var t=localStorage.getItem('vv_theme')||'system';if(t==='dark'||(t==='system'&&matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}</script>
     <!-- THROWAWAY lab fonts — remove with DesignLab.jsx -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

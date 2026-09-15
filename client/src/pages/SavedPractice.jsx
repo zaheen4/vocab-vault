@@ -139,12 +139,12 @@ export default function SavedPractice() {
   }
 
   if (isLoading || pool === null) {
-    return <div className="mx-auto h-64 max-w-xl animate-pulse rounded-xl bg-slate-200" />
+    return <div className="mx-auto h-64 max-w-xl animate-pulse rounded-xl bg-slate-200 dark:bg-night-800" />
   }
 
   if (isError) {
     return (
-      <div className="rounded-lg bg-red-50 p-4 text-center text-sm text-red-600">
+      <div className="rounded-lg bg-red-50 p-4 text-center text-sm text-red-600 dark:bg-red-950/50 dark:text-red-300">
         Failed to load saved words.{' '}
         <button className="underline" onClick={() => window.location.reload()}>
           Retry
@@ -156,10 +156,10 @@ export default function SavedPractice() {
   if (words.length === 0) {
     return (
       <div className="animate-page mx-auto max-w-xl space-y-4">
-        <Link to="/bookmarks" className="inline-block text-sm text-slate-400 hover:text-primary">
+        <Link to="/bookmarks" className="inline-block text-sm text-slate-400 hover:text-primary dark:text-cream-300/60 dark:hover:text-cream-100">
           ← Saved words
         </Link>
-        <h1 className="font-display text-2xl font-bold text-primary">Review saved</h1>
+        <h1 className="font-display text-2xl font-bold text-primary dark:text-cream-100">Review saved</h1>
         <EmptyState
           title="Nothing due right now"
           message="Star some words, or come back when your saved reviews are due."
@@ -178,8 +178,8 @@ export default function SavedPractice() {
     return (
       <div className="animate-page mx-auto max-w-xl space-y-4 text-center">
         {confetti && <Confetti />}
-        <h1 className="font-display text-2xl font-bold text-primary">{finalMessage || 'Session complete!'}</h1>
-        <p className="text-slate-500">
+        <h1 className="font-display text-2xl font-bold text-primary dark:text-cream-100">{finalMessage || 'Session complete!'}</h1>
+        <p className="text-slate-500 dark:text-cream-300/80">
           You got {correctCount} of {results.length} right · +{sessionXp} XP
         </p>
         <div className="flex justify-center gap-3">
@@ -199,15 +199,15 @@ export default function SavedPractice() {
   return (
     <div className={`mx-auto max-w-xl space-y-4 ${slideCls}`}>
       <div className="flex items-center justify-between text-sm">
-        <Link to="/bookmarks" className="text-slate-400 hover:text-primary">
+        <Link to="/bookmarks" className="text-slate-400 hover:text-primary dark:text-cream-300/60 dark:hover:text-cream-100">
           ← Saved words
         </Link>
-        <span className="text-slate-400">
+        <span className="text-slate-400 dark:text-cream-300/60">
           {index + 1} / {words.length} · ✓ {score}
         </span>
       </div>
 
-      <h1 className="font-display text-2xl font-bold text-primary">Review saved</h1>
+      <h1 className="font-display text-2xl font-bold text-primary dark:text-cream-100">Review saved</h1>
 
       <div className="flex justify-end gap-2">
         {ttsAvailable !== null && (
@@ -249,7 +249,7 @@ export default function SavedPractice() {
       )}
 
       {feedback?.error && (
-        <div className="animate-pop flex items-center justify-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+        <div className="animate-pop flex items-center justify-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 dark:border-red-400/30 dark:bg-red-950/50 dark:text-red-300">
           <span>Couldn&apos;t save that review. Check your connection and try again.</span>
           <button className="ml-auto underline" onClick={() => setFeedback(null)}>
             Dismiss
@@ -261,20 +261,23 @@ export default function SavedPractice() {
         <div
           className={`animate-pop flex items-center justify-center gap-3 rounded-lg border px-4 py-3 text-sm font-semibold ${
             feedback.correct
-              ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-              : 'border-red-200 bg-red-50 text-red-700'
+              ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-950/50 dark:text-emerald-300'
+              : 'border-red-200 bg-red-50 text-red-700 dark:border-red-400/30 dark:bg-red-950/50 dark:text-red-300'
           }`}
         >
           <span className="text-lg">{feedback.correct ? '✓' : '✗'}</span>
           <span>
             {feedback.correct ? 'Nice!' : 'Keep going!'} → {feedback.boxLabel}
           </span>
-          <span className="ml-auto text-accent">+{feedback.xpEarned} XP</span>
+          <span className="relative ml-auto text-accent">
+            +{feedback.xpEarned} XP
+            <span className="animate-float-up absolute -top-1 right-0 text-accent">+{feedback.xpEarned}</span>
+          </span>
         </div>
       )}
 
       {levelEvent && (
-        <div className="animate-pop animate-glow rounded-lg border-2 border-accent bg-gold px-4 py-2 text-center text-sm font-bold text-primary">
+        <div className="animate-pop animate-glow rounded-lg border-2 border-accent bg-gold px-4 py-2 text-center text-sm font-bold text-primary dark:bg-accent/15 dark:text-accent">
           🎊 Level up! You reached Level {levelEvent.newLevel}
         </div>
       )}

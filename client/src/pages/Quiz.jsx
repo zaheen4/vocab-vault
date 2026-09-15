@@ -165,12 +165,12 @@ export default function Quiz() {
   }
 
   if (status === 'loading') {
-    return <div className="mx-auto h-64 max-w-xl animate-pulse rounded-xl bg-slate-200" />
+    return <div className="mx-auto h-64 max-w-xl animate-pulse rounded-xl bg-slate-200 dark:bg-night-800" />
   }
 
   if (status === 'error') {
     return (
-      <div className="rounded-lg bg-red-50 p-4 text-center text-sm text-red-600">
+      <div className="rounded-lg bg-red-50 p-4 text-center text-sm text-red-600 dark:bg-red-950/50 dark:text-red-300">
         Failed to load the quiz.{' '}
         <button className="underline" onClick={() => window.location.reload()}>
           Retry
@@ -196,31 +196,28 @@ export default function Quiz() {
   if (status === 'idle') {
     return (
       <div className={`mx-auto max-w-xl space-y-4 text-center ${slideCls}`}>
-        <Link to="/" className="inline-block text-sm text-slate-400 hover:text-primary">
+        <Link to="/" className="inline-block text-sm text-slate-400 hover:text-primary dark:text-cream-300/60 dark:hover:text-cream-100">
           ← {deckTitle}
         </Link>
-        <h1 className="font-display text-2xl font-bold text-primary">Quiz yourself</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="font-display text-2xl font-bold text-primary dark:text-cream-100">Quiz yourself</h1>
+        <p className="text-sm text-slate-500 dark:text-cream-300/80">
           {pool.length} viewed word{pool.length === 1 ? '' : 's'} ready. Pick a
           definition for each word — every answer is recorded like practice.
         </p>
         <div className="flex justify-center gap-2">
           {LENGTHS.map((n) => (
-            <button
+            <Button
               key={n}
+              variant={length === n ? 'primary' : 'secondary'}
               onClick={() => setLength(n)}
               aria-pressed={length === n}
-              className={`rounded-md px-5 py-2.5 font-display text-sm font-bold transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:scale-97 ${
-                length === n
-                  ? 'bg-accent text-primary'
-                  : 'border border-slate-300 bg-white text-slate-600 hover:bg-slate-50'
-              }`}
+              className="px-5 py-2.5"
             >
               {n}
-            </button>
+            </Button>
           ))}
         </div>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-slate-400 dark:text-cream-300/60">
           {Math.min(length, pool.length)} questions
         </p>
         <Button onClick={start}>Start quiz</Button>
@@ -233,8 +230,8 @@ export default function Quiz() {
     const pct = results.length === 0 ? 0 : Math.round((correctCount / results.length) * 100)
     return (
       <div className="animate-page mx-auto max-w-2xl space-y-6 py-6 text-center">
-        <h1 className="font-display text-3xl font-bold text-primary">{finalMessage || 'Quiz complete!'}</h1>
-        <p className="text-slate-500">
+        <h1 className="font-display text-3xl font-bold text-primary dark:text-cream-100">{finalMessage || 'Quiz complete!'}</h1>
+        <p className="text-slate-500 dark:text-cream-300/80">
           You scored {correctCount} of {results.length} ({pct}%).
         </p>
         {results.length > 0 && (
@@ -244,7 +241,9 @@ export default function Quiz() {
                 key={i}
                 title={r.word}
                 className={`rounded px-1.5 py-0.5 text-xs font-semibold ${
-                  r.correct ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-600'
+                  r.correct
+                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
+                    : 'bg-red-100 text-red-600 dark:bg-red-950/60 dark:text-red-300'
                 }`}
               >
                 {r.correct ? '✓' : '✗'}
@@ -273,10 +272,10 @@ export default function Quiz() {
   return (
     <div className={`mx-auto max-w-xl space-y-4 ${slideCls}`}>
       <div className="flex items-center justify-between text-sm">
-        <Link to="/" className="text-slate-400 hover:text-primary">
+        <Link to="/" className="text-slate-400 hover:text-primary dark:text-cream-300/60 dark:hover:text-cream-100">
           ← {deckTitle}
         </Link>
-        <span className="flex items-center gap-2 text-slate-400">
+        <span className="flex items-center gap-2 text-slate-400 dark:text-cream-300/60">
           <span>
             {index + 1} / {questions.length} · ✓ {score}
           </span>
@@ -296,27 +295,29 @@ export default function Quiz() {
         </span>
       </div>
 
-      <div className="h-1.5 overflow-hidden rounded-full bg-slate-200">
+      <div className="h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-night-800">
         <div
           className="h-full rounded-full bg-accent transition-all duration-300"
           style={{ width: `${(index / questions.length) * 100}%` }}
         />
       </div>
 
-      <div className="rounded-xl border-2 border-slate-200 bg-white p-8 text-center shadow-sm">
-        <p className="text-xs font-medium tracking-wide text-slate-400 uppercase">
+      <div className="rounded-xl border-2 border-slate-200 bg-white p-8 text-center shadow-sm dark:border-white/10 dark:bg-night-900 dark:shadow-none">
+        <p className="text-xs font-medium tracking-wide text-slate-400 uppercase dark:text-cream-300/70">
           {q.word.partOfSpeech || 'What does this mean?'}
         </p>
-        <h2 className="mt-1 text-3xl font-bold text-primary">{q.word.word}</h2>
+        <h2 className="mt-1 text-3xl font-bold break-words text-primary dark:text-cream-100">{q.word.word}</h2>
       </div>
 
       <div className="grid grid-cols-1 gap-2" key={q.word._id}>
         {q.options.map((opt, i) => {
-          let cls = 'border-slate-200 bg-white hover:border-accent hover:bg-gold/40'
+          let cls = 'border-slate-200 bg-white hover:border-accent hover:bg-gold/40 dark:border-white/10 dark:bg-night-900 dark:hover:border-accent dark:hover:bg-accent/10'
           if (picked !== null) {
-            if (i === q.answerIndex) cls = 'border-emerald-300 bg-emerald-50 text-emerald-800'
-            else if (i === picked) cls = 'border-red-300 bg-red-50 text-red-700'
-            else cls = 'border-slate-200 bg-white opacity-50'
+            if (i === q.answerIndex)
+              cls = 'border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-400/40 dark:bg-emerald-950/50 dark:text-emerald-300'
+            else if (i === picked)
+              cls = 'border-red-300 bg-red-50 text-red-700 dark:border-red-400/40 dark:bg-red-950/50 dark:text-red-300'
+            else cls = 'border-slate-200 bg-white opacity-50 dark:border-white/10 dark:bg-night-900'
           }
           return (
             <button
@@ -324,9 +325,9 @@ export default function Quiz() {
               onClick={() => choose(i)}
               disabled={picked !== null}
               style={picked === null ? { animationDelay: `${i * 50}ms` } : undefined}
-              className={`rounded-lg border-2 px-4 py-3 text-left font-display text-sm font-bold text-primary transition-all active:scale-99 disabled:cursor-default ${picked === null ? 'animate-fade-up' : ''} ${cls}`}
+              className={`rounded-lg border-2 px-4 py-3 text-left font-display text-sm font-bold text-primary transition-all active:scale-99 disabled:cursor-default dark:text-cream-100 ${picked === null ? 'animate-fade-up' : ''} ${cls}`}
             >
-              <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-500">
+              <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-500 dark:bg-night-800 dark:text-cream-300">
                 {picked !== null && i === q.answerIndex
                   ? '✓'
                   : picked === i && i !== q.answerIndex
@@ -340,7 +341,7 @@ export default function Quiz() {
       </div>
 
       {saveError && (
-        <div className="animate-pop flex items-center justify-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700">
+        <div className="animate-pop flex items-center justify-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 dark:border-red-400/30 dark:bg-red-950/50 dark:text-red-300">
           <span>Couldn&apos;t save that answer.</span>
           <button className="ml-auto underline" onClick={retrySave}>
             Retry
@@ -350,7 +351,7 @@ export default function Quiz() {
 
       {answered && (
         <div className="space-y-3">
-          <p className="text-center text-sm text-slate-500">
+          <p className="text-center text-sm text-slate-500 dark:text-cream-300/80">
             {q.word.word} — {q.word.definition}
             {q.word.example && <span className="italic"> “{q.word.example}”</span>}
           </p>
