@@ -13,7 +13,7 @@ export default function Flashcard({ word, flipped, onFlip, shake, reversed }) {
     </>
   ) : (
     <>
-      <h2 className="text-3xl font-bold break-words text-primary dark:text-cream-100">{word.word}</h2>
+      <h2 className="text-display-xl font-bold break-words text-primary dark:text-cream-100">{word.word}</h2>
       {word.partOfSpeech && (
         <p className="mt-1 text-sm text-slate-400 italic dark:text-cream-300/70">{word.partOfSpeech}</p>
       )}
@@ -21,7 +21,7 @@ export default function Flashcard({ word, flipped, onFlip, shake, reversed }) {
   )
   const reveal = reversed ? (
     <>
-      <h2 className="text-3xl font-bold break-words text-primary dark:text-cream-100">{word.word}</h2>
+      <h2 className="text-display-xl font-bold break-words text-primary dark:text-cream-100">{word.word}</h2>
       {word.partOfSpeech && (
         <p className="mt-1 text-sm text-slate-400 italic dark:text-cream-300/70">{word.partOfSpeech}</p>
       )}
@@ -57,15 +57,15 @@ export default function Flashcard({ word, flipped, onFlip, shake, reversed }) {
         aria-pressed={flipped}
         aria-label={label}
       >
-        <span className={`flip-inner relative flex min-h-64 w-full ${flipped ? 'flipped' : ''}`}>
+        <span className={`flip-inner relative flex min-h-56 w-full sm:min-h-64 ${flipped ? 'flipped' : ''}`}>
           <span className="flip-face absolute inset-0 overflow-y-auto overscroll-contain rounded-xl border-2 border-slate-200 bg-white text-center shadow-sm dark:border-white/10 dark:bg-night-900 dark:shadow-none">
-            <span className="flex min-h-full flex-col items-center justify-center p-8">
+            <span className="flex min-h-full flex-col items-center justify-center p-5 sm:p-8">
               {prompt}
               <p className="pt-4 text-xs tracking-wide text-slate-400 uppercase dark:text-cream-300/60">Tap to reveal</p>
             </span>
           </span>
           <span className="flip-back flip-face absolute inset-0 overflow-y-auto overscroll-contain rounded-xl border-2 border-slate-200 bg-white text-center shadow-sm dark:border-white/10 dark:bg-night-900 dark:shadow-none">
-            <span className="flex min-h-full flex-col items-center justify-center p-8">
+            <span className="flex min-h-full flex-col items-center justify-center p-5 sm:p-8">
               {reveal}
             </span>
           </span>

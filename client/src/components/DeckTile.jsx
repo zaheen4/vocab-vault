@@ -2,7 +2,7 @@ import { pickSeeded } from './art/seed.js'
 
 // Seeded initial tile shared by deck cards and mode lobbies. The tile style
 // is stable per id so a deck is recognizable everywhere it appears.
-const TILE_STYLES = [
+export const TILE_STYLES = [
   'bg-accent/15 text-accent-deep dark:bg-accent/20 dark:text-accent',
   'bg-gold text-accent-deep dark:bg-gold/15 dark:text-gold',
   'bg-primary/10 text-primary dark:bg-white/10 dark:text-cream-100',

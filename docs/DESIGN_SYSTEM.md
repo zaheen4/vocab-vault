@@ -15,6 +15,8 @@ never raw hex in components.
 | `gold` | `#FAF0CA` | Surface (lightest): auth backgrounds, nav highlight |
 | `night-950/900/800` | `#0F1430` / `#171D3A` / `#232B52` | Dark surfaces: page / card / raised |
 | `cream-100/300` | `#F7F1DE` / `#CFC6AB` | Dark ink: headings / muted body text |
+| `display-xl` | `clamp(1.875rem, 1.4rem + 2.4vw, 2.75rem)` | Fluid display: flashcard word, done titles |
+| `display-lg` | `clamp(1.5rem, 1.25rem + 1.4vw, 2rem)` | Fluid display: page H1s, hero |
 | Status greens/ambers/reds | Tailwind palette | SRS states: `emerald` mastered, `amber` learning, `red` wrong |
 | Neutrals | — | Tailwind `slate` for body text, `stone-50` page shell |
 
@@ -37,10 +39,10 @@ never raw hex in components.
 - **Body (`font-sans`, Nunito):** everything else — *including* flashcard
   words, definitions, examples, and option text. Tested words stay neutral
   so letterforms never interfere with recognition.
-- **Heading scale:** page H1s are `text-2xl` via shared `PageHeader` (with an
-  accent eyebrow where the page needs orientation); heroes and done screens
-  own `text-3xl`; card titles and section headers stay below H1. Never
-  introduce another font without a design review.
+- **Heading scale:** page H1s are fluid `text-display-lg` via shared `PageHeader`
+  (with an accent eyebrow where the page needs orientation); heroes and done
+  screens use fluid `text-display-xl`. Body text stays fixed — never fluid.
+  Floors match the old fixed sizes so mobile never shrinks below approved.
 - **Flashcard hierarchy:** the word (`text-3xl` bold) leads; the definition
   answers in `text-lg font-medium` with `leading-relaxed` — never semibold,
   never competing.
@@ -83,14 +85,29 @@ never raw hex in components.
 
 - Compose from `Button`, `Card`, `EmptyState`, `Input` — no raw `<button>`,
   raw `<input>`, or ad-hoc card markup without a documented exception.
+- Page headers come from shared `PageHeader` (eyebrow + H1 + sub); session
+  screens share `SessionHud` + `ScoreRing`; deck identity comes from `DeckTile`.
+- Complex behavior (dropdowns, dialogs, tooltips) uses Radix primitives,
+  token-styled, pulled one package at a time — never hand-rolled focus traps.
 - Join conditional classes with `utils/cn.js` (tailwind-merge: later colliding
   utilities win, so call-site overrides of base styles are safe).
-- Icons are SVG from `components/art/` (`icons.jsx`, `Mascot`, `EmptyArt`,
-  `DeckCover`) — never emoji above `text-base`. Small celebratory copy
-  (toasts, level-up banners, session messages) may keep emoji; display-size
-  glyphs (badges, HUD stats, covers) must be SVG.
+- Icons are SVG from `components/art/` (`icons.jsx`, `Mascot`, `EmptyArt`) —
+  never emoji above `text-base`. Small celebratory copy (toasts, level-up
+  banners, session messages) may keep emoji; display-size glyphs (badges,
+  HUD stats) must be SVG.
 - Generative art is seeded (`art/seed.js`, never `Math.random` in render) so it
   is stable across renders, sessions, and devices.
+
+## Responsive (mobile-first)
+
+- Primary nav is a bottom tab bar below `sm:` (thumb reach); the top bar keeps
+  logo, level ring, theme toggle, and the account menu.
+- `Layout` reserves `pb-24` below `sm:` so the tab bar never covers content
+  or CTAs; footer stays above it in flow.
+- Touch target floor is 24px (e2e-enforced), aim 44px: `Button` base carries
+  `min-h-11`; tabs, chips, and icon buttons meet it individually.
+- Overlays stack by design: toasts accept a `className` override so sticky
+  chrome (e.g. the select-mode BatchBar) can lift them clear.
 
 ## Anti-list (closed — additions need team agreement)
 

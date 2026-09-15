@@ -57,7 +57,7 @@ function ActivityStrip({ activity }) {
           {total} review{total === 1 ? '' : 's'}
         </p>
       </div>
-      <div className="mt-3 grid grid-cols-7 gap-1.5">
+      <div className="mt-3 grid grid-cols-7 gap-1">
         {days.map((d) => (
           <div key={d.key} className="flex flex-col items-center gap-1">
             <span
@@ -120,20 +120,20 @@ function GoalSection({ stats, setGoal }) {
           )}
         </div>
         <div className="mt-2 flex flex-wrap gap-1.5">
-          {GOAL_TARGETS.map((t) => (
-            <button
-              key={t}
-              disabled={setGoal.isPending}
-              onClick={() => setGoal.mutate(t)}
-              className={`rounded-md border px-2 py-0.5 text-xs font-medium transition-colors ${
-                target === t
-                  ? 'border-accent bg-accent text-primary'
-                  : 'border-slate-200 text-slate-500 hover:border-slate-300 dark:border-white/15 dark:text-cream-300/80 dark:hover:border-white/30'
-              }`}
-            >
-              {t}
-            </button>
-          ))}
+                {GOAL_TARGETS.map((t) => (
+                  <button
+                    key={t}
+                    disabled={setGoal.isPending}
+                    onClick={() => setGoal.mutate(t)}
+                    className={`relative rounded-md border px-3 py-0.5 text-xs font-medium transition-colors before:absolute before:inset-x-0 before:-inset-y-2.5 before:content-[''] ${
+                      target === t
+                        ? 'border-accent bg-accent text-primary'
+                        : 'border-slate-200 text-slate-500 hover:border-slate-300 dark:border-white/15 dark:text-cream-300/80 dark:hover:border-white/30'
+                    }`}
+                  >
+                    {t}
+                  </button>
+                ))}
         </div>
       </div>
     </div>

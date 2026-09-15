@@ -1,8 +1,11 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { usePrefetchDeck, useDecks, useGamification, useProgressSummary } from '../api/queries'
+import { filterDecks } from '../utils/deckFilter'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import EmptyState from '../components/ui/EmptyState'
+import Input from '../components/ui/Input'
 import DeckTile from '../components/DeckTile'
 import EmptyArt from '../components/art/EmptyArt'
 import { FlameIcon, StarIcon } from '../components/art/icons'
@@ -73,6 +76,7 @@ export default function Home() {
   // Decorative: never block or break the page on failure
   const { data: stats } = useGamification()
   const { data: summary } = useProgressSummary()
+  const [filter, setFilter] = useState('')
 
   if (isLoading) {
     return (
@@ -114,12 +118,13 @@ export default function Home() {
   const sorted = [...decks].sort((a, b) => (a.group ?? Infinity) - (b.group ?? Infinity))
   const firstDeck = sorted.find((d) => d.group === 1) ?? sorted[0]
   const started = totalProgress > 0
+  const visible = filterDecks(sorted, filter)
 
   return (
     <div className="animate-page -m-4 sm:-m-6">
-      <div className="bg-gradient-to-br from-primary via-primary to-night-800 px-4 pt-6 pb-28 sm:px-6 dark:border-b dark:border-white/10 dark:from-night-900 dark:via-night-900 dark:to-night-950">
+      <div className="bg-gradient-to-br from-primary via-primary to-night-800 px-4 pt-6 pb-20 sm:px-6 sm:pb-28 dark:border-b dark:border-white/10 dark:from-night-900 dark:via-night-900 dark:to-night-950">
         <p className="font-display text-xs font-bold tracking-widest text-accent uppercase">VocabVault</p>
-        <h1 className="mt-1 font-display text-2xl font-bold text-white sm:text-3xl dark:text-cream-100">Master your words.</h1>
+        <h1 className="mt-1 font-display text-display-lg font-bold text-white dark:text-cream-100">Master your words.</h1>
         <p className="mt-1 max-w-md text-sm text-white/70 dark:text-cream-300/80">
           GRE words on a schedule that adapts to you — flip cards, quiz yourself, and watch the streak grow.
         </p>
@@ -146,18 +151,48 @@ export default function Home() {
           )}
         </div>
       </div>
-      <div className="-mt-24 bg-gold/40 px-4 pt-12 pb-10 sm:px-6 dark:bg-night-950">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {sorted.map((deck, i) => (
-            <div
-              key={deck._id}
-              className="animate-fade-up"
-              style={{ animationDelay: `${Math.min(i, 8) * 60}ms` }}
-            >
-              <DeckCard deck={deck} />
+      <div className="-mt-24 bg-gold/40 px-4 pt-8 pb-10 sm:px-6 sm:pt-12 dark:bg-night-950">
+        {sorted.length > 6 && (
+          <div className="mx-auto mb-4 max-w-md">
+            <Input
+              type="search"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              placeholder="Find a deck — try 12…"
+              aria-label="Filter decks"
+            />
+          </div>
+        )}
+        {visible.length === 0 ? (
+          <EmptyState
+            title="No decks match"
+            message={`Nothing matches “${filter.trim()}”.`}
+            action={
+              <Button variant="secondary" onClick={() => setFilter('')}>
+                Clear search
+              </Button>
+            }
+          />
+        ) : (
+          <>
+            {filter.trim() && (
+              <p className="mx-auto mb-3 max-w-md text-center text-xs text-slate-500 dark:text-cream-300/70">
+                {visible.length} of {sorted.length} shown
+              </p>
+            )}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {visible.map((deck, i) => (
+                <div
+                  key={deck._id}
+                  className="animate-fade-up"
+                  style={{ animationDelay: `${Math.min(i, 8) * 60}ms` }}
+                >
+                  <DeckCard deck={deck} />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </>
+        )}
       </div>
     </div>
   )

@@ -269,7 +269,7 @@ function ListCard({ list, open, onToggle, notify }) {
             {(detail.data?.words || []).map((w) => (
               <li key={w._id} className="flex items-center gap-2 text-sm">
                 <span className="font-semibold text-primary dark:text-cream-100">{w.word}</span>
-                <span className="truncate text-slate-500 dark:text-cream-300/80">{w.definition}</span>
+                <span className="text-slate-500 dark:text-cream-300/80">{w.definition}</span>
                 <button
                   type="button"
                   aria-label={`Remove ${w.word} from ${list.title}`}
@@ -628,7 +628,12 @@ export default function Bookmarks() {
       </div>
 
       {toast && (
-        <Toast variant={toast.variant} message={toast.message} onDismiss={() => setToast(null)} />
+        <Toast
+          variant={toast.variant}
+          message={toast.message}
+          onDismiss={() => setToast(null)}
+          className={selectMode ? 'bottom-28 sm:bottom-24' : ''}
+        />
       )}
     </div>
   )

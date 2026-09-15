@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 // Ease-out curve for count-up numbers: fast start, gentle landing.
 export function easeOutCubic(t) {
@@ -20,21 +20,28 @@ export function useCountUp(target, duration = 900) {
   const [value, setValue] = useState(() =>
     prefersReducedMotion() ? target : 0
   )
+  const shown = useRef(value)
 
   useEffect(() => {
     if (prefersReducedMotion() || typeof requestAnimationFrame !== 'function') {
+      shown.current = target
       setValue(target)
       return undefined
     }
+    const from = shown.current
+    if (from === target) return undefined
     let frame = 0
     const start = performance.now()
     const tick = (now) => {
       const t = (now - start) / duration
       if (t >= 1) {
+        shown.current = target
         setValue(target)
         return
       }
-      setValue(Math.round(target * easeOutCubic(t)))
+      const next = Math.round(from + (target - from) * easeOutCubic(t))
+      shown.current = next
+      setValue(next)
       frame = requestAnimationFrame(tick)
     }
     frame = requestAnimationFrame(tick)

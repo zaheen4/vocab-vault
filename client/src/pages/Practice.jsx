@@ -232,7 +232,7 @@ export default function Practice({ active = true }) {
     return (
       <div className="animate-page mx-auto max-w-2xl space-y-6 py-6 text-center">
         <Confetti active={confetti} pieces={70} />
-        <h1 className="font-display text-3xl font-bold text-primary dark:text-cream-100">
+        <h1 className="font-display text-display-xl font-bold text-primary dark:text-cream-100">
           {finalMessage || 'Session complete!'}
         </h1>
         {firstName && (
@@ -315,7 +315,7 @@ export default function Practice({ active = true }) {
 
       {/* Study controls sit outside the flip button: no nested interactives.
           Speaker stays silent in reverse mode until the word is revealed. */}
-      <div className="flex justify-end gap-2">
+      <div className="flex flex-wrap justify-end gap-2">
         {ttsAvailable !== null && (
           <span
             title={ttsAvailable ? undefined : TTS_UNAVAILABLE_HINT}
@@ -367,7 +367,7 @@ export default function Practice({ active = true }) {
       />
 
       {flipped && !feedback && (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="sticky bottom-24 z-30 grid grid-cols-2 gap-3">
           <Button variant="danger" onClick={() => answer(false)} fullWidth disabled={submitting} chunky>
             Not yet
           </Button>
