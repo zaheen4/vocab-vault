@@ -32,7 +32,7 @@ export default function Flashcard({ word, flipped, onFlip, shake, reversed }) {
         {word.word}
         {word.partOfSpeech && ` · ${word.partOfSpeech}`}
       </p>
-      <p className="mt-2 text-lg leading-relaxed font-semibold text-primary dark:text-cream-100">{word.definition}</p>
+      <p className="mt-2 text-lg leading-relaxed font-medium text-primary dark:text-cream-100">{word.definition}</p>
       {word.example && (
         <p className="mt-1 text-sm text-slate-500 italic dark:text-cream-300/80">“{word.example}”</p>
       )}
