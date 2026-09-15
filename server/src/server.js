@@ -26,8 +26,9 @@ if (!process.env.JWT_SECRET) {
   console.warn('[server] JWT_SECRET not set — auth endpoints will fail')
 }
 
+const DEPLOY_SHA = (process.env.RENDER_GIT_COMMIT || process.env.SOURCE_VERSION || 'dev').slice(0, 7)
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', uptime: process.uptime(), db: dbReady() })
+  res.json({ status: 'ok', uptime: process.uptime(), db: dbReady(), deploy: DEPLOY_SHA })
 })
 
 app.use('/api/auth', authRoutes)
