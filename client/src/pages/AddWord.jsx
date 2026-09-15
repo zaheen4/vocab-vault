@@ -2,11 +2,11 @@ import { useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import Button from '../components/ui/Button'
-
-const inputClass =
-  'w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-accent focus:outline-none'
+import Input from '../components/ui/Input'
 
 const DIFFICULTIES = ['basic', 'intermediate', 'advanced']
+
+const labelClass = 'mb-1 block text-xs font-semibold text-slate-500 dark:text-cream-300/80'
 
 export default function AddWord() {
   const [searchParams] = useSearchParams()
@@ -48,70 +48,57 @@ export default function AddWord() {
   return (
     <div className="animate-page mx-auto max-w-xl space-y-4">
       <div>
-        <h1 className="font-display text-2xl font-bold text-primary">Add your own word</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="font-display text-2xl font-bold text-primary dark:text-cream-100">Add your own word</h1>
+        <p className="mt-1 text-sm text-slate-500 dark:text-cream-300/80">
           It lands in your personal My Words deck and joins the regular review rotation.
         </p>
       </div>
 
-      <form onSubmit={submit} className="space-y-3 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-        <div>
-          <label htmlFor="word" className="mb-1 block text-xs font-semibold text-slate-500">
-            Word
-          </label>
-          <input
-            id="word"
-            value={word}
-            onChange={(e) => setWord(e.target.value)}
-            placeholder="e.g. petrichor"
-            autoFocus
-            className={inputClass}
-          />
-        </div>
-        <div>
-          <label htmlFor="definition" className="mb-1 block text-xs font-semibold text-slate-500">
-            Definition
-          </label>
-          <textarea
-            id="definition"
-            value={definition}
-            onChange={(e) => setDefinition(e.target.value)}
-            placeholder="What does it mean?"
-            rows={2}
-            className={inputClass}
-          />
-        </div>
-        <div>
-          <label htmlFor="example" className="mb-1 block text-xs font-semibold text-slate-500">
-            Example <span className="font-normal">(optional)</span>
-          </label>
-          <textarea
-            id="example"
-            value={example}
-            onChange={(e) => setExample(e.target.value)}
-            placeholder="Use it in a sentence"
-            rows={2}
-            className={inputClass}
-          />
-        </div>
+      <form onSubmit={submit} className="space-y-3 rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-night-900 dark:shadow-none">
+        <Input
+          id="word"
+          label="Word"
+          value={word}
+          onChange={(e) => setWord(e.target.value)}
+          placeholder="e.g. petrichor"
+          autoFocus
+        />
+        <Input
+          id="definition"
+          as="textarea"
+          label="Definition"
+          value={definition}
+          onChange={(e) => setDefinition(e.target.value)}
+          placeholder="What does it mean?"
+          rows={2}
+        />
+        <Input
+          id="example"
+          as="textarea"
+          label={<>Example <span className="font-normal">(optional)</span></>}
+          value={example}
+          onChange={(e) => setExample(e.target.value)}
+          placeholder="Use it in a sentence"
+          rows={2}
+        />
         <div className="grid grid-cols-2 gap-3">
+          <Input
+            id="pos"
+            label={<>Part of speech <span className="font-normal">(optional)</span></>}
+            value={partOfSpeech}
+            onChange={(e) => setPartOfSpeech(e.target.value)}
+            placeholder="noun"
+          />
           <div>
-            <label htmlFor="pos" className="mb-1 block text-xs font-semibold text-slate-500">
-              Part of speech <span className="font-normal">(optional)</span>
-            </label>
-            <input
-              id="pos"
-              value={partOfSpeech}
-              onChange={(e) => setPartOfSpeech(e.target.value)}
-              placeholder="noun"
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label htmlFor="difficulty" className="mb-1 block text-xs font-semibold text-slate-500">
+            <label htmlFor="difficulty" className={labelClass}>
               Difficulty
             </label>
-            <select id="difficulty" value={difficulty} onChange={(e) => setDifficulty(e.target.value)} className={inputClass}>
+            <select
+              id="difficulty"
+              value={difficulty}
+              onChange={(e) => setDifficulty(e.target.value)}
+              className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 transition-colors focus:border-accent focus:ring-2 focus:ring-accent/40 focus:outline-none dark:border-white/15 dark:bg-night-800 dark:text-cream-100 dark:focus:border-accent"
+            >
               {DIFFICULTIES.map((d) => (
                 <option key={d} value={d}>
                   {d}
@@ -122,7 +109,7 @@ export default function AddWord() {
         </div>
 
         {conflict && (
-          <p className="rounded-md bg-gold/40 px-3 py-2 text-sm text-primary">
+          <p className="rounded-md bg-gold/40 px-3 py-2 text-sm text-primary dark:bg-accent/15 dark:text-accent">
             “{conflict.word}” already exists.{' '}
             <Link to={`/search?q=${encodeURIComponent(conflict.word)}`} className="font-semibold underline">
               Find it in search
@@ -131,7 +118,7 @@ export default function AddWord() {
           </p>
         )}
         {error && (
-          <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
+          <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-950/50 dark:text-red-300">{error}</p>
         )}
 
         <Button type="submit" fullWidth disabled={!word.trim() || !definition.trim() || saving}>

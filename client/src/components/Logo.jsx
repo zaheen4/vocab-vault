@@ -8,7 +8,7 @@ export default function Logo({ size = 28 }) {
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
     >
-      <rect width="48" height="48" rx="10" fill="var(--color-primary)" />
+      <rect width="48" height="48" rx="10" className="fill-primary dark:fill-cream-100" />
       <path
         d="M12 34 L24 14 L36 34"
         stroke="var(--color-accent)"

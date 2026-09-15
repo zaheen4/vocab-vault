@@ -3,41 +3,41 @@
 export default function Flashcard({ word, flipped, onFlip, shake, reversed }) {
   const prompt = reversed ? (
     <>
-      <p className="text-lg font-semibold text-primary">{word.definition}</p>
+      <p className="text-lg font-semibold text-primary dark:text-cream-100">{word.definition}</p>
       {word.example && (
-        <p className="mt-1 text-sm text-slate-500 italic">“{word.example}”</p>
+        <p className="mt-1 text-sm text-slate-500 italic dark:text-cream-300/80">“{word.example}”</p>
       )}
       {word.synonyms?.length > 0 && (
-        <p className="mt-1 text-sm text-slate-400">Synonyms: {word.synonyms.join(', ')}</p>
+        <p className="mt-1 text-sm text-slate-400 dark:text-cream-300/70">Synonyms: {word.synonyms.join(', ')}</p>
       )}
     </>
   ) : (
     <>
-      <h2 className="text-3xl font-bold text-primary">{word.word}</h2>
+      <h2 className="text-3xl font-bold break-words text-primary dark:text-cream-100">{word.word}</h2>
       {word.partOfSpeech && (
-        <p className="mt-1 text-sm text-slate-400 italic">{word.partOfSpeech}</p>
+        <p className="mt-1 text-sm text-slate-400 italic dark:text-cream-300/70">{word.partOfSpeech}</p>
       )}
     </>
   )
   const reveal = reversed ? (
     <>
-      <h2 className="text-3xl font-bold text-primary">{word.word}</h2>
+      <h2 className="text-3xl font-bold break-words text-primary dark:text-cream-100">{word.word}</h2>
       {word.partOfSpeech && (
-        <p className="mt-1 text-sm text-slate-400 italic">{word.partOfSpeech}</p>
+        <p className="mt-1 text-sm text-slate-400 italic dark:text-cream-300/70">{word.partOfSpeech}</p>
       )}
     </>
   ) : (
     <>
-      <p className="text-xs font-medium tracking-wide text-slate-400 uppercase">
+      <p className="text-xs font-medium tracking-wide text-slate-400 uppercase dark:text-cream-300/70">
         {word.word}
         {word.partOfSpeech && ` · ${word.partOfSpeech}`}
       </p>
-      <p className="mt-2 text-lg font-semibold text-primary">{word.definition}</p>
+      <p className="mt-2 text-lg leading-relaxed font-semibold text-primary dark:text-cream-100">{word.definition}</p>
       {word.example && (
-        <p className="mt-1 text-sm text-slate-500 italic">“{word.example}”</p>
+        <p className="mt-1 text-sm text-slate-500 italic dark:text-cream-300/80">“{word.example}”</p>
       )}
       {word.synonyms?.length > 0 && (
-        <p className="mt-1 text-sm text-slate-400">Synonyms: {word.synonyms.join(', ')}</p>
+        <p className="mt-1 text-sm text-slate-400 dark:text-cream-300/70">Synonyms: {word.synonyms.join(', ')}</p>
       )}
     </>
   )
@@ -58,11 +58,11 @@ export default function Flashcard({ word, flipped, onFlip, shake, reversed }) {
         aria-label={label}
       >
         <span className={`flip-inner relative flex min-h-64 w-full ${flipped ? 'flipped' : ''}`}>
-          <span className="flip-face absolute inset-0 flex flex-col items-center justify-center rounded-xl border-2 border-slate-200 bg-white p-8 text-center shadow-sm">
+          <span className="flip-face absolute inset-0 flex flex-col items-center justify-center rounded-xl border-2 border-slate-200 bg-white p-8 text-center shadow-sm dark:border-white/10 dark:bg-night-900 dark:shadow-none">
             {prompt}
-            <p className="pt-4 text-xs tracking-wide text-slate-300 uppercase">Tap to reveal</p>
+            <p className="pt-4 text-xs tracking-wide text-slate-300 uppercase dark:text-cream-300/50">Tap to reveal</p>
           </span>
-          <span className="flip-back flip-face absolute inset-0 flex flex-col items-center justify-center rounded-xl border-2 border-slate-200 bg-white p-8 text-center shadow-sm">
+          <span className="flip-back flip-face absolute inset-0 flex flex-col items-center justify-center rounded-xl border-2 border-slate-200 bg-white p-8 text-center shadow-sm dark:border-white/10 dark:bg-night-900 dark:shadow-none">
             {reveal}
           </span>
         </span>

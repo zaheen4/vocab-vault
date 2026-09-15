@@ -1,12 +1,29 @@
 @import "tailwindcss";
 
+/* Class-driven dark mode: ThemeContext toggles .dark on <html>. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-primary: #28324e;
   --color-accent: #ee964b;
   --color-gold: #faf0ca;
   --color-accent-deep: #b25f16;
+  /* Dark surfaces + ink. Light mode never references these; every dark:
+     utility below pairs with a light default so nothing renders unstyled. */
+  --color-night-950: #0f1430;
+  --color-night-900: #171d3a;
+  --color-night-800: #232b52;
+  --color-cream-100: #f7f1de;
+  --color-cream-300: #cfc6ab;
   --font-display: "Baloo 2", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
+}
+
+:root {
+  color-scheme: light;
+}
+.dark {
+  color-scheme: dark;
 }
 
 /* 3D card flip */

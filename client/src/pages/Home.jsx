@@ -14,9 +14,9 @@ function DeckCard({ deck }) {
       onMouseEnter={warm}
       onFocus={warm}
     >
-      <h3 className="font-display text-lg font-bold text-primary">{deck.title}</h3>
+      <h3 className="font-display text-lg font-bold text-primary dark:text-cream-100">{deck.title}</h3>
       <div className="mt-auto pt-4">
-        <p className="border-t border-slate-100 pt-3 text-xs font-semibold text-slate-500">
+        <p className="border-t border-slate-100 pt-3 text-xs font-semibold text-slate-500 dark:border-white/10 dark:text-cream-300/80">
           {count} words
         </p>
       </div>
@@ -40,7 +40,7 @@ export default function Home() {
     return (
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {[...Array(6)].map((_, i) => (
-          <div key={i} className="h-32 animate-pulse rounded-lg bg-slate-200" />
+          <div key={i} className="h-32 animate-pulse rounded-lg bg-slate-200 dark:bg-night-800" />
         ))}
       </div>
     )
@@ -48,7 +48,7 @@ export default function Home() {
 
   if (isError) {
     return (
-      <div className="rounded-lg bg-red-50 p-4 text-center text-sm text-red-600">
+      <div className="rounded-lg bg-red-50 p-4 text-center text-sm text-red-600 dark:bg-red-950/50 dark:text-red-300">
         Failed to load decks.{' '}
         <button className="underline" onClick={() => window.location.reload()}>
           Retry
@@ -77,9 +77,9 @@ export default function Home() {
 
   return (
     <div className="animate-page -m-4 sm:-m-6">
-      <div className="bg-primary px-4 pt-6 pb-28 sm:px-6">
+      <div className="bg-primary px-4 pt-6 pb-28 sm:px-6 dark:border-b dark:border-white/10 dark:bg-night-900">
         <p className="font-display text-xs font-bold tracking-widest text-accent uppercase">VocabVault</p>
-        <h1 className="mt-1 font-display text-2xl font-bold text-white sm:text-3xl">Master your words.</h1>
+        <h1 className="mt-1 font-display text-2xl font-bold text-white sm:text-3xl dark:text-cream-100">Master your words.</h1>
         <div className="mt-3 flex min-h-5 items-center gap-6 text-sm">
           {stats && (
             <>
@@ -92,7 +92,7 @@ export default function Home() {
           )}
         </div>
       </div>
-      <div className="-mt-24 bg-gold/40 px-4 pt-12 pb-10 sm:px-6">
+      <div className="-mt-24 bg-gold/40 px-4 pt-12 pb-10 sm:px-6 dark:bg-night-950">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {sorted.map((deck, i) => (
             <div
@@ -109,13 +109,13 @@ export default function Home() {
         {totalProgress === 0 && firstDeck && (
           <Link
             to={`/decks/${firstDeck._id}`}
-            className="mt-6 flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:shadow active:scale-99"
+            className="mt-6 flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:shadow active:scale-99 dark:border-white/10 dark:bg-night-900 dark:shadow-none"
           >
             <div>
-              <p className="font-display text-sm font-semibold text-primary">
+              <p className="font-display text-sm font-semibold text-primary dark:text-cream-100">
                 Start with {firstDeck.title}
               </p>
-              <p className="mt-0.5 text-xs text-slate-500">
+              <p className="mt-0.5 text-xs text-slate-500 dark:text-cream-300/80">
                 Flip through your first cards — reviews get scheduled automatically.
               </p>
             </div>

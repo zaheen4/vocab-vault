@@ -16,13 +16,11 @@ import {
 } from '../api/queries'
 import Button from '../components/ui/Button'
 import EmptyState from '../components/ui/EmptyState'
+import Input from '../components/ui/Input'
 import SpeakerIcon from '../components/ui/SpeakerIcon'
 import Toast from '../components/ui/Toast'
 import WordHistory from '../components/WordHistory'
 import { speakWord, useTtsAvailable } from '../utils/speak'
-
-const inputClass =
-  'w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-accent focus:outline-none'
 
 const TABS = [
   { id: 'all', label: 'All' },
@@ -70,7 +68,7 @@ function WordRow({ entry, lists, quickList, onQuickListUsed, notify, selectMode,
   }
 
   return (
-    <li className="rounded-lg border border-slate-200 bg-white shadow-sm">
+    <li className="rounded-lg border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-night-900 dark:shadow-none">
       <div className="flex items-center gap-2 p-3">
         {selectMode && (
           <input
@@ -88,8 +86,8 @@ function WordRow({ entry, lists, quickList, onQuickListUsed, notify, selectMode,
           className="flex min-h-9 flex-1 items-center gap-2 text-left"
         >
           <MasteryDot status={entry.status} />
-          <span className="font-display font-semibold text-primary">{word.word}</span>
-          <span className="ml-auto shrink-0 text-xs font-bold text-slate-300">{expanded ? '▾' : '▸'}</span>
+          <span className="font-display font-semibold text-primary dark:text-cream-100">{word.word}</span>
+          <span className="ml-auto shrink-0 text-xs font-bold text-slate-300 dark:text-cream-300/50">{expanded ? '▾' : '▸'}</span>
         </button>
         <Button
           variant="secondary"
@@ -107,17 +105,17 @@ function WordRow({ entry, lists, quickList, onQuickListUsed, notify, selectMode,
       </div>
 
       {expanded && (
-        <div className="space-y-2 border-t border-slate-100 px-3 py-3">
+        <div className="space-y-2 border-t border-slate-100 px-3 py-3 dark:border-white/10">
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="font-medium text-slate-500">{masteryLabel(entry)}</span>
-            {word.partOfSpeech && <span className="text-slate-400 italic">{word.partOfSpeech}</span>}
+            <span className="font-medium text-slate-500 dark:text-cream-300/80">{masteryLabel(entry)}</span>
+            {word.partOfSpeech && <span className="text-slate-400 italic dark:text-cream-300/70">{word.partOfSpeech}</span>}
             {word.group != null && (
-              <span className="rounded-full bg-slate-100 px-2 py-0.5 font-medium text-slate-600">
+              <span className="rounded-full bg-slate-100 px-2 py-0.5 font-medium text-slate-600 dark:bg-night-800 dark:text-cream-300">
                 Group {word.group}
               </span>
             )}
             {word.source === 'custom' && (
-              <span className="rounded-full bg-gold/50 px-2 py-0.5 font-medium text-primary">Yours</span>
+              <span className="rounded-full bg-gold/50 px-2 py-0.5 font-medium text-primary dark:bg-accent/15 dark:text-accent">Yours</span>
             )}
             {ttsAvailable && (
               <Button
@@ -133,23 +131,23 @@ function WordRow({ entry, lists, quickList, onQuickListUsed, notify, selectMode,
               </Button>
             )}
           </div>
-          <p className="text-sm text-slate-600">{word.definition}</p>
-          {word.example && <p className="text-sm text-slate-400 italic">“{word.example}”</p>}
+          <p className="text-sm text-slate-600 dark:text-cream-300">{word.definition}</p>
+          {word.example && <p className="text-sm text-slate-400 italic dark:text-cream-300/70">“{word.example}”</p>}
           <div>
-            <p className="text-xs font-bold text-slate-500">History</p>
+            <p className="text-xs font-bold text-slate-500 dark:text-cream-300/80">History</p>
             <div className="mt-1">
               <WordHistory wordId={word._id} active={expanded} />
             </div>
           </div>
           {quickList && (
-            <button
-              type="button"
+            <Button
+              variant="secondary"
               disabled={addToList.isPending}
               onClick={() => addTo(quickList._id)}
-              className="min-h-9 rounded-md border border-accent bg-gold/40 px-3 py-1.5 text-xs font-bold text-primary transition-colors hover:bg-gold disabled:opacity-50"
+              className="min-h-9 border-accent bg-gold/40 text-xs text-primary hover:bg-gold dark:bg-accent/15 dark:text-accent dark:hover:bg-accent/25"
             >
               + {quickList.title}
-            </button>
+            </Button>
           )}
           {lists.length > 1 && (
             <div className="flex items-center gap-2">
@@ -157,7 +155,7 @@ function WordRow({ entry, lists, quickList, onQuickListUsed, notify, selectMode,
                 aria-label={`Add ${word.word} to a different list`}
                 value={listId}
                 onChange={(e) => setListId(e.target.value)}
-                className="min-h-9 flex-1 rounded-md border border-slate-300 px-2 py-1.5 text-sm focus:border-accent focus:outline-none"
+                className="min-h-9 flex-1 rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900 focus:border-accent focus:ring-2 focus:ring-accent/40 focus:outline-none dark:border-white/15 dark:bg-night-800 dark:text-cream-100"
               >
                 <option value="">Another list…</option>
                 {lists
@@ -209,31 +207,32 @@ function ListCard({ list, open, onToggle, notify }) {
   }
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white shadow-sm">
+    <div className="rounded-lg border border-slate-200 bg-white shadow-sm dark:border-white/10 dark:bg-night-900 dark:shadow-none">
       <button type="button" onClick={onToggle} aria-expanded={open} className="flex min-h-14 w-full items-center gap-3 p-3 text-left">
-        <span aria-hidden className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gold font-display text-lg font-bold text-primary">
+        <span aria-hidden className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gold font-display text-lg font-bold text-primary dark:bg-accent/20 dark:text-accent">
           {(list.title || '?').trim().charAt(0).toUpperCase()}
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block truncate font-display font-semibold text-primary">{list.title}</span>
-          <span className="block text-xs font-medium text-slate-400">
+          <span className="block truncate font-display font-semibold text-primary dark:text-cream-100">{list.title}</span>
+          <span className="block text-xs font-medium text-slate-400 dark:text-cream-300/70">
             {list.wordCount} word{list.wordCount === 1 ? '' : 's'}
           </span>
         </span>
-        <span className="shrink-0 text-xs font-bold text-slate-300">{open ? '▾' : '▸'}</span>
+        <span className="shrink-0 text-xs font-bold text-slate-300 dark:text-cream-300/50">{open ? '▾' : '▸'}</span>
       </button>
 
       {open && (
-        <div className="space-y-3 border-t border-slate-100 px-3 py-3">
+        <div className="space-y-3 border-t border-slate-100 px-3 py-3 dark:border-white/10">
           <div className="flex items-center gap-2">
             {editing ? (
               <>
-                <input
+                <Input
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   aria-label="List title"
                   maxLength={60}
-                  className="min-h-9 flex-1 rounded-md border border-slate-300 px-2 py-1.5 text-sm focus:border-accent focus:outline-none"
+                  className="min-w-0 flex-1"
+                  inputClassName="min-h-9 px-2 py-1.5"
                 />
                 <Button variant="secondary" disabled={rename.isPending} onClick={saveTitle}>
                   Save
@@ -264,12 +263,12 @@ function ListCard({ list, open, onToggle, notify }) {
           <ul className="space-y-1.5">
             {(detail.data?.words || []).map((w) => (
               <li key={w._id} className="flex items-center gap-2 text-sm">
-                <span className="font-semibold text-primary">{w.word}</span>
-                <span className="truncate text-slate-500">{w.definition}</span>
+                <span className="font-semibold text-primary dark:text-cream-100">{w.word}</span>
+                <span className="truncate text-slate-500 dark:text-cream-300/80">{w.definition}</span>
                 <button
                   type="button"
                   aria-label={`Remove ${w.word} from ${list.title}`}
-                  className="ml-auto min-h-9 min-w-9 shrink-0 rounded-md px-2 py-1 text-xs font-medium text-slate-400 hover:text-red-600"
+                  className="ml-auto min-h-9 min-w-9 shrink-0 rounded-md px-2 py-1 text-xs font-medium text-slate-400 hover:text-red-600 dark:text-cream-300/60 dark:hover:text-red-300"
                   onClick={() =>
                     removeWord.mutate(
                       { id: list._id, wordId: w._id },
@@ -281,9 +280,9 @@ function ListCard({ list, open, onToggle, notify }) {
                 </button>
               </li>
             ))}
-            {detail.isLoading && <li className="text-sm text-slate-400">Loading words…</li>}
+            {detail.isLoading && <li className="text-sm text-slate-400 dark:text-cream-300/70">Loading words…</li>}
             {detail.data && detail.data.words.length === 0 && (
-              <li className="text-sm text-slate-400">No words yet — add some from your saved words above.</li>
+              <li className="text-sm text-slate-400 dark:text-cream-300/70">No words yet — add some from your saved words above.</li>
             )}
           </ul>
         </div>
@@ -295,8 +294,8 @@ function ListCard({ list, open, onToggle, notify }) {
 function BatchBar({ count, lists, onAdd, onUnstar, onCancel, busy }) {
   const [listId, setListId] = useState('')
   return (
-    <div className="sticky bottom-4 rounded-xl border-2 border-accent bg-white p-3 shadow-lg">
-      <p className="text-xs font-bold text-primary">
+    <div className="sticky bottom-4 rounded-xl border-2 border-accent bg-white p-3 shadow-lg dark:bg-night-900 dark:shadow-none">
+      <p className="text-xs font-bold text-primary dark:text-cream-100">
         {count} selected
       </p>
       <div className="mt-2 flex items-center gap-2">
@@ -304,7 +303,7 @@ function BatchBar({ count, lists, onAdd, onUnstar, onCancel, busy }) {
           aria-label="Choose a list for selected words"
           value={listId}
           onChange={(e) => setListId(e.target.value)}
-          className="min-h-9 flex-1 rounded-md border border-slate-300 px-2 py-1.5 text-sm focus:border-accent focus:outline-none"
+          className="min-h-9 flex-1 rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900 focus:border-accent focus:ring-2 focus:ring-accent/40 focus:outline-none dark:border-white/15 dark:bg-night-800 dark:text-cream-100"
         >
           <option value="">Add to list…</option>
           {lists.map((l) => (
@@ -420,9 +419,9 @@ export default function Bookmarks() {
   if (isLoading) {
     return (
       <div className="animate-page space-y-4">
-        <div className="h-8 w-48 animate-pulse rounded bg-slate-200" />
+        <div className="h-8 w-48 animate-pulse rounded bg-slate-200 dark:bg-night-800" />
         {[...Array(3)].map((_, i) => (
-          <div key={i} className="h-24 animate-pulse rounded-lg bg-slate-200" />
+          <div key={i} className="h-24 animate-pulse rounded-lg bg-slate-200 dark:bg-night-800" />
         ))}
       </div>
     )
@@ -430,7 +429,7 @@ export default function Bookmarks() {
 
   if (isError) {
     return (
-      <div className="rounded-lg bg-red-50 p-4 text-center text-sm text-red-600">
+      <div className="rounded-lg bg-red-50 p-4 text-center text-sm text-red-600 dark:bg-red-950/50 dark:text-red-300">
         Failed to load saved words.{' '}
         <button className="underline" onClick={() => window.location.reload()}>
           Retry
@@ -442,51 +441,44 @@ export default function Bookmarks() {
   return (
     <div className="animate-page space-y-6">
       <div>
-        <h1 className="font-display text-2xl font-bold text-primary">Saved words</h1>
-        <p className="mt-1 text-sm text-slate-500">
+        <h1 className="font-display text-2xl font-bold text-primary dark:text-cream-100">Saved words</h1>
+        <p className="mt-1 text-sm text-slate-500 dark:text-cream-300/80">
           {bookmarks.length === 0
             ? 'Star words from search to build your review shelf.'
             : `${counts.learning} still learning · ${counts.mastered} mastered.`}
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           {bookmarks.length > 0 && (
-            <Link
-              to="/bookmarks/practice"
-              className="rounded-md border border-accent bg-accent px-3 py-1.5 text-xs font-bold text-primary transition-transform active:scale-97"
-            >
-              Review saved →
+            <Link to="/bookmarks/practice">
+              <Button className="border-accent px-3 py-1.5 text-xs">
+                Review saved →
+              </Button>
             </Link>
           )}
-          <Link
-            to="/words/new"
-            className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-primary transition-colors hover:border-accent"
-          >
-            + Add word
+          <Link to="/words/new">
+            <Button variant="secondary" className="px-3 py-1.5 text-xs">
+              + Add word
+            </Button>
           </Link>
           {myDeck && (
-            <Link
-              to={`/decks/${myDeck._id}`}
-              className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-bold text-primary transition-colors hover:border-accent"
-            >
-              My Words deck →
+            <Link to={`/decks/${myDeck._id}`}>
+              <Button variant="secondary" className="px-3 py-1.5 text-xs">
+                My Words deck →
+              </Button>
             </Link>
           )}
           {bookmarks.length > 0 && (
-            <button
-              type="button"
+            <Button
+              variant="secondary"
               onClick={() => {
                 setSelectMode((m) => !m)
                 setSelected([])
               }}
               aria-pressed={selectMode}
-              className={`rounded-md border px-3 py-1.5 text-xs font-bold transition-colors ${
-                selectMode
-                  ? 'border-accent bg-accent text-primary'
-                  : 'border-slate-300 bg-white text-primary hover:border-accent'
-              }`}
+              className={`px-3 py-1.5 text-xs ${selectMode ? 'border-accent bg-accent text-primary' : ''}`}
             >
               {selectMode ? 'Cancel select' : 'Select'}
-            </button>
+            </Button>
           )}
         </div>
       </div>
@@ -504,7 +496,7 @@ export default function Bookmarks() {
       ) : (
         <>
           <div className="flex flex-wrap items-center gap-2">
-            <div role="tablist" aria-label="Filter by mastery" className="flex gap-1 rounded-lg bg-slate-100 p-1">
+            <div role="tablist" aria-label="Filter by mastery" className="flex gap-1 rounded-lg bg-slate-100 p-1 dark:bg-night-800">
               {TABS.map((t) => (
                 <button
                   key={t.id}
@@ -512,21 +504,25 @@ export default function Bookmarks() {
                   aria-selected={tab === t.id}
                   onClick={() => setTab(t.id)}
                   className={`min-h-9 rounded-md px-3 py-1.5 text-xs font-bold transition-colors ${
-                    tab === t.id ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-primary'
+                    tab === t.id
+                      ? 'bg-white text-primary shadow-sm dark:bg-night-900 dark:text-cream-100 dark:shadow-none'
+                      : 'text-slate-500 hover:text-primary dark:text-cream-300/70 dark:hover:text-cream-100'
                   }`}
                 >
                   {t.label} · {counts[t.id]}
                 </button>
               ))}
             </div>
-            <div className="flex gap-1 rounded-lg bg-slate-100 p-1">
+            <div className="flex gap-1 rounded-lg bg-slate-100 p-1 dark:bg-night-800">
               {SORTS.map((s) => (
                 <button
                   key={s.id}
                   onClick={() => setSort(s.id)}
                   aria-pressed={sort === s.id}
                   className={`min-h-9 rounded-md px-3 py-1.5 text-xs font-bold transition-colors ${
-                    sort === s.id ? 'bg-white text-primary shadow-sm' : 'text-slate-500 hover:text-primary'
+                    sort === s.id
+                      ? 'bg-white text-primary shadow-sm dark:bg-night-900 dark:text-cream-100 dark:shadow-none'
+                      : 'text-slate-500 hover:text-primary dark:text-cream-300/70 dark:hover:text-cream-100'
                   }`}
                 >
                   {s.label}
@@ -535,21 +531,20 @@ export default function Bookmarks() {
             </div>
           </div>
 
-          <input
+          <Input
             type="search"
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
             placeholder="Filter saved words…"
             aria-label="Filter saved words"
-            className={inputClass}
           />
           {q && (
-            <p className="-mt-4 text-xs text-slate-400">
+            <p className="-mt-4 text-xs text-slate-400 dark:text-cream-300/60">
               {visible.length} of {bookmarks.length} shown
             </p>
           )}
           {visible.length === 0 ? (
-            <p className="py-4 text-center text-sm text-slate-400">
+            <p className="py-4 text-center text-sm text-slate-400 dark:text-cream-300/70">
               {q ? `Nothing saved matches “${filter.trim()}”.` : 'Nothing in this tab yet.'}
             </p>
           ) : (
@@ -587,15 +582,15 @@ export default function Bookmarks() {
       )}
 
       <div>
-        <h2 className="font-display text-lg font-bold text-primary">My lists</h2>
+        <h2 className="font-display text-lg font-bold text-primary dark:text-cream-100">My lists</h2>
         <div className="mt-2 flex items-center gap-2">
-          <input
+          <Input
             value={newTitle}
             onChange={(e) => setNewTitle(e.target.value)}
             placeholder="New list title…"
             aria-label="New list title"
             maxLength={60}
-            className={inputClass}
+            className="min-w-0 flex-1"
           />
           <Button disabled={!newTitle.trim() || createList.isPending} onClick={create}>
             Create
@@ -612,7 +607,7 @@ export default function Bookmarks() {
             />
           ))}
           {lists.length === 0 && (
-            <p className="text-sm text-slate-400">No lists yet — group words for a test, a class, a trip.</p>
+            <p className="text-sm text-slate-400 dark:text-cream-300/70">No lists yet — group words for a test, a class, a trip.</p>
           )}
         </div>
       </div>

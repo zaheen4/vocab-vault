@@ -29,3 +29,23 @@ describe('no raw hex outside the theme', () => {
     expect(hits).toEqual([])
   })
 })
+
+describe('dark theme contract', () => {
+  const css = () => readFileSync(join(SRC, 'src/index.css'), 'utf8')
+
+  it('declares a class-driven dark variant', () => {
+    expect(css()).toContain('@custom-variant dark')
+  })
+
+  it('defines dark surface + ink tokens in @theme', () => {
+    for (const token of [
+      '--color-night-950',
+      '--color-night-900',
+      '--color-night-800',
+      '--color-cream-100',
+      '--color-cream-300',
+    ]) {
+      expect(css()).toContain(token)
+    }
+  })
+})
