@@ -17,7 +17,7 @@ export default function Layout() {
       <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-4 pb-24 sm:px-6 sm:py-6 sm:pb-6">
         <Outlet />
       </main>
-      <footer className="mx-auto w-full max-w-5xl px-4 pb-6">
+      <footer className="mx-auto w-full max-w-5xl px-4 pb-24 sm:pb-6">
         <div className="flex items-center justify-center gap-2 border-t border-slate-200 pt-4 text-xs text-slate-400 sm:gap-4 dark:border-white/10 dark:text-cream-300/60">
           <span className="font-display font-bold">VocabVault</span>
           <Link to="/privacy" className="inline-flex min-h-9 items-center px-1 hover:text-primary dark:hover:text-cream-100">

@@ -1,8 +1,11 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { usePrefetchDeck, useDecks, useGamification, useProgressSummary } from '../api/queries'
+import { filterDecks } from '../utils/deckFilter'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import EmptyState from '../components/ui/EmptyState'
+import Input from '../components/ui/Input'
 import DeckTile from '../components/DeckTile'
 import EmptyArt from '../components/art/EmptyArt'
 import { FlameIcon, StarIcon } from '../components/art/icons'
@@ -73,6 +76,7 @@ export default function Home() {
   // Decorative: never block or break the page on failure
   const { data: stats } = useGamification()
   const { data: summary } = useProgressSummary()
+  const [filter, setFilter] = useState('')
 
   if (isLoading) {
     return (
@@ -114,6 +118,7 @@ export default function Home() {
   const sorted = [...decks].sort((a, b) => (a.group ?? Infinity) - (b.group ?? Infinity))
   const firstDeck = sorted.find((d) => d.group === 1) ?? sorted[0]
   const started = totalProgress > 0
+  const visible = filterDecks(sorted, filter)
 
   return (
     <div className="animate-page -m-4 sm:-m-6">
@@ -147,17 +152,47 @@ export default function Home() {
         </div>
       </div>
       <div className="-mt-24 bg-gold/40 px-4 pt-8 pb-10 sm:px-6 sm:pt-12 dark:bg-night-950">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {sorted.map((deck, i) => (
-            <div
-              key={deck._id}
-              className="animate-fade-up"
-              style={{ animationDelay: `${Math.min(i, 8) * 60}ms` }}
-            >
-              <DeckCard deck={deck} />
+        {sorted.length > 6 && (
+          <div className="mx-auto mb-4 max-w-md">
+            <Input
+              type="search"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              placeholder="Find a deck — try 12…"
+              aria-label="Filter decks"
+            />
+          </div>
+        )}
+        {visible.length === 0 ? (
+          <EmptyState
+            title="No decks match"
+            message={`Nothing matches “${filter.trim()}”.`}
+            action={
+              <Button variant="secondary" onClick={() => setFilter('')}>
+                Clear search
+              </Button>
+            }
+          />
+        ) : (
+          <>
+            {filter.trim() && (
+              <p className="mx-auto mb-3 max-w-md text-center text-xs text-slate-500 dark:text-cream-300/70">
+                {visible.length} of {sorted.length} shown
+              </p>
+            )}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {visible.map((deck, i) => (
+                <div
+                  key={deck._id}
+                  className="animate-fade-up"
+                  style={{ animationDelay: `${Math.min(i, 8) * 60}ms` }}
+                >
+                  <DeckCard deck={deck} />
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </>
+        )}
       </div>
     </div>
   )
