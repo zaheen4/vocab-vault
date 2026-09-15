@@ -16,6 +16,7 @@ import {
 } from '../api/queries'
 import Button from '../components/ui/Button'
 import EmptyState from '../components/ui/EmptyState'
+import EmptyArt from '../components/art/EmptyArt'
 import Input from '../components/ui/Input'
 import SpeakerIcon from '../components/ui/SpeakerIcon'
 import Toast from '../components/ui/Toast'
@@ -485,6 +486,7 @@ export default function Bookmarks() {
 
       {bookmarks.length === 0 ? (
         <EmptyState
+        art={<EmptyArt variant="saved" />}
           title="No saved words yet"
           message="Tap the ☆ on any word in search and it will wait for you here."
           action={

@@ -2,6 +2,8 @@ import { Link } from 'react-router-dom'
 import { usePrefetchDeck, useDecks, useGamification, useProgressSummary } from '../api/queries'
 import Card from '../components/ui/Card'
 import EmptyState from '../components/ui/EmptyState'
+import DeckCover from '../components/art/DeckCover'
+import EmptyArt from '../components/art/EmptyArt'
 
 function DeckCard({ deck }) {
   const count = deck.wordCount ?? (deck.wordIds ? deck.wordIds.length : 0)
@@ -10,10 +12,13 @@ function DeckCard({ deck }) {
   return (
     <Card
       hoverable
-      className="relative flex h-full flex-col border-2 p-5 shadow-md"
+      className="relative flex h-full flex-col overflow-hidden border-2 p-5 pt-0 shadow-md"
       onMouseEnter={warm}
       onFocus={warm}
     >
+      <div className="-mx-5 mb-4">
+        <DeckCover seed={deck._id} className="h-20 w-full" />
+      </div>
       <h3 className="font-display text-lg font-bold text-primary dark:text-cream-100">{deck.title}</h3>
       <div className="mt-auto pt-4">
         <p className="border-t border-slate-100 pt-3 text-xs font-semibold text-slate-500 dark:border-white/10 dark:text-cream-300/80">
@@ -60,6 +65,7 @@ export default function Home() {
   if (decks.length === 0) {
     return (
       <EmptyState
+        art={<EmptyArt variant="decks" />}
         title="No decks yet"
         message="Decks will appear here once your administrator adds them."
       />

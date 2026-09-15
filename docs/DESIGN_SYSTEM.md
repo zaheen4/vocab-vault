@@ -64,6 +64,12 @@ never raw hex in components.
   raw `<input>`, or ad-hoc card markup without a documented exception.
 - Join conditional classes with `utils/cn.js` (tailwind-merge: later colliding
   utilities win, so call-site overrides of base styles are safe).
+- Icons are SVG from `components/art/` (`icons.jsx`, `Mascot`, `EmptyArt`,
+  `DeckCover`) — never emoji above `text-base`. Small celebratory copy
+  (toasts, level-up banners, session messages) may keep emoji; display-size
+  glyphs (badges, HUD stats, covers) must be SVG.
+- Generative art is seeded (`art/seed.js`, never `Math.random` in render) so it
+  is stable across renders, sessions, and devices.
 
 ## Anti-list (closed — additions need team agreement)
 
