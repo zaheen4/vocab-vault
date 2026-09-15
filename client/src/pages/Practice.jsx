@@ -262,7 +262,7 @@ export default function Practice({ active = true }) {
             <p className="text-xs text-slate-400 dark:text-cream-300/70">New words learned</p>
           </div>
           <div className="rounded-lg border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-night-900">
-            <p className="text-2xl font-bold text-violet-600 dark:text-violet-300">{caughtUp}</p>
+            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-300">{caughtUp}</p>
             <p className="text-xs text-slate-400 dark:text-cream-300/70">Mastered</p>
           </div>
         </div>

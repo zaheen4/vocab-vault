@@ -91,7 +91,7 @@ function WordRow({ entry, index = 0, lists, quickList, onQuickListUsed, notify, 
         >
           <MasteryDot status={entry.status} />
           <span className="font-display font-semibold text-primary dark:text-cream-100">{word.word}</span>
-          <span className="ml-auto shrink-0 text-xs font-bold text-slate-300 dark:text-cream-300/50">{expanded ? '▾' : '▸'}</span>
+          <span className="ml-auto shrink-0 text-xs font-bold text-slate-400 dark:text-cream-300/60">{expanded ? '▾' : '▸'}</span>
         </button>
         <Button
           variant="secondary"
@@ -222,7 +222,7 @@ function ListCard({ list, open, onToggle, notify }) {
             {list.wordCount} word{list.wordCount === 1 ? '' : 's'}
           </span>
         </span>
-        <span className="shrink-0 text-xs font-bold text-slate-300 dark:text-cream-300/50">{open ? '▾' : '▸'}</span>
+        <span className="shrink-0 text-xs font-bold text-slate-400 dark:text-cream-300/60">{open ? '▾' : '▸'}</span>
       </button>
 
       {open && (
