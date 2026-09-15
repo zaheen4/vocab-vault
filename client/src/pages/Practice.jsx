@@ -15,6 +15,7 @@ import EmptyState from '../components/ui/EmptyState'
 import EmptyArt from '../components/art/EmptyArt'
 import Confetti from '../components/Confetti'
 import Flashcard from '../components/Flashcard'
+import LevelUpBanner from '../components/LevelUpBanner'
 import ScoreRing from '../components/ScoreRing'
 import SessionHud from '../components/SessionHud'
 
@@ -241,9 +242,7 @@ export default function Practice({ active = true }) {
           </p>
         )}
         {levelEvent && (
-          <div className="animate-pop animate-glow mx-auto max-w-sm rounded-xl border-2 border-accent bg-gold px-4 py-3 text-primary dark:bg-accent/15 dark:text-accent">
-            <span className="text-sm font-bold">🎊 Level up! You reached Level {levelEvent.newLevel}</span>
-          </div>
+          <LevelUpBanner level={levelEvent.newLevel} className="mx-auto max-w-sm rounded-xl px-4 py-3" />
         )}
         <ScoreRing correct={correctCount} total={results.length} />
 
@@ -406,9 +405,7 @@ export default function Practice({ active = true }) {
       )}
 
       {levelEvent && (
-        <div className="animate-pop animate-glow rounded-lg border-2 border-accent bg-gold px-4 py-2 text-center text-sm font-bold text-primary dark:bg-accent/15 dark:text-accent">
-          🎊 Level up! You reached Level {levelEvent.newLevel}
-        </div>
+        <LevelUpBanner level={levelEvent.newLevel} />
       )}
 
       {toast && (

@@ -13,6 +13,7 @@ import EmptyState from '../components/ui/EmptyState'
 import EmptyArt from '../components/art/EmptyArt'
 import Confetti from '../components/Confetti'
 import Flashcard from '../components/Flashcard'
+import LevelUpBanner from '../components/LevelUpBanner'
 import ScoreRing from '../components/ScoreRing'
 
 const BOX_LABELS = { 1: 'Box 1', 2: 'Box 2', 3: 'Box 3', 4: 'Box 4', 5: 'Mastered' }
@@ -288,9 +289,7 @@ export default function SavedPractice() {
       )}
 
       {levelEvent && (
-        <div className="animate-pop animate-glow rounded-lg border-2 border-accent bg-gold px-4 py-2 text-center text-sm font-bold text-primary dark:bg-accent/15 dark:text-accent">
-          🎊 Level up! You reached Level {levelEvent.newLevel}
-        </div>
+        <LevelUpBanner level={levelEvent.newLevel} />
       )}
 
       {toast && (

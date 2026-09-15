@@ -15,6 +15,7 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import NotFound from './pages/NotFound'
 import About from './pages/About'
+import Mascot from './components/art/Mascot'
 
 // Authenticated users never need the auth forms: send them home instead of
 // letting a re-submit silently overwrite the active session.
@@ -22,7 +23,10 @@ function GuestRoute({ children }) {
   const { token, loading } = useAuth()
   if (loading) {
     return (
-      <div className="flex min-h-screen supports-[height:100dvh]:min-h-dvh items-center justify-center text-slate-500 dark:text-cream-300/70">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-3 text-slate-500 dark:text-cream-300/70">
+        <span className="animate-pop" aria-hidden="true">
+          <Mascot size={56} />
+        </span>
         Loading…
       </div>
     )

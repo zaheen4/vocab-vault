@@ -12,19 +12,19 @@ const PITCH = [
 // drift apart again.
 export default function AuthShell({ title, children }) {
   return (
-    <div className="animate-page flex min-h-screen supports-[height:100dvh]:min-h-dvh items-center justify-center bg-gold px-4 py-10 dark:bg-night-950">
+    <div className="animate-page flex min-h-screen supports-[height:100dvh]:min-h-dvh items-center justify-center bg-gold px-4 py-6 sm:py-10 dark:bg-night-950">
       <div className="grid w-full max-w-3xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl sm:grid-cols-2 dark:border-white/10 dark:bg-night-900 dark:shadow-none">
-        <div className="flex flex-col justify-center gap-5 bg-primary p-8 text-white dark:bg-night-800">
+        <div className="flex flex-col justify-center gap-3 p-5 sm:gap-5 sm:p-8 bg-primary text-white dark:bg-night-800">
           <div className="flex items-center gap-2.5">
             <span className="rounded-lg bg-gold p-1.5">
               <Logo size={26} />
             </span>
             <span className="font-display text-xl font-bold">VocabVault</span>
           </div>
-          <p className="font-display text-3xl leading-tight font-bold">
+          <p className="font-display text-2xl leading-tight font-bold sm:text-3xl">
             Master your words.
           </p>
-          <ul className="space-y-3">
+          <ul className="hidden space-y-3 sm:block">
             {PITCH.map((p) => (
               <li key={p.title} className="flex gap-2.5 text-sm">
                 <span aria-hidden="true" className="mt-0.5 font-bold text-accent">
@@ -38,7 +38,9 @@ export default function AuthShell({ title, children }) {
             ))}
           </ul>
           <div aria-hidden="true" className="mt-auto hidden justify-start pt-4 sm:flex">
-            <Mascot size={110} />
+            <span className="rounded-full bg-gold p-4">
+              <Mascot size={96} />
+            </span>
           </div>
         </div>
         <div className="p-6 sm:p-8">
