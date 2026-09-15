@@ -5,7 +5,6 @@ import { useTheme } from '../context/ThemeContext'
 import { useGamification } from '../api/queries'
 import { pickSeeded } from './art/seed'
 import { TILE_STYLES } from './DeckTile'
-import { FlameIcon, StarIcon } from './art/icons'
 import Logo from './Logo'
 import Button from './ui/Button'
 
@@ -59,9 +58,9 @@ function StatsChip() {
   return (
     <>
       <span
-        className="relative inline-flex h-9 w-9 items-center justify-center sm:hidden"
-        title={`Level ${stats.level} · ${Math.round(ringPct * 100)}% to next`}
-        aria-label={`Level ${stats.level}, ${Math.round(ringPct * 100)} percent to next level`}
+        className="relative inline-flex h-9 w-9 items-center justify-center"
+        title={`Level ${stats.level} · ${stats.dailyStreak > 0 ? `${stats.dailyStreak}d streak · ` : ''}${Math.round(ringPct * 100)}% to next`}
+        aria-label={`Level ${stats.level}${stats.dailyStreak > 0 ? `, ${stats.dailyStreak} day streak` : ''}, ${Math.round(ringPct * 100)} percent to next level`}
       >
         <svg viewBox="0 0 32 32" className="absolute inset-0 h-full w-full -rotate-90" aria-hidden="true">
           <circle cx="16" cy="16" r={r} fill="none" strokeWidth="3.5" className="stroke-slate-200 dark:stroke-white/15" />
@@ -77,19 +76,6 @@ function StatsChip() {
           />
         </svg>
         <span className="text-xs font-bold text-primary dark:text-cream-100">{stats.level}</span>
-      </span>
-      <span className="hidden items-center gap-3 rounded-full bg-slate-100 px-3.5 py-1.5 text-xs font-bold text-primary sm:inline-flex dark:bg-white/10 dark:text-cream-100">
-        <span className="inline-flex items-center gap-1">
-          <StarIcon size={14} className="text-accent-deep dark:text-accent" />
-          {stats.level}
-        </span>
-        {stats.dailyStreak > 0 && (
-          <span className="inline-flex items-center gap-1">
-            <FlameIcon size={14} className="text-accent-deep dark:text-accent" />
-            {stats.dailyStreak}d
-          </span>
-        )}
-        <span className="font-semibold text-slate-500 dark:text-cream-300/70">+{stats.xp} XP</span>
       </span>
     </>
   )
@@ -174,8 +160,8 @@ export default function Navbar() {
   return (
     <>
       <header className="border-b border-slate-200 bg-white dark:border-white/10 dark:bg-night-900">
-        <nav className="mx-auto flex max-w-5xl items-center justify-between gap-2 px-4 py-3">
-          <Link to="/" className="flex min-w-0 items-center gap-2">
+        <nav className="mx-auto grid max-w-5xl grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-3">
+          <Link to="/" className="flex min-w-0 items-center gap-2 justify-self-start">
             <Logo size={26} />
             <span className="truncate font-display text-lg font-bold text-primary dark:text-cream-100">VocabVault</span>
           </Link>
@@ -189,14 +175,14 @@ export default function Navbar() {
                   </NavLink>
                 ))}
               </div>
-              <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+              <div className="col-start-3 flex items-center gap-2 justify-self-end sm:gap-3">
                 <StatsChip />
                 <ThemeToggle theme={theme} onToggle={toggle} />
                 <AccountMenu />
               </div>
             </>
           ) : (
-            <div className="flex shrink-0 items-center gap-3">
+            <div className="col-start-3 flex items-center gap-3 justify-self-end">
               <ThemeToggle theme={theme} onToggle={toggle} />
               <Link
                 to="/login"
