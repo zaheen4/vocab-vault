@@ -30,17 +30,35 @@
 
 ## 3. Cloudflare Pages — web client (canonical: `https://vvault.pages.dev`)
 
-1. Cloudflare dashboard → **Workers & Pages** → Create application → Pages →
-   Connect to Git → select the `vocab-vault` repo (or deploy once via
-   `npx wrangler pages deploy client/dist --project-name=vvault`).
-2. Project name **`vvault`** (claims `https://vvault.pages.dev`). Build settings:
-   root `client`, build `npm run build`, output `dist`.
-3. Environment variable: `VITE_API_URL=https://vocab-vault-api.onrender.com/api`
-   (your real API URL from step 2). Rebuild after changing it — Vite bakes
-   env vars in at build time.
-4. The SPA fallback lives in `client/public/_redirects` (`/* /index.html 200`)
-   and the 1,110 pronunciation clips ship inside `client/public` — both deploy
-   with the app, no extra setup.
+### Primary: Git-connected deploy (auto-deploys on push to `main`)
+
+1. Cloudflare dashboard → **Workers & Pages** → `vvault` → **Settings** →
+   **Builds & deployments** → **Connect to Git** → authorize the GitHub App
+   → select repo `zaheen4/vocab-vault`, production branch `main`.
+2. Build settings (Settings → Build & deployment → Build settings → Edit):
+   | Field | Value |
+   |---|---|
+   | Production branch | `main` |
+   | Build command | `npm run build -w client` |
+   | Output directory | `client/dist` |
+   | Root directory | `/` (leave empty — must be repo root, not `client/`, so the workspace lockfile is used) |
+3. Environment variables (Settings → Environment variables → Production):
+   - `VITE_API_URL` → `https://vocab-vault-api.onrender.com/api` (your real
+     API URL from step 2 — Vite bakes this in at build time).
+   - `NODE_VERSION` → `22` (required: Pages defaults to Node 18, but Vite 8
+     needs Node ≥ 20.19; without this the first Git deploy will fail).
+4. Push to `main` (or retry the first deploy) — the build ships `client/dist`
+   including `_redirects` (SPA fallback) and `_headers` (security headers),
+   plus the 1,110 pronunciation clips in `public/`.
+
+### Fallback: manual upload (one-off, no auto-deploy)
+
+```bash
+npx wrangler pages deploy client/dist --project-name=vvault
+```
+
+This bypasses Git — useful only if the GitHub App connection is temporarily
+broken.  Subsequent pushes to `main` will **not** trigger a rebuild.
 
 ## 4. Seed production data (human runs, agent verifies)
 
