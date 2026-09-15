@@ -13,6 +13,7 @@ function DeckCard({ deck }) {
   const warm = () => prefetchDeck(deck._id)
   const mastered = deck.progress?.mastered || 0
   const pct = count > 0 ? Math.round((mastered / count) * 100) : 0
+  const due = deck.dueCount ?? 0
   return (
     <Card
       hoverable
@@ -23,6 +24,11 @@ function DeckCard({ deck }) {
       <div className="flex items-center gap-3">
         <DeckTile id={deck._id} title={deck.title} />
         <h3 className="font-display text-lg font-bold text-primary dark:text-cream-100">{deck.title}</h3>
+        {due > 0 && (
+          <span className="ml-auto shrink-0 rounded-full bg-accent px-2.5 py-1 text-xs font-bold text-primary dark:text-night-950">
+            {due} due
+          </span>
+        )}
       </div>
       <div className="mt-auto border-t border-slate-100 pt-3 dark:border-white/10">
         <div className="flex items-baseline justify-between gap-2">
