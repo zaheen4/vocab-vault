@@ -1,23 +1,16 @@
 import { Link } from 'react-router-dom'
 import { usePrefetchDeck, useDecks, useGamification, useProgressSummary } from '../api/queries'
 import Card from '../components/ui/Card'
+import Button from '../components/ui/Button'
 import EmptyState from '../components/ui/EmptyState'
+import DeckTile from '../components/DeckTile'
 import EmptyArt from '../components/art/EmptyArt'
-import { pickSeeded } from '../components/art/seed.js'
-
-// Seeded tile tints (owner call: covers removed, color carries the card).
-const TILE_STYLES = [
-  'bg-accent/15 text-accent-deep dark:bg-accent/20 dark:text-accent',
-  'bg-gold text-accent-deep dark:bg-gold/15 dark:text-gold',
-  'bg-primary/10 text-primary dark:bg-white/10 dark:text-cream-100',
-  'bg-emerald-500/10 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300',
-]
+import { FlameIcon, StarIcon } from '../components/art/icons'
 
 function DeckCard({ deck }) {
   const count = deck.wordCount ?? (deck.wordIds ? deck.wordIds.length : 0)
   const prefetchDeck = usePrefetchDeck()
   const warm = () => prefetchDeck(deck._id)
-  const tile = pickSeeded(TILE_STYLES, deck._id) ?? TILE_STYLES[0]
   return (
     <Card
       hoverable
@@ -26,12 +19,7 @@ function DeckCard({ deck }) {
       onFocus={warm}
     >
       <div className="flex items-center gap-3">
-        <span
-          aria-hidden="true"
-          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg font-display text-xl font-bold ${tile}`}
-        >
-          {(deck.title || '?').trim().charAt(0).toUpperCase()}
-        </span>
+        <DeckTile id={deck._id} title={deck.title} />
         <h3 className="font-display text-lg font-bold text-primary dark:text-cream-100">{deck.title}</h3>
       </div>
       <div className="mt-auto pt-4">
@@ -94,21 +82,36 @@ export default function Home() {
   // First-run guidance always starts at Group 1 when it exists.
   const sorted = [...decks].sort((a, b) => (a.group ?? Infinity) - (b.group ?? Infinity))
   const firstDeck = sorted.find((d) => d.group === 1) ?? sorted[0]
+  const started = totalProgress > 0
 
   return (
     <div className="animate-page -m-4 sm:-m-6">
-      <div className="bg-primary px-4 pt-6 pb-28 sm:px-6 dark:border-b dark:border-white/10 dark:bg-night-900">
+      <div className="bg-gradient-to-br from-primary via-primary to-night-800 px-4 pt-6 pb-28 sm:px-6 dark:border-b dark:border-white/10 dark:from-night-900 dark:via-night-900 dark:to-night-950">
         <p className="font-display text-xs font-bold tracking-widest text-accent uppercase">VocabVault</p>
         <h1 className="mt-1 font-display text-2xl font-bold text-white sm:text-3xl dark:text-cream-100">Master your words.</h1>
-        <div className="mt-3 flex min-h-5 items-center gap-6 text-sm">
+        <p className="mt-1 max-w-md text-sm text-white/70 dark:text-cream-300/80">
+          GRE words on a schedule that adapts to you — flip cards, quiz yourself, and watch the streak grow.
+        </p>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          {firstDeck && (
+            <Link to={`/decks/${firstDeck._id}`}>
+              <Button className="shadow-lg">
+                {started ? 'Continue practicing →' : `Start with ${firstDeck.title} →`}
+              </Button>
+            </Link>
+          )}
           {stats && (
-            <>
-              {stats.dailyStreak > 0 && (
-                <span className="font-semibold text-gold">🔥 {stats.dailyStreak} day streak</span>
-              )}
-              <span className="font-semibold text-gold">⭐ Level {stats.level}</span>
-              <span className="font-semibold text-gold">+{stats.xp} XP</span>
-            </>
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-bold text-white">
+                <FlameIcon size={14} className="text-accent" /> {stats.dailyStreak}d
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-bold text-white">
+                <StarIcon size={14} className="text-accent" /> Lv {stats.level}
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-bold text-white">
+                +{stats.xp} XP
+              </span>
+            </div>
           )}
         </div>
       </div>
@@ -124,24 +127,6 @@ export default function Home() {
             </div>
           ))}
         </div>
-
-        {/* First-run guidance only: vanishes once the user has any progress */}
-        {totalProgress === 0 && firstDeck && (
-          <Link
-            to={`/decks/${firstDeck._id}`}
-            className="mt-6 flex items-center gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition-all hover:shadow active:scale-99 dark:border-white/10 dark:bg-night-900 dark:shadow-none"
-          >
-            <div>
-              <p className="font-display text-sm font-semibold text-primary dark:text-cream-100">
-                Start with {firstDeck.title}
-              </p>
-              <p className="mt-0.5 text-xs text-slate-500 dark:text-cream-300/80">
-                Flip through your first cards — reviews get scheduled automatically.
-              </p>
-            </div>
-            <span className="ml-auto shrink-0 text-lg font-bold text-accent">→</span>
-          </Link>
-        )}
       </div>
     </div>
   )

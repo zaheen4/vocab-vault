@@ -4,6 +4,7 @@ import { api } from '../api/client'
 import { isStarred, useBookmarks, useToggleBookmark } from '../api/queries'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
+import EmptyArt from '../components/art/EmptyArt'
 import SpeakerIcon from '../components/ui/SpeakerIcon'
 import Toast from '../components/ui/Toast'
 import WordHistory from '../components/WordHistory'
@@ -76,6 +77,21 @@ export default function Search() {
         onChange={(e) => setQuery(e.target.value)}
         autoFocus
       />
+
+      {status === 'idle' && (
+        <div className="space-y-3 py-8 text-center">
+          <div className="flex justify-center" aria-hidden="true">
+            <EmptyArt variant="search" />
+          </div>
+          <p className="text-sm font-semibold text-primary dark:text-cream-100">
+            Search 1,100+ GRE words
+          </p>
+          <p className="mx-auto max-w-sm text-sm text-slate-500 dark:text-cream-300/80">
+            Matches anywhere in the word — star what you want to keep, and add
+            your own words when the dictionary falls short.
+          </p>
+        </div>
+      )}
 
       {status === 'loading' && (
         <p className="text-sm text-slate-500 dark:text-cream-300/80">Searching…</p>
