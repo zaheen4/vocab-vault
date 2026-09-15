@@ -178,23 +178,21 @@
   animation: fade-up 0.4s ease-out both;
 }
 
-/* confetti falling pieces */
-@keyframes confetti-fall {
+/* confetti burst pieces: spawn near top, fan outward via --drift */
+@keyframes confetti-burst {
   0% {
-    transform: translateY(-110vh) rotate(0deg);
+    transform: translate(0, -6vh) rotate(0deg);
     opacity: 1;
   }
   100% {
-    transform: translateY(110vh) rotate(720deg);
+    transform: translate(var(--drift, 0px), 108vh) rotate(720deg);
     opacity: 0.9;
   }
 }
 .confetti-piece {
   position: fixed;
   top: 0;
-  width: 10px;
-  height: 14px;
-  animation: confetti-fall linear forwards;
+  animation: confetti-burst linear forwards;
   pointer-events: none;
   z-index: 60;
 }
