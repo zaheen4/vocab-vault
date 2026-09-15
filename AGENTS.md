@@ -18,7 +18,7 @@ node --check server/src/<file>.js   # server has no linter; syntax-check touched
 ```
 - E2E: curl suites for API, Playwright (python) for UI ad-hoc probes; the committed gate is `e2e/design-contract.spec.js` via `npm run test:e2e` (dev servers running, QA account `qa@test.local`). Assert tight values (`+\d+ XP`, not `+.*XP` — loose regexes hide failures). E2E stays out of CI (needs Atlas).
 - Restart `npm run dev` after any branch switch (`node --watch`/HMR serve stale code across checkouts); curl-verify endpoints before trusting results.
-- Test auth: persistent QA account `qa@test.local` / `password123` lives in shared Atlas — log in, don't register throwaways. Delete any temp users/data you do create (shared M0, 512 MB).
+- Test auth: persistent QA account `qa@test.local` lives in shared Atlas — credentials via `VV_QA_EMAIL` + `VV_QA_PASSWORD` env vars (never committed). Log in, don't register throwaways. Delete any temp users/data you do create (shared M0, 512 MB).
 
 ## Workflow (branch protection: PR-only, self-merge OK)
 - Branches: `feat|fix|docs|chore/<thing>`. Team practice: squash-merge with `--delete-branch`.

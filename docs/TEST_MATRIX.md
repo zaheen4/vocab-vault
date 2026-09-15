@@ -1,7 +1,8 @@
 # VocabVault Manual Test Matrix
 
 > Executed against local dev servers (`npm run dev`: API :5000, web :5173).
-> Authenticate with the persistent QA account (`qa@test.local` / `password123`).
+> Authenticate with the persistent QA account (`qa@test.local`, password from
+> `VV_QA_PASSWORD` env — never committed).
 > Shared Atlas rule: never register throwaway accounts for matrix runs — but
 > Flow 1 *is* the register path, so it uses one temp account
 > (`matrix+<yyyymmdd>@test.local`) that is **deleted immediately after the run**

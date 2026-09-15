@@ -3,14 +3,24 @@ import { expect, test } from '@playwright/test'
 // Design-contract gate (mirrors docs/DESIGN_SYSTEM.md "Checking a PR"):
 // voice vs reading type, tap-target minimums, reduced-motion kill-switch,
 // clean renders. Auth via the persistent QA account (never register
-// throwaways — shared Atlas cluster).
+// throwaways — shared Atlas cluster). Credentials come from the environment
+// (VV_QA_EMAIL + VV_QA_PASSWORD) and are never committed — see AGENTS.md.
+function qaCreds() {
+  const email = process.env.VV_QA_EMAIL
+  const password = process.env.VV_QA_PASSWORD
+  if (!email || !password) {
+    throw new Error('E2E needs VV_QA_EMAIL + VV_QA_PASSWORD env vars (QA account, never committed)')
+  }
+  return { email, password }
+}
 test.beforeEach(async ({ page }) => {
+  const { email, password } = qaCreds()
   const errors = []
   page.on('pageerror', (e) => errors.push(String(e)))
   page.context().errors = errors
   await page.goto('/login')
-  await page.fill('input[type="email"]', 'qa@test.local')
-  await page.fill('input[type="password"]', 'password123')
+  await page.fill('input[type="email"]', email)
+  await page.fill('input[type="password"]', password)
   await page.click('button[type="submit"]')
   await page.waitForURL('http://localhost:5173/', { timeout: 15000 })
 })
@@ -49,9 +59,10 @@ test('no tap target under the 24px minimum', async ({ page }) => {
 test('reduced motion disables celebratory animation', async ({ browser }) => {
   const ctx = await browser.newContext({ reducedMotion: 'reduce' })
   const pg = await ctx.newPage()
+  const { email, password } = qaCreds()
   await pg.goto('/login')
-  await pg.fill('input[type="email"]', 'qa@test.local')
-  await pg.fill('input[type="password"]', 'password123')
+  await pg.fill('input[type="email"]', email)
+  await pg.fill('input[type="password"]', password)
   await pg.click('button[type="submit"]')
   await pg.waitForURL('http://localhost:5173/', { timeout: 15000 })
   await pg.waitForSelector('text=Master your words.', { timeout: 10000 })
