@@ -188,7 +188,7 @@ export default function SavedPractice() {
     return (
       <div className="animate-page mx-auto max-w-xl space-y-4 text-center">
         {confetti && <Confetti active={confetti} pieces={70} />}
-        <h1 className="font-display text-2xl font-bold text-primary dark:text-cream-100">{finalMessage || 'Session complete!'}</h1>
+        <h1 className="font-display text-display-xl font-bold text-primary dark:text-cream-100">{finalMessage || 'Session complete!'}</h1>
         <p className="text-slate-500 dark:text-cream-300/80">
           You got {correctCount} of {results.length} right · +{sessionXp} XP
         </p>

@@ -13,7 +13,7 @@ export default function Flashcard({ word, flipped, onFlip, shake, reversed }) {
     </>
   ) : (
     <>
-      <h2 className="text-3xl font-bold break-words text-primary dark:text-cream-100">{word.word}</h2>
+      <h2 className="text-display-xl font-bold break-words text-primary dark:text-cream-100">{word.word}</h2>
       {word.partOfSpeech && (
         <p className="mt-1 text-sm text-slate-400 italic dark:text-cream-300/70">{word.partOfSpeech}</p>
       )}
@@ -21,7 +21,7 @@ export default function Flashcard({ word, flipped, onFlip, shake, reversed }) {
   )
   const reveal = reversed ? (
     <>
-      <h2 className="text-3xl font-bold break-words text-primary dark:text-cream-100">{word.word}</h2>
+      <h2 className="text-display-xl font-bold break-words text-primary dark:text-cream-100">{word.word}</h2>
       {word.partOfSpeech && (
         <p className="mt-1 text-sm text-slate-400 italic dark:text-cream-300/70">{word.partOfSpeech}</p>
       )}

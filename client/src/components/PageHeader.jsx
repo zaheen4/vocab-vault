@@ -9,7 +9,7 @@ export default function PageHeader({ eyebrow, title, sub }) {
           {eyebrow}
         </p>
       )}
-      <h1 className="font-display text-2xl font-bold text-primary dark:text-cream-100">
+      <h1 className="font-display text-display-lg font-bold text-primary dark:text-cream-100">
         {title}
       </h1>
       {sub && (

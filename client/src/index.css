@@ -15,6 +15,11 @@
   --color-night-800: #232b52;
   --color-cream-100: #f7f1de;
   --color-cream-300: #cfc6ab;
+  /* Fluid display sizes: floors match the fixed sizes they replace, so
+     nothing shrinks below approved mobile sizes; caps stay calm inside
+     max-w-xl columns. Body text stays fixed — never fluid. */
+  --text-display-xl: clamp(1.875rem, 1.4rem + 2.4vw, 2.75rem);
+  --text-display-lg: clamp(1.5rem, 1.25rem + 1.4vw, 2rem);
   --font-display: "Baloo 2", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
 }

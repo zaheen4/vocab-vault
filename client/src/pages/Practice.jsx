@@ -232,7 +232,7 @@ export default function Practice({ active = true }) {
     return (
       <div className="animate-page mx-auto max-w-2xl space-y-6 py-6 text-center">
         <Confetti active={confetti} pieces={70} />
-        <h1 className="font-display text-3xl font-bold text-primary dark:text-cream-100">
+        <h1 className="font-display text-display-xl font-bold text-primary dark:text-cream-100">
           {finalMessage || 'Session complete!'}
         </h1>
         {firstName && (

@@ -119,7 +119,7 @@ export default function Home() {
     <div className="animate-page -m-4 sm:-m-6">
       <div className="bg-gradient-to-br from-primary via-primary to-night-800 px-4 pt-6 pb-20 sm:px-6 sm:pb-28 dark:border-b dark:border-white/10 dark:from-night-900 dark:via-night-900 dark:to-night-950">
         <p className="font-display text-xs font-bold tracking-widest text-accent uppercase">VocabVault</p>
-        <h1 className="mt-1 font-display text-2xl font-bold text-white sm:text-3xl dark:text-cream-100">Master your words.</h1>
+        <h1 className="mt-1 font-display text-display-lg font-bold text-white dark:text-cream-100">Master your words.</h1>
         <p className="mt-1 max-w-md text-sm text-white/70 dark:text-cream-300/80">
           GRE words on a schedule that adapts to you — flip cards, quiz yourself, and watch the streak grow.
         </p>
