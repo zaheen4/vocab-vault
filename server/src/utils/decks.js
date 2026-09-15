@@ -19,3 +19,28 @@ export function summarizeDeckProgress(decks, progressByWord) {
     return { deckId: String(deck._id), progress }
   })
 }
+
+// Pure per-deck due counter for GET /api/decks.
+// detailByWord: Map wordId-string -> { status, reviewDueAfter } (fields optional).
+// Mirrors the practice-pool selection order exactly: unseen words first, then
+// seen words whose due date has passed (or was never set). Seen-but-not-due
+// words are excluded until their SRS date arrives.
+export function countDeckDue(decks, detailByWord, now = new Date()) {
+  const get = (wid) => {
+    const key = typeof wid === 'string' ? wid : String(wid?._id ?? wid)
+    return detailByWord?.get?.(key) ?? null
+  }
+  return decks.map((deck) => {
+    const ids = deck.wordIds || []
+    let dueCount = 0
+    for (const wid of ids) {
+      const rec = get(wid)
+      if (!rec) {
+        dueCount += 1 // unseen: always practicable
+      } else if (!rec.reviewDueAfter || new Date(rec.reviewDueAfter) <= now) {
+        dueCount += 1
+      }
+    }
+    return { deckId: String(deck._id), dueCount }
+  })
+}

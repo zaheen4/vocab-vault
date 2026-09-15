@@ -13,6 +13,7 @@ function DeckCard({ deck }) {
   const warm = () => prefetchDeck(deck._id)
   const mastered = deck.progress?.mastered || 0
   const pct = count > 0 ? Math.round((mastered / count) * 100) : 0
+  const due = deck.dueCount ?? 0
   return (
     <Card
       hoverable
@@ -28,6 +29,12 @@ function DeckCard({ deck }) {
         <div className="flex items-baseline justify-between gap-2">
           <p className="text-xs font-semibold text-slate-500 dark:text-cream-300/80">
             {count} words
+            {due > 0 && (
+              <>
+                <span aria-hidden="true"> · </span>
+                <span className="font-bold text-accent">{due} due</span>
+              </>
+            )}
           </p>
           {count > 0 && (mastered > 0 || (deck.progress?.learning || 0) > 0) && (
             <p className="text-xs font-bold text-emerald-600 dark:text-emerald-300">

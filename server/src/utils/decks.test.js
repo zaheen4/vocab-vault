@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { summarizeDeckProgress } from './decks.js'
+import { countDeckDue, summarizeDeckProgress } from './decks.js'
 
 describe('summarizeDeckProgress', () => {
   it('counts reviewed words by status per deck', () => {
@@ -38,6 +38,35 @@ describe('summarizeDeckProgress', () => {
     ).toEqual([
       { deckId: 'd1', progress: { new: 0, learning: 0, mastered: 1 } },
       { deckId: 'd2', progress: { new: 0, learning: 0, mastered: 0 } },
+    ])
+  })
+})
+
+describe('countDeckDue', () => {
+  const now = new Date('2026-09-15T12:00:00Z')
+  const past = new Date('2026-09-10T12:00:00Z')
+  const future = new Date('2026-09-20T12:00:00Z')
+
+  it('counts unseen plus due words, skips seen-but-not-due', () => {
+    const decks = [{ _id: 'd1', wordIds: ['w1', 'w2', 'w3', 'w4'] }]
+    const detail = new Map([
+      ['w1', { status: 'learning', reviewDueAfter: past }],
+      ['w2', { status: 'learning', reviewDueAfter: future }],
+      ['w3', { status: 'mastered', reviewDueAfter: null }],
+    ])
+    // w1 due, w2 not due, w3 due (no date), w4 unseen
+    expect(countDeckDue(decks, detail, now)).toEqual([{ deckId: 'd1', dueCount: 3 }])
+  })
+
+  it('returns zero for fully scheduled and empty decks', () => {
+    const decks = [
+      { _id: 'd1', wordIds: ['w1'] },
+      { _id: 'd2', wordIds: [] },
+    ]
+    const detail = new Map([['w1', { status: 'mastered', reviewDueAfter: future }]])
+    expect(countDeckDue(decks, detail, now)).toEqual([
+      { deckId: 'd1', dueCount: 0 },
+      { deckId: 'd2', dueCount: 0 },
     ])
   })
 })
