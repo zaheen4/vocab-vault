@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
+import PageHeader from '../components/PageHeader'
 
 const DIFFICULTIES = ['basic', 'intermediate', 'advanced']
 
@@ -47,12 +48,11 @@ export default function AddWord() {
 
   return (
     <div className="animate-page mx-auto max-w-xl space-y-4">
-      <div>
-        <h1 className="font-display text-2xl font-bold text-primary dark:text-cream-100">Add your own word</h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-cream-300/80">
-          It lands in your personal My Words deck and joins the regular review rotation.
-        </p>
-      </div>
+      <PageHeader
+        eyebrow="Personal deck"
+        title="Add your own word"
+        sub="It lands in your personal My Words deck and joins the regular review rotation."
+      />
 
       <form onSubmit={submit} className="space-y-3 rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-night-900 dark:shadow-none">
         <Input

@@ -15,10 +15,17 @@ never raw hex in components.
 | `gold` | `#FAF0CA` | Surface (lightest): auth backgrounds, nav highlight |
 | `night-950/900/800` | `#0F1430` / `#171D3A` / `#232B52` | Dark surfaces: page / card / raised |
 | `cream-100/300` | `#F7F1DE` / `#CFC6AB` | Dark ink: headings / muted body text |
+| Status greens/ambers/reds | Tailwind palette | SRS states: `emerald` mastered, `amber` learning, `red` wrong |
 | Neutrals | — | Tailwind `slate` for body text, `stone-50` page shell |
 
 - Darkest → foreground, most saturated → interactive, lightest → surfaces.
 - Never white text on `accent` (contrast ~2.5:1 fails); use `text-primary`.
+- `gold` is surfaces only (auth wash, nav highlight, tile tints) — never a
+  status color; SRS states always use the palette row above.
+- `accent` does interaction (buttons, tabs, links) and data-viz (bars, rings);
+  text accents stay sparing (eyebrows, XP figures).
+- **Radius scale:** `rounded-md` controls (inputs, buttons, chips),
+  `rounded-lg/xl` cards and sheets, `rounded-full` pills/rings/toggles.
 - Dark mode is class-driven (`.dark` on `<html>`, see `ThemeContext`): every
   `dark:` utility pairs with a light default, and new dark surfaces use the
   `night` scale with `cream` ink — never raw slate-on-navy guesses.
@@ -30,7 +37,16 @@ never raw hex in components.
 - **Body (`font-sans`, Nunito):** everything else — *including* flashcard
   words, definitions, examples, and option text. Tested words stay neutral
   so letterforms never interfere with recognition.
-- Never introduce another font without a design review.
+- **Heading scale:** page H1s are `text-2xl` via shared `PageHeader` (with an
+  accent eyebrow where the page needs orientation); heroes and done screens
+  own `text-3xl`; card titles and section headers stay below H1. Never
+  introduce another font without a design review.
+- **Flashcard hierarchy:** the word (`text-3xl` bold) leads; the definition
+  answers in `text-lg font-medium` with `leading-relaxed` — never semibold,
+  never competing.
+- **Micro-labels:** uppercase `tracking-wide` labels are rationed to counts
+  and eyebrows; chevrons and hints never go below `text-slate-400`
+  (contrast floor).
 
 ## Tactile controls
 

@@ -1,5 +1,6 @@
 import { useGamification, useProgressSummary, useSetGoalTarget } from '../api/queries'
 import { useCountUp } from '../utils/countUp'
+import PageHeader from '../components/PageHeader'
 import { FlameIcon, GemIcon, HundredIcon, SproutIcon, StarIcon } from '../components/art/icons'
 
 const CARDS = [
@@ -173,14 +174,15 @@ export default function Progress() {
 
   return (
     <div className="animate-page space-y-6">
-      <div>
-        <h1 className="font-display text-2xl font-bold text-primary dark:text-cream-100">Your progress</h1>
-        <p className="mt-1 text-sm text-slate-500 dark:text-cream-300/80">
-          {total === 0
+      <PageHeader
+        eyebrow="Statistics"
+        title="Your progress"
+        sub={
+          total === 0
             ? 'Practice a deck to start tracking your progress.'
-            : `${total} word${total === 1 ? '' : 's'} in your learning pipeline.`}
-        </p>
-      </div>
+            : `${total} word${total === 1 ? '' : 's'} in your learning pipeline.`
+        }
+      />
 
       {stats && (
         <div className="rounded-xl border border-accent bg-gold/60 p-5 dark:border-accent/30 dark:bg-night-900">

@@ -122,7 +122,7 @@ export default function Search() {
                 className="flex min-h-9 flex-1 items-baseline gap-1.5 text-left"
               >
                 <span className="font-display font-semibold text-primary dark:text-cream-100">{w.word}</span>
-                <span className="shrink-0 text-xs font-bold text-slate-300 dark:text-cream-300/50">
+                <span className="shrink-0 text-xs font-bold text-slate-400 dark:text-cream-300/60">
                   {openId === w._id ? '▾' : '▸'}
                 </span>
               </button>
