@@ -5,8 +5,16 @@ import Word from '../models/Word.js'
 import Progress from '../models/Progress.js'
 import { requireAuth } from '../middleware/auth.js'
 import { requireDB } from '../middleware/requireDB.js'
+import { toSafeMessage } from '../utils/security.js'
 
 const router = Router()
+
+// Owner-scoped deck lookup: shared decks (no creator) plus the caller's own
+// personal decks — never another user's. Unknown/forbidden ids read as 404
+// so existence is never leaked.
+function accessibleDeckQuery(id, userId) {
+  return Deck.findOne({ _id: id, $or: [{ createdBy: null }, { createdBy: userId }] })
+}
 
 router.get('/', requireDB, requireAuth, async (req, res) => {
   try {
@@ -24,17 +32,20 @@ router.get('/', requireDB, requireAuth, async (req, res) => {
       .sort((a, b) => (a.group ?? Infinity) - (b.group ?? Infinity))
     res.json({ decks: ordered })
   } catch (err) {
-    res.status(500).json({ message: err.message })
+    res.status(500).json({ message: toSafeMessage(err) })
   }
 })
 
 router.get('/:id', requireDB, requireAuth, async (req, res) => {
   try {
-    const deck = await Deck.findById(req.params.id).populate('wordIds')
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid id' })
+    }
+    const deck = await accessibleDeckQuery(req.params.id, req.user._id).populate('wordIds')
     if (!deck) return res.status(404).json({ message: 'Deck not found' })
     res.json({ deck })
   } catch (err) {
-    res.status(500).json({ message: err.message })
+    res.status(500).json({ message: toSafeMessage(err) })
   }
 })
 
@@ -46,7 +57,7 @@ router.get('/:id/practice', requireDB, requireAuth, async (req, res) => {
     }
     const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 50)
 
-    const deck = await Deck.findById(id).select('wordIds')
+    const deck = await accessibleDeckQuery(id, req.user._id).select('wordIds')
     if (!deck) return res.status(404).json({ message: 'Deck not found' })
 
     // unseen words first (deck order), then due words oldest-reviewDueAfter first;
@@ -78,7 +89,7 @@ router.get('/:id/practice', requireDB, requireAuth, async (req, res) => {
 
     res.json({ words })
   } catch (err) {
-    res.status(500).json({ message: err.message })
+    res.status(500).json({ message: toSafeMessage(err) })
   }
 })
 
@@ -93,7 +104,7 @@ router.get('/:id/quiz', requireDB, requireAuth, async (req, res) => {
     }
     const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 50, 1), 100)
 
-    const deck = await Deck.findById(id).select('title wordIds')
+    const deck = await accessibleDeckQuery(id, req.user._id).select('title wordIds')
     if (!deck) return res.status(404).json({ message: 'Deck not found' })
 
     const seen = await Progress.find({
@@ -113,7 +124,7 @@ router.get('/:id/quiz', requireDB, requireAuth, async (req, res) => {
 
     res.json({ deck: { _id: deck._id, title: deck.title }, words })
   } catch (err) {
-    res.status(500).json({ message: err.message })
+    res.status(500).json({ message: toSafeMessage(err) })
   }
 })
 

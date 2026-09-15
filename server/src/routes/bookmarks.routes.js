@@ -6,6 +6,7 @@ import Word from '../models/Word.js'
 import { requireAuth } from '../middleware/auth.js'
 import { requireDB } from '../middleware/requireDB.js'
 import { masteryFor } from '../utils/bookmarks.js'
+import { toSafeMessage } from '../utils/security.js'
 
 const router = Router()
 
@@ -27,7 +28,7 @@ router.get('/', requireDB, requireAuth, async (req, res) => {
     const byWord = new Map(progressDocs.map((p) => [p.wordId.toString(), p]))
     res.json({ bookmarks: docs.map((d) => toBookmarkJson(d, byWord)) })
   } catch (err) {
-    res.status(500).json({ message: err.message })
+    res.status(500).json({ message: toSafeMessage(err) })
   }
 })
 
@@ -48,7 +49,7 @@ router.post('/', requireDB, requireAuth, async (req, res) => {
     }
     res.json({ bookmark: toBookmarkJson(doc, new Map()) })
   } catch (err) {
-    res.status(500).json({ message: err.message })
+    res.status(500).json({ message: toSafeMessage(err) })
   }
 })
 
@@ -89,7 +90,7 @@ router.get('/practice', requireDB, requireAuth, async (req, res) => {
 
     res.json({ words })
   } catch (err) {
-    res.status(500).json({ message: err.message })
+    res.status(500).json({ message: toSafeMessage(err) })
   }
 })
 
@@ -103,7 +104,7 @@ router.delete('/:wordId', requireDB, requireAuth, async (req, res) => {
     await Bookmark.deleteOne({ userId: req.user._id, wordId })
     res.json({ removed: true })
   } catch (err) {
-    res.status(500).json({ message: err.message })
+    res.status(500).json({ message: toSafeMessage(err) })
   }
 })
 

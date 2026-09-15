@@ -5,6 +5,7 @@ import Word from '../models/Word.js'
 import { requireAuth } from '../middleware/auth.js'
 import { requireDB } from '../middleware/requireDB.js'
 import { validateListTitle } from '../utils/lists.js'
+import { toSafeMessage } from '../utils/security.js'
 
 const router = Router()
 
@@ -30,7 +31,7 @@ router.get('/', requireDB, requireAuth, async (req, res) => {
     const lists = await CustomList.find({ userId: req.user._id }).sort({ createdAt: -1 })
     res.json({ lists: lists.map(toListJson) })
   } catch (err) {
-    res.status(500).json({ message: err.message })
+    res.status(500).json({ message: toSafeMessage(err) })
   }
 })
 
@@ -41,7 +42,7 @@ router.post('/', requireDB, requireAuth, async (req, res) => {
     const list = await CustomList.create({ userId: req.user._id, title: req.body.title.trim() })
     res.status(201).json({ list: toListJson(list) })
   } catch (err) {
-    res.status(500).json({ message: err.message })
+    res.status(500).json({ message: toSafeMessage(err) })
   }
 })
 
@@ -51,7 +52,7 @@ router.get('/:id', requireDB, requireAuth, async (req, res) => {
     if (!list) return res.status(status).json({ message: status === 400 ? 'Invalid id' : 'List not found' })
     res.json({ list: { _id: list._id, title: list.title, words: list.wordIds } })
   } catch (err) {
-    res.status(500).json({ message: err.message })
+    res.status(500).json({ message: toSafeMessage(err) })
   }
 })
 
@@ -65,7 +66,7 @@ router.patch('/:id', requireDB, requireAuth, async (req, res) => {
     await list.save()
     res.json({ list: toListJson(list) })
   } catch (err) {
-    res.status(500).json({ message: err.message })
+    res.status(500).json({ message: toSafeMessage(err) })
   }
 })
 
@@ -76,7 +77,7 @@ router.delete('/:id', requireDB, requireAuth, async (req, res) => {
     await list.deleteOne()
     res.json({ removed: true })
   } catch (err) {
-    res.status(500).json({ message: err.message })
+    res.status(500).json({ message: toSafeMessage(err) })
   }
 })
 
@@ -92,7 +93,7 @@ router.post('/:id/words', requireDB, requireAuth, async (req, res) => {
     const updated = await CustomList.findById(list._id)
     res.json({ list: toListJson(updated) })
   } catch (err) {
-    res.status(500).json({ message: err.message })
+    res.status(500).json({ message: toSafeMessage(err) })
   }
 })
 
@@ -107,7 +108,7 @@ router.delete('/:id/words/:wordId', requireDB, requireAuth, async (req, res) => 
     const updated = await CustomList.findById(list._id)
     res.json({ list: toListJson(updated) })
   } catch (err) {
-    res.status(500).json({ message: err.message })
+    res.status(500).json({ message: toSafeMessage(err) })
   }
 })
 

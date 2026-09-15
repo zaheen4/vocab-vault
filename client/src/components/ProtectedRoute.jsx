@@ -4,7 +4,8 @@ import { useAuth } from '../context/AuthContext'
 export default function ProtectedRoute({ children }) {
   const { token, loading } = useAuth()
 
-  if (!token) return <Navigate to="/login" replace />
+  // Loading first: a stored token must validate against /auth/me before the
+  // shell renders, otherwise a forged token string paints private routes.
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center text-slate-500">
@@ -12,5 +13,6 @@ export default function ProtectedRoute({ children }) {
       </div>
     )
   }
+  if (!token) return <Navigate to="/login" replace />
   return children
 }

@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { useState } from 'react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { AuthProvider } from './context/AuthContext'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { AuthProvider, useAuth } from './context/AuthContext'
+import { queryClient } from './api/queryClient'
 import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
 import DeckLayout from './components/DeckLayout'
@@ -14,18 +14,29 @@ import AddWord from './pages/AddWord'
 import Login from './pages/Login'
 import Register from './pages/Register'
 
+// Authenticated users never need the auth forms: send them home instead of
+// letting a re-submit silently overwrite the active session.
+function GuestRoute({ children }) {
+  const { token, loading } = useAuth()
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center text-slate-500">
+        Loading…
+      </div>
+    )
+  }
+  if (token) return <Navigate to="/" replace />
+  return children
+}
+
 export default function App() {
-  // State initializer so StrictMode double-render doesn't mint two clients
-  const [queryClient] = useState(
-    () => new QueryClient({ defaultOptions: { queries: { retry: 1 } } })
-  )
   return (
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
         <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
+          <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
           <Route
             element={
               <ProtectedRoute>

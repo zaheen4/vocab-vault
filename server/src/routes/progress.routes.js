@@ -5,6 +5,7 @@ import Word from '../models/Word.js'
 import User from '../models/User.js'
 import { requireAuth } from '../middleware/auth.js'
 import { requireDB } from '../middleware/requireDB.js'
+import { reviewLimiter } from '../middleware/rateLimit.js'
 import { nextReviewState } from '../utils/leitner.js'
 import {
   xpForAnswer,
@@ -14,6 +15,7 @@ import {
   awardBadges,
 } from '../utils/gamify.js'
 import { pushHistory, recordActivity } from '../utils/analytics.js'
+import { toSafeMessage } from '../utils/security.js'
 
 const router = Router()
 
@@ -23,11 +25,13 @@ router.get('/summary', requireDB, requireAuth, async (req, res) => {
       { $match: { userId: req.user._id } },
       { $group: { _id: '$status', count: { $sum: 1 } } },
     ])
+    const counts = Object.fromEntries(byStatus.map((s) => [s._id, s.count]))
+    // Zero-filled shape: fresh users get explicit zeros, not a sparse object.
     res.json({
-      summary: Object.fromEntries(byStatus.map((s) => [s._id, s.count])),
+      summary: { new: counts.new || 0, learning: counts.learning || 0, mastered: counts.mastered || 0 },
     })
   } catch (err) {
-    res.status(500).json({ message: err.message })
+    res.status(500).json({ message: toSafeMessage(err) })
   }
 })
 
@@ -66,11 +70,11 @@ router.get('/word/:wordId', requireDB, requireAuth, async (req, res) => {
       },
     })
   } catch (err) {
-    res.status(500).json({ message: err.message })
+    res.status(500).json({ message: toSafeMessage(err) })
   }
 })
 
-router.post('/review', requireDB, requireAuth, async (req, res) => {
+router.post('/review', requireDB, requireAuth, reviewLimiter, async (req, res) => {
   try {
     const { wordId, correct } = req.body || {}
     if (!wordId || !mongoose.isValidObjectId(wordId)) {
@@ -88,8 +92,10 @@ router.post('/review', requireDB, requireAuth, async (req, res) => {
       progress = new Progress({ userId: req.user._id, wordId, status: 'new' })
     }
     const before = progress.status
+    // Mutate in memory only — the single save below (after history is pushed)
+    // keeps box/streak/history atomic per review and closes the
+    // last-writer-wins window the old double-save left open.
     Object.assign(progress, nextReviewState(progress, correct))
-    await progress.save()
 
     // ---- gamification: award XP, update streak, totals, level ----
     const user = await User.findById(req.user._id)
@@ -165,10 +171,12 @@ router.post('/review', requireDB, requireAuth, async (req, res) => {
         },
       })
     } else {
+      pushHistory(progress, { correct, box: progress.box }, new Date())
+      await progress.save()
       res.json({ progress })
     }
   } catch (err) {
-    res.status(500).json({ message: err.message })
+    res.status(500).json({ message: toSafeMessage(err) })
   }
 })
 

@@ -69,9 +69,12 @@ export default function Search() {
 
   return (
     <div className="animate-page space-y-4">
+      <label className="sr-only" htmlFor="word-search">Search words</label>
       <input
+        id="word-search"
         type="search"
         placeholder="Search words…"
+        aria-label="Search words"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         className={inputClass}

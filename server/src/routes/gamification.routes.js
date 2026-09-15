@@ -3,6 +3,7 @@ import User from '../models/User.js'
 import { requireAuth } from '../middleware/auth.js'
 import { requireDB } from '../middleware/requireDB.js'
 import { levelFor, xpProgress } from '../utils/gamify.js'
+import { toSafeMessage } from '../utils/security.js'
 
 const GOAL_TARGETS = [5, 10, 15, 20, 25, 30, 40, 50]
 
@@ -14,6 +15,7 @@ router.get('/me', requireDB, requireAuth, async (req, res) => {
     if (!user) return res.status(404).json({ message: 'User not found' })
 
     const level = user.level || levelFor(user.xp || 0)
+    const progress = xpProgress(level, user.xp || 0)
     res.json({
       gamification: {
         xp: user.xp || 0,
@@ -21,8 +23,8 @@ router.get('/me', requireDB, requireAuth, async (req, res) => {
         dailyStreak: user.practiceStreakDays || 0,
         totalCorrect: user.totalCorrect || 0,
         totalReviewed: user.totalReviewed || 0,
-        nextLevelXp: xpProgress(level, user.xp || 0).next,
-        progressToNext: xpProgress(level, user.xp || 0).progress,
+        nextLevelXp: progress.next,
+        progressToNext: progress.progress,
         streakFreezes: user.streakFreezes || 0,
         dailyGoalTarget: user.dailyGoalTarget || 10,
         reviewsToday: user.reviewsToday || 0,
@@ -39,7 +41,7 @@ router.get('/me', requireDB, requireAuth, async (req, res) => {
       },
     })
   } catch (err) {
-    res.status(500).json({ message: err.message })
+    res.status(500).json({ message: toSafeMessage(err) })
   }
 })
 
@@ -57,7 +59,7 @@ router.patch('/goal', requireDB, requireAuth, async (req, res) => {
 
     res.json({ dailyGoalTarget: user.dailyGoalTarget })
   } catch (err) {
-    res.status(500).json({ message: err.message })
+    res.status(500).json({ message: toSafeMessage(err) })
   }
 })
 

@@ -45,6 +45,8 @@ export default function Login() {
           <input
             type="email"
             required
+            autoComplete="email"
+            maxLength={254}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className={inputClass}
@@ -56,6 +58,8 @@ export default function Login() {
           <input
             type="password"
             required
+            autoComplete="current-password"
+            maxLength={128}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className={inputClass}

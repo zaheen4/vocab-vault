@@ -21,6 +21,10 @@ export default function Register() {
       setError('Password must be at least 6 characters')
       return
     }
+    if (password.length > 128) {
+      setError('Password must be at most 128 characters')
+      return
+    }
     setError('')
     setSubmitting(true)
     try {
@@ -50,6 +54,8 @@ export default function Register() {
           <input
             type="text"
             required
+            autoComplete="name"
+            maxLength={100}
             value={name}
             onChange={(e) => setName(e.target.value)}
             className={inputClass}
@@ -61,6 +67,8 @@ export default function Register() {
           <input
             type="email"
             required
+            autoComplete="email"
+            maxLength={254}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className={inputClass}
@@ -73,6 +81,8 @@ export default function Register() {
             type="password"
             required
             minLength={6}
+            maxLength={128}
+            autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className={inputClass}

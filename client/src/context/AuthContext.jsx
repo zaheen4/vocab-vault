@@ -1,25 +1,59 @@
-import { createContext, useContext, useEffect, useState } from 'react'
-import { api } from '../api/client'
+import { createContext, useContext, useCallback, useEffect, useState } from 'react'
+import { api, authLogoutBeacon, setUnauthorizedHandler } from '../api/client'
+import { queryClient } from '../api/queryClient'
 
 const TOKEN_KEY = 'vv_token'
 const USER_KEY = 'vv_user'
 
 const AuthContext = createContext(null)
 
+function readStoredUser() {
+  try {
+    const raw = localStorage.getItem(USER_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw)
+    // Minimal shape guard: tampered or legacy values must not reach the UI.
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return null
+    if (typeof parsed.name !== 'string' || typeof parsed.email !== 'string') return null
+    return parsed
+  } catch {
+    return null
+  }
+}
+
 export function AuthProvider({ children }) {
   const [token, setToken] = useState(() => localStorage.getItem(TOKEN_KEY))
-  const [user, setUser] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem(USER_KEY))
-    } catch {
-      return null
-    }
-  })
+  const [user, setUser] = useState(readStoredUser)
   const [loading, setLoading] = useState(!!localStorage.getItem(TOKEN_KEY))
 
+  const logout = useCallback(() => {
+    const staleToken = localStorage.getItem(TOKEN_KEY)
+    // Best-effort server acknowledgement; logout stays local-first so a dead
+    // network never traps the user in a logged-in shell.
+    authLogoutBeacon(staleToken)
+    setToken(null)
+    setUser(null)
+    localStorage.removeItem(TOKEN_KEY)
+    localStorage.removeItem(USER_KEY)
+    // Drop the previous user's cached decks/bookmarks/progress so the next
+    // login on a shared device never paints stale private data.
+    queryClient.clear()
+  }, [])
+
+  // Any 401 from the api layer means the token is dead — end the session once.
   useEffect(() => {
-    if (!token) return undefined
+    setUnauthorizedHandler(() => logout())
+    return () => setUnauthorizedHandler(null)
+  }, [logout])
+
+  // Revalidate whenever the token changes (login, logout, multi-tab writes).
+  useEffect(() => {
+    if (!token) {
+      setLoading(false)
+      return undefined
+    }
     let cancelled = false
+    setLoading(true)
     api
       .get('/auth/me')
       .then((data) => {
@@ -36,7 +70,7 @@ export function AuthProvider({ children }) {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [token, logout])
 
   function persist(nextToken, nextUser) {
     setToken(nextToken)
@@ -55,13 +89,6 @@ export function AuthProvider({ children }) {
     const data = await api.post('/auth/register', { name, email, password })
     persist(data.token, data.user)
     return data.user
-  }
-
-  function logout() {
-    setToken(null)
-    setUser(null)
-    localStorage.removeItem(TOKEN_KEY)
-    localStorage.removeItem(USER_KEY)
   }
 
   return (
