@@ -97,7 +97,7 @@ export default function AddWord() {
               id="difficulty"
               value={difficulty}
               onChange={(e) => setDifficulty(e.target.value)}
-              className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 transition-colors focus:border-accent focus:ring-2 focus:ring-accent/40 focus:outline-none dark:border-white/15 dark:bg-night-800 dark:text-cream-100 dark:focus:border-accent"
+              className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 transition-colors focus:border-accent focus:ring-2 focus:ring-accent/40 focus:outline-none sm:text-sm dark:border-white/15 dark:bg-night-800 dark:text-cream-100 dark:focus:border-accent"
             >
               {DIFFICULTIES.map((d) => (
                 <option key={d} value={d}>

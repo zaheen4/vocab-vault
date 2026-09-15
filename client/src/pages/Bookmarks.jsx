@@ -160,7 +160,7 @@ function WordRow({ entry, index = 0, lists, quickList, onQuickListUsed, notify, 
                 aria-label={`Add ${word.word} to a different list`}
                 value={listId}
                 onChange={(e) => setListId(e.target.value)}
-                className="min-h-9 flex-1 rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900 focus:border-accent focus:ring-2 focus:ring-accent/40 focus:outline-none dark:border-white/15 dark:bg-night-800 dark:text-cream-100"
+                className="min-h-9 flex-1 rounded-md border border-slate-300 bg-white px-2 py-1.5 text-base text-slate-900 focus:border-accent focus:ring-2 focus:ring-accent/40 focus:outline-none sm:text-sm dark:border-white/15 dark:bg-night-800 dark:text-cream-100"
               >
                 <option value="">Another list…</option>
                 {lists
@@ -308,7 +308,7 @@ function BatchBar({ count, lists, onAdd, onUnstar, onCancel, busy }) {
           aria-label="Choose a list for selected words"
           value={listId}
           onChange={(e) => setListId(e.target.value)}
-          className="min-h-9 flex-1 rounded-md border border-slate-300 bg-white px-2 py-1.5 text-sm text-slate-900 focus:border-accent focus:ring-2 focus:ring-accent/40 focus:outline-none dark:border-white/15 dark:bg-night-800 dark:text-cream-100"
+          className="min-h-9 flex-1 rounded-md border border-slate-300 bg-white px-2 py-1.5 text-base text-slate-900 focus:border-accent focus:ring-2 focus:ring-accent/40 focus:outline-none sm:text-sm dark:border-white/15 dark:bg-night-800 dark:text-cream-100"
         >
           <option value="">Add to list…</option>
           {lists.map((l) => (
