@@ -122,4 +122,6 @@ foundation pass — the old "no dark mode before demo week" rule is retired.)
 - New motion is still under reduced-motion emulation.
 - Loading, error, and empty states exist on every new fetch.
 - One screen width at 375px and one at desktop, zero page errors.
-- Automated: `python3 scripts/design-contract.py` with dev servers running.
+- Automated: `npm run test:e2e` (`e2e/design-contract.spec.js`, Playwright)
+- with dev servers running; `e2e/study-flows.spec.js` covers functional
+- flows. Both stay out of CI (need Atlas).
