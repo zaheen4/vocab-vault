@@ -14,8 +14,8 @@
 | # | Step | Expected |
 |---|------|----------|
 | 1 | `POST /api/auth/register` temp account | 201, `{ token, user }`; `user` has **no** `passwordHash` key |
-| 2 | Login UI with temp creds | Redirects to `/`, Navbar shows temp name + Logout |
-| 3 | Home deck grid | 37 `Group N` cards in order + `N words` counts; first-run guidance links Group 1 |
+| 2 | Login UI with temp creds | Redirects to `/`, avatar account menu shows temp name, Logout present, level ring renders |
+| 3 | Home deck grid | 37 `Group N` cards in order + `N words` counts; cards show `due` counts + `% mastered` when started; deck filter appears (7+ decks); hero shows streak/level/XP chips; first-run guidance links Group 1; personal My Words deck appears once words are added |
 | 4 | Open Group 1 practice, flip card, answer | Instant ✓/✗ feedback, floating `+\d+ XP` matches `xpEarned` in review response |
 | 5 | `POST /api/progress/review` valid | 200, `progress.box` in 1–5, `gamification` has `xpEarned`, `level`, `dailyStreak`, `reviewsToday`, `dailyGoalTarget`, `newBadges: []` or badge entries |
 | 6 | `POST /api/progress/review` bad id / non-boolean | 400 both cases |
@@ -31,16 +31,40 @@
 | 3 | Typing session, correct spelling | `✓ Correct!`; typo within tolerance → `✓ Correct (typo forgiven!)`; wrong → shows correct spelling |
 | 4 | Practice card speaker | Pre-rendered clip plays (`/audio/words/*.mp3` 200) or first-run volume tip toast |
 | 5 | Silent device (no Web Speech voices) | Disabled speaker with `aria-label` hint; no crash, no page errors |
-| 6 | Design-contract e2e | `npm run test:e2e` 4/4 |
+| 6 | Design-contract + study-flows e2e | `npm run test:e2e` 8/8 (4 design-contract + 4 study-flows) |
+
+## Flow 3 — study flows (automated in `e2e/study-flows.spec.js`, QA account)
+
+| # | Step | Expected |
+|---|------|----------|
+| 1 | Practice answer on a due deck | `Box \d` or `Mastered` label plus tight `+\d+ XP` feedback; review recorded |
+| 2 | Quiz answer on a due deck | First option advances to `Next` / `See results` |
+| 3 | Typing submit (wrong on purpose) | Correction banner `The spelling is …` names the word |
+| 4 | Search `abate`, star round-trip | `\d+ results?`, star toggles, Bookmarks shows `abate`, unstar restores prior state (zero residue on shared QA account) |
+
+Formal temp-account regression (register → decks → practice → review incl.
+both 400s → quiz → search → add-word + 409 duplicate → bookmarks → lists →
+zero-filled summary → gamification) passes; cleanup deletes temp user/word/
+decks/progress and leaves QA decks intact.
 
 ## Last execution
 
+- Date: 2026-09-15 · PR: [#75](https://github.com/zaheen4/vocab-vault/pull/75) · Executor: agent
+- `npm run test:e2e` 8/8 (4 design-contract + 4 study-flows), zero page errors.
+- Study flows green: practice records with exact XP math, quiz advances,
+  typing grades, star round-trip restores state (zero residue by design).
+- Formal temp-account regression green (both 400s, add-word 409,
+  zero-filled summary, gamification); cleanup verified
+  (`CLEANUP:{"user":1,"word":1,"decks":1,"progress":1,…}`), probe
+  `{"words":[],"total":0,"page":1}`, QA 37 decks intact.
+- Tests 144 passed, oxlint + eslint clean.
 - Date: 2026-09-14 · PR: [#46](https://github.com/zaheen4/vocab-vault/pull/46) · Executor: agent
 - Flow 1: all 8 steps pass (register 201 with no `passwordHash`; login redirect + name chip; 37 decks; `+14 XP` feedback; review 200 + both 400s; summary `{learning: 1}` + Level 1/14 XP/streak 1; temp account + data deleted, 0 left).
 - Flow 2: quiz renders + records, unviewed-deck empty state, typing correct/forgiven/wrong paths, audio clip 200, search ok, `test:e2e` 4/4, zero page errors.
 - Audit fixes in this PR: `passwordHash` no longer returned by register/login; bookmark POST shape documented with `status`/`box`.
 
-## Production smoke (2026-09-14, live URLs)
+## Production smoke (2026-09-14, live URLs; UI overhaul + mobile/PWA + About
+shipped after via #62–#74, e2e flows via #75)
 
 - Seed: 37 decks / 1,110 words / audio 200 on `https://vvault.pages.dev`.
 - Temp register → practice (3 words) → review (`xpEarned` 14, streak 1, goal fields) → `first-word` badge → temp deleted.
