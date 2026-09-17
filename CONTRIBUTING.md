@@ -47,7 +47,7 @@ The `commit-msg` hook installs automatically via `npm install`
 3. Reviews are *encouraged, not required* — ask a teammate to look over bigger
    changes; it's free learning and great evidence of collaboration for evaluation.
 4. New commits to an open PR are always allowed.
-5. Merge methods allowed: merge commit or squash.
+5. Merge method: squash-merge with `--delete-branch` (team practice).
 6. UI changes must satisfy the checklist: loading/error/empty states on every
    new fetch · tap targets measured (24px min, 44px aim) · voice surfaces in
    Baloo per `docs/DESIGN_SYSTEM.md` · no raw hex · one mobile + one desktop
@@ -63,4 +63,5 @@ The `commit-msg` hook installs automatically via `npm install`
 - Run your feature through both apps (`npm run dev`) before opening a PR.
 - `npm test` (vitest, colocated `*.test.js`) must pass; add unit tests for
   pure logic (SRS, gamification, message pools). Browser E2E stays local
-  (`npm run test:e2e`, needs Atlas) — never in CI.
+  (`npm run test:e2e`: `e2e/design-contract.spec.js` + `e2e/study-flows.spec.js`,
+  needs Atlas) — never in CI.
