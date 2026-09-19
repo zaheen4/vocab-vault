@@ -98,11 +98,11 @@ the intent server-side and is the hook for future token revocation.
       "updatedAt": "..."
     }
   ],
-  "total": 1110,
+  "total": 42,
   "page": 1
 }
 ```
-**Errors:** 500
+**Errors:** 400 (non-string `q`, invalid `difficulty`), 500
 
 ---
 
@@ -243,14 +243,15 @@ Keys are zero-filled — a fresh user gets `{ "new": 0, "learning": 0, "mastered
     "box": 3,
     "status": "learning",
     "streakCorrect": 2,
-    "lastReviewed": "...",
-    "reviewDueAfter": "...",
+    "lastReviewed": null,
+    "reviewDueAfter": null,
     "history": [{ "at": "...", "correct": true, "box": 3 }]
   }
 }
 ```
 `history` holds the last 20 reviews, newest last. A never-reviewed word
-returns the fresh shape (`box: 1`, `status: "new"`, `history: []`).  
+returns the fresh shape (`box: 1`, `status: "new"`, `lastReviewed: null`,
+`reviewDueAfter: null`, `history: []`).  
 **Errors:** 400 (invalid wordId), 404 (unknown word), 500
 
 ---
@@ -538,9 +539,9 @@ database is down.
 | example | string | ❌ | |
 | partOfSpeech | string | ❌ | |
 | synonyms | string[] | ❌ | default `[]` |
-| banglaMeaning | string | ❌ | **deferred / optional** |
+| banglaMeaning | string | ❌ | optional, unused |
 | difficulty | enum | ❌ | `basic` \| `intermediate` \| `advanced`, default `basic` |
-| group | number | ❌ | GregMat group 1–37 |
+| group | number | ❌ | seed-convention group number (e.g. GregMat 1–37), unenforced |
 | source | enum | ❌ | `gregmat` \| `custom` |
 | createdBy | ObjectId | ❌ | ref `User`; set for user-added words, absent for curated |
 | createdAt / updatedAt | Date | auto | |
@@ -552,7 +553,7 @@ database is down.
 | description | string | ❌ | |
 | difficulty | enum | ❌ | default `basic` |
 | wordIds | ObjectId[] | ❌ | ref `Word`, default `[]` |
-| group | number | ❌ | GregMat group 1–37 |
+| group | number | ❌ | seed-convention group number (e.g. GregMat 1–37), unenforced |
 | source | enum | ❌ | `gregmat` \| `custom` (`custom` = personal "My Words" deck) |
 | createdBy | ObjectId | ❌ | ref `User`; set for personal decks, absent for shared |
 | createdAt / updatedAt | Date | auto | |
@@ -571,7 +572,7 @@ database is down.
 | lastPracticeDate | Date | ❌ | last review date (for daily streak) |
 | practiceStreakDays | number | ❌ | default 0, consecutive daily-practice count |
 | streakFreezes | number | ❌ | default 1, available grace days (0–1) |
-| dailyGoalTarget | number | ❌ | default 10; settable only to `5, 10, 15, 20, 25, 30, 40, 50` via `PATCH /goal` |
+| dailyGoalTarget | number | ❌ | default 10; settable only to `5, 10, 15, 20, 25, 30, 40, 50` via `PATCH /api/gamification/goal` |
 | reviewsToday | number | ❌ | today's review count |
 | reviewsTodayDate | Date | ❌ | date of current reviewsToday |
 | goalMetDate | Date | ❌ | last date daily goal was met |
@@ -627,8 +628,7 @@ a row across any mode, tracked by `perfectRun`).
 
 ## Contract Compliance Rules
 
-1. **All PRs must reference this contract** in title/body
-2. **Backend changes** must update this document if response shapes change
-3. **Frontend must not assume fields** not documented here
-4. **Breaking changes** require a new version prefix (`/api/v2/...`) or explicit team sync
-5. **New endpoints** added to this file before implementation starts
+1. **Backend changes** must update this document if response shapes change
+2. **Frontend must not assume fields** not documented here
+3. **Breaking changes** require a new version prefix (`/api/v2/...`) or explicit team sync
+4. **New endpoints** added to this file before implementation starts
