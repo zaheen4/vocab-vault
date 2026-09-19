@@ -12,6 +12,7 @@ never raw hex in components.
 |-------|-----|------|
 | `primary` | `#28324E` | Structure (darkest): headings, brand, text on accent fills |
 | `accent` | `#EE964B` | Interaction (warm): CTAs, focus rings, links |
+| `accent-deep` | `#B25F16` | Tactile edge: bottom-shadow edge under accent fills (chunky buttons), dark-mode-safe accent text |
 | `gold` | `#FAF0CA` | Surface (lightest): auth backgrounds, nav highlight |
 | `night-950/900/800` | `#0F1430` / `#171D3A` / `#232B52` | Dark surfaces: page / card / raised |
 | `cream-100/300` | `#F7F1DE` / `#CFC6AB` | Dark ink: headings / muted body text |
@@ -25,7 +26,7 @@ never raw hex in components.
 - `gold` is surfaces only (auth wash, nav highlight, tile tints) — never a
   status color; SRS states always use the palette row above.
 - `accent` does interaction (buttons, tabs, links) and data-viz (bars, rings);
-  text accents stay sparing (eyebrows, XP figures).
+  accent-colored text is reserved for eyebrows and XP figures — nowhere else.
 - **Radius scale:** `rounded-md` controls (inputs, buttons, chips),
   `rounded-lg/xl` cards and sheets, `rounded-full` pills/rings/toggles.
 - Dark mode is class-driven (`.dark` on `<html>`, see `ThemeContext`): every
@@ -42,7 +43,6 @@ never raw hex in components.
 - **Heading scale:** page H1s are fluid `text-display-lg` via shared `PageHeader`
   (with an accent eyebrow where the page needs orientation); heroes and done
   screens use fluid `text-display-xl`. Body text stays fixed — never fluid.
-  Floors match the old fixed sizes so mobile never shrinks below approved.
 - **Flashcard hierarchy:** the word (`text-3xl` bold) leads; the definition
   answers in `text-lg font-medium` with `leading-relaxed` — never semibold,
   never competing.
@@ -69,8 +69,9 @@ never raw hex in components.
 
 ## Motion: celebrations move, chrome stays calm
 
-- Keyframes in `client/src/index.css`: flip, pop, shake, float-up, glow,
-  confetti, page fade-slide, fade-up entrances with per-index stagger.
+- Keyframes in `client/src/index.css` (`fade-slide-in`, `pop-in`, `shake-x`,
+  `float-up`, `glow-pulse`, `confetti-burst`, `slide-in-right/left`,
+  `fade-up`): page fade-slide, fade-up entrances with per-index stagger.
 - Playful easing belongs on progress moments (unlock pop uses
   `cubic-bezier(0.34, 1.56, 0.64, 1)`); everyday motion stays linear/ease-out.
 - Celebration rule: confetti fires on strong sessions (≥60%) or level-ups —
@@ -92,7 +93,7 @@ never raw hex in components.
 - Join conditional classes with `utils/cn.js` (tailwind-merge: later colliding
   utilities win, so call-site overrides of base styles are safe).
 - Icons are SVG from `components/art/` (`icons.jsx`, `Mascot`, `EmptyArt`) —
-  never emoji above `text-base`. Small celebratory copy (toasts, level-up
+  never emoji as iconography. Small celebratory copy (toasts, level-up
   banners, session messages) may keep emoji; display-size glyphs (badges,
   HUD stats) must be SVG.
 - Generative art is seeded (`art/seed.js`, never `Math.random` in render) so it
