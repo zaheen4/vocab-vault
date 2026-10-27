@@ -119,6 +119,12 @@ function AccountMenu() {
             Review history
           </DropdownMenu.Item>
           <DropdownMenu.Item
+            onSelect={() => navigate('/settings')}
+            className="flex cursor-pointer items-center rounded-md px-2.5 py-2 text-sm font-medium text-slate-700 transition-colors outline-none hover:bg-slate-100 focus:bg-slate-100 dark:text-cream-100 dark:hover:bg-white/10 dark:focus:bg-white/10"
+          >
+            Account settings
+          </DropdownMenu.Item>
+          <DropdownMenu.Item
             onSelect={() => navigate('/about')}
             className="flex cursor-pointer items-center rounded-md px-2.5 py-2 text-sm font-medium text-slate-700 transition-colors outline-none hover:bg-slate-100 focus:bg-slate-100 dark:text-cream-100 dark:hover:bg-white/10 dark:focus:bg-white/10"
           >

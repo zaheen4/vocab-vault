@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import AuthShell from '../components/AuthShell'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
+import PasswordStrength from '../components/ui/PasswordStrength'
 
 export default function Register() {
   const { register } = useAuth()
@@ -11,6 +12,7 @@ export default function Register() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
@@ -24,6 +26,11 @@ export default function Register() {
       setError('Password must be at most 128 characters')
       return
     }
+    if (password !== confirmPassword) {
+      setError('Passwords do not match')
+      return
+    }
+
     setError('')
     setSubmitting(true)
     try {
@@ -71,11 +78,24 @@ export default function Register() {
             minLength={6}
             maxLength={128}
             autoComplete="new-password"
+            showPasswordToggle
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <span className="mt-1 block text-xs text-slate-400 dark:text-cream-300/60">At least 6 characters</span>
+          <PasswordStrength password={password} />
         </div>
+
+        <Input
+          label="Confirm password"
+          type="password"
+          required
+          minLength={6}
+          maxLength={128}
+          autoComplete="new-password"
+          showPasswordToggle
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+        />
 
         <Button type="submit" fullWidth loading={submitting}>
           {submitting ? 'Creating account…' : 'Register'}
