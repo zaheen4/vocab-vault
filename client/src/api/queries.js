@@ -33,6 +33,13 @@ export const fetchReviewHistory = ({ page = 1, limit = 20, filter = 'all' } = {}
   const qs = params.toString() ? `?${params.toString()}` : ''
   return api.get(`/progress/history${qs}`)
 }
+export const fetchQuizHistory = ({ page = 1, limit = 10 } = {}) => {
+  const params = new URLSearchParams()
+  if (page) params.set('page', String(page))
+  if (limit) params.set('limit', String(limit))
+  const qs = params.toString() ? `?${params.toString()}` : ''
+  return api.get(`/quiz/history${qs}`)
+}
 
 export function useDecks() {
   return useQuery({
@@ -81,6 +88,24 @@ export function useReviewHistory({ page = 1, limit = 20, filter = 'all' } = {}) 
     queryKey: ['progress', 'history', { page, limit, filter }],
     queryFn: () => fetchReviewHistory({ page, limit, filter }),
     staleTime: 30 * 1000,
+  })
+}
+
+export function useQuizHistory({ page = 1, limit = 10 } = {}) {
+  return useQuery({
+    queryKey: ['quiz', 'history', { page, limit }],
+    queryFn: () => fetchQuizHistory({ page, limit }),
+    staleTime: 30 * 1000,
+  })
+}
+
+export function useSaveQuizSession() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: (payload) => api.post('/quiz/session', payload),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['quiz', 'history'] })
+    },
   })
 }
 

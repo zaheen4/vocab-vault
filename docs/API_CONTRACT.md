@@ -380,6 +380,117 @@ idempotent — an already-earned badge is never returned again.
 
 ---
 
+## Quiz History & Performance
+
+### `POST /api/quiz/session` — Record a completed quiz attempt
+**Auth:** required  
+**Request:**
+```json
+{
+  "deckId": "ObjectId | null",
+  "deckTitle": "string",
+  "part": 1,
+  "scope": "viewed | all",
+  "score": 8,
+  "total": 10,
+  "timeSpentSeconds": 142,
+  "answers": [
+    {
+      "wordId": "ObjectId",
+      "word": "string",
+      "definition": "string",
+      "partOfSpeech": "string | null",
+      "userAnswer": "string",
+      "correctAnswer": "string",
+      "correct": true
+    }
+  ]
+}
+```
+**Response 201:**
+```json
+{
+  "session": {
+    "_id": "...",
+    "userId": "...",
+    "deckId": "...",
+    "deckTitle": "...",
+    "part": 1,
+    "scope": "viewed",
+    "score": 8,
+    "total": 10,
+    "percentage": 80,
+    "timeSpentSeconds": 142,
+    "answers": [],
+    "createdAt": "2026-10-27T14:30:00.000Z"
+  }
+}
+```
+Persists the session in the dedicated `QuizSession` collection, capped at 100 sessions per user.  
+**Errors:** 400 (validation error), 401, 500
+
+---
+
+### `GET /api/quiz/history` — List user's quiz sessions and performance stats
+**Auth:** required  
+**Query:**
+- `page` (optional integer, default 1, clamped 1–1000)
+- `limit` (optional integer, default 10, clamped 1–50)
+
+**Response 200:**
+```json
+{
+  "sessions": [
+    {
+      "_id": "string",
+      "deckId": "string | null",
+      "deckTitle": "string",
+      "part": 1,
+      "scope": "viewed",
+      "score": 8,
+      "total": 10,
+      "percentage": 80,
+      "timeSpentSeconds": 142,
+      "answers": [],
+      "createdAt": "2026-10-27T14:30:00.000Z"
+    }
+  ],
+  "total": 25,
+  "page": 1,
+  "limit": 10,
+  "totalPages": 3,
+  "stats": {
+    "totalQuizzes": 25,
+    "averageScore": 82,
+    "bestScore": 100,
+    "totalQuestions": 250
+  }
+}
+```
+**Errors:** 400 (invalid page/limit), 401, 500
+
+---
+
+### `GET /api/quiz/history/:id` — Get single quiz session detail
+**Auth:** required  
+**Response 200:**
+```json
+{
+  "session": {
+    "_id": "string",
+    "deckTitle": "string",
+    "score": 8,
+    "total": 10,
+    "percentage": 80,
+    "timeSpentSeconds": 142,
+    "answers": []
+  }
+}
+```
+**Errors:** 400 (invalid id), 401, 404 (session not found), 500
+
+---
+
 ## Gamification
 
 ### `GET /api/gamification/me` — Get current user's XP / level / streak
