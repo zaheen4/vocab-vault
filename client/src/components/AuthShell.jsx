@@ -16,7 +16,7 @@ export default function AuthShell({ title, children }) {
       <div className="grid w-full max-w-3xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl sm:grid-cols-2 dark:border-white/10 dark:bg-night-900 dark:shadow-none">
         <div className="flex flex-col justify-center gap-3 p-5 sm:gap-5 sm:p-8 bg-primary text-white dark:bg-night-800">
           <div className="flex items-center gap-2.5">
-            <span className="rounded-lg bg-gold p-1.5">
+            <span className="rounded-lg bg-gold p-1.5 dark:bg-night-900 dark:ring-1 dark:ring-white/10">
               <Logo size={26} />
             </span>
             <span className="font-display text-xl font-bold">VocabVault</span>
@@ -38,7 +38,7 @@ export default function AuthShell({ title, children }) {
             ))}
           </ul>
           <div aria-hidden="true" className="mt-auto hidden justify-start pt-4 sm:flex">
-            <span className="rounded-full bg-gold p-4">
+            <span className="rounded-full bg-gold p-4 dark:bg-night-900 dark:ring-1 dark:ring-white/10">
               <Mascot size={96} />
             </span>
           </div>
