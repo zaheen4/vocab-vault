@@ -90,7 +90,7 @@ export default function SavedPractice() {
     let g = {}
     let box = correct ? 2 : 1
     try {
-      const data = await api.post('/progress/review', { wordId: word._id, correct })
+      const data = await api.post('/progress/review', { wordId: word._id, correct, mode: 'practice' })
       g = data.gamification || {}
       box = data.progress?.box || box
     } catch (err) {

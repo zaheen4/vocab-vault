@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
-import { isStarred, useBookmarks, useInvalidateAfterReview, useQuizPool, useToggleBookmark } from '../api/queries'
+import { isStarred, useBookmarks, useInvalidateAfterReview, useQuizPool, useSaveQuizSession, useToggleBookmark } from '../api/queries'
 import { useSlideDirection } from '../utils/navDirection'
 import { getSessionMessage } from '../utils/sessionMessages'
 import { shouldCelebrate } from '../utils/celebrate'
@@ -79,6 +79,8 @@ export default function Quiz({ deckId }) {
   const [toast, setToast] = useState(null)
   const [finalMessage, setFinalMessage] = useState(null)
   const slideCls = useSlideDirection()
+  const saveSession = useSaveQuizSession()
+  const startTimeRef = useRef(null)
   // Synchronous submit guard (see Practice.jsx busyRef): state flags are
   // stale across rapid double-clicks, so the ref owns the lock
   const busyRef = useRef(false)
@@ -123,6 +125,7 @@ export default function Quiz({ deckId }) {
         console.error(err)
       }
     }
+    startTimeRef.current = Date.now()
     setQuestions(buildQuestions(pool, fallback, length))
     setIndex(0)
     setPicked(null)
@@ -138,15 +141,15 @@ export default function Quiz({ deckId }) {
     setStatus('ready')
   }
 
-  async function saveAnswer(payload) {
+  async function saveAnswer(payload, answerItem) {
     try {
       const data = await api.post('/progress/review', payload)
-      setResults((r) => [...r, { word: questions[index].word.word, correct: payload.correct }])
+      setResults((r) => [...r, answerItem])
       if (payload.correct) setScore((s) => s + 1)
       if (data.gamification?.levelUp) setLevelEvent({ newLevel: data.gamification.level })
       if (data.gamification?.newBadges?.length) {
         const names = data.gamification.newBadges.map((b) => `${b.icon} ${b.name}`).join(' · ')
-        setToast({ variant: 'gold', message: `🏅 Badge earned: ${names}!` })
+        setToast({ variant: 'gold', message: `Badge earned: ${names}!` })
       }
       invalidateAfterReview(id)
       setPending(null)
@@ -164,15 +167,24 @@ export default function Quiz({ deckId }) {
     busyRef.current = true
     const q = questions[index]
     const correct = optIdx === q.answerIndex
-    const payload = { wordId: q.word._id, correct }
+    const payload = { wordId: q.word._id, correct, mode: 'quiz' }
+    const answerItem = {
+      wordId: q.word._id,
+      word: q.word.word,
+      definition: q.word.definition,
+      partOfSpeech: q.word.partOfSpeech || null,
+      userAnswer: q.options[optIdx],
+      correctAnswer: q.options[q.answerIndex],
+      correct,
+    }
     setPicked(optIdx)
-    setPending(payload)
-    await saveAnswer(payload)
+    setPending({ payload, answerItem })
+    await saveAnswer(payload, answerItem)
   }
 
   async function retrySave() {
     if (!pending) return
-    await saveAnswer(pending)
+    await saveAnswer(pending.payload, pending.answerItem)
   }
 
   function next() {
@@ -193,6 +205,20 @@ export default function Quiz({ deckId }) {
           level: levelEvent?.newLevel ?? null,
         })
       )
+      const durationSeconds = Math.max(
+        1,
+        Math.round((Date.now() - (startTimeRef.current || Date.now())) / 1000)
+      )
+      saveSession.mutate({
+        deckId: isAllDeck ? null : id && id !== 'all' ? id : null,
+        deckTitle: isAllDeck ? 'All-Deck Quiz' : part ? `${deckTitle} · Part ${part}` : deckTitle,
+        part: part ? Number(part) : null,
+        scope: isAllDeck ? scope : 'viewed',
+        score: correctCount,
+        total: results.length,
+        timeSpentSeconds: durationSeconds,
+        answers: results,
+      })
       setStatus('done')
     } else {
       setIndex((i) => i + 1)
@@ -333,10 +359,13 @@ export default function Quiz({ deckId }) {
             ))}
           </div>
         )}
-        <div className="flex justify-center gap-3">
+        <div className="flex flex-wrap justify-center gap-3">
           <Button variant="secondary" onClick={() => setStatus('idle')}>
             New quiz
           </Button>
+          <Link to="/history">
+            <Button variant="secondary">View in Quiz History &rarr;</Button>
+          </Link>
           {!isAllDeck && (
             <Link to={`/decks/${id}`}>
               <Button variant="secondary">Practice flashcards</Button>

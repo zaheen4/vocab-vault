@@ -21,8 +21,8 @@ export function recordActivity(user, now = new Date()) {
 
 // Append one review event to a progress history, newest last.
 // Mutates the progress doc; keeps the last MAX_HISTORY_ENTRIES entries.
-export function pushHistory(progress, { correct, box }, now = new Date()) {
+export function pushHistory(progress, { correct, box, mode }, now = new Date()) {
   const history = progress.history || []
-  history.push({ at: now, correct, box })
+  history.push({ at: now, correct, box, mode: mode || 'practice' })
   progress.history = history.slice(-MAX_HISTORY_ENTRIES)
 }

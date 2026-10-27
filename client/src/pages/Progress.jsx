@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { useGamification, useProgressSummary, useSetGoalTarget } from '../api/queries'
 import { useCountUp } from '../utils/countUp'
 import PageHeader from '../components/PageHeader'
@@ -51,11 +52,19 @@ function ActivityStrip({ activity }) {
 
   return (
     <div className="rounded-xl border border-primary/10 bg-white p-5 dark:border-white/10 dark:bg-night-900">
-      <div className="flex items-baseline justify-between">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="font-display text-base font-bold text-primary dark:text-cream-100">This week</h2>
-        <p className="text-xs text-slate-500 dark:text-cream-300/80">
-          {total} review{total === 1 ? '' : 's'}
-        </p>
+        <div className="flex items-center gap-3">
+          <p className="text-xs text-slate-500 dark:text-cream-300/80">
+            {total} review{total === 1 ? '' : 's'}
+          </p>
+          <Link
+            to="/history"
+            className="font-display text-xs font-bold text-accent hover:text-accent-deep dark:text-accent dark:hover:text-gold"
+          >
+            Review history &rarr;
+          </Link>
+        </div>
       </div>
       <div className="mt-3 grid grid-cols-7 gap-1">
         {days.map((d) => (
@@ -174,15 +183,23 @@ export default function Progress() {
 
   return (
     <div className="animate-page space-y-6">
-      <PageHeader
-        eyebrow="Statistics"
-        title="Your progress"
-        sub={
-          total === 0
-            ? 'Practice a deck to start tracking your progress.'
-            : `${total} word${total === 1 ? '' : 's'} in your learning pipeline.`
-        }
-      />
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <PageHeader
+          eyebrow="Statistics"
+          title="Your progress"
+          sub={
+            total === 0
+              ? 'Practice a deck to start tracking your progress.'
+              : `${total} word${total === 1 ? '' : 's'} in your learning pipeline.`
+          }
+        />
+        <Link
+          to="/history"
+          className="inline-flex min-h-9 items-center gap-1 rounded-md border border-slate-200 bg-white px-3 py-1.5 font-display text-xs font-bold text-slate-700 transition-colors hover:bg-slate-50 dark:border-white/10 dark:bg-night-900 dark:text-cream-100 dark:hover:bg-night-800"
+        >
+          Review history &rarr;
+        </Link>
+      </div>
 
       {stats && (
         <div className="rounded-xl border border-accent bg-gold/60 p-5 dark:border-accent/30 dark:bg-night-900">

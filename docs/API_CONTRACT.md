@@ -287,11 +287,46 @@ returns the fresh shape (`box: 1`, `status: "new"`, `lastReviewed: null`,
 
 ---
 
+### `GET /api/progress/history` — Get chronological review history
+**Auth:** required  
+**Query:**
+- `page` (optional integer, default 1, clamped 1–1000)
+- `limit` (optional integer, default 20, clamped 1–100)
+- `filter` (optional string enum: `all` | `correct` | `incorrect`, default `all`)
+
+**Response 200:**
+```json
+{
+  "history": [
+    {
+      "reviewId": "string",
+      "wordId": "string",
+      "word": "string",
+      "definition": "string",
+      "partOfSpeech": "string | null",
+      "difficulty": "basic | intermediate | advanced",
+      "correct": true,
+      "box": 3,
+      "mode": "practice | quiz | typing",
+      "reviewedAt": "2026-10-27T14:30:00.000Z"
+    }
+  ],
+  "total": 45,
+  "page": 1,
+  "limit": 20,
+  "totalPages": 3
+}
+```
+Aggregates across the user's progress records, sorted newest first. Returns `"history": []` and `"total": 0` when no review history exists.  
+**Errors:** 400 (invalid page/limit/filter), 401, 500
+
+---
+
 ### `POST /api/progress/review` — Record a practice answer
 **Auth:** required  
 **Request:**
 ```json
-{ "wordId": "ObjectId", "correct": true }
+{ "wordId": "ObjectId", "correct": true, "mode": "practice | quiz | typing" }
 ```
 **Response 200:**
 ```json
@@ -342,6 +377,117 @@ first cross per day (freeze count resets to 1).
 none); each entry carries the catalog `id`, `name`, and `icon`. Award is
 idempotent — an already-earned badge is never returned again.
 **Errors:** 400 (invalid wordId / non-boolean correct), 404 (unknown word), 500
+
+---
+
+## Quiz History & Performance
+
+### `POST /api/quiz/session` — Record a completed quiz attempt
+**Auth:** required  
+**Request:**
+```json
+{
+  "deckId": "ObjectId | null",
+  "deckTitle": "string",
+  "part": 1,
+  "scope": "viewed | all",
+  "score": 8,
+  "total": 10,
+  "timeSpentSeconds": 142,
+  "answers": [
+    {
+      "wordId": "ObjectId",
+      "word": "string",
+      "definition": "string",
+      "partOfSpeech": "string | null",
+      "userAnswer": "string",
+      "correctAnswer": "string",
+      "correct": true
+    }
+  ]
+}
+```
+**Response 201:**
+```json
+{
+  "session": {
+    "_id": "...",
+    "userId": "...",
+    "deckId": "...",
+    "deckTitle": "...",
+    "part": 1,
+    "scope": "viewed",
+    "score": 8,
+    "total": 10,
+    "percentage": 80,
+    "timeSpentSeconds": 142,
+    "answers": [],
+    "createdAt": "2026-10-27T14:30:00.000Z"
+  }
+}
+```
+Persists the session in the dedicated `QuizSession` collection, capped at 100 sessions per user.  
+**Errors:** 400 (validation error), 401, 500
+
+---
+
+### `GET /api/quiz/history` — List user's quiz sessions and performance stats
+**Auth:** required  
+**Query:**
+- `page` (optional integer, default 1, clamped 1–1000)
+- `limit` (optional integer, default 10, clamped 1–50)
+
+**Response 200:**
+```json
+{
+  "sessions": [
+    {
+      "_id": "string",
+      "deckId": "string | null",
+      "deckTitle": "string",
+      "part": 1,
+      "scope": "viewed",
+      "score": 8,
+      "total": 10,
+      "percentage": 80,
+      "timeSpentSeconds": 142,
+      "answers": [],
+      "createdAt": "2026-10-27T14:30:00.000Z"
+    }
+  ],
+  "total": 25,
+  "page": 1,
+  "limit": 10,
+  "totalPages": 3,
+  "stats": {
+    "totalQuizzes": 25,
+    "averageScore": 82,
+    "bestScore": 100,
+    "totalQuestions": 250
+  }
+}
+```
+**Errors:** 400 (invalid page/limit), 401, 500
+
+---
+
+### `GET /api/quiz/history/:id` — Get single quiz session detail
+**Auth:** required  
+**Response 200:**
+```json
+{
+  "session": {
+    "_id": "string",
+    "deckTitle": "string",
+    "score": 8,
+    "total": 10,
+    "percentage": 80,
+    "timeSpentSeconds": 142,
+    "answers": []
+  }
+}
+```
+**Errors:** 400 (invalid id), 401, 404 (session not found), 500
 
 ---
 

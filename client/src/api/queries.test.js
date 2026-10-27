@@ -20,13 +20,14 @@ describe('invalidateAfterReview', () => {
     ])
   })
 
-  it('still refreshes gamification, summary and the deck quiz pool', () => {
+  it('still refreshes gamification, summary, history and the deck quiz pool', () => {
     const qc = fakeClient()
     invalidateAfterReview(qc, 'deck1')
 
     const calls = callsOf(qc)
     expect(calls).toContainEqual({ queryKey: ['gamification', 'me'] })
     expect(calls).toContainEqual({ queryKey: ['progress', 'summary'] })
+    expect(calls).toContainEqual({ queryKey: ['progress', 'history'] })
     expect(calls).toContainEqual({ queryKey: ['quizpool', 'deck1'] })
   })
 
@@ -35,7 +36,7 @@ describe('invalidateAfterReview', () => {
     invalidateAfterReview(qc, undefined)
 
     const roots = callsOf(qc).map((c) => c.queryKey[0])
-    expect(roots).toEqual(['gamification', 'progress'])
+    expect(roots).toEqual(['gamification', 'progress', 'progress'])
   })
 })
 
