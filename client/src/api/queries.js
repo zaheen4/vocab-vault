@@ -33,6 +33,10 @@ export const fetchReviewHistory = ({ page = 1, limit = 20, filter = 'all' } = {}
   const qs = params.toString() ? `?${params.toString()}` : ''
   return api.get(`/progress/history${qs}`)
 }
+export const fetchDueWords = (limit = 20) =>
+  api.get(`/progress/due?limit=${limit}`).then((d) => d)
+export const fetchWeakWords = (limit = 20) =>
+  api.get(`/progress/weak?limit=${limit}`).then((d) => d)
 export const fetchQuizHistory = ({ page = 1, limit = 10 } = {}) => {
   const params = new URLSearchParams()
   if (page) params.set('page', String(page))
@@ -87,6 +91,22 @@ export function useReviewHistory({ page = 1, limit = 20, filter = 'all' } = {}) 
   return useQuery({
     queryKey: ['progress', 'history', { page, limit, filter }],
     queryFn: () => fetchReviewHistory({ page, limit, filter }),
+    staleTime: 30 * 1000,
+  })
+}
+
+export function useDueWords(limit = 20) {
+  return useQuery({
+    queryKey: ['progress', 'due', limit],
+    queryFn: () => fetchDueWords(limit),
+    staleTime: 30 * 1000,
+  })
+}
+
+export function useWeakWords(limit = 20) {
+  return useQuery({
+    queryKey: ['progress', 'weak', limit],
+    queryFn: () => fetchWeakWords(limit),
     staleTime: 30 * 1000,
   })
 }
@@ -156,6 +176,8 @@ export function invalidateAfterReview(qc, deckId) {
   qc.invalidateQueries({ queryKey: GAMIFICATION_KEY })
   qc.invalidateQueries({ queryKey: SUMMARY_KEY })
   qc.invalidateQueries({ queryKey: ['progress', 'history'] })
+  qc.invalidateQueries({ queryKey: ['progress', 'due'] })
+  qc.invalidateQueries({ queryKey: ['progress', 'weak'] })
   if (deckId) {
     qc.invalidateQueries({ queryKey: ['session', deckId], refetchType: 'none' })
     qc.invalidateQueries({ queryKey: ['quizpool', deckId] })

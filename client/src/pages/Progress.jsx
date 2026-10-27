@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { useGamification, useProgressSummary, useSetGoalTarget } from '../api/queries'
+import { useGamification, useProgressSummary, useSetGoalTarget, useWeakWords } from '../api/queries'
 import { useCountUp } from '../utils/countUp'
 import PageHeader from '../components/PageHeader'
 import { FlameIcon, GemIcon, HundredIcon, SproutIcon, StarIcon } from '../components/art/icons'
@@ -153,6 +153,7 @@ export default function Progress() {
   const { data: summary, isLoading, isError } = useProgressSummary()
   // Decorative gamification banner: never block the page on failure
   const { data: stats } = useGamification()
+  const { data: weakData } = useWeakWords(1)
   const setGoal = useSetGoalTarget()
   const shownLevel = useCountUp(stats?.level || 0)
   const shownStreak = useCountUp(stats?.dailyStreak || 0)
@@ -263,6 +264,25 @@ export default function Progress() {
           </div>
         ))}
       </div>
+
+      {(weakData?.totalWeak || 0) > 0 && (
+        <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-red-200 bg-red-50/70 p-5 dark:border-red-400/20 dark:bg-red-950/30">
+          <div>
+            <h3 className="font-display text-base font-bold text-red-900 dark:text-red-200">
+              Mistake Bank ({weakData.totalWeak} word{weakData.totalWeak === 1 ? '' : 's'})
+            </h3>
+            <p className="mt-0.5 text-xs text-red-700/80 dark:text-red-300/80">
+              Words currently stuck in Box 1 needing extra practice.
+            </p>
+          </div>
+          <Link
+            to="/practice/weak"
+            className="inline-flex min-h-9 items-center justify-center rounded-md bg-red-600 px-4 py-2 font-display text-xs font-bold text-white transition-colors hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600"
+          >
+            Cram weak words &rarr;
+          </Link>
+        </div>
+      )}
 
       {stats && (
         <div className="rounded-xl border border-primary/10 bg-white p-5 dark:border-white/10 dark:bg-night-900">

@@ -263,6 +263,40 @@ Keys are zero-filled — a fresh user gets `{ "new": 0, "learning": 0, "mastered
 
 ---
 
+### `GET /api/progress/due` — Get due spaced-repetition words across all decks
+**Auth:** required  
+**Query:**
+- `limit` (optional integer, default 20, clamped 1–100)
+
+**Response 200:**
+```json
+{
+  "words": [ { ...word } ],
+  "totalDue": 14
+}
+```
+Aggregates all learning/mastered cards whose `reviewDueAfter` timestamp is past or equal to the current time across all decks, ordered chronologically by due date. Returns `{ "words": [], "totalDue": 0 }` when nothing is due.  
+**Errors:** 401, 500
+
+---
+
+### `GET /api/progress/weak` — Get weak words (mistake bank) across all decks
+**Auth:** required  
+**Query:**
+- `limit` (optional integer, default 20, clamped 1–50)
+
+**Response 200:**
+```json
+{
+  "words": [ { ...word } ],
+  "totalWeak": 6
+}
+```
+Returns learning words currently stuck in Box 1 with low correct streaks, ordered by streak ascending and last reviewed descending. Returns `{ "words": [], "totalWeak": 0 }` when no words are in Box 1.  
+**Errors:** 401, 500
+
+---
+
 ### `GET /api/progress/word/:wordId` — Get my progress on one word
 **Auth:** required  
 **Params:** `wordId` (ObjectId)  
