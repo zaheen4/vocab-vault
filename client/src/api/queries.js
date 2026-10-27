@@ -311,3 +311,55 @@ export function useAddListWord() {
 export function useRemoveListWord() {
   return useListMutation(({ id, wordId }) => api.delete(`/lists/${id}/words/${wordId}`))
 }
+
+// ---- Account & security operations ----
+
+export function useForgotPassword() {
+  return useMutation({
+    mutationFn: ({ email }) => api.post('/auth/forgot-password', { email }),
+  })
+}
+
+export function useResetPassword() {
+  return useMutation({
+    mutationFn: ({ token, password }) => api.post('/auth/reset-password', { token, password }),
+  })
+}
+
+export function useUpdateProfile() {
+  return useMutation({
+    mutationFn: ({ name }) => api.patch('/auth/profile', { name }),
+  })
+}
+
+export function useChangePassword() {
+  return useMutation({
+    mutationFn: ({ currentPassword, newPassword }) =>
+      api.patch('/auth/password', { currentPassword, newPassword }),
+  })
+}
+
+export function useRevokeAllSessions() {
+  return useMutation({
+    mutationFn: () => api.post('/auth/revoke-all'),
+  })
+}
+
+export function useResetProgress() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: ({ password }) => api.post('/auth/reset-progress', { password }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: GAMIFICATION_KEY })
+      qc.invalidateQueries({ queryKey: SUMMARY_KEY })
+      qc.invalidateQueries({ queryKey: ['progress'] })
+      qc.invalidateQueries({ queryKey: ['quiz', 'history'] })
+    },
+  })
+}
+
+export function useDeleteAccount() {
+  return useMutation({
+    mutationFn: ({ password }) => api.delete('/auth/account', { password }),
+  })
+}
