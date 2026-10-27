@@ -18,6 +18,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: deploy-gate
+  cancel-in-progress: true
+
 jobs:
   render-health:
     name: render serving pushed sha
