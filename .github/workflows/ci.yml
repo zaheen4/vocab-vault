@@ -2,7 +2,19 @@ name: CI
 
 on:
   push:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
   pull_request:
+    branches: [main]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   verify:
@@ -10,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node: ['22', '24']
+        node: ${{ github.event_name == 'push' && fromJSON('["22", "24"]') || fromJSON('["22"]') }}
     steps:
       - uses: actions/checkout@v5
 
