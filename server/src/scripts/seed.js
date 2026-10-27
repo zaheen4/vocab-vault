@@ -77,8 +77,7 @@ async function main() {
     `Removed ${wordCount} legacy words (not in GregMat) and ${deckCount} legacy decks`
   )
 
-  // drop GregMat words/decks whose group is no longer in the dataset,
-  // plus legacy decks lacking a part field
+  // drop GregMat words/decks whose group is no longer in the dataset
   const validGroups = groups.map((g) => g.group)
   const staleWords = await Word.deleteMany({
     source: 'gregmat',
@@ -86,35 +85,32 @@ async function main() {
   })
   const staleDecks = await Deck.deleteMany({
     source: 'gregmat',
-    $or: [{ group: { $nin: validGroups } }, { part: null }, { part: { $exists: false } }],
+    group: { $nin: validGroups },
   })
   console.log(
     `Removed ${staleWords.deletedCount} out-of-dataset words and ${staleDecks.deletedCount} stale decks`
   )
 
-  // create 3 decks per group (one per part), discarding stale ones
+  // create one deck per group, discarding stale ones for that group
   let decks = 0
   for (const { group } of groups) {
-    for (let part = 1; part <= 3; part++) {
-      const words = await Word.find({ source: 'gregmat', group, part })
-      if (!words.length) continue
-      await Deck.updateOne(
-        { source: 'gregmat', group, part },
-        {
-          $set: {
-            title: `Group ${group} — Part ${part}`,
-            description: `GregMat vocabulary group ${group}, part ${part} — ${words.length} words`,
-            source: 'gregmat',
-            group,
-            part,
-            difficulty: difficultyFor(group),
-            wordIds: words.map((w) => w._id),
-          },
+    const words = await Word.find({ source: 'gregmat', group })
+    if (!words.length) continue
+    await Deck.updateOne(
+      { source: 'gregmat', group },
+      {
+        $set: {
+          title: `Group ${group}`,
+          description: `GregMat vocabulary group ${group} — ${words.length} words`,
+          source: 'gregmat',
+          group,
+          difficulty: difficultyFor(group),
+          wordIds: words.map((w) => w._id),
         },
-        { upsert: true }
-      )
-      decks++
-    }
+      },
+      { upsert: true }
+    )
+    decks++
   }
   console.log(`GregMat decks ready: ${decks}`)
 

@@ -26,7 +26,7 @@ let lastGeometry = null
 export default function ModeTabs({ deckId }) {
   const prefetchDeck = usePrefetchDeck()
   const prefetchPool = usePrefetchQuizPool()
-  const { pathname } = useLocation()
+  const { pathname, search } = useLocation()
   const warm = (kind) => () => (kind === 'session' ? prefetchDeck(deckId) : prefetchPool(deckId))
   const current = activeLabel(pathname, deckId)
   const tabRefs = useRef({})
@@ -75,7 +75,7 @@ export default function ModeTabs({ deckId }) {
             if (el) tabRefs.current[label] = el
             else delete tabRefs.current[label]
           }}
-          to={to(deckId)}
+          to={{ pathname: to(deckId), search }}
           end={end}
           onMouseEnter={warm(kind)}
           onFocus={warm(kind)}

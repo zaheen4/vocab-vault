@@ -44,3 +44,49 @@ export function countDeckDue(decks, detailByWord, now = new Date()) {
     return { deckId: String(deck._id), dueCount }
   })
 }
+
+// Pure per-deck parts summarizer for GET /api/decks.
+// Divides deck.wordIds into 3 parts (0..9, 10..19, 20..end) for multi-part decks (>10 words).
+export function summarizeDeckParts(deck, progressByWord, detailByWord, now = new Date()) {
+  const ids = deck.wordIds || []
+  if (ids.length <= 10) return []
+
+  const slices = [
+    { part: 1, wordIds: ids.slice(0, 10) },
+    { part: 2, wordIds: ids.slice(10, 20) },
+    { part: 3, wordIds: ids.slice(20) },
+  ]
+
+  const getProg = (wid) => {
+    const key = typeof wid === 'string' ? wid : String(wid?._id ?? wid)
+    return progressByWord?.get?.(key) ?? 'new'
+  }
+  const getDetail = (wid) => {
+    const key = typeof wid === 'string' ? wid : String(wid?._id ?? wid)
+    return detailByWord?.get?.(key) ?? null
+  }
+
+  return slices.map(({ part, wordIds }) => {
+    const progress = { new: 0, learning: 0, mastered: 0 }
+    let dueCount = 0
+    for (const wid of wordIds) {
+      const status = getProg(wid)
+      if (status === 'learning') progress.learning += 1
+      else if (status === 'mastered') progress.mastered += 1
+      else progress.new += 1
+
+      const rec = getDetail(wid)
+      if (!rec) {
+        dueCount += 1
+      } else if (!rec.reviewDueAfter || new Date(rec.reviewDueAfter) <= now) {
+        dueCount += 1
+      }
+    }
+    return {
+      part,
+      wordCount: wordIds.length,
+      progress,
+      dueCount,
+    }
+  })
+}

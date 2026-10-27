@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { isStarred, useBookmarks, useInvalidateAfterReview, useQuizPool, useToggleBookmark } from '../api/queries'
 import { useSlideDirection } from '../utils/navDirection'
@@ -51,15 +51,19 @@ function buildQuestions(deckWords, fallbackPool, count) {
 
 export default function Quiz({ deckId }) {
   const params = useParams()
+  const [searchParams] = useSearchParams()
   const id = deckId ?? params.id
   const isAllDeck = id === 'all'
+  const partParam = searchParams.get('part')
+  const part = !isAllDeck && partParam ? Number(partParam) : undefined
   const [scope, setScope] = useState('viewed') // 'viewed' | 'all'
   // Shared pool with Typing: switching modes is a cache hit after first load.
-  const { data: poolData, isLoading, isError } = useQuizPool(id, 50, isAllDeck ? scope : 'viewed')
+  const { data: poolData, isLoading, isError } = useQuizPool(id, 50, isAllDeck ? scope : 'viewed', part)
   const invalidateAfterReview = useInvalidateAfterReview()
   const { data: bookmarks = [] } = useBookmarks()
   const toggleBookmark = useToggleBookmark()
-  const deckTitle = poolData?.title || (isAllDeck ? 'All Decks' : '')
+  const baseTitle = poolData?.title || (isAllDeck ? 'All Decks' : '')
+  const deckTitle = baseTitle ? (!isAllDeck && part ? `${baseTitle} — Part ${part}` : baseTitle) : ''
   const pool = poolData?.words ?? []
   const [status, setStatus] = useState('loading') // loading|error|empty|idle|ready|done
   const [length, setLength] = useState(10)
@@ -79,6 +83,22 @@ export default function Quiz({ deckId }) {
   // stale across rapid double-clicks, so the ref owns the lock
   const busyRef = useRef(false)
   const lengths = isAllDeck ? [5, 10, 20, 30] : LENGTHS
+
+  useEffect(() => {
+    setStatus('loading')
+    setQuestions([])
+    setIndex(0)
+    setPicked(null)
+    setPending(null)
+    setSaveError(false)
+    setResults([])
+    setScore(0)
+    setLevelEvent(null)
+    setConfetti(false)
+    setToast(null)
+    setFinalMessage(null)
+    busyRef.current = false
+  }, [id, scope, part])
 
   useEffect(() => {
     if (isLoading) {

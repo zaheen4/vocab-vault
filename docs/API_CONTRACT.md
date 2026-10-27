@@ -157,6 +157,14 @@ so the client can link the existing entry instead.
       "wordCount": 42,
       "progress": { "new": 30, "learning": 10, "mastered": 2 },
       "dueCount": 12,
+      "parts": [
+        {
+          "part": 1,
+          "wordCount": 10,
+          "progress": { "new": 10, "learning": 0, "mastered": 0 },
+          "dueCount": 10
+        }
+      ],
       "group": "number | null",
       "part": "number (1-3) | null",
       "source": "gregmat | null",
@@ -191,10 +199,12 @@ personal decks are returned — never another user's.
 
 ---
 
-### `GET /api/decks/:id/practice?limit=10` — Get a practice session for a deck
+### `GET /api/decks/:id/practice?limit=10&part=1` — Get a practice session for a deck
 **Auth:** required, owner-scoped (shared + own; other users' ids read as 404)  
 **Params:** `id` (ObjectId)  
-**Query:** `limit` (number, default 10, max 50)  
+**Query:**
+- `limit` (number, default 10, max 50)
+- `part` (optional number 1-3; scopes to that part's words)  
 **Selection order:** words never seen by this user first (deck order), then seen
 words whose SRS due date (`reviewDueAfter`) has passed — oldest due first.
 Seen-but-not-yet-due words are excluded.  
@@ -223,10 +233,12 @@ When `scope=all`, returns a random sample across all 1,110 GregMat words.
 
 ---
 
-### `GET /api/decks/:id/quiz?limit=50` — Get viewed words for a quiz
+### `GET /api/decks/:id/quiz?limit=50&part=1` — Get viewed words for a quiz
 **Auth:** required, owner-scoped (shared + own; other users' ids read as 404)  
 **Params:** `id` (ObjectId)  
-**Query:** `limit` (number, default 50, max 100)  
+**Query:**
+- `limit` (number, default 50, max 100)
+- `part` (optional number 1-3; scopes to viewed words in that part)  
 Only words this user has already viewed (has a Progress record for) are
 returned, most-recently-reviewed first. Unviewed words are excluded so
 quizzes test recall, not first exposure. Empty array when nothing viewed yet.  

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { isStarred, useBookmarks, useDeck, useInvalidateAfterReview, usePracticeSession, useToggleBookmark } from '../api/queries'
 import { useSlideDirection } from '../utils/navDirection'
@@ -23,15 +23,18 @@ const BOX_LABELS = { 1: 'Box 1', 2: 'Box 2', 3: 'Box 3', 4: 'Box 4', 5: 'Mastere
 
 export default function Practice({ active = true }) {
   const { id } = useParams()
+  const [searchParams] = useSearchParams()
+  const partParam = searchParams.get('part')
+  const part = partParam ? Number(partParam) : undefined
   const { user } = useAuth()
   // Session pool revalidates on every mount (staleTime 0) but paints the
   // prefetched cache instantly; deck title is long-lived cache.
   const { data: deck } = useDeck(id)
-  const { data: sessionWords, isLoading, isError } = usePracticeSession(id, 10)
+  const { data: sessionWords, isLoading, isError } = usePracticeSession(id, 10, part)
   const invalidateAfterReview = useInvalidateAfterReview()
   const { data: bookmarks = [] } = useBookmarks()
   const toggleBookmark = useToggleBookmark()
-  const deckTitle = deck?.title || ''
+  const deckTitle = deck?.title ? (part ? `${deck.title} — Part ${part}` : deck.title) : ''
   // Freeze the session batch once per deck: background refetches (invalidation,
   // tab-hover prefetch, window focus) must not swap the card mid-run.
   const [pool, setPool] = useState(null)
@@ -95,7 +98,7 @@ export default function Practice({ active = true }) {
     setFinalMessage(null)
     busyRef.current = false
     sessionRef.current = { correct: 0, total: 0, bestCombo: 0, levelUp: false, level: null }
-  }, [id])
+  }, [id, part])
 
   // Capture the batch when it arrives; later refetches of the same query are
   // ignored so the frozen pool drives the whole run.
