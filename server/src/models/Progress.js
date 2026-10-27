@@ -33,5 +33,7 @@ const progressSchema = new mongoose.Schema(
 )
 
 progressSchema.index({ userId: 1, wordId: 1 }, { unique: true })
+progressSchema.index({ userId: 1, reviewDueAfter: 1 })
+progressSchema.index({ userId: 1, status: 1, box: 1 })
 
 export default mongoose.model('Progress', progressSchema)

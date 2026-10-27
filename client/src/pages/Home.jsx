@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { usePrefetchDeck, useDecks, useGamification, useProgressSummary } from '../api/queries'
+import { usePrefetchDeck, useDecks, useDueWords, useGamification, useProgressSummary } from '../api/queries'
 import { filterDecks } from '../utils/deckFilter'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
@@ -126,6 +126,7 @@ export default function Home() {
   // Decorative: never block or break the page on failure
   const { data: stats } = useGamification()
   const { data: summary } = useProgressSummary()
+  const { data: dueData } = useDueWords(1)
   const [filter, setFilter] = useState('')
 
   if (isLoading) {
@@ -167,6 +168,7 @@ export default function Home() {
   const sorted = [...decks].sort((a, b) => (a.group ?? Infinity) - (b.group ?? Infinity))
   const firstDeck = sorted.find((d) => d.group === 1) ?? sorted[0]
   const started = totalProgress > 0
+  const totalDue = dueData?.totalDue ?? 0
   const visible = filterDecks(sorted, filter)
 
   return (
@@ -178,9 +180,27 @@ export default function Home() {
           GRE words on a schedule that adapts to you — flip cards, quiz yourself, and watch the streak grow.
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
+          {totalDue > 0 ? (
+            <Link to="/practice/due">
+              <Button className="shadow-lg">
+                Review Due Today ({totalDue}) →
+              </Button>
+            </Link>
+          ) : started ? (
+            <span className="inline-flex items-center rounded-full border border-emerald-400/30 bg-emerald-500/20 px-3 py-1.5 text-xs font-semibold text-emerald-200">
+              All caught up!
+            </span>
+          ) : null}
           {firstDeck && (
             <Link to={`/decks/${firstDeck._id}`}>
-              <Button className="shadow-lg">
+              <Button
+                variant={totalDue > 0 ? 'secondary' : 'primary'}
+                className={
+                  totalDue > 0
+                    ? 'border-white/20 bg-white/10 text-white shadow-lg backdrop-blur-sm hover:bg-white/20'
+                    : 'shadow-lg'
+                }
+              >
                 {started ? 'Continue practicing →' : `Start with ${firstDeck.title} →`}
               </Button>
             </Link>
@@ -190,7 +210,7 @@ export default function Home() {
               variant="secondary"
               className="border-white/20 bg-white/10 text-white shadow-lg backdrop-blur-sm hover:bg-white/20"
             >
-              All-Deck Quiz ⚡
+              All-Deck Quiz
             </Button>
           </Link>
           {stats && (

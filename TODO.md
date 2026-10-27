@@ -108,6 +108,9 @@
 - [x] @fe Per-word history (box path, last reviews) in Saved + Search rows ([#48](https://github.com/zaheen4/vocab-vault/pull/48))
 - [x] @fullstack Chronological review history feed with mode tags, Leitner box transitions, and filters (`GET /api/progress/history`)
 - [x] @fullstack Quiz session performance history and question audits with dual-tier history hub (`POST /api/quiz/session`, `GET /api/quiz/history`, `/history`)
+- [x] @fullstack Global daily spaced-repetition review queue across all decks (`GET /api/progress/due`, `/practice/due`, Home CTA)
+- [x] @fullstack Weak words remediation and mistake bank cramming (`GET /api/progress/weak`, `/practice/weak`, Progress card)
+- [x] @fe Route code-splitting with `React.lazy()` and Rollup `manualChunks` vendor hygiene (eliminates bundle size warnings)
 - [ ] @docs Screenshots/numbers reserved for final report
 
 ## Week 4 — Deploy, Polish & Demo

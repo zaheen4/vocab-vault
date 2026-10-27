@@ -36,6 +36,61 @@ router.get('/summary', requireDB, requireAuth, async (req, res) => {
   }
 })
 
+router.get('/due', requireDB, requireAuth, async (req, res) => {
+  try {
+    const rawLimit = req.query.limit
+    const limit = rawLimit ? Math.min(100, Math.max(1, parseInt(rawLimit, 10) || 20)) : 20
+    const now = new Date()
+
+    const filter = {
+      userId: req.user._id,
+      status: { $ne: 'new' },
+      reviewDueAfter: { $lte: now },
+    }
+
+    const [totalDue, dueProgress] = await Promise.all([
+      Progress.countDocuments(filter),
+      Progress.find(filter)
+        .sort({ reviewDueAfter: 1 })
+        .limit(limit)
+        .populate('wordId')
+        .lean(),
+    ])
+
+    const words = dueProgress.map((p) => p.wordId).filter(Boolean)
+    res.json({ words, totalDue })
+  } catch (err) {
+    res.status(500).json({ message: toSafeMessage(err) })
+  }
+})
+
+router.get('/weak', requireDB, requireAuth, async (req, res) => {
+  try {
+    const rawLimit = req.query.limit
+    const limit = rawLimit ? Math.min(50, Math.max(1, parseInt(rawLimit, 10) || 20)) : 20
+
+    const filter = {
+      userId: req.user._id,
+      status: 'learning',
+      box: 1,
+    }
+
+    const [totalWeak, weakProgress] = await Promise.all([
+      Progress.countDocuments(filter),
+      Progress.find(filter)
+        .sort({ streakCorrect: 1, lastReviewed: -1 })
+        .limit(limit)
+        .populate('wordId')
+        .lean(),
+    ])
+
+    const words = weakProgress.map((p) => p.wordId).filter(Boolean)
+    res.json({ words, totalWeak })
+  } catch (err) {
+    res.status(500).json({ message: toSafeMessage(err) })
+  }
+})
+
 router.get('/word/:wordId', requireDB, requireAuth, async (req, res) => {
   try {
     const { wordId } = req.params
