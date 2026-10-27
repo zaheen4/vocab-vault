@@ -8,6 +8,7 @@ import DeckLayout from './components/DeckLayout'
 import Home from './pages/Home'
 import Quiz from './pages/Quiz'
 import Progress from './pages/Progress'
+import History from './pages/History'
 import Search from './pages/Search'
 import Bookmarks from './pages/Bookmarks'
 import SavedPractice from './pages/SavedPractice'
@@ -57,6 +58,7 @@ export default function App() {
             <Route path="decks/all" element={<Navigate to="/quiz" replace />} />
             <Route path="decks/:id/*" element={<DeckLayout />} />
             <Route path="progress" element={<Progress />} />
+            <Route path="history" element={<History />} />
             <Route path="search" element={<Search />} />
             <Route path="bookmarks" element={<Bookmarks />} />
             <Route path="bookmarks/practice" element={<SavedPractice />} />

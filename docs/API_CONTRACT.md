@@ -287,11 +287,46 @@ returns the fresh shape (`box: 1`, `status: "new"`, `lastReviewed: null`,
 
 ---
 
+### `GET /api/progress/history` — Get chronological review history
+**Auth:** required  
+**Query:**
+- `page` (optional integer, default 1, clamped 1–1000)
+- `limit` (optional integer, default 20, clamped 1–100)
+- `filter` (optional string enum: `all` | `correct` | `incorrect`, default `all`)
+
+**Response 200:**
+```json
+{
+  "history": [
+    {
+      "reviewId": "string",
+      "wordId": "string",
+      "word": "string",
+      "definition": "string",
+      "partOfSpeech": "string | null",
+      "difficulty": "basic | intermediate | advanced",
+      "correct": true,
+      "box": 3,
+      "mode": "practice | quiz | typing",
+      "reviewedAt": "2026-10-27T14:30:00.000Z"
+    }
+  ],
+  "total": 45,
+  "page": 1,
+  "limit": 20,
+  "totalPages": 3
+}
+```
+Aggregates across the user's progress records, sorted newest first. Returns `"history": []` and `"total": 0` when no review history exists.  
+**Errors:** 400 (invalid page/limit/filter), 401, 500
+
+---
+
 ### `POST /api/progress/review` — Record a practice answer
 **Auth:** required  
 **Request:**
 ```json
-{ "wordId": "ObjectId", "correct": true }
+{ "wordId": "ObjectId", "correct": true, "mode": "practice | quiz | typing" }
 ```
 **Response 200:**
 ```json

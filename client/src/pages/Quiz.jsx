@@ -164,7 +164,7 @@ export default function Quiz({ deckId }) {
     busyRef.current = true
     const q = questions[index]
     const correct = optIdx === q.answerIndex
-    const payload = { wordId: q.word._id, correct }
+    const payload = { wordId: q.word._id, correct, mode: 'quiz' }
     setPicked(optIdx)
     setPending(payload)
     await saveAnswer(payload)

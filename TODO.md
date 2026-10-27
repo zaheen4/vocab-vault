@@ -106,6 +106,7 @@
 - [x] @be Daily activity log + per-word history log on review (`GET /gamification/me` activity, `GET /progress/word/:wordId`) ([#47](https://github.com/zaheen4/vocab-vault/pull/47))
 - [x] @fe Weekly activity heatmap on dashboard (7-day strip on Progress) ([#48](https://github.com/zaheen4/vocab-vault/pull/48))
 - [x] @fe Per-word history (box path, last reviews) in Saved + Search rows ([#48](https://github.com/zaheen4/vocab-vault/pull/48))
+- [x] @fullstack Chronological review history feed with mode tags, Leitner box transitions, and filters (`GET /api/progress/history`, `/history`)
 - [ ] @docs Screenshots/numbers reserved for final report
 
 ## Week 4 — Deploy, Polish & Demo

@@ -131,7 +131,7 @@ export default function Typing() {
     const word = words[index]
     const correct = isCorrectSpelling(word.word, value)
     busyRef.current = true
-    const payload = { wordId: word._id, correct }
+    const payload = { wordId: word._id, correct, mode: 'typing' }
     setPending(payload)
     setAnswered({ correct })
     await saveAnswer(payload, word.word)

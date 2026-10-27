@@ -25,6 +25,14 @@ export const fetchQuizPool = (id, limit = 50, scope = 'viewed', part) => {
     .get(`/decks/${id}/quiz${qs}`)
     .then((d) => ({ title: d.deck.title, words: d.words, totalViewed: d.totalViewed }))
 }
+export const fetchReviewHistory = ({ page = 1, limit = 20, filter = 'all' } = {}) => {
+  const params = new URLSearchParams()
+  if (page) params.set('page', String(page))
+  if (limit) params.set('limit', String(limit))
+  if (filter && filter !== 'all') params.set('filter', filter)
+  const qs = params.toString() ? `?${params.toString()}` : ''
+  return api.get(`/progress/history${qs}`)
+}
 
 export function useDecks() {
   return useQuery({
@@ -65,6 +73,14 @@ export function usePracticeSession(id, limit = 10, part) {
     queryFn: () => fetchPracticeSession(id, limit, part),
     staleTime: 0,
     enabled: !!id,
+  })
+}
+
+export function useReviewHistory({ page = 1, limit = 20, filter = 'all' } = {}) {
+  return useQuery({
+    queryKey: ['progress', 'history', { page, limit, filter }],
+    queryFn: () => fetchReviewHistory({ page, limit, filter }),
+    staleTime: 30 * 1000,
   })
 }
 
@@ -114,6 +130,7 @@ export function usePrefetchQuizPool() {
 export function invalidateAfterReview(qc, deckId) {
   qc.invalidateQueries({ queryKey: GAMIFICATION_KEY })
   qc.invalidateQueries({ queryKey: SUMMARY_KEY })
+  qc.invalidateQueries({ queryKey: ['progress', 'history'] })
   if (deckId) {
     qc.invalidateQueries({ queryKey: ['session', deckId], refetchType: 'none' })
     qc.invalidateQueries({ queryKey: ['quizpool', deckId] })

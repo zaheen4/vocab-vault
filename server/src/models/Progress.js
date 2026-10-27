@@ -14,7 +14,18 @@ const progressSchema = new mongoose.Schema(
       default: 'new',
     },
     history: {
-      type: [{ at: { type: Date }, correct: { type: Boolean }, box: { type: Number } }],
+      type: [
+        {
+          at: { type: Date, default: Date.now },
+          correct: { type: Boolean, required: true },
+          box: { type: Number, required: true },
+          mode: {
+            type: String,
+            enum: ['practice', 'quiz', 'typing'],
+            default: 'practice',
+          },
+        },
+      ],
       default: [],
     },
   },

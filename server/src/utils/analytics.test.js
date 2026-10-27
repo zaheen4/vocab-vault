@@ -45,10 +45,20 @@ describe('pushHistory', () => {
         at: noon(2026, 9, 1),
         correct: true,
         box: 2,
+        mode: 'practice',
       })),
     }
     pushHistory(progress, { correct: false, box: 1 }, noon(2026, 9, 10))
     expect(progress.history).toHaveLength(20)
-    expect(progress.history[19]).toMatchObject({ correct: false, box: 1 })
+    expect(progress.history[19]).toMatchObject({ correct: false, box: 1, mode: 'practice' })
+  })
+
+  it('persists specified study mode and defaults to practice', () => {
+    const progress = { history: [] }
+    pushHistory(progress, { correct: true, box: 3, mode: 'quiz' }, noon(2026, 9, 10))
+    expect(progress.history[0].mode).toBe('quiz')
+
+    pushHistory(progress, { correct: true, box: 4 }, noon(2026, 9, 11))
+    expect(progress.history[1].mode).toBe('practice')
   })
 })

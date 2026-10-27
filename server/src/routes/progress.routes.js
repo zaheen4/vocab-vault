@@ -16,6 +16,7 @@ import {
 } from '../utils/gamify.js'
 import { pushHistory, recordActivity } from '../utils/analytics.js'
 import { toSafeMessage } from '../utils/security.js'
+import { validateHistoryQuery, buildHistoryPipeline } from '../utils/history.js'
 
 const router = Router()
 
@@ -74,14 +75,42 @@ router.get('/word/:wordId', requireDB, requireAuth, async (req, res) => {
   }
 })
 
+router.get('/history', requireDB, requireAuth, async (req, res) => {
+  try {
+    const validated = validateHistoryQuery(req.query)
+    if (validated.error) {
+      return res.status(400).json({ message: validated.error })
+    }
+    const { page, limit, filter } = validated
+    const pipeline = buildHistoryPipeline(req.user._id, { page, limit, filter })
+    const [result] = await Progress.aggregate(pipeline)
+    const history = result?.data || []
+    const total = result?.totalCount?.[0]?.count || 0
+    const totalPages = total > 0 ? Math.ceil(total / limit) : 0
+
+    res.json({
+      history,
+      total,
+      page,
+      limit,
+      totalPages,
+    })
+  } catch (err) {
+    res.status(500).json({ message: toSafeMessage(err) })
+  }
+})
+
 router.post('/review', requireDB, requireAuth, reviewLimiter, async (req, res) => {
   try {
-    const { wordId, correct } = req.body || {}
+    const { wordId, correct, mode } = req.body || {}
     if (!wordId || !mongoose.isValidObjectId(wordId)) {
       return res.status(400).json({ message: 'Valid wordId is required' })
     }
     if (typeof correct !== 'boolean') {
       return res.status(400).json({ message: 'correct must be a boolean' })
+    }
+    if (mode !== undefined && !['practice', 'quiz', 'typing'].includes(mode)) {
+      return res.status(400).json({ message: "mode must be one of: 'practice', 'quiz', 'typing'" })
     }
 
     const word = await Word.findById(wordId)
@@ -139,7 +168,7 @@ router.post('/review', requireDB, requireAuth, reviewLimiter, async (req, res) =
 
       // analytics logs (per-day activity + per-word history)
       recordActivity(user, now)
-      pushHistory(progress, { correct, box: progress.box }, now)
+      pushHistory(progress, { correct, box: progress.box, mode }, now)
       await progress.save()
 
       // badges (idempotent: already-earned ids are skipped)
@@ -171,7 +200,7 @@ router.post('/review', requireDB, requireAuth, reviewLimiter, async (req, res) =
         },
       })
     } else {
-      pushHistory(progress, { correct, box: progress.box }, new Date())
+      pushHistory(progress, { correct, box: progress.box, mode }, new Date())
       await progress.save()
       res.json({ progress })
     }
