@@ -11,10 +11,20 @@ export const fetchDecks = () => api.get('/decks').then((d) => d.decks)
 export const fetchDeck = (id) => api.get(`/decks/${id}`).then((d) => d.deck)
 export const fetchGamification = () => api.get('/gamification/me').then((d) => d.gamification)
 export const fetchSummary = () => api.get('/progress/summary').then((d) => d.summary)
-export const fetchPracticeSession = (id, limit = 10) =>
-  api.get(`/decks/${id}/practice?limit=${limit}`).then((d) => d.words)
-export const fetchQuizPool = (id, limit = 50) =>
-  api.get(`/decks/${id}/quiz?limit=${limit}`).then((d) => ({ title: d.deck.title, words: d.words }))
+export const fetchPracticeSession = (id, limit = 10, part) => {
+  const query = part ? `?limit=${limit}&part=${part}` : `?limit=${limit}`
+  return api.get(`/decks/${id}/practice${query}`).then((d) => d.words)
+}
+export const fetchQuizPool = (id, limit = 50, scope = 'viewed', part) => {
+  const params = new URLSearchParams()
+  if (limit) params.set('limit', String(limit))
+  if (scope === 'all') params.set('scope', 'all')
+  if (part) params.set('part', String(part))
+  const qs = params.toString() ? `?${params.toString()}` : ''
+  return api
+    .get(`/decks/${id}/quiz${qs}`)
+    .then((d) => ({ title: d.deck.title, words: d.words, totalViewed: d.totalViewed }))
+}
 
 export function useDecks() {
   return useQuery({
@@ -49,10 +59,10 @@ export function useProgressSummary() {
   })
 }
 
-export function usePracticeSession(id, limit = 10) {
+export function usePracticeSession(id, limit = 10, part) {
   return useQuery({
-    queryKey: ['session', id, limit],
-    queryFn: () => fetchPracticeSession(id, limit),
+    queryKey: ['session', id, limit, part],
+    queryFn: () => fetchPracticeSession(id, limit, part),
     staleTime: 0,
     enabled: !!id,
   })
@@ -61,10 +71,10 @@ export function usePracticeSession(id, limit = 10) {
 // Quiz and Typing share one viewed-words pool: switching between them is a
 // cache hit. The viewed set grows only via practice sessions, so a minute
 // of staleness is invisible.
-export function useQuizPool(id, limit = 50) {
+export function useQuizPool(id, limit = 50, scope = 'viewed', part) {
   return useQuery({
-    queryKey: ['quizpool', id, limit],
-    queryFn: () => fetchQuizPool(id, limit),
+    queryKey: ['quizpool', id, limit, scope, part],
+    queryFn: () => fetchQuizPool(id, limit, scope, part),
     staleTime: 60 * 1000,
     enabled: !!id,
   })

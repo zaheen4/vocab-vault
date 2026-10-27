@@ -6,6 +6,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import Layout from './components/Layout'
 import DeckLayout from './components/DeckLayout'
 import Home from './pages/Home'
+import Quiz from './pages/Quiz'
 import Progress from './pages/Progress'
 import Search from './pages/Search'
 import Bookmarks from './pages/Bookmarks'
@@ -51,6 +52,9 @@ export default function App() {
             }
           >
             <Route index element={<Home />} />
+            <Route path="quiz" element={<div className="mx-auto max-w-xl space-y-4"><Quiz deckId="all" /></div>} />
+            <Route path="decks/all/quiz" element={<Navigate to="/quiz" replace />} />
+            <Route path="decks/all" element={<Navigate to="/quiz" replace />} />
             <Route path="decks/:id/*" element={<DeckLayout />} />
             <Route path="progress" element={<Progress />} />
             <Route path="search" element={<Search />} />

@@ -35,12 +35,14 @@ async function main() {
     process.exit(1)
   }
 
-  // upsert every word; pairwise group -> difficulty band
+  // upsert every word; pairwise group -> difficulty band; index -> part 1..3
   let inserted = 0
   let updated = 0
   for (const { group, words } of groups) {
-    for (const w of words) {
+    for (let i = 0; i < words.length; i++) {
+      const w = words[i]
       if (!w?.word || !w?.definition) continue
+      const part = i < 10 ? 1 : i < 20 ? 2 : 3
       try {
         await Word.updateOne(
           { word: w.word.toLowerCase() },
@@ -50,6 +52,7 @@ async function main() {
               definition: w.definition,
               example: w.example,
               group,
+              part,
               source: 'gregmat',
               difficulty: difficultyFor(group),
             },

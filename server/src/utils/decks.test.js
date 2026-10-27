@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { countDeckDue, summarizeDeckProgress } from './decks.js'
+import { countDeckDue, summarizeDeckParts, summarizeDeckProgress } from './decks.js'
 
 describe('summarizeDeckProgress', () => {
   it('counts reviewed words by status per deck', () => {
@@ -68,5 +68,49 @@ describe('countDeckDue', () => {
       { deckId: 'd1', dueCount: 0 },
       { deckId: 'd2', dueCount: 0 },
     ])
+  })
+})
+
+describe('summarizeDeckParts', () => {
+  const now = new Date('2026-09-15T12:00:00Z')
+
+  it('returns empty array for decks with 10 or fewer words', () => {
+    const deck = { wordIds: ['w1', 'w2'] }
+    expect(summarizeDeckParts(deck, new Map(), new Map(), now)).toEqual([])
+  })
+
+  it('slices a 30-word deck into 3 parts with independent progress and due counts', () => {
+    const wordIds = Array.from({ length: 30 }, (_, i) => `w${i + 1}`)
+    const deck = { wordIds }
+    const progress = new Map([
+      ['w1', 'mastered'],
+      ['w11', 'learning'],
+      ['w21', 'mastered'],
+    ])
+    const detail = new Map([
+      ['w1', { status: 'mastered', reviewDueAfter: new Date('2026-09-20T00:00:00Z') }], // not due
+      ['w11', { status: 'learning', reviewDueAfter: new Date('2026-09-10T00:00:00Z') }], // due
+    ])
+
+    const parts = summarizeDeckParts(deck, progress, detail, now)
+    expect(parts).toHaveLength(3)
+    expect(parts[0]).toEqual({
+      part: 1,
+      wordCount: 10,
+      progress: { new: 9, learning: 0, mastered: 1 },
+      dueCount: 9, // 9 unseen + 0 due (w1 is not due)
+    })
+    expect(parts[1]).toEqual({
+      part: 2,
+      wordCount: 10,
+      progress: { new: 9, learning: 1, mastered: 0 },
+      dueCount: 10, // 9 unseen + 1 due
+    })
+    expect(parts[2]).toEqual({
+      part: 3,
+      wordCount: 10,
+      progress: { new: 9, learning: 0, mastered: 1 },
+      dueCount: 10, // 9 unseen + 1 due (no reviewDueAfter date)
+    })
   })
 })

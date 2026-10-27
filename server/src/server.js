@@ -41,6 +41,14 @@ app.use(
     : cors()
 )
 app.use(express.json({ limit: '100kb' }))
+
+// Health check mounted before apiLimiter: keeps warming pings, deploy gates,
+// and uptime monitors unthrottled without risking abuse.
+const DEPLOY_SHA = (process.env.RENDER_GIT_COMMIT || process.env.SOURCE_VERSION || 'dev').slice(0, 7)
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', uptime: process.uptime(), db: dbReady(), deploy: DEPLOY_SHA })
+})
+
 app.use('/api', apiLimiter)
 
 // Fail fast in production: without a secret every auth request 500s anyway,
@@ -49,11 +57,6 @@ if (!process.env.JWT_SECRET) {
   if (isProd) throw new Error('[server] JWT_SECRET is required — refusing to boot')
   console.warn('[server] JWT_SECRET not set — auth endpoints will fail')
 }
-
-const DEPLOY_SHA = (process.env.RENDER_GIT_COMMIT || process.env.SOURCE_VERSION || 'dev').slice(0, 7)
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', uptime: process.uptime(), db: dbReady(), deploy: DEPLOY_SHA })
-})
 
 app.use('/api/auth', authRoutes)
 app.use('/api/decks', deckRoutes)

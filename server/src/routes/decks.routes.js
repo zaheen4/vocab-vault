@@ -5,7 +5,7 @@ import Word from '../models/Word.js'
 import Progress from '../models/Progress.js'
 import { requireAuth } from '../middleware/auth.js'
 import { requireDB } from '../middleware/requireDB.js'
-import { countDeckDue, summarizeDeckProgress } from '../utils/decks.js'
+import { countDeckDue, summarizeDeckParts, summarizeDeckProgress } from '../utils/decks.js'
 import { toSafeMessage } from '../utils/security.js'
 
 const router = Router()
@@ -37,6 +37,9 @@ router.get('/', requireDB, requireAuth, async (req, res) => {
     const dueByDeck = new Map(
       countDeckDue(decks, detailByWord, new Date()).map((s) => [s.deckId, s.dueCount])
     )
+    const partsByDeck = new Map(
+      decks.map((deck) => [String(deck._id), summarizeDeckParts(deck, byWord, detailByWord, new Date())])
+    )
     // Deterministic order: numeric group first, group-less decks last.
     const ordered = decks
       .map((deck) => ({
@@ -44,6 +47,7 @@ router.get('/', requireDB, requireAuth, async (req, res) => {
         wordCount: deck.wordIds.length,
         progress: progressByDeck.get(String(deck._id)) || { new: 0, learning: 0, mastered: 0 },
         dueCount: dueByDeck.get(String(deck._id)) ?? 0,
+        parts: partsByDeck.get(String(deck._id)) || [],
       }))
       .sort((a, b) => (a.group ?? Infinity) - (b.group ?? Infinity))
     res.json({ decks: ordered })
@@ -59,7 +63,20 @@ router.get('/:id', requireDB, requireAuth, async (req, res) => {
     }
     const deck = await accessibleDeckQuery(req.params.id, req.user._id).populate('wordIds')
     if (!deck) return res.status(404).json({ message: 'Deck not found' })
-    res.json({ deck })
+
+    const progressDocs = await Progress.find({
+      userId: req.user._id,
+      wordId: { $in: deck.wordIds.map((w) => w._id) },
+    }).select('wordId status reviewDueAfter')
+    const byWord = new Map(progressDocs.map((p) => [String(p.wordId), p.status]))
+    const detailByWord = new Map(
+      progressDocs.map((p) => [String(p.wordId), { status: p.status, reviewDueAfter: p.reviewDueAfter }])
+    )
+    const parts = summarizeDeckParts(deck, byWord, detailByWord, new Date())
+
+    const deckObj = deck.toObject()
+    deckObj.parts = parts
+    res.json({ deck: deckObj })
   } catch (err) {
     res.status(500).json({ message: toSafeMessage(err) })
   }
@@ -76,17 +93,25 @@ router.get('/:id/practice', requireDB, requireAuth, async (req, res) => {
     const deck = await accessibleDeckQuery(id, req.user._id).select('wordIds')
     if (!deck) return res.status(404).json({ message: 'Deck not found' })
 
+    const partNum = parseInt(req.query.part, 10)
+    let targetWordIds = deck.wordIds
+    if (partNum >= 1 && partNum <= 3 && deck.wordIds.length > 10) {
+      if (partNum === 1) targetWordIds = deck.wordIds.slice(0, 10)
+      else if (partNum === 2) targetWordIds = deck.wordIds.slice(10, 20)
+      else if (partNum === 3) targetWordIds = deck.wordIds.slice(20)
+    }
+
     // unseen words first (deck order), then due words oldest-reviewDueAfter first;
     // seen-but-not-due words are excluded until their SRS date arrives
     const progressDocs = await Progress.find({
       userId: req.user._id,
-      wordId: { $in: deck.wordIds },
+      wordId: { $in: targetWordIds },
     })
     const byWordId = new Map(progressDocs.map((p) => [p.wordId.toString(), p]))
 
     const now = new Date()
     const unseen = []
-    for (const wid of deck.wordIds) {
+    for (const wid of targetWordIds) {
       if (!byWordId.has(wid.toString())) unseen.push(wid)
     }
     const due = progressDocs
@@ -109,6 +134,54 @@ router.get('/:id/practice', requireDB, requireAuth, async (req, res) => {
   }
 })
 
+// All-Deck Quiz pool: cumulative quiz across all decks.
+// Supports ?scope=viewed (default: user's seen words) or ?scope=all (entire catalog)
+// with ?limit=50 (1-100).
+router.get('/all/quiz', requireDB, requireAuth, async (req, res) => {
+  try {
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 50, 1), 100)
+    const scope = req.query.scope === 'all' ? 'all' : 'viewed'
+
+    if (scope === 'all') {
+      const sample = await Word.aggregate([
+        { $match: { source: 'gregmat' } },
+        { $sample: { size: limit } },
+      ])
+      const words = await Word.find({ _id: { $in: sample.map((s) => s._id) } })
+      return res.json({ deck: { _id: 'all', title: 'All Decks' }, words })
+    }
+
+    const seen = await Progress.find({ userId: req.user._id }).select('wordId lastReviewed')
+    const byWordId = new Map(seen.map((p) => [p.wordId.toString(), p]))
+
+    let viewed = []
+    if (byWordId.size > 0) {
+      viewed = await Word.find({ _id: { $in: [...byWordId.keys()] } })
+    }
+
+    let words = viewed
+      .sort(
+        (a, b) =>
+          (byWordId.get(b._id.toString()).lastReviewed?.getTime() ?? 0) -
+          (byWordId.get(a._id.toString()).lastReviewed?.getTime() ?? 0)
+      )
+      .slice(0, limit)
+
+    // If user has fewer than 4 viewed words, supplement from catalog so options can be generated
+    if (words.length < 4) {
+      const existingIds = words.map((w) => w._id)
+      const extras = await Word.find({ source: 'gregmat', _id: { $nin: existingIds } }).limit(
+        Math.max(10, 4 - words.length)
+      )
+      words = [...words, ...extras]
+    }
+
+    res.json({ deck: { _id: 'all', title: 'All Decks' }, words, totalViewed: byWordId.size })
+  } catch (err) {
+    res.status(500).json({ message: toSafeMessage(err) })
+  }
+})
+
 // Quiz pool: words in this deck the user has already viewed (has a Progress
 // record for), most-recently-reviewed first. Unviewed words are excluded so
 // quizzes test recall, not first exposure.
@@ -123,9 +196,17 @@ router.get('/:id/quiz', requireDB, requireAuth, async (req, res) => {
     const deck = await accessibleDeckQuery(id, req.user._id).select('title wordIds')
     if (!deck) return res.status(404).json({ message: 'Deck not found' })
 
+    const partNum = parseInt(req.query.part, 10)
+    let targetWordIds = deck.wordIds
+    if (partNum >= 1 && partNum <= 3 && deck.wordIds.length > 10) {
+      if (partNum === 1) targetWordIds = deck.wordIds.slice(0, 10)
+      else if (partNum === 2) targetWordIds = deck.wordIds.slice(10, 20)
+      else if (partNum === 3) targetWordIds = deck.wordIds.slice(20)
+    }
+
     const seen = await Progress.find({
       userId: req.user._id,
-      wordId: { $in: deck.wordIds },
+      wordId: { $in: targetWordIds },
     }).select('wordId lastReviewed')
     const byWordId = new Map(seen.map((p) => [p.wordId.toString(), p]))
 

@@ -15,10 +15,18 @@ function orderOf(path) {
 
 let pending = null
 
+const PART_ORDER = { all: 0, 1: 1, 2: 2, 3: 3 }
+
 export function noteTabSwitch(fromPath, toPath) {
   const from = orderOf(fromPath)
   const to = orderOf(toPath)
   pending = from === null || to === null || from === to ? null : to > from ? 'forward' : 'back'
+}
+
+export function notePartSwitch(fromPart, toPart) {
+  const from = PART_ORDER[fromPart ?? 'all']
+  const to = PART_ORDER[toPart ?? 'all']
+  pending = from == null || to == null || from === to ? null : to > from ? 'forward' : 'back'
 }
 
 import { useState } from 'react'

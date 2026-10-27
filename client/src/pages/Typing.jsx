@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { isStarred, useBookmarks, useInvalidateAfterReview, useQuizPool, useToggleBookmark } from '../api/queries'
 import { useSlideDirection } from '../utils/navDirection'
@@ -29,11 +29,15 @@ function shuffle(arr) {
 
 export default function Typing() {
   const { id } = useParams()
-  const { data: poolData, isLoading, isError } = useQuizPool(id)
+  const [searchParams] = useSearchParams()
+  const partParam = searchParams.get('part')
+  const part = partParam ? Number(partParam) : undefined
+  const { data: poolData, isLoading, isError } = useQuizPool(id, 50, 'viewed', part)
   const invalidateAfterReview = useInvalidateAfterReview()
   const { data: bookmarks = [] } = useBookmarks()
   const toggleBookmark = useToggleBookmark()
-  const deckTitle = poolData?.title || ''
+  const baseTitle = poolData?.title || ''
+  const deckTitle = baseTitle ? (part ? `${baseTitle} — Part ${part}` : baseTitle) : ''
   const pool = poolData?.words ?? []
   const [status, setStatus] = useState('loading') // loading|error|empty|idle|ready|done
   const [length, setLength] = useState(10)
@@ -53,6 +57,23 @@ export default function Typing() {
   // Synchronous submit guard (see Practice.jsx busyRef): state flags are
   // stale across rapid double-submits, so the ref owns the lock
   const busyRef = useRef(false)
+
+  useEffect(() => {
+    setStatus('loading')
+    setWords([])
+    setIndex(0)
+    setValue('')
+    setAnswered(null)
+    setPending(null)
+    setSaveError(false)
+    setResults([])
+    setScore(0)
+    setLevelEvent(null)
+    setConfetti(false)
+    setToast(null)
+    setFinalMessage(null)
+    busyRef.current = false
+  }, [id, part])
 
   useEffect(() => {
     if (isLoading) {
