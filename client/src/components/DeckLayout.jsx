@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useParams, useSearchParams } from 'react-router-dom'
 import ModeTabs from './ModeTabs'
+import PartTabs from './PartTabs'
 import Practice from '../pages/Practice'
 import Quiz from '../pages/Quiz'
 import Typing from '../pages/Typing'
 import { modeFromPath } from '../utils/deckMode'
 import { useDeck } from '../api/queries'
-import { cn } from '../utils/cn'
+import { notePartSwitch } from '../utils/navDirection'
 
 // Deck section shell. All three modes stay mounted (hidden when inactive) so
 // their in-progress session survives switching tabs; a mode mounts lazily the
@@ -34,6 +35,8 @@ export default function DeckLayout() {
   }, [mode])
 
   const selectPart = (val) => {
+    if (val === currentPart) return
+    notePartSwitch(currentPart, val)
     const next = new URLSearchParams(searchParams)
     if (val === 'all') {
       next.delete('part')
@@ -50,48 +53,13 @@ export default function DeckLayout() {
     <div className="mx-auto max-w-xl space-y-4">
       <ModeTabs deckId={id} />
       {hasParts && (
-        <div
-          role="group"
-          aria-label="Deck parts"
-          className="flex items-center justify-center gap-1.5"
-        >
-          <span className="mr-1 text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-cream-300/60">
-            Part:
-          </span>
-          <button
-            type="button"
-            onClick={() => selectPart('all')}
-            className={cn(
-              'min-h-8 rounded-full px-3 py-1 font-display text-xs font-bold transition-all focus-visible:outline-2 focus-visible:outline-accent',
-              currentPart === 'all'
-                ? 'bg-accent text-primary shadow-sm dark:text-night-950'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-night-800 dark:text-cream-100 dark:hover:bg-night-800/80'
-            )}
-          >
-            All {deck?.wordIds?.length ? `(${deck.wordIds.length})` : ''}
-          </button>
-          {[1, 2, 3].map((num) => {
-            const partInfo = parts.find((p) => p.part === num)
-            const count = partInfo?.wordCount ?? 10
-            const due = partInfo?.dueCount ?? 0
-            const isActive = currentPart === String(num)
-            return (
-              <button
-                key={num}
-                type="button"
-                onClick={() => selectPart(String(num))}
-                className={cn(
-                  'min-h-8 rounded-full px-3 py-1 font-display text-xs font-bold transition-all focus-visible:outline-2 focus-visible:outline-accent',
-                  isActive
-                    ? 'bg-accent text-primary shadow-sm dark:text-night-950'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-night-800 dark:text-cream-100 dark:hover:bg-night-800/80'
-                )}
-              >
-                Part {num} ({count})
-                {due > 0 && <span className="ml-1 font-extrabold text-accent">· {due}</span>}
-              </button>
-            )
-          })}
+        <div className="flex justify-center">
+          <PartTabs
+            currentPart={currentPart}
+            onSelectPart={selectPart}
+            parts={parts}
+            totalWords={deck?.wordIds?.length ?? 30}
+          />
         </div>
       )}
       <div key={deckKey}>
