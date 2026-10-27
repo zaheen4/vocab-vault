@@ -35,6 +35,11 @@ const userSchema = new mongoose.Schema(
       default: [],
     },
     perfectRun: { type: Number, default: 0 },
+    tokenVersion: { type: Number, default: 0 },
+    resetPasswordTokenHash: { type: String },
+    resetPasswordExpires: { type: Date },
+    failedLoginAttempts: { type: Number, default: 0 },
+    lockUntil: { type: Date },
   },
   { timestamps: true }
 )
