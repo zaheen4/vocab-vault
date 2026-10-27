@@ -12,11 +12,11 @@ export default function Mascot({ size = 96, className = '' }) {
       className={className}
     >
       {/* antenna */}
-      <line x1="60" y1="26" x2="60" y2="14" strokeWidth="4" strokeLinecap="round" className="stroke-accent-deep" />
+      <line x1="60" y1="26" x2="60" y2="14" strokeWidth="4" strokeLinecap="round" className="stroke-accent-deep dark:stroke-accent" />
       <circle cx="60" cy="11" r="5" className="fill-accent" />
       {/* ears */}
-      <rect x="20" y="52" width="8" height="18" rx="4" className="fill-accent-deep" />
-      <rect x="92" y="52" width="8" height="18" rx="4" className="fill-accent-deep" />
+      <rect x="20" y="52" width="8" height="18" rx="4" className="fill-accent-deep dark:fill-accent" />
+      <rect x="92" y="52" width="8" height="18" rx="4" className="fill-accent-deep dark:fill-accent" />
       {/* head */}
       <rect x="28" y="28" width="64" height="58" rx="18" className="fill-primary dark:fill-cream-100" />
       {/* face screen */}

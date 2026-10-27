@@ -19,6 +19,9 @@ const WeakPractice = lazy(() => import('./pages/WeakPractice'))
 const AddWord = lazy(() => import('./pages/AddWord'))
 const Login = lazy(() => import('./pages/Login'))
 const Register = lazy(() => import('./pages/Register'))
+const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
+const ResetPassword = lazy(() => import('./pages/ResetPassword'))
+const Settings = lazy(() => import('./pages/Settings'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 const About = lazy(() => import('./pages/About'))
 const DeckLayout = lazy(() => import('./components/DeckLayout'))
@@ -59,6 +62,8 @@ export default function App() {
             <Routes>
               <Route path="/login" element={<GuestRoute><Login /></GuestRoute>} />
               <Route path="/register" element={<GuestRoute><Register /></GuestRoute>} />
+              <Route path="/forgot-password" element={<GuestRoute><ForgotPassword /></GuestRoute>} />
+              <Route path="/reset-password" element={<GuestRoute><ResetPassword /></GuestRoute>} />
               <Route
                 element={
                   <ProtectedRoute>
@@ -75,6 +80,7 @@ export default function App() {
                 <Route path="practice/weak" element={<WeakPractice />} />
                 <Route path="progress" element={<Progress />} />
                 <Route path="history" element={<History />} />
+                <Route path="settings" element={<Settings />} />
                 <Route path="search" element={<Search />} />
                 <Route path="bookmarks" element={<Bookmarks />} />
                 <Route path="bookmarks/practice" element={<SavedPractice />} />

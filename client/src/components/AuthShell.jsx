@@ -1,5 +1,6 @@
 import Logo from './Logo'
 import Mascot from './art/Mascot'
+import ThemeToggle from './ui/ThemeToggle'
 
 const PITCH = [
   { title: 'Spaced repetition, scheduled for you', body: 'Every answer reschedules the next review.' },
@@ -12,11 +13,14 @@ const PITCH = [
 // drift apart again.
 export default function AuthShell({ title, children }) {
   return (
-    <div className="animate-page flex min-h-screen supports-[height:100dvh]:min-h-dvh items-center justify-center bg-gold px-4 py-6 sm:py-10 dark:bg-night-950">
+    <div className="animate-page relative flex min-h-screen items-center justify-center bg-gold px-4 py-6 supports-[height:100dvh]:min-h-dvh sm:py-10 dark:bg-night-950">
+      <div className="absolute top-4 right-4 z-20 sm:top-6 sm:right-6">
+        <ThemeToggle />
+      </div>
       <div className="grid w-full max-w-3xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl sm:grid-cols-2 dark:border-white/10 dark:bg-night-900 dark:shadow-none">
-        <div className="flex flex-col justify-center gap-3 p-5 sm:gap-5 sm:p-8 bg-primary text-white dark:bg-night-800">
+        <div className="flex flex-col justify-center gap-3 bg-primary p-5 text-white sm:gap-5 sm:p-8 dark:bg-night-800">
           <div className="flex items-center gap-2.5">
-            <span className="rounded-lg bg-gold p-1.5">
+            <span className="rounded-lg bg-gold p-1.5 dark:bg-night-900 dark:ring-1 dark:ring-white/10">
               <Logo size={26} />
             </span>
             <span className="font-display text-xl font-bold">VocabVault</span>
@@ -38,7 +42,7 @@ export default function AuthShell({ title, children }) {
             ))}
           </ul>
           <div aria-hidden="true" className="mt-auto hidden justify-start pt-4 sm:flex">
-            <span className="rounded-full bg-gold p-4">
+            <span className="rounded-full bg-gold p-4 dark:bg-night-900 dark:ring-1 dark:ring-white/10">
               <Mascot size={96} />
             </span>
           </div>

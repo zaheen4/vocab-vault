@@ -31,6 +31,10 @@ export async function requireAuth(req, res, next) {
   }
   if (!user) return res.status(401).json({ message: 'User no longer exists' })
 
+  if ((payload.v ?? 0) !== (user.tokenVersion ?? 0)) {
+    return res.status(401).json({ message: 'Session expired or invalidated' })
+  }
+
   req.user = user
   next()
 }

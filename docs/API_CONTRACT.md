@@ -35,13 +35,115 @@ are also returned) — clients must not assume an exact shape.
 ### `POST /api/auth/login` — User login
 **Request:**
 ```json
-{ "email": "string", "password": "string" }
+{ "email": "string", "password": "string", "rememberMe": false }
 ```
+`rememberMe` is optional (boolean). When true, the issued JWT expires after 30 days (`expiresIn: 30d`) instead of 1 day.  
 **Response 200:**
 ```json
 { "token": "jwt-string", "user": { "_id": "...", "name": "...", "email": "...", "role": "user", "createdAt": "...", "updatedAt": "..." } }
 ```
-**Errors:** 401 (invalid credentials or malformed input — same shape), 429 (rate limit), 500
+**Errors:** 401 (invalid credentials), 423 (account temporarily locked due to 5 consecutive failed attempts), 429 (rate limit), 500
+
+---
+
+### `POST /api/auth/forgot-password` — Request password reset link
+**Request:**
+```json
+{ "email": "string" }
+```
+**Response 200:**
+```json
+{
+  "message": "If that email is registered, password reset instructions have been sent.",
+  "devResetUrl": "http://localhost:5173/reset-password?token=..."
+}
+```
+Uniform message prevents account enumeration. In development environments (`NODE_ENV !== 'production'`), `devResetUrl` is included for direct evaluation.  
+**Errors:** 400 (validation), 429, 500
+
+---
+
+### `POST /api/auth/reset-password` — Reset password using token
+**Request:**
+```json
+{ "token": "string (hex)", "password": "string (6–128 chars)" }
+```
+Validates the SHA-256 hash of the 15-minute token, hashes the new password with bcrypt 12, and increments `tokenVersion` to invalidate any pre-existing sessions.  
+**Response 200:**
+```json
+{ "ok": true, "message": "Password reset successful. Please log in with your new password." }
+```
+**Errors:** 400 (invalid or expired token, invalid password), 429, 500
+
+---
+
+### `PATCH /api/auth/profile` — Update display name
+**Auth:** required  
+**Request:**
+```json
+{ "name": "string (1–100 chars)" }
+```
+**Response 200:**
+```json
+{ "user": { "_id": "...", "name": "...", "email": "...", ... } }
+```
+**Errors:** 400 (validation), 401, 500
+
+---
+
+### `PATCH /api/auth/password` — Change password
+**Auth:** required  
+**Request:**
+```json
+{ "currentPassword": "string", "newPassword": "string (6–128 chars)" }
+```
+Verifies `currentPassword`, hashes `newPassword` with bcrypt 12, increments `tokenVersion` (invalidating other active sessions), and returns a fresh JWT token for the current session.  
+**Response 200:**
+```json
+{ "ok": true, "token": "new-jwt-string", "user": { ... } }
+```
+**Errors:** 400 (validation), 401 (incorrect current password), 500
+
+---
+
+### `POST /api/auth/revoke-all` — Log out all other sessions
+**Auth:** required  
+Increments `tokenVersion` in the user document, immediately rejecting all other active JWT tokens with 401 on their next request.  
+**Response 200:**
+```json
+{ "ok": true, "message": "All other sessions have been revoked" }
+```
+**Errors:** 401, 500
+
+---
+
+### `POST /api/auth/reset-progress` — Reset learning progress
+**Auth:** required  
+**Request:**
+```json
+{ "password": "string" }
+```
+Verifies account password, permanently deletes all user `Progress` and `QuizSession` records, and resets XP, level, streak, and badges to default values while retaining the user account and custom lists.  
+**Response 200:**
+```json
+{ "ok": true, "user": { ... } }
+```
+**Errors:** 400 (missing password), 401 (incorrect password), 500
+
+---
+
+### `DELETE /api/auth/account` — Permanently delete account
+**Auth:** required  
+**Request:**
+```json
+{ "password": "string" }
+```
+Verifies account password, cascades deletion across all user data (`Progress`, `QuizSession`, `Bookmark`, `CustomList`, `User`).  
+**Response 200:**
+```json
+{ "ok": true, "message": "Account permanently deleted" }
+```
+**Errors:** 400 (missing password), 401 (incorrect password), 500
 
 ---
 
