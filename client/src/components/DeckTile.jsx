@@ -12,12 +12,15 @@ export const TILE_STYLES = [
 export default function DeckTile({ id, title, size = 'md' }) {
   const tile = pickSeeded(TILE_STYLES, id) ?? TILE_STYLES[0]
   const dims = size === 'lg' ? 'h-14 w-14 text-2xl' : 'h-11 w-11 text-xl'
+  const groupMatch = title?.match(/^Group\s+(\d+)/i)
+  const isAll = title?.toLowerCase().includes('all')
+  const glyph = isAll ? '⚡' : groupMatch ? groupMatch[1] : (title || '?').trim().charAt(0).toUpperCase()
   return (
     <span
       aria-hidden="true"
       className={`flex shrink-0 items-center justify-center rounded-lg font-display font-bold ${dims} ${tile}`}
     >
-      {(title || '?').trim().charAt(0).toUpperCase()}
+      {glyph}
     </span>
   )
 }

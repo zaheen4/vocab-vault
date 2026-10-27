@@ -37,7 +37,7 @@ router.get('/', requireDB, requireAuth, async (req, res) => {
     const dueByDeck = new Map(
       countDeckDue(decks, detailByWord, new Date()).map((s) => [s.deckId, s.dueCount])
     )
-    // Deterministic order: numeric group first, group-less decks last.
+    // Deterministic order: numeric group first, then part, group-less decks last.
     const ordered = decks
       .map((deck) => ({
         ...deck.toObject(),
@@ -45,7 +45,12 @@ router.get('/', requireDB, requireAuth, async (req, res) => {
         progress: progressByDeck.get(String(deck._id)) || { new: 0, learning: 0, mastered: 0 },
         dueCount: dueByDeck.get(String(deck._id)) ?? 0,
       }))
-      .sort((a, b) => (a.group ?? Infinity) - (b.group ?? Infinity))
+      .sort((a, b) => {
+        if ((a.group ?? Infinity) !== (b.group ?? Infinity)) {
+          return (a.group ?? Infinity) - (b.group ?? Infinity)
+        }
+        return (a.part ?? Infinity) - (b.part ?? Infinity)
+      })
     res.json({ decks: ordered })
   } catch (err) {
     res.status(500).json({ message: toSafeMessage(err) })
@@ -104,6 +109,54 @@ router.get('/:id/practice', requireDB, requireAuth, async (req, res) => {
     const words = selectedIds.map((wid) => wordById.get(wid.toString())).filter(Boolean)
 
     res.json({ words })
+  } catch (err) {
+    res.status(500).json({ message: toSafeMessage(err) })
+  }
+})
+
+// All-Deck Quiz pool: cumulative quiz across all decks.
+// Supports ?scope=viewed (default: user's seen words) or ?scope=all (entire catalog)
+// with ?limit=50 (1-100).
+router.get('/all/quiz', requireDB, requireAuth, async (req, res) => {
+  try {
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 50, 1), 100)
+    const scope = req.query.scope === 'all' ? 'all' : 'viewed'
+
+    if (scope === 'all') {
+      const sample = await Word.aggregate([
+        { $match: { source: 'gregmat' } },
+        { $sample: { size: limit } },
+      ])
+      const words = await Word.find({ _id: { $in: sample.map((s) => s._id) } })
+      return res.json({ deck: { _id: 'all', title: 'All Decks' }, words })
+    }
+
+    const seen = await Progress.find({ userId: req.user._id }).select('wordId lastReviewed')
+    const byWordId = new Map(seen.map((p) => [p.wordId.toString(), p]))
+
+    let viewed = []
+    if (byWordId.size > 0) {
+      viewed = await Word.find({ _id: { $in: [...byWordId.keys()] } })
+    }
+
+    let words = viewed
+      .sort(
+        (a, b) =>
+          (byWordId.get(b._id.toString()).lastReviewed?.getTime() ?? 0) -
+          (byWordId.get(a._id.toString()).lastReviewed?.getTime() ?? 0)
+      )
+      .slice(0, limit)
+
+    // If user has fewer than 4 viewed words, supplement from catalog so options can be generated
+    if (words.length < 4) {
+      const existingIds = words.map((w) => w._id)
+      const extras = await Word.find({ source: 'gregmat', _id: { $nin: existingIds } }).limit(
+        Math.max(10, 4 - words.length)
+      )
+      words = [...words, ...extras]
+    }
+
+    res.json({ deck: { _id: 'all', title: 'All Decks' }, words, totalViewed: byWordId.size })
   } catch (err) {
     res.status(500).json({ message: toSafeMessage(err) })
   }

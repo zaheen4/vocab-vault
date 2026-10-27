@@ -49,14 +49,17 @@ function buildQuestions(deckWords, fallbackPool, count) {
     })
 }
 
-export default function Quiz() {
-  const { id } = useParams()
+export default function Quiz({ deckId }) {
+  const params = useParams()
+  const id = deckId ?? params.id
+  const isAllDeck = id === 'all'
+  const [scope, setScope] = useState('viewed') // 'viewed' | 'all'
   // Shared pool with Typing: switching modes is a cache hit after first load.
-  const { data: poolData, isLoading, isError } = useQuizPool(id)
+  const { data: poolData, isLoading, isError } = useQuizPool(id, 50, isAllDeck ? scope : 'viewed')
   const invalidateAfterReview = useInvalidateAfterReview()
   const { data: bookmarks = [] } = useBookmarks()
   const toggleBookmark = useToggleBookmark()
-  const deckTitle = poolData?.title || ''
+  const deckTitle = poolData?.title || (isAllDeck ? 'All Decks' : '')
   const pool = poolData?.words ?? []
   const [status, setStatus] = useState('loading') // loading|error|empty|idle|ready|done
   const [length, setLength] = useState(10)
@@ -75,6 +78,7 @@ export default function Quiz() {
   // Synchronous submit guard (see Practice.jsx busyRef): state flags are
   // stale across rapid double-clicks, so the ref owns the lock
   const busyRef = useRef(false)
+  const lengths = isAllDeck ? [5, 10, 20, 30] : LENGTHS
 
   useEffect(() => {
     if (isLoading) {
@@ -194,12 +198,25 @@ export default function Quiz() {
     return (
       <EmptyState
         art={<EmptyArt variant="review" />}
-        title="Practice first!"
-        message="Quizzes cover words you've already seen. Run through the flashcards once, then come back and test yourself."
+        title={isAllDeck ? 'No studied words yet!' : 'Practice first!'}
+        message={
+          isAllDeck
+            ? "You haven't practiced any words yet. Jump in right now with all GRE words, or run through a deck first."
+            : "Quizzes cover words you've already seen. Run through the flashcards once, then come back and test yourself."
+        }
         action={
-          <Link to={`/decks/${id}`}>
-            <Button>Practice this deck</Button>
-          </Link>
+          isAllDeck ? (
+            <div className="flex justify-center gap-2">
+              <Button onClick={() => setScope('all')}>Quiz all GRE words →</Button>
+              <Link to="/">
+                <Button variant="secondary">Browse decks</Button>
+              </Link>
+            </div>
+          ) : (
+            <Link to={`/decks/${id}`}>
+              <Button>Practice this deck</Button>
+            </Link>
+          )
         }
       />
     )
@@ -208,19 +225,47 @@ export default function Quiz() {
   if (status === 'idle') {
     return (
       <div className={`mx-auto max-w-xl space-y-4 text-center ${slideCls}`}>
-        <Link to="/" className="inline-block text-sm text-slate-400 hover:text-primary dark:text-cream-300/60 dark:hover:text-cream-100">
-          ← {deckTitle}
+        <Link
+          to="/"
+          className="inline-block text-sm text-slate-400 hover:text-primary dark:text-cream-300/60 dark:hover:text-cream-100"
+        >
+          ← {isAllDeck ? 'Back to decks' : deckTitle}
         </Link>
         <div className="flex justify-center">
           <DeckTile id={id} title={deckTitle} size="lg" />
         </div>
-        <h1 className="font-display text-2xl font-bold text-primary dark:text-cream-100">Quiz yourself</h1>
+        <h1 className="font-display text-2xl font-bold text-primary dark:text-cream-100">
+          {isAllDeck ? 'All-Deck Quiz' : 'Quiz yourself'}
+        </h1>
         <p className="text-sm text-slate-500 dark:text-cream-300/80">
-          {pool.length} viewed word{pool.length === 1 ? '' : 's'} ready. Pick a
-          definition for each word — every answer is recorded like practice.
+          {isAllDeck
+            ? 'Cumulative test across all 37 GregMat groups. Pick a definition for each word — every answer feeds your SRS and XP.'
+            : `${pool.length} viewed word${pool.length === 1 ? '' : 's'} ready. Pick a definition for each word — every answer is recorded like practice.`}
         </p>
+
+        {isAllDeck && (
+          <div className="flex justify-center gap-2">
+            <Button
+              variant={scope === 'viewed' ? 'primary' : 'secondary'}
+              onClick={() => setScope('viewed')}
+              aria-pressed={scope === 'viewed'}
+              className="text-xs"
+            >
+              Words I&apos;ve studied
+            </Button>
+            <Button
+              variant={scope === 'all' ? 'primary' : 'secondary'}
+              onClick={() => setScope('all')}
+              aria-pressed={scope === 'all'}
+              className="text-xs"
+            >
+              All GRE words (1,110)
+            </Button>
+          </div>
+        )}
+
         <div className="flex justify-center gap-2">
-          {LENGTHS.map((n) => (
+          {lengths.map((n) => (
             <Button
               key={n}
               variant={length === n ? 'primary' : 'secondary'}
@@ -233,7 +278,7 @@ export default function Quiz() {
           ))}
         </div>
         <p className="text-xs text-slate-400 dark:text-cream-300/60">
-          {Math.min(length, pool.length)} questions
+          {Math.min(length, pool.length || length)} questions
         </p>
         <Button onClick={start}>Start quiz</Button>
       </div>
@@ -272,9 +317,11 @@ export default function Quiz() {
           <Button variant="secondary" onClick={() => setStatus('idle')}>
             New quiz
           </Button>
-          <Link to={`/decks/${id}`}>
-            <Button variant="secondary">Practice flashcards</Button>
-          </Link>
+          {!isAllDeck && (
+            <Link to={`/decks/${id}`}>
+              <Button variant="secondary">Practice flashcards</Button>
+            </Link>
+          )}
           <Link to="/">
             <Button>Back to decks</Button>
           </Link>

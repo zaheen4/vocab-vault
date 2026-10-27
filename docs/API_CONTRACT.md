@@ -93,6 +93,7 @@ the intent server-side and is the hook for future token revocation.
       "banglaMeaning": "string | null",
       "difficulty": "basic | intermediate | advanced",
       "group": "number | null",
+      "part": "number (1-3) | null",
       "source": "gregmat | null",
       "createdAt": "...",
       "updatedAt": "..."
@@ -157,6 +158,7 @@ so the client can link the existing entry instead.
       "progress": { "new": 30, "learning": 10, "mastered": 2 },
       "dueCount": 12,
       "group": "number | null",
+      "part": "number (1-3) | null",
       "source": "gregmat | null",
       "createdBy": "userObjectId",
       "createdAt": "...",
@@ -201,6 +203,23 @@ Seen-but-not-yet-due words are excluded.
 { "words": [ { ...word }, { ...word } ] }
 ```
 **Errors:** 400 (invalid id), 404 (deck not found), 500
+
+---
+
+### `GET /api/decks/all/quiz?limit=50&scope=viewed` — Get words for all-deck quiz
+**Auth:** required  
+**Query:**
+- `limit` (number, default 50, max 100)
+- `scope` (enum: `viewed` | `all`, default `viewed`)
+
+When `scope=viewed`, returns words this user has already viewed across all decks,
+most-recently-reviewed first (supplemented from catalog if fewer than 4 viewed).
+When `scope=all`, returns a random sample across all 1,110 GregMat words.  
+**Response 200:**
+```json
+{ "deck": { "_id": "all", "title": "All Decks" }, "words": [ { ...word } ], "totalViewed": 48 }
+```
+**Errors:** 500
 
 ---
 

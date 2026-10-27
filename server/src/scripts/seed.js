@@ -35,12 +35,14 @@ async function main() {
     process.exit(1)
   }
 
-  // upsert every word; pairwise group -> difficulty band
+  // upsert every word; pairwise group -> difficulty band; index -> part 1..3
   let inserted = 0
   let updated = 0
   for (const { group, words } of groups) {
-    for (const w of words) {
+    for (let i = 0; i < words.length; i++) {
+      const w = words[i]
       if (!w?.word || !w?.definition) continue
+      const part = i < 10 ? 1 : i < 20 ? 2 : 3
       try {
         await Word.updateOne(
           { word: w.word.toLowerCase() },
@@ -50,6 +52,7 @@ async function main() {
               definition: w.definition,
               example: w.example,
               group,
+              part,
               source: 'gregmat',
               difficulty: difficultyFor(group),
             },
@@ -74,7 +77,8 @@ async function main() {
     `Removed ${wordCount} legacy words (not in GregMat) and ${deckCount} legacy decks`
   )
 
-  // drop GregMat words/decks whose group is no longer in the dataset
+  // drop GregMat words/decks whose group is no longer in the dataset,
+  // plus legacy decks lacking a part field
   const validGroups = groups.map((g) => g.group)
   const staleWords = await Word.deleteMany({
     source: 'gregmat',
@@ -82,32 +86,35 @@ async function main() {
   })
   const staleDecks = await Deck.deleteMany({
     source: 'gregmat',
-    group: { $nin: validGroups },
+    $or: [{ group: { $nin: validGroups } }, { part: null }, { part: { $exists: false } }],
   })
   console.log(
     `Removed ${staleWords.deletedCount} out-of-dataset words and ${staleDecks.deletedCount} stale decks`
   )
 
-  // create one deck per group, discarding stale ones for that group
+  // create 3 decks per group (one per part), discarding stale ones
   let decks = 0
   for (const { group } of groups) {
-    const words = await Word.find({ source: 'gregmat', group })
-    if (!words.length) continue
-    await Deck.updateOne(
-      { source: 'gregmat', group },
-      {
-        $set: {
-          title: `Group ${group}`,
-          description: `GregMat vocabulary group ${group} — ${words.length} words`,
-          source: 'gregmat',
-          group,
-          difficulty: difficultyFor(group),
-          wordIds: words.map((w) => w._id),
+    for (let part = 1; part <= 3; part++) {
+      const words = await Word.find({ source: 'gregmat', group, part })
+      if (!words.length) continue
+      await Deck.updateOne(
+        { source: 'gregmat', group, part },
+        {
+          $set: {
+            title: `Group ${group} — Part ${part}`,
+            description: `GregMat vocabulary group ${group}, part ${part} — ${words.length} words`,
+            source: 'gregmat',
+            group,
+            part,
+            difficulty: difficultyFor(group),
+            wordIds: words.map((w) => w._id),
+          },
         },
-      },
-      { upsert: true }
-    )
-    decks++
+        { upsert: true }
+      )
+      decks++
+    }
   }
   console.log(`GregMat decks ready: ${decks}`)
 
