@@ -19,5 +19,6 @@ npm-debug.log*
 .idea/
 .DS_Store
 test-results/
+.playwright/
 .env*
 .wrangler/
