@@ -1,4 +1,8 @@
 import { defineConfig, devices } from '@playwright/test'
+import fs from 'node:fs'
+
+const systemChromium = fs.existsSync('/usr/bin/chromium') ? '/usr/bin/chromium' : undefined
+const executablePath = process.env.PLAYWRIGHT_CHROMIUM_PATH || systemChromium
 
 // E2E + design-contract suite. Browser assertions only — the API contract
 // is covered by curl suites and unit tests run in CI without a database.
@@ -7,11 +11,12 @@ import { defineConfig, devices } from '@playwright/test'
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: false,
+  workers: 1,
   retries: 0,
   use: {
     baseURL: 'http://localhost:5173',
-    launchOptions: process.env.PLAYWRIGHT_CHROMIUM_PATH
-      ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH }
+    launchOptions: executablePath
+      ? { executablePath }
       : undefined,
   },
   webServer: {
@@ -20,5 +25,28 @@ export default defineConfig({
     reuseExistingServer: true,
     timeout: 120000,
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    {
+      name: 'setup',
+      testMatch: /auth\.setup\.js/,
+    },
+    {
+      name: 'chromium',
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: '.playwright/.auth/user.json',
+      },
+      dependencies: ['setup'],
+      testIgnore: /auth\.setup\.js/,
+    },
+    {
+      name: 'mobile',
+      use: {
+        ...devices['Pixel 7'],
+        storageState: '.playwright/.auth/user.json',
+      },
+      dependencies: ['setup'],
+      testMatch: /design-contract\.spec\.js/,
+    },
+  ],
 })

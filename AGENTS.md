@@ -20,7 +20,7 @@ npm run build -w client         # must pass before any PR (CI sets VITE_API_URL 
 node --check server/src/<file>.js   # server has no linter; syntax-check touched files
 npm audit --omit=dev --audit-level=high   # CI gate; dev-only findings don't count
 ```
-- E2E: curl suites for API, Playwright (JS `@playwright/test`, python only for ad-hoc probes); committed gates are `e2e/design-contract.spec.js` + `e2e/study-flows.spec.js` via `npm run test:e2e` (dev servers running, QA account `qa@test.local`). Assert tight values (`+\d+ XP`, not `+.*XP` — loose regexes hide failures). E2E stays out of CI (needs Atlas).
+- E2E: curl suites for API, Playwright (JS `@playwright/test`, python only for ad-hoc probes); committed gates run via `npm run test:e2e` (dev servers running, QA account `qa@test.local` authenticated once via `e2e/auth.setup.js` with storage state cached in `.playwright/.auth/user.json`). Specs cover design contracts (`e2e/design-contract.spec.js`), study flows (`e2e/study-flows.spec.js`), daily study queues (`e2e/daily-study.spec.js`), history audits (`e2e/history-audit.spec.js`), and auth lifecycle (`e2e/auth-lifecycle.spec.js`). Assert tight values (`+\d+ XP`, not `+.*XP` — loose regexes hide failures). E2E stays out of CI (needs Atlas).
 - Restart `npm run dev` after any branch switch (`node --watch`/HMR serve stale code across checkouts); curl-verify endpoints before trusting results.
 - Test auth: persistent QA account `qa@test.local` lives in shared Atlas — credentials via `VV_QA_EMAIL` + `VV_QA_PASSWORD` env vars (never committed). Log in, don't register throwaways. Delete any temp users/data you do create (shared M0, 512 MB).
 

@@ -1,19 +1,8 @@
 import { expect, test } from '@playwright/test'
 
 // Functional study flows (design-contract.spec.js covers static/visual gates).
-// Logs in as the persistent QA account and clicks through real reviews —
-// residue is legitimate review activity, never temp entities. Needs dev
-// servers + Atlas + VV_QA_EMAIL/VV_QA_PASSWORD (see AGENTS.md). Stays out
-// of CI by design.
-
-function qaCreds() {
-  const email = process.env.VV_QA_EMAIL
-  const password = process.env.VV_QA_PASSWORD
-  if (!email || !password) {
-    throw new Error('E2E needs VV_QA_EMAIL + VV_QA_PASSWORD env vars (QA account, never committed)')
-  }
-  return { email, password }
-}
+// Auth is handled via the global QA setup and storageState (see AGENTS.md).
+// Residue is legitimate review activity, never temp entities. Stays out of CI.
 
 async function apiGet(page, path) {
   const token = await page.evaluate(() => localStorage.getItem('vv_token'))
@@ -31,16 +20,18 @@ async function firstDueDeckId(page) {
   return deck._id
 }
 
+async function firstGroupDeckId(page) {
+  const { decks } = await apiGet(page, '/decks')
+  const deck = decks.find((d) => d.group === 1) ?? decks[0]
+  expect(deck, 'at least one group deck exists').toBeTruthy()
+  return deck._id
+}
+
 test.beforeEach(async ({ page }) => {
   const errors = []
   page.on('pageerror', (e) => errors.push(String(e)))
   page.context().errors = errors
-  const { email, password } = qaCreds()
-  await page.goto('/login')
-  await page.fill('input[type="email"]', email)
-  await page.fill('input[type="password"]', password)
-  await page.click('button[type="submit"]')
-  await page.waitForURL('http://localhost:5173/', { timeout: 20000 })
+  await page.goto('/')
 })
 
 test.afterEach(async ({ page }) => {
@@ -63,7 +54,6 @@ test('quiz answer advances to next', async ({ page }) => {
   await page.goto(`/decks/${id}/quiz`)
   await page.getByRole('button', { name: 'Start quiz', exact: true }).waitFor({ timeout: 15000 })
   await page.getByRole('button', { name: 'Start quiz', exact: true }).click()
-  // Answer the first question with the first option (either outcome records).
   // Option buttons render the letter glued to the text ("Awealth…").
   const option = page.locator('div.grid button', { hasText: /^[A-D]/ }).first()
   await option.waitFor({ timeout: 10000 })
@@ -82,6 +72,42 @@ test('typing submit grades the spelling', async ({ page }) => {
   await page.getByRole('button', { name: /check spelling/i }).click()
   // Wrong on purpose: the correction banner names the word.
   await expect(page.getByText(/The spelling is/)).toBeVisible({ timeout: 10000 })
+})
+
+test('deck part navigation switches parts and updates url', async ({ page }) => {
+  const id = await firstGroupDeckId(page)
+  await page.goto(`/decks/${id}`)
+  await page.waitForSelector('text=Part 1', { timeout: 15000 })
+  await expect(page.getByRole('tab', { name: /Part 1/i })).toBeVisible()
+  await expect(page.getByRole('tab', { name: /Part 2/i })).toBeVisible()
+  await expect(page.getByRole('tab', { name: /Part 3/i })).toBeVisible()
+
+  await page.getByRole('tab', { name: /Part 2/i }).click()
+  await page.waitForURL(new RegExp(`/decks/${id}\\?part=2`), { timeout: 10000 })
+  expect(page.url()).toContain('part=2')
+})
+
+test('reverse card toggle alters flashcard orientation', async ({ page }) => {
+  const id = await firstDueDeckId(page)
+  await page.goto(`/decks/${id}`)
+  const toggle = page.getByRole('button', { name: /Reverse/i })
+  await toggle.waitFor({ timeout: 15000 })
+  const initialPressed = await toggle.getAttribute('aria-pressed')
+  await toggle.click()
+  await page.waitForTimeout(200)
+  expect(await toggle.getAttribute('aria-pressed')).not.toBe(initialPressed)
+  // Restore original state
+  await toggle.click()
+})
+
+test('pronunciation audio button triggers without page error', async ({ page }) => {
+  await page.goto('/search')
+  await page.getByLabel('Search words').fill('abate')
+  await page.getByText(/^\d+ results?$/).first().waitFor({ timeout: 15000 })
+  const speaker = page.getByRole('button', { name: /Pronounce abate/i }).first()
+  await speaker.waitFor({ timeout: 10000 })
+  await speaker.click()
+  await page.waitForTimeout(500)
 })
 
 test('search, star, and unstar round-trip', async ({ page }) => {
