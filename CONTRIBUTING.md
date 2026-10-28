@@ -66,5 +66,4 @@ The `commit-msg` hook installs automatically via root `npm ci`
 - Run your feature through both apps (`npm run dev`) before opening a PR.
 - `npm test` (vitest, colocated `*.test.js`) must pass; add unit tests for
   pure logic (SRS, gamification, message pools). Browser E2E stays local
-  (`npm run test:e2e`: `e2e/design-contract.spec.js` + `e2e/study-flows.spec.js`,
-  needs Atlas) — never in CI.
+  (`npm run test:e2e`: full suite across `e2e/*.spec.js`, needs Atlas) — never in CI.

@@ -126,7 +126,7 @@
 - [x] @fe Loading/error/empty states on every fetch (shared skeletons + error boxes + illustrated EmptyState across all routes; zero-errors E2E gate green)
 - [x] All Subdivide 37 GregMat groups into 3 parts each (per-deck parts, 10 words per session)
 - [x] All All-Deck Quiz mode (`/quiz`, `GET /api/decks/all/quiz`) across studied words and full catalog
-- [x] All End-to-end regression: fresh account → practice → quiz → typing → review (automated in `e2e/study-flows.spec.js`; import flow N/A — no bulk-import endpoint exists yet)
+- [x] All End-to-end regression: fresh account / QA account → auth lifecycle → practice → quiz → typing → history audits → daily due / weak queues (automated across `e2e/*.spec.js`; import flow N/A — no bulk-import endpoint exists yet)
 - [ ] All Final report write-up + screenshots (heatmap + badge + quiz numbers)
 - [ ] All Demo rehearsal (scripted walkthrough, TTS fallback line) + presentation slides update
 - [ ] All Confirm presentation-machine audio for TTS; fallback line ready

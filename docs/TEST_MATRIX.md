@@ -31,16 +31,32 @@
 | 3 | Typing session, correct spelling | `✓ Correct!`; typo within tolerance → `✓ Correct (typo forgiven!)`; wrong → shows correct spelling |
 | 4 | Practice card speaker | Pre-rendered clip plays (`/audio/words/*.mp3` 200) or first-run volume tip toast |
 | 5 | Silent device (no Web Speech voices) | Disabled speaker with `aria-label` hint; no crash, no page errors |
-| 6 | Design-contract + study-flows e2e | `npm run test:e2e` 8/8 (4 design-contract + 4 study-flows) |
+| 6 | Full automated Playwright E2E suite | `npm run test:e2e` 30/30 across chromium + mobile |
 
-## Flow 3 — study flows (automated in `e2e/study-flows.spec.js`, QA account)
+## Flow 3 — study flows, queues & audits (automated in `e2e/`, QA account)
 
 | # | Step | Expected |
 |---|------|----------|
 | 1 | Practice answer on a due deck | `Box \d` or `Mastered` label plus tight `+\d+ XP` feedback; review recorded |
-| 2 | Quiz answer on a due deck | First option advances to `Next` / `See results` |
-| 3 | Typing submit (wrong on purpose) | Correction banner `The spelling is …` names the word |
-| 4 | Search `abate` (`GET /api/words?q=`), star round-trip | `\d+ results?`, star toggles, Bookmarks shows `abate`, unstar restores prior state (zero residue on shared QA account) |
+| 2 | Part tabs switching | Multi-part deck switches parts, resets progress indices cleanly |
+| 3 | Reverse card mode | `⇄ Reverse` flips prompt to definition with word target |
+| 4 | Quiz answer on a due deck | First option advances to `Next` / `See results` |
+| 5 | Typing submit (wrong on purpose) | Correction banner `The spelling is …` names the word |
+| 6 | Search `abate` (`GET /api/words?q=`), star round-trip | `\d+ results?`, star toggles, Bookmarks shows `abate`, unstar restores prior state (zero residue on shared QA account) |
+| 7 | Global daily due queue (`/practice/due`) | Batches due cards across all decks or shows clean EmptyState |
+| 8 | Weak words remediation (`/practice/weak`) | Crams Leitner Box 1 mistake cards or shows clean EmptyState |
+| 9 | All-deck quiz (`/quiz`) | Generates multi-deck MCQ pool across full catalog |
+| 10 | History audit hub (`/history`) | Toggles `Card Reviews` filter tabs and expands quiz question audits |
+
+## Flow 4 — auth lifecycle & security (automated in `e2e/auth-lifecycle.spec.js`)
+
+| # | Step | Expected |
+|---|------|----------|
+| 1 | Demo quick-fill & password reveal | Fills form, toggles input type between password and text |
+| 2 | Password strength & validation | Live meter evaluates entropy, mismatch blocks submission with error |
+| 3 | Forgot password anti-enumeration | Success feedback displayed without revealing account existence |
+| 4 | Profile settings update & cleanup | Name updated via UI, restored to original state (zero residue) |
+| 5 | Danger zone confirmation | Reset progress and delete account modals require confirmation |
 
 Formal temp-account regression passes when every step above is green:
 register → decks → practice → review (incl. both 400s) → quiz → search →
@@ -50,15 +66,13 @@ decks intact.
 
 ## Last execution
 
-- Date: 2026-09-15 · PR: [#75](https://github.com/zaheen4/vocab-vault/pull/75) · Executor: agent
-- `npm run test:e2e` 8/8 (4 design-contract + 4 study-flows), zero page errors.
-- Study flows green: practice records with exact XP math, quiz advances,
-  typing grades, star round-trip restores state (zero residue by design).
-- Formal temp-account regression green (both 400s, add-word 409,
-  zero-filled summary, gamification); cleanup verified
-  (`CLEANUP:{"user":1,"word":1,"decks":1,"progress":1,…}`), probe
-  `{"words":[],"total":0,"page":1}`, QA 37 decks intact.
-- Tests green (`npm test`), oxlint + eslint clean.
+- Date: 2026-10-29 · PR: #82 (feat/e2e-suite-expansion) · Executor: agent
+- `npm run test:e2e` 30/30 passed (chromium + mobile Pixel 7), zero page/console errors.
+- Auth lifecycle green: quick-fill, password visibility toggle, live strength meter, confirm password mismatch, forgot password anti-enumeration, profile name update + cleanup, danger zone modals.
+- Study modes green: practice Leitner transitions, reverse mode, TTS pronunciation triggers, quiz option advancement, spell typing correction, multi-part deck tabs (`PartTabs`).
+- Daily queues & history green: global daily due queue, weak words remediation, all-deck quiz, review feed filter tabs, quiz question audit expandable accordions.
+- Design contract green: 11 core routes audited, `vv_theme` localStorage dark/light toggle verified, 44px mobile tab bar tap targets verified.
+- Unit tests green (`npm test` 185/185 passed), linters clean, zero npm audit high/critical vulnerabilities.
 
 ## Production smoke (2026-09-14, live URLs; UI overhaul + mobile/PWA + About
 shipped after via #62–#74, e2e flows via #75)
