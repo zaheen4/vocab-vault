@@ -4,6 +4,9 @@ import { fileURLToPath } from 'url'
 import { connectDB } from '../config/db.js'
 import Word from '../models/Word.js'
 import Deck from '../models/Deck.js'
+import Progress from '../models/Progress.js'
+import Bookmark from '../models/Bookmark.js'
+import CustomList from '../models/CustomList.js'
 
 // Usage: node src/scripts/seed.js [dataFile.json]
 // Default: server/data/gregmat-words.json — the canonical GregMat dataset,
@@ -89,6 +92,23 @@ async function main() {
   })
   console.log(
     `Removed ${staleWords.deletedCount} out-of-dataset words and ${staleDecks.deletedCount} stale decks`
+  )
+
+  // Per-user progress, bookmarks, and lists point at word ids, so retiring a
+  // word leaves rows that outlive it. Left alone they clog the due/weak queues
+  // and inflate their totals, so sweep every orphan now that all deletions ran.
+  const liveWordIds = await Word.distinct('_id')
+  const [orphanProgress, orphanBookmarks, prunedLists] = await Promise.all([
+    Progress.deleteMany({ wordId: { $nin: liveWordIds } }),
+    Bookmark.deleteMany({ wordId: { $nin: liveWordIds } }),
+    CustomList.updateMany(
+      { 'wordIds.0': { $exists: true } },
+      { $pull: { wordIds: { $nin: liveWordIds } } }
+    ),
+  ])
+  console.log(
+    `Pruned ${orphanProgress.deletedCount} orphaned progress rows, ` +
+      `${orphanBookmarks.deletedCount} bookmarks and ${prunedLists.modifiedCount} lists`
   )
 
   // create one deck per group, discarding stale ones for that group

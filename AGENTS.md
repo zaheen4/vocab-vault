@@ -14,7 +14,7 @@ npm run seed            # seeds Atlas; silent no-op if .env or Atlas is unreacha
 
 ## Verify (CI runs this; `.github/workflows/ci.yml`)
 ```bash
-npm test                    # vitest: 27 files / 202 tests, pure logic, colocated *.test.js
+npm test                    # vitest: 28 files / 208 tests, pure logic, colocated *.test.js
 npx vitest run server/src/utils/leitner.test.js    # one suite
 npm run lint -w client      # oxlint; pre-existing warnings are fine, errors are not
 npm run lint:tw -w client   # eslint tailwind class hygiene

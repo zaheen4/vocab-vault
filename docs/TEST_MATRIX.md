@@ -80,6 +80,15 @@ decks intact.
 
 ## Last execution
 
+- Date: 2026-11-06 · Branch: fix/due-queue-dangling-words · Executor: agent
+- `npm run test:e2e` 38/38 passed (chromium + mobile Pixel 7), zero page errors.
+- Due/weak queues ignore progress rows whose word was retired: `/due?limit=100`
+  returns exactly `totalDue` cards (84) and `/due?limit=20` returns a full
+  batch, instead of an empty queue when the oldest rows were orphans.
+- Seed prunes orphaned progress/bookmark/list refs after word deletions; the
+  first sweep removed 76 progress rows from the shared Atlas data.
+- Unit tests green (`npm test` 208/208), client lints and build unchanged.
+
 - Date: 2026-11-06 · Branch: feat/motion-system · Executor: agent
 - `npm run test:e2e` 38/38 passed (chromium + mobile Pixel 7), zero page errors.
 - Nav green: sticky header, bold active destination on a soft accent wash, one
