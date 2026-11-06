@@ -1,119 +1,120 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { usePrefetchDeck, useDecks, useDueWords, useGamification, useProgressSummary } from '../api/queries'
+import {
+  usePrefetchDeck,
+  useDecks,
+  useDueWords,
+  useGamification,
+  useWeakWords,
+} from '../api/queries'
 import { filterDecks } from '../utils/deckFilter'
+import {
+  DECK_STATUS_FILTERS,
+  deckAction,
+  deckTotals,
+  filterDecksByStatus,
+  goalProgress,
+  nextDeckPart,
+  pickContinueDeck,
+} from '../utils/homeSections'
 import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import EmptyState from '../components/ui/EmptyState'
 import Input from '../components/ui/Input'
-import DeckTile from '../components/DeckTile'
+import Chip from '../components/ui/Chip'
 import EmptyArt from '../components/art/EmptyArt'
 import { FlameIcon, StarIcon } from '../components/art/icons'
+import { pickSeeded } from '../components/art/seed'
+import { TILE_STYLES } from '../components/DeckTile'
+
+const PRIMARY_LINK =
+  'inline-flex min-h-11 items-center justify-center rounded-xl border-b-4 border-accent-deep bg-accent px-4 font-display text-sm font-bold text-primary transition-all hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:translate-y-1 active:border-b-0 dark:text-night-950'
+const SECONDARY_LINK =
+  'inline-flex min-h-11 items-center justify-center rounded-md border border-line bg-card px-4 font-display text-sm font-bold text-ink transition-colors hover:bg-raised focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent'
+
+const todayLabel = () =>
+  new Intl.DateTimeFormat('en-GB', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  }).format(new Date())
+
+function CatalogTab({ deck }) {
+  const style = pickSeeded(TILE_STYLES, deck._id) ?? TILE_STYLES[0]
+  const label =
+    deck.group != null ? String(deck.group).padStart(2, '0') : '★'
+  return (
+    <span
+      aria-hidden="true"
+      className={`absolute -top-3 left-4 rounded-t-md border border-b-0 border-line px-2 pt-1 pb-1.5 font-mono text-2xs font-bold tracking-widest ${style}`}
+    >
+      {label}
+    </span>
+  )
+}
 
 function DeckCard({ deck }) {
-  const count = deck.wordCount ?? (deck.wordIds ? deck.wordIds.length : 0)
+  const totals = deckTotals(deck)
+  const action = deckAction(deck)
   const prefetchDeck = usePrefetchDeck()
   const warm = () => prefetchDeck(deck._id)
-  const mastered = deck.progress?.mastered || 0
-  const pct = count > 0 ? Math.round((mastered / count) * 100) : 0
-  const due = deck.dueCount ?? 0
-  const parts = deck.parts || []
 
   return (
-    <Card className="flex h-full flex-col border-2 p-5 shadow-md">
-      <div className="flex items-center gap-3">
-        <DeckTile id={deck._id} title={deck.title} />
-        <div className="min-w-0 flex-1">
-          <Link
-            to={`/decks/${deck._id}`}
-            onMouseEnter={warm}
-            onFocus={warm}
-            className="group"
-          >
-            <h3 className="truncate font-display text-lg font-bold text-primary group-hover:text-accent dark:text-cream-100 dark:group-hover:text-accent">
-              {deck.title}
-            </h3>
-          </Link>
-          <p className="text-xs font-semibold text-slate-500 dark:text-cream-300/80">
-            {count} words
-            {due > 0 && (
-              <>
-                <span aria-hidden="true"> · </span>
-                <span className="font-bold text-accent">{due} due</span>
-              </>
-            )}
-          </p>
-        </div>
-        {count > 0 && (mastered > 0 || (deck.progress?.learning || 0) > 0) && (
-          <span className="text-xs font-bold text-emerald-600 dark:text-emerald-300">
-            {pct}%
+    <Card className="relative flex h-full flex-col p-5 pt-6" data-testid="deck-card">
+      <CatalogTab deck={deck} />
+      <div className="flex items-start justify-between gap-3">
+        <Link
+          to={`/decks/${deck._id}`}
+          onMouseEnter={warm}
+          onFocus={warm}
+          className="group min-w-0"
+        >
+          <h3 className="truncate font-display text-lg font-bold text-ink group-hover:text-accent-ink">
+            {deck.title}
+          </h3>
+        </Link>
+        {totals.reviewDue > 0 && (
+          <span className="shrink-0 rounded-sm border border-stamp/40 px-1.5 py-0.5 font-mono text-2xs font-bold tracking-widest text-stamp">
+            DUE {totals.reviewDue}
           </span>
         )}
       </div>
 
-      {count > 0 && mastered > 0 && (
+      <p className="mt-1 text-xs font-semibold text-ink-muted">
+        {totals.count} {totals.count === 1 ? 'word' : 'words'}
+        {totals.started && (
+          <>
+            <span aria-hidden="true"> · </span>
+            <span className="text-ink">{totals.pct}% mastered</span>
+          </>
+        )}
+      </p>
+
+      {totals.started && (
         <div
-          className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-100 dark:bg-night-800"
+          className="mt-3 h-1.5 overflow-hidden rounded-full bg-raised"
           role="progressbar"
-          aria-valuenow={pct}
+          aria-valuenow={totals.pct}
           aria-valuemin={0}
           aria-valuemax={100}
           aria-label={`${deck.title} mastered`}
         >
           <div
-            className="h-full rounded-full bg-emerald-500 transition-all duration-500"
-            style={{ width: `${pct}%` }}
+            className="h-full rounded-full bg-sage transition-all duration-500 motion-reduce:transition-none"
+            style={{ width: `${totals.pct}%` }}
           />
         </div>
       )}
 
-      {parts.length > 0 && (
-        <div className="mt-4 border-t border-slate-100 pt-3 dark:border-white/10">
-          <div className="grid grid-cols-3 gap-2">
-            {parts.map((p) => {
-              const pCount = p.wordCount ?? 0
-              const pMastered = p.progress?.mastered || 0
-              const pPct = pCount > 0 ? Math.round((pMastered / pCount) * 100) : 0
-              const pDue = p.dueCount ?? 0
-              const isDone = pCount > 0 && pMastered === pCount
-
-              return (
-                <Link
-                  key={p.part}
-                  to={`/decks/${deck._id}?part=${p.part}`}
-                  onMouseEnter={warm}
-                  onFocus={warm}
-                  aria-label={`Practice ${deck.title} Part ${p.part}`}
-                  className="flex min-h-11 flex-col items-center justify-center rounded-lg border border-slate-200 bg-slate-50/70 p-2 text-center transition-all hover:border-accent hover:bg-gold/30 hover:shadow-sm active:scale-97 dark:border-white/10 dark:bg-night-900/60 dark:hover:border-accent dark:hover:bg-accent/10"
-                >
-                  <span className="font-display text-xs font-bold text-primary dark:text-cream-100">
-                    Part {p.part}
-                  </span>
-                  <span className="mt-0.5 text-xs text-slate-500 dark:text-cream-300/70">
-                    {pDue > 0 ? (
-                      <span className="font-bold text-accent">{pDue} due</span>
-                    ) : isDone ? (
-                      <span className="font-bold text-emerald-600 dark:text-emerald-300">✓ 100%</span>
-                    ) : (
-                      `${pPct}%`
-                    )}
-                  </span>
-                </Link>
-              )
-            })}
-          </div>
-        </div>
-      )}
-
-      {parts.length === 0 && (
-        <div className="mt-auto pt-3">
+      {action && (
+        <div className="mt-auto pt-4">
           <Link
-            to={`/decks/${deck._id}`}
+            to={action.to}
             onMouseEnter={warm}
             onFocus={warm}
-            className="flex items-center justify-center rounded-lg border border-slate-200 py-2 text-xs font-bold text-primary transition-all hover:border-accent hover:bg-gold/30 dark:border-white/10 dark:text-cream-100 dark:hover:border-accent"
+            className={`${totals.started ? SECONDARY_LINK : PRIMARY_LINK} w-full`}
           >
-            Practice deck →
+            {action.label}
           </Link>
         </div>
       )}
@@ -121,20 +122,252 @@ function DeckCard({ deck }) {
   )
 }
 
+function StreakChips({ stats }) {
+  if (!stats) return null
+  return (
+    <div className="flex shrink-0 items-center gap-2">
+      <span className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-line bg-card px-3 text-xs font-bold text-ink">
+        <FlameIcon size={14} className="text-accent" /> {stats.dailyStreak}d
+      </span>
+      <span className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-line bg-card px-3 text-xs font-bold text-ink">
+        <StarIcon size={14} className="text-accent" /> Lv {stats.level}
+      </span>
+    </div>
+  )
+}
+
+function TodayHeading({ firstRun, stats }) {
+  return (
+    <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
+      <div>
+        <div className="flex items-baseline gap-3">
+          <h1 className="font-display text-display-lg font-bold text-ink">
+            {firstRun ? 'Master your words.' : 'Today'}
+          </h1>
+          {!firstRun && (
+            <span className="font-mono text-2xs font-semibold tracking-widest text-ink-muted uppercase">
+              {todayLabel()}
+            </span>
+          )}
+        </div>
+        <p className="mt-1 max-w-md text-sm text-ink-muted">
+          {firstRun
+            ? 'GRE words on a schedule that adapts to you — flip cards, quiz yourself, and watch the streak grow.'
+            : 'A short session keeps the schedule honest. Start with what is due.'}
+        </p>
+      </div>
+      <StreakChips stats={stats} />
+    </div>
+  )
+}
+
+function FirstRunPanel({ deck }) {
+  return (
+    <Card className="mt-5 p-5">
+      <p className="font-mono text-2xs font-semibold tracking-widest text-ink-muted uppercase">
+        Start here
+      </p>
+      <p className="mt-2 max-w-md text-sm text-ink">
+        Nothing reviewed yet. Group 1 is the gentlest entry point — ten words at
+        a time, no quiz until you are ready.
+      </p>
+      <div className="mt-4 flex flex-wrap gap-3">
+        {deck && (
+          <Link to={`/decks/${deck._id}`} className={PRIMARY_LINK}>
+            Start with {deck.title} →
+          </Link>
+        )}
+        <Link to="/quiz" className={SECONDARY_LINK}>
+          All-deck quiz
+        </Link>
+      </div>
+    </Card>
+  )
+}
+
+function TodayPanel({ totalDue, stats, continueDeck }) {
+  const goal = goalProgress(stats?.reviewsToday, stats?.dailyGoalTarget)
+  const part = continueDeck ? nextDeckPart(continueDeck) : null
+
+  return (
+    <div className="mt-5 grid gap-4 md:grid-cols-5">
+      <Card className="flex flex-col p-5 md:col-span-3">
+        <p className="font-mono text-2xs font-semibold tracking-widest text-ink-muted uppercase">
+          Due today
+        </p>
+        <div className="mt-2 flex items-end gap-3">
+          <p className="font-display text-display-xl leading-none font-bold text-ink tabular-nums">
+            {totalDue}
+          </p>
+          <p className="pb-1 text-sm text-ink-muted">
+            {totalDue === 1 ? 'word ready for review' : 'words ready for review'}
+          </p>
+        </div>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          {totalDue > 0 ? (
+            <Link to="/practice/due" className={PRIMARY_LINK}>
+              Start review →
+            </Link>
+          ) : (
+            <>
+              <span className="inline-flex min-h-11 items-center rounded-xl border border-sage/30 bg-sage/10 px-4 font-display text-sm font-bold text-sage">
+                All caught up
+              </span>
+              {continueDeck && (
+                <Link
+                  to={`/decks/${continueDeck._id}${part ? `?part=${part}` : ''}`}
+                  className={SECONDARY_LINK}
+                >
+                  Keep going →
+                </Link>
+              )}
+            </>
+          )}
+        </div>
+      </Card>
+
+      <Card className="flex flex-col p-5 md:col-span-2">
+        <p className="font-mono text-2xs font-semibold tracking-widest text-ink-muted uppercase">
+          Daily goal
+        </p>
+        <p className="mt-2 font-display text-2xl font-bold text-ink tabular-nums">
+          {goal.reviews}
+          <span className="ml-1 text-sm font-semibold text-ink-muted">
+            / {goal.goal || '—'}
+          </span>
+        </p>
+        <div
+          className="mt-3 h-1.5 overflow-hidden rounded-full bg-raised"
+          role="progressbar"
+          aria-valuenow={goal.pct}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label="Daily goal"
+        >
+          <div
+            className="h-full rounded-full bg-accent transition-all duration-500 motion-reduce:transition-none"
+            style={{ width: `${goal.pct}%` }}
+          />
+        </div>
+        <p className="mt-2 text-xs font-semibold text-ink-muted">
+          {goal.goal === 0
+            ? 'Set a goal in Settings'
+            : goal.met
+              ? 'Goal met — nice work.'
+              : `${goal.remaining} to go`}
+        </p>
+      </Card>
+    </div>
+  )
+}
+
+function QuickActions({ continueDeck, totalWeak }) {
+  const part = continueDeck ? nextDeckPart(continueDeck) : null
+  const link =
+    'inline-flex min-h-11 items-center text-sm font-bold text-ink-muted transition-colors hover:text-ink'
+  return (
+    <div className="mt-4 flex flex-wrap items-center gap-x-6">
+      {continueDeck && (
+        <Link
+          to={`/decks/${continueDeck._id}${part ? `?part=${part}` : ''}`}
+          className={link}
+        >
+          Continue {continueDeck.title}
+          {part ? ` · Part ${part}` : ''} →
+        </Link>
+      )}
+      {totalWeak > 0 && (
+        <Link to="/practice/weak" className={link}>
+          Weak words ({totalWeak}) →
+        </Link>
+      )}
+      <Link to="/quiz" className={link}>
+        All-deck quiz →
+      </Link>
+    </div>
+  )
+}
+
+function LibraryBar({ status, onStatus, query, onQuery, showSearch, count, total }) {
+  return (
+    <div className="z-20 -mx-4 border-b border-line bg-canvas/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6 lg:sticky lg:top-16">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <h2 className="font-display text-lg font-bold text-ink">Your library</h2>
+        <div
+          role="group"
+          aria-label="Deck status"
+          className="flex flex-wrap items-center gap-1.5"
+        >
+          {DECK_STATUS_FILTERS.map((item) => (
+            <Chip
+              key={item.id}
+              pressed={item.id === status}
+              onClick={() => onStatus(item.id)}
+            >
+              {item.label}
+            </Chip>
+          ))}
+        </div>
+        {showSearch && (
+          <div className="w-full sm:ml-auto sm:w-56">
+            <Input
+              type="search"
+              value={query}
+              onChange={(e) => onQuery(e.target.value)}
+              placeholder="Find a deck — try 12…"
+              aria-label="Filter decks"
+            />
+          </div>
+        )}
+      </div>
+      {(query.trim() || status !== 'all') && (
+        <p className="mt-2 text-xs font-semibold text-ink-muted">
+          {count} of {total} decks
+        </p>
+      )}
+    </div>
+  )
+}
+
+function HomeSkeleton() {
+  return (
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {[...Array(6)].map((_, i) => (
+        <div
+          key={i}
+          className="relative h-40 animate-pulse rounded-xl border border-line bg-card p-5 pt-6"
+        >
+          <span className="absolute -top-3 left-4 h-6 w-9 rounded-t-md bg-raised" />
+          <div className="h-4 w-24 rounded bg-raised" />
+          <div className="mt-3 h-3 w-32 rounded bg-raised" />
+          <div className="mt-4 h-1.5 w-full rounded-full bg-raised" />
+          <div className="mt-6 h-9 w-full rounded bg-raised" />
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export default function Home() {
   const { data: decks = [], isLoading, isError } = useDecks()
-  // Decorative: never block or break the page on failure
+  // Decorative and non-blocking: Home still renders without either.
   const { data: stats } = useGamification()
-  const { data: summary } = useProgressSummary()
   const { data: dueData } = useDueWords(1)
-  const [filter, setFilter] = useState('')
+  const { data: weakData } = useWeakWords(1)
+  const [status, setStatus] = useState('all')
+  const [query, setQuery] = useState('')
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {[...Array(6)].map((_, i) => (
-          <div key={i} className="h-32 animate-pulse rounded-lg bg-raised" />
-        ))}
+      <div className="animate-page">
+        <div className="h-8 w-40 animate-pulse rounded bg-raised" />
+        <div className="mt-5 grid gap-4 md:grid-cols-5">
+          <div className="h-36 animate-pulse rounded-xl border border-line bg-card md:col-span-3" />
+          <div className="h-36 animate-pulse rounded-xl border border-line bg-card md:col-span-2" />
+        </div>
+        <div className="mt-10">
+          <HomeSkeleton />
+        </div>
       </div>
     )
   }
@@ -146,9 +379,13 @@ export default function Home() {
         className="rounded-lg border border-stamp/30 bg-stamp/10 p-4 text-center text-sm text-stamp"
       >
         Failed to load decks.{' '}
-        <button className="underline" onClick={() => window.location.reload()}>
+        <Button
+          variant="secondary"
+          className="ml-2"
+          onClick={() => window.location.reload()}
+        >
           Retry
-        </button>
+        </Button>
       </div>
     )
   }
@@ -165,105 +402,63 @@ export default function Home() {
     )
   }
 
-  const totalProgress = summary
-    ? Object.values(summary).reduce((a, b) => a + b, 0)
-    : null
-
-  // Sort decks in numeric order; decks without a group sink to the end.
-  const sorted = [...decks].sort((a, b) => (a.group ?? Infinity) - (b.group ?? Infinity))
-  const firstDeck = sorted.find((d) => d.group === 1) ?? sorted[0]
-  const started = totalProgress > 0
+  // Numeric group order; decks without a group sink to the end.
+  const sorted = [...decks].sort(
+    (a, b) => (a.group ?? Infinity) - (b.group ?? Infinity)
+  )
+  const firstRun = !sorted.some((deck) => deckTotals(deck).started)
   const totalDue = dueData?.totalDue ?? 0
-  const visible = filterDecks(sorted, filter)
+  const totalWeak = weakData?.totalWeak ?? 0
+  const continueDeck = pickContinueDeck(sorted)
+
+  const visible = filterDecks(filterDecksByStatus(sorted, status), query)
+  const filtered = status !== 'all' || query.trim().length > 0
+
+  const clearFilters = () => {
+    setStatus('all')
+    setQuery('')
+  }
 
   return (
-    <div data-testid="home-ready" className="animate-page -m-4 sm:-m-6">
-      <div className="bg-gradient-to-br from-primary via-primary to-night-800 px-4 pt-6 pb-28 sm:px-6 sm:pb-32 dark:border-b dark:border-white/10 dark:from-night-900 dark:via-night-900 dark:to-night-950">
-        <p className="font-display text-xs font-bold tracking-widest text-accent uppercase">VocabVault</p>
-        <h1 className="mt-1 font-display text-display-lg font-bold text-white dark:text-cream-100">Master your words.</h1>
-        <p className="mt-1 max-w-md text-sm text-white/70 dark:text-cream-300/80">
-          GRE words on a schedule that adapts to you — flip cards, quiz yourself, and watch the streak grow.
-        </p>
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          {totalDue > 0 ? (
-            <Link to="/practice/due">
-              <Button className="shadow-lg">
-                Review Due Today ({totalDue}) →
-              </Button>
-            </Link>
-          ) : started ? (
-            <span className="inline-flex items-center rounded-full border border-emerald-400/30 bg-emerald-500/20 px-3 py-1.5 text-xs font-semibold text-emerald-200">
-              All caught up!
-            </span>
-          ) : null}
-          {firstDeck && (
-            <Link to={`/decks/${firstDeck._id}`}>
-              <Button
-                variant={totalDue > 0 ? 'secondary' : 'primary'}
-                className={
-                  totalDue > 0
-                    ? 'border-white/20 bg-white/10 text-white shadow-lg backdrop-blur-sm hover:bg-white/20'
-                    : 'shadow-lg'
-                }
-              >
-                {started ? 'Continue practicing →' : `Start with ${firstDeck.title} →`}
-              </Button>
-            </Link>
-          )}
-          <Link to="/quiz">
-            <Button
-              variant="secondary"
-              className="border-white/20 bg-white/10 text-white shadow-lg backdrop-blur-sm hover:bg-white/20"
-            >
-              All-Deck Quiz
-            </Button>
-          </Link>
-          {stats && (
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-bold text-white">
-                <FlameIcon size={14} className="text-accent" /> {stats.dailyStreak}d
-              </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-bold text-white">
-                <StarIcon size={14} className="text-accent" /> Lv {stats.level}
-              </span>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-bold text-white">
-                +{stats.xp} XP
-              </span>
-            </div>
-          )}
-        </div>
-      </div>
-      {/* Opaque sheet: never stack a translucent warm fill over the navy hero. */}
-      <div className="-mt-24 bg-canvas px-4 pt-8 pb-10 sm:px-6 sm:pt-12">
-        {sorted.length > 6 && (
-          <div className="mx-auto mb-4 max-w-md">
-            <Input
-              type="search"
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              placeholder="Find a deck — try 12…"
-              aria-label="Filter decks"
-            />
-          </div>
-        )}
+    <div data-testid="home-ready" className="animate-page">
+      <TodayHeading firstRun={firstRun} stats={stats} />
 
-        {visible.length === 0 ? (
-          <EmptyState
-            title="No decks match"
-            message={`Nothing matches “${filter.trim()}”.`}
-            action={
-              <Button variant="secondary" onClick={() => setFilter('')}>
-                Clear search
-              </Button>
-            }
-          />
-        ) : (
-          <>
-            {filter.trim() && (
-              <p className="mx-auto mb-3 max-w-md text-center text-xs text-slate-500 dark:text-cream-300/70">
-                {visible.length} of {sorted.length} shown
-              </p>
-            )}
+      {firstRun ? (
+        <FirstRunPanel deck={continueDeck} />
+      ) : (
+        <>
+          <TodayPanel totalDue={totalDue} stats={stats} continueDeck={continueDeck} />
+          <QuickActions continueDeck={continueDeck} totalWeak={totalWeak} />
+        </>
+      )}
+
+      <section className="mt-8" data-testid="home-library">
+        <LibraryBar
+          status={status}
+          onStatus={setStatus}
+          query={query}
+          onQuery={setQuery}
+          showSearch={sorted.length > 6}
+          count={visible.length}
+          total={sorted.length}
+        />
+
+        <div className="mt-4">
+          {visible.length === 0 ? (
+            <EmptyState
+              title="No decks match"
+              message={
+                query.trim()
+                  ? `Nothing matches “${query.trim()}” in this filter.`
+                  : 'No decks are in this state yet.'
+              }
+              action={
+                <Button variant="secondary" onClick={clearFilters}>
+                  Clear filters
+                </Button>
+              }
+            />
+          ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {visible.map((deck, i) => (
                 <div
@@ -275,9 +470,16 @@ export default function Home() {
                 </div>
               ))}
             </div>
-          </>
-        )}
-      </div>
+          )}
+          {filtered && visible.length > 0 && (
+            <div className="mt-4 text-center">
+              <Button variant="secondary" onClick={clearFilters}>
+                Clear filters
+              </Button>
+            </div>
+          )}
+        </div>
+      </section>
     </div>
   )
 }

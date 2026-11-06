@@ -1,0 +1,114 @@
+// Pure derivations for the Home "Today + Library" surface. Home renders cards
+// from the same /decks payload the rest of the app uses; these helpers keep the
+// filtering, the continue target, and the goal math out of the component.
+
+export const DECK_STATUS_FILTERS = [
+  { id: 'all', label: 'All' },
+  { id: 'in-progress', label: 'In progress' },
+  { id: 'due', label: 'Due' },
+  { id: 'new', label: 'New' },
+  { id: 'mastered', label: 'Mastered' },
+]
+
+export function deckTotals(deck) {
+  const count = deck?.wordCount ?? deck?.wordIds?.length ?? 0
+  const progress = deck?.progress ?? {}
+  const learning = progress.learning ?? 0
+  const mastered = progress.mastered ?? 0
+  const seen = learning + mastered
+  const unseen = progress.new ?? Math.max(0, count - seen)
+  const due = deck?.dueCount ?? 0
+  return {
+    count,
+    learning,
+    mastered,
+    seen,
+    unseen,
+    due,
+    // `dueCount` from /decks includes never-seen words (they are practicable).
+    // The stamp and the Due filter mean spaced-repetition review, so subtract
+    // the unseen share — a brand-new deck has nothing due for review.
+    reviewDue: Math.max(0, due - unseen),
+    started: seen > 0,
+    pct: count > 0 ? Math.round((mastered / count) * 100) : 0,
+    complete: count > 0 && mastered === count,
+  }
+}
+
+export function matchesDeckStatus(deck, status) {
+  const totals = deckTotals(deck)
+  switch (status) {
+    case 'in-progress':
+      return totals.started && !totals.complete
+    case 'due':
+      return totals.reviewDue > 0
+    case 'new':
+      return !totals.started
+    case 'mastered':
+      return totals.complete
+    default:
+      return true
+  }
+}
+
+export function filterDecksByStatus(decks, status) {
+  if (!status || status === 'all') return decks ?? []
+  return (decks ?? []).filter((deck) => matchesDeckStatus(deck, status))
+}
+
+const byGroup = (a, b) => (a.group ?? Number.POSITIVE_INFINITY) - (b.group ?? Number.POSITIVE_INFINITY)
+
+// Continue order: a started deck with due cards, then a started deck with
+// learning cards, then the first deck in group order (new users).
+export function pickContinueDeck(decks) {
+  const ordered = [...(decks ?? [])].sort(byGroup)
+  return (
+    ordered.find((deck) => {
+      const totals = deckTotals(deck)
+      return totals.started && totals.reviewDue > 0
+    }) ??
+    ordered.find((deck) => deckTotals(deck).learning > 0) ??
+    ordered.find((deck) => deckTotals(deck).started) ??
+    ordered[0] ??
+    null
+  )
+}
+
+// The part a learner should open next: first due part, then first unfinished
+// part, then part 1. Decks with one part (or none) return null.
+export function nextDeckPart(deck) {
+  const parts = deck?.parts ?? []
+  if (parts.length === 0) return null
+  const due = parts.find((part) => (part.dueCount ?? 0) > 0)
+  if (due) return due.part
+  const unfinished = parts.find(
+    (part) => (part.progress?.mastered ?? 0) < (part.wordCount ?? 0)
+  )
+  return (unfinished ?? parts[0]).part
+}
+
+// One action per card: never a grid of part buttons.
+export function deckAction(deck) {
+  if (!deck?._id) return null
+  const totals = deckTotals(deck)
+  const query = nextDeckPart(deck)
+  const to = query ? `/decks/${deck._id}?part=${query}` : `/decks/${deck._id}`
+
+  if (!totals.started) return { label: 'Start deck →', to }
+  if (totals.complete) return { label: 'Review deck →', to }
+  return { label: query ? `Continue Part ${query} →` : 'Continue deck →', to }
+}
+
+// Goal math for the Today panel: never divides by zero, never exceeds 100%.
+export function goalProgress(reviewsToday = 0, target = 0) {
+  const reviews = Math.max(0, reviewsToday)
+  const goal = Math.max(0, target)
+  const pct = goal > 0 ? Math.min(100, Math.round((reviews / goal) * 100)) : 0
+  return {
+    reviews,
+    goal,
+    pct,
+    remaining: Math.max(0, goal - reviews),
+    met: goal > 0 && reviews >= goal,
+  }
+}
