@@ -19,8 +19,7 @@ test.afterEach(async ({ page }) => {
 
 test('voice surfaces render Baloo, body reads Nunito', async ({ page }) => {
   const brand = await page
-    .locator('header span')
-    .first()
+    .getByTestId('brand-wordmark')
     .evaluate((e) => getComputedStyle(e).fontFamily)
   expect(brand).toContain('Baloo')
   const h1 = await page.locator('h1').first().evaluate((e) => getComputedStyle(e).fontFamily)
@@ -78,9 +77,63 @@ test('theme toggle switches dark mode and persists preference', async ({ page })
   expect(await page.evaluate(() => document.documentElement.classList.contains('dark'))).toBe(initialDark)
 })
 
-test('mobile bottom tab bar renders 4 primary tabs with >= 44px tap targets', async ({ page }) => {
+test('desktop nav exposes the review-first destinations', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 })
+
+  const nav = page.locator('[role="navigation"][aria-label="Primary"]')
+  await expect(nav).toBeVisible({ timeout: 10000 })
+
+  for (const label of ['Decks', 'Review', 'Search', 'Saved', 'Progress']) {
+    await expect(nav.getByRole('link', { name: new RegExp(`^${label}`) })).toBeVisible()
+  }
+  await expect(nav.getByText('History', { exact: true })).toHaveCount(0)
+
+  await page.goto('/history')
+  await expect(page.getByText('History & Performance')).toBeVisible({ timeout: 10000 })
+  const active = nav.locator('[aria-current="page"]')
+  await expect(active).toHaveCount(1)
+  await expect(active).toContainText('Progress')
+})
+
+test('primary nav stays pinned and marks the active section', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 })
+
+  const header = page.locator('header')
+  await expect(header).toHaveCSS('position', 'sticky')
+  await expect(header).toHaveCSS('top', '0px')
+
+  await page.evaluate(() => window.scrollTo(0, 900))
+  await page.waitForTimeout(300)
+  const box = await header.boundingBox()
+  expect(Math.round(box?.y ?? -1)).toBe(0)
+
+  const active = header.locator('[aria-current="page"]')
+  await expect(active).toHaveCount(1)
+  await expect(active).toContainText('Decks')
+})
+
+test('primary nav labels share one baseline', async ({ page }) => {
+  const width = page.viewportSize()?.width ?? 1280
+  const selector =
+    width >= 768
+      ? 'header [role="navigation"][aria-label="Primary"] > a > span:first-child'
+      : 'nav[aria-label="Primary"] a > span:last-child > span:first-child'
+
+  const labels = page.locator(selector)
+  await expect(labels).toHaveCount(5)
+
+  const centers = await labels.evaluateAll((els) =>
+    els.map((el) => {
+      const r = el.getBoundingClientRect()
+      return Math.round(r.top + r.height / 2)
+    })
+  )
+  expect(new Set(centers).size, `label centers: ${centers.join(', ')}`).toBe(1)
+})
+
+test('mobile bottom tab bar renders 5 primary tabs with >= 44px tap targets', async ({ page }) => {
   const viewport = page.viewportSize()
-  if (!viewport || viewport.width >= 640) {
+  if (!viewport || viewport.width >= 768) {
     await page.setViewportSize({ width: 390, height: 844 })
   }
 
@@ -88,11 +141,13 @@ test('mobile bottom tab bar renders 4 primary tabs with >= 44px tap targets', as
   await expect(tabbar).toBeVisible({ timeout: 10000 })
 
   const tabs = tabbar.locator('a')
-  await expect(tabs).toHaveCount(4)
+  await expect(tabs).toHaveCount(5)
   await expect(tabbar.getByText('Decks')).toBeVisible()
+  await expect(tabbar.getByText('Review')).toBeVisible()
   await expect(tabbar.getByText('Search')).toBeVisible()
   await expect(tabbar.getByText('Saved')).toBeVisible()
   await expect(tabbar.getByText('Progress')).toBeVisible()
+  await expect(tabbar.getByText('History')).toHaveCount(0)
 
   const heights = await tabs.evaluateAll((els) =>
     els.map((e) => Math.round(e.getBoundingClientRect().height))
