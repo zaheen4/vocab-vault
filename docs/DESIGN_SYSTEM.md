@@ -61,9 +61,10 @@ token classes — never raw hex in components.
   (with an accent eyebrow where the page needs orientation); heroes and done
   screens use fluid `text-display-xl`. Body text stays fixed — never fluid.
 - **Micro type (`text-2xs`, 10px):** nav due counts only, never body copy.
-- **Flashcard hierarchy:** the word (`text-3xl` bold) leads; the definition
-  answers in `text-lg font-medium` with `leading-relaxed` — never semibold,
-  never competing.
+- **Flashcard hierarchy:** the word (`text-display-xl` bold) leads; the
+  definition answers in `text-lg font-medium` with `leading-relaxed` — never
+  semibold, never competing. On the back face the word repeats as a mono
+  eyebrow above the definition so the card stays identifiable while scrolled.
 - **Micro-labels:** uppercase `tracking-wide` labels are rationed to counts
   and eyebrows; hints never go below `text-ink-muted` (contrast floor).
 - **Catalog utility (`font-mono`, system monospace — no download):** uppercase
@@ -116,8 +117,9 @@ action, or preserves context while something leaves. Anything else is cut.
   between desktop destinations while the wash cross-fades; on mobile the top
   rule slides across the five tabs and the active icon lifts 1px.
 - **Celebrations:** confetti still fires on strong sessions (≥60%) or level-ups
-  — never on a shutout (`utils/celebrate.js`). All four study modes share
-  `ScoreRing` + `SessionHud` so results read the same.
+  — never on a shutout (`utils/celebrate.js`). Every study mode ends on
+  `SessionResults` and runs under `SessionHud`, so a session reads the same
+  whether it came from a deck, quiz, typing run, or a review queue.
 - **Count-up numbers** (`utils/countUp.js`) jump straight to target under
   reduced motion.
 - Existing keyframes in `client/src/index.css` (`fade-slide-in`, `pop-in`,
@@ -139,6 +141,34 @@ action, or preserves context while something leaves. Anything else is cut.
   (`dueCount` minus never-seen words), not merely practicable.
 - Page headers come from shared `PageHeader` (eyebrow + H1 + sub); session
   screens share `SessionHud` + `ScoreRing`; deck identity comes from `DeckTile`.
+- **Study session.** One column (`max-w-2xl`), one card, one answer bar:
+  - The card is an index card: `bg-card`, 2px `border-line`, a 4px accent top
+    rule, a corner tab (`CARD` / `MEANING`), a stacked card behind it, and
+    `min-h-72` / `sm:min-h-80`. Front is the word + a mono dashed
+    `Tap to reveal`; the back repeats the word as an eyebrow over the
+    definition. Flip stays 3D and is killed by reduced motion.
+  - `AnswerBar` is two 48px buttons — `Again` / `Got it` — with `1` / `2`
+    hints from `sm` up. It sticks at `bottom-18` on phones (clearing the tab
+    bar) on an opaque `bg-canvas` panel; from `sm` up it sits in normal flow.
+    Accessible names stay exactly `Again` and `Got it`.
+  - `SessionHud` shows back link, mono position/score/combo/XP chips, one 2px
+    progress bar with `role="progressbar"`, and optional tool chips.
+  - `SessionResults` is the only done screen: eyebrow `Session complete`,
+    message, optional greeting/subtitle, `ScoreRing`, stat tiles, the ✓/✗ word
+    roll, then the caller's actions. Quiz and Typing keep their exact
+    `You scored …` / `You spelled …` subtitles.
+  - Due, Weak, and Saved are thin `ReviewSession` wrappers — they differ only
+    in query and copy, never in card, keys, or results.
+- **Study keyboard** lives in `utils/studyKeys.js` (pure resolver) +
+  `useStudyKeys`: `Space` / `Enter` flip, `1` / `2` answer after the flip,
+  `S` / `R` / `B` speak, reverse, bookmark. Keys never fire while focus is in
+  an input or contenteditable, and flip keys defer to focused buttons/links so
+  the browser's own activation wins. Every new shortcut needs a resolver test.
+- **Deck detail.** `DeckHeader` sits above the mode tabs: back link, group
+  eyebrow (`GROUP 01 · ALL PARTS`), title, `n words · n% mastered`, and a
+  `DUE n` stamp using review-due. Parts are a segmented strip where each
+  segment states its own next best reason to pick it — `Part 1 · 3 due` or
+  `Part 2 · 45%` — with the accent pill travelling between segments.
 - Complex behavior (dropdowns, dialogs, tooltips) uses Radix primitives,
   token-styled, pulled one package at a time — never hand-rolled focus traps.
 - Join conditional classes with `utils/cn.js` (tailwind-merge: later colliding

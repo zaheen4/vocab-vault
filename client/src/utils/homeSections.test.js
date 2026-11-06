@@ -47,6 +47,22 @@ describe('deckTotals', () => {
     expect(totals.pct).toBe(0)
   })
 
+  it('aggregates per-part progress when the deck payload omits it', () => {
+    const detail = {
+      _id: 'd2',
+      title: 'Group 2',
+      parts: [
+        { part: 1, wordCount: 10, dueCount: 7, progress: { new: 4, learning: 6, mastered: 0 } },
+        { part: 2, wordCount: 10, dueCount: 10, progress: { new: 10, learning: 0, mastered: 0 } },
+      ],
+    }
+    const totals = deckTotals(detail)
+    expect(totals.count).toBe(20)
+    expect(totals.seen).toBe(6)
+    expect(totals.started).toBe(true)
+    expect(totals.reviewDue).toBe(3)
+  })
+
   it('falls back to wordIds when wordCount is missing', () => {
     const totals = deckTotals({ wordIds: ['a', 'b', 'c'], progress: { mastered: 1 } })
     expect(totals.count).toBe(3)

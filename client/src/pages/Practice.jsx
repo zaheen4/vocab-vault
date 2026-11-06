@@ -7,17 +7,18 @@ import { shouldCelebrate } from '../utils/celebrate'
 import { useAuth } from '../context/AuthContext'
 import { getSessionMessage } from '../utils/sessionMessages'
 import { claimTtsTip, speakWord, stopSpeaking, TTS_UNAVAILABLE_HINT, useTtsAvailable } from '../utils/speak'
+import { useStudyKeys } from '../utils/useStudyKeys'
 import Button from '../components/ui/Button'
 import { FlameIcon } from '../components/art/icons'
 import SpeakerIcon from '../components/ui/SpeakerIcon'
 import Toast from '../components/ui/Toast'
 import EmptyState from '../components/ui/EmptyState'
 import EmptyArt from '../components/art/EmptyArt'
-import Confetti from '../components/Confetti'
+import AnswerBar from '../components/AnswerBar'
 import Flashcard from '../components/Flashcard'
 import LevelUpBanner from '../components/LevelUpBanner'
-import ScoreRing from '../components/ScoreRing'
 import SessionHud from '../components/SessionHud'
+import SessionResults from '../components/SessionResults'
 
 const BOX_LABELS = { 1: 'Box 1', 2: 'Box 2', 3: 'Box 3', 4: 'Box 4', 5: 'Mastered' }
 
@@ -66,6 +67,26 @@ export default function Practice({ active = true }) {
   const sessionRef = useRef({ correct: 0, total: 0, bestCombo: 0, levelUp: false, level: null })
   const [finalMessage, setFinalMessage] = useState(null)
   const slideCls = useSlideDirection()
+  const current = words[index] ?? null
+
+  // Keyboard map: Space/Enter flip, 1/2 answer, S/R/B for the tool chips.
+  useStudyKeys({
+    enabled: !done && !!current,
+    flipped,
+    hasFeedback: !!feedback,
+    onFlip: () => setFlipped((f) => !f),
+    onAgain: () => answer(false),
+    onGotIt: () => answer(true),
+    onSpeak: () => current && ttsAvailable && speak(current.word),
+    onReverse: () => setReversed((r) => !r),
+    onBookmark: () => {
+      if (!current) return
+      toggleBookmark.mutate(
+        { wordId: current._id, starred: isStarred(bookmarks, current._id) },
+        { onError: () => setToast({ variant: 'error', message: "Couldn't save that word." }) }
+      )
+    },
+  })
 
   // Timer cleanup only — data comes from the session query above.
   // (advanceTimer is read inside cleanup so the latest timer is cleared.)
@@ -206,16 +227,18 @@ export default function Practice({ active = true }) {
   }
 
   if (isLoading) {
-    return <div className="mx-auto h-64 max-w-xl animate-pulse rounded-xl bg-slate-200 dark:bg-night-800" />
+    return (
+      <div className="mx-auto h-64 max-w-2xl animate-pulse rounded-xl border border-line bg-card" />
+    )
   }
 
   if (isError) {
     return (
-      <div className="rounded-lg bg-red-50 p-4 text-center text-sm text-red-600 dark:bg-red-950/50 dark:text-red-300">
+      <div className="rounded-lg border border-stamp/30 bg-stamp/10 p-4 text-center text-sm text-stamp">
         Failed to load the practice session.{' '}
-        <button className="underline" onClick={() => window.location.reload()}>
+        <Button variant="secondary" className="ml-2" onClick={() => window.location.reload()}>
           Retry
-        </button>
+        </Button>
       </div>
     )
   }
@@ -234,76 +257,48 @@ export default function Practice({ active = true }) {
     const correctCount = results.filter((r) => r.correct).length
     const firstName = user?.name?.split(' ')[0]
     return (
-      <div className="animate-page mx-auto max-w-2xl space-y-6 py-6 text-center">
-        <Confetti active={confetti} pieces={70} />
-        <h1 className="font-display text-display-xl font-bold text-primary dark:text-cream-100">
-          {finalMessage || 'Session complete!'}
-        </h1>
-        {firstName && (
-          <p className="-mt-3 text-slate-500 dark:text-cream-300/80">
-            {firstName}, you got {correctCount} of {results.length} right.
-          </p>
-        )}
-        {levelEvent && (
-          <LevelUpBanner level={levelEvent.newLevel} className="mx-auto max-w-sm rounded-xl px-4 py-3" />
-        )}
-        <ScoreRing correct={correctCount} total={results.length} />
-
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <div className="rounded-lg border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-night-900">
-            <p className="text-2xl font-bold text-accent">+{sessionXp}</p>
-            <p className="text-xs text-slate-400 dark:text-cream-300/70">XP earned</p>
-          </div>
-          <div className="rounded-lg border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-night-900">
-            <p className="flex items-center justify-center gap-1 text-2xl font-bold text-primary dark:text-cream-100">
-              {bestCombo}<FlameIcon size={22} className="text-accent" />
-            </p>
-            <p className="text-xs text-slate-400 dark:text-cream-300/70">Best combo</p>
-          </div>
-          <div className="rounded-lg border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-night-900">
-            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-300">{newLearned}</p>
-            <p className="text-xs text-slate-400 dark:text-cream-300/70">New words learned</p>
-          </div>
-          <div className="rounded-lg border border-slate-200 bg-white p-4 dark:border-white/10 dark:bg-night-900">
-            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-300">{caughtUp}</p>
-            <p className="text-xs text-slate-400 dark:text-cream-300/70">Mastered</p>
-          </div>
-        </div>
-
-        {results.length > 0 && (
-          <div className="flex flex-wrap justify-center gap-1.5">
-            {results.map((r, i) => (
-              <span
-                key={i}
-                title={r.word}
-                className={`rounded px-1.5 py-0.5 text-xs font-semibold ${
-                  r.correct
-                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
-                    : 'bg-red-100 text-red-600 dark:bg-red-950/60 dark:text-red-300'
-                }`}
-              >
-                {r.correct ? '✓' : '✗'}
-              </span>
-            ))}
-          </div>
-        )}
-
-        <div className="flex justify-center gap-3">
-          <Button variant="secondary" onClick={() => window.location.reload()}>
-            Practice again
-          </Button>
-          <Link to="/">
-            <Button>Back to decks</Button>
-          </Link>
-        </div>
-      </div>
+      <SessionResults
+        confetti={confetti}
+        message={finalMessage || 'Session complete!'}
+        greeting={
+          firstName
+            ? `${firstName}, you got ${correctCount} of ${results.length} right.`
+            : null
+        }
+        correct={correctCount}
+        total={results.length}
+        levelEvent={levelEvent}
+        results={results}
+        stats={[
+          { label: 'XP earned', value: `+${sessionXp}` },
+          {
+            label: 'Best combo',
+            value: (
+              <>
+                {bestCombo}
+                <FlameIcon size={18} className="text-accent" />
+              </>
+            ),
+          },
+          { label: 'New words learned', value: newLearned },
+          { label: 'Mastered', value: caughtUp },
+        ]}
+        actions={
+          <>
+            <Button variant="secondary" onClick={() => window.location.reload()}>
+              Practice again
+            </Button>
+            <Link to="/">
+              <Button>Back to decks</Button>
+            </Link>
+          </>
+        }
+      />
     )
   }
 
-  const current = words[index]
-
   return (
-    <div className={`mx-auto max-w-xl space-y-4 ${slideCls}`}>
+    <div className={`mx-auto max-w-2xl space-y-4 py-2 ${slideCls}`}>
       {/* HUD */}
       <SessionHud
         backTo="/"
@@ -317,7 +312,7 @@ export default function Practice({ active = true }) {
 
       {/* Study controls sit outside the flip button: no nested interactives.
           Speaker stays silent in reverse mode until the word is revealed. */}
-      <div className="flex flex-wrap justify-end gap-2">
+      <div className="flex flex-wrap items-center justify-end gap-2">
         {ttsAvailable !== null && (
           <span
             title={ttsAvailable ? undefined : TTS_UNAVAILABLE_HINT}
@@ -325,7 +320,7 @@ export default function Practice({ active = true }) {
           >
             <Button
               variant="secondary"
-              className="gap-1.5"
+              className="min-h-11 gap-1.5 px-3 text-xs"
               aria-label={
                 ttsAvailable ? `Pronounce ${current.word}` : TTS_UNAVAILABLE_HINT
               }
@@ -339,7 +334,7 @@ export default function Practice({ active = true }) {
         )}
         <Button
           variant="secondary"
-          className={reversed ? 'ring-2 ring-accent' : ''}
+          className={`min-h-11 gap-1.5 px-3 text-xs ${reversed ? 'ring-2 ring-accent' : ''}`}
           aria-pressed={reversed}
           onClick={() => setReversed((r) => !r)}
         >
@@ -347,6 +342,7 @@ export default function Practice({ active = true }) {
         </Button>
         <Button
           variant="secondary"
+          className="min-h-11 px-3 text-xs"
           aria-label={isStarred(bookmarks, current._id) ? `Remove ${current.word} from saved` : `Save ${current.word}`}
           aria-pressed={isStarred(bookmarks, current._id)}
           onClick={() =>
@@ -369,18 +365,15 @@ export default function Practice({ active = true }) {
       />
 
       {flipped && !feedback && (
-        <div className="sticky bottom-24 z-30 grid grid-cols-2 gap-3">
-          <Button variant="danger" onClick={() => answer(false)} fullWidth disabled={submitting} chunky>
-            Not yet
-          </Button>
-          <Button variant="success" onClick={() => answer(true)} fullWidth disabled={submitting} chunky>
-            Got it
-          </Button>
-        </div>
+        <AnswerBar
+          onAgain={() => answer(false)}
+          onGotIt={() => answer(true)}
+          disabled={submitting}
+        />
       )}
 
       {feedback?.error && (
-        <div className="animate-pop flex items-center justify-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 dark:border-red-400/30 dark:bg-red-950/50 dark:text-red-300">
+        <div className="animate-pop flex items-center justify-center gap-3 rounded-lg border border-stamp/30 bg-stamp/10 px-4 py-3 text-sm font-semibold text-stamp">
           <span>Couldn&apos;t save that review. Check your connection and try again.</span>
           <button className="ml-auto underline" onClick={() => setFeedback(null)}>
             Dismiss
@@ -392,15 +385,15 @@ export default function Practice({ active = true }) {
         <div
           className={`animate-pop flex items-center justify-center gap-3 rounded-lg border px-4 py-3 text-sm font-semibold ${
             feedback.correct
-              ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-400/30 dark:bg-emerald-950/50 dark:text-emerald-300'
-              : 'border-red-200 bg-red-50 text-red-700 dark:border-red-400/30 dark:bg-red-950/50 dark:text-red-300'
+              ? 'border-sage/30 bg-sage/10 text-sage'
+              : 'border-stamp/30 bg-stamp/10 text-stamp'
           }`}
         >
           <span className="text-lg">{feedback.correct ? '✓' : '✗'}</span>
           <span>
             {feedback.correct ? 'Nice!' : 'Keep going!'} → {feedback.boxLabel}
           </span>
-          <span className="relative ml-auto text-accent">
+          <span className="relative ml-auto font-mono tabular-nums">
             +{feedback.xpEarned} XP
             <span className="animate-float-up absolute -top-1 right-0 text-accent">+{feedback.xpEarned}</span>
           </span>

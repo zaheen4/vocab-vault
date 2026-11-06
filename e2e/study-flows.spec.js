@@ -49,6 +49,28 @@ test('practice answer records a review with XP', async ({ page }) => {
   await expect(page.getByText(/\+\d+ XP/).first()).toBeVisible({ timeout: 10000 })
 })
 
+test('deck header labels the session and keyboard answers a card', async ({ page }) => {
+  const id = await firstGroupDeckId(page)
+  await page.goto(`/decks/${id}`)
+
+  // Header states where the session draws from, in catalog voice.
+  const header = page.getByTestId('deck-header')
+  await header.waitFor({ timeout: 15000 })
+  await expect(header).toContainText(/Group \d+ · All parts/i)
+  await expect(header).toContainText(/\d+ words/)
+  // Every part segment says why to pick it: cards due, or mastery so far.
+  await expect(page.getByRole('tab', { name: /Part 1/ })).toContainText(/\d+ due|\d+%/)
+
+  // Space flips without a click; 2 answers the open card. Use the cross-deck
+  // queue so this never depends on which deck the previous test drained.
+  await page.goto('/practice/due')
+  await page.getByRole('button', { name: /tap to reveal/i }).first().waitFor({ timeout: 15000 })
+  await page.keyboard.press(' ')
+  await expect(page.getByRole('button', { name: /^got it$/i })).toBeVisible({ timeout: 10000 })
+  await page.keyboard.press('2')
+  await expect(page.getByText(/Box \d|Mastered/)).toBeVisible({ timeout: 10000 })
+})
+
 test('quiz answer advances to next', async ({ page }) => {
   const id = await firstDueDeckId(page)
   await page.goto(`/decks/${id}/quiz`)

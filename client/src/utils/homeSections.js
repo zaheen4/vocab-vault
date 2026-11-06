@@ -11,13 +11,30 @@ export const DECK_STATUS_FILTERS = [
 ]
 
 export function deckTotals(deck) {
-  const count = deck?.wordCount ?? deck?.wordIds?.length ?? 0
-  const progress = deck?.progress ?? {}
+  const parts = deck?.parts ?? []
+  // `/decks/:id` returns per-part progress only; aggregate it so the deck
+  // header can state counts, mastery and review-due without a second request.
+  const source =
+    deck?.progress == null && parts.length > 0
+      ? parts.reduce(
+          (acc, part) => {
+            acc.wordCount += part.wordCount ?? 0
+            acc.dueCount += part.dueCount ?? 0
+            acc.progress.new += part.progress?.new ?? 0
+            acc.progress.learning += part.progress?.learning ?? 0
+            acc.progress.mastered += part.progress?.mastered ?? 0
+            return acc
+          },
+          { wordCount: 0, dueCount: 0, progress: { new: 0, learning: 0, mastered: 0 } }
+        )
+      : deck
+  const count = source?.wordCount ?? source?.wordIds?.length ?? 0
+  const progress = source?.progress ?? {}
   const learning = progress.learning ?? 0
   const mastered = progress.mastered ?? 0
   const seen = learning + mastered
   const unseen = progress.new ?? Math.max(0, count - seen)
-  const due = deck?.dueCount ?? 0
+  const due = source?.dueCount ?? 0
   return {
     count,
     learning,
