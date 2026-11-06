@@ -13,9 +13,22 @@ import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import PasswordStrength from '../components/ui/PasswordStrength'
+import { useTheme } from '../context/ThemeContext'
+
+const THEME_OPTIONS = [
+  {
+    value: 'system',
+    label: 'System',
+    hint: 'Follow device',
+    swatch: 'bg-gradient-to-r from-card to-night-900',
+  },
+  { value: 'light', label: 'Light', hint: 'Linen desk', swatch: 'bg-card' },
+  { value: 'dark', label: 'Dark', hint: 'Late study', swatch: 'bg-night-900' },
+]
 
 export default function Settings() {
   const { user, updateUser, updateToken, logout } = useAuth()
+  const { preference: themePreference, setTheme } = useTheme()
   const navigate = useNavigate()
 
   // Profile state
@@ -171,6 +184,46 @@ export default function Settings() {
             </Button>
           </div>
         </form>
+      </Card>
+
+      {/* Appearance Card */}
+      <Card className="p-6">
+        <h2 className="font-display text-lg font-bold text-ink">Appearance</h2>
+        <p className="mt-0.5 text-xs text-ink-muted">
+          Choose how VocabVault looks. System follows your device setting.
+        </p>
+
+        <div
+          role="group"
+          aria-label="Theme preference"
+          className="mt-4 grid grid-cols-3 gap-2"
+        >
+          {THEME_OPTIONS.map((option) => {
+            const active = themePreference === option.value
+            return (
+              <button
+                key={option.value}
+                type="button"
+                aria-pressed={active}
+                onClick={() => setTheme(option.value)}
+                className={`min-h-11 rounded-lg border p-2 text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                  active
+                    ? 'border-accent bg-accent/10'
+                    : 'border-line bg-raised/50 hover:border-accent/50'
+                }`}
+              >
+                <span
+                  aria-hidden="true"
+                  className={`block h-6 w-full rounded-sm border border-line ${option.swatch}`}
+                />
+                <span className="mt-1.5 block font-display text-xs font-bold text-ink">
+                  {option.label}
+                </span>
+                <span className="block text-xs text-ink-muted">{option.hint}</span>
+              </button>
+            )
+          })}
+        </div>
       </Card>
 
       {/* Password & Security Card */}

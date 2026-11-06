@@ -10,10 +10,8 @@ import Button from './ui/Button'
 import ThemeToggle from './ui/ThemeToggle'
 
 const linkClass = ({ isActive }) =>
-  `rounded-md px-2 py-1 text-sm font-medium transition-colors ${
-    isActive
-      ? 'bg-gold text-primary dark:bg-accent/20 dark:text-accent'
-      : 'text-slate-600 hover:text-primary dark:text-cream-300 dark:hover:text-cream-100'
+  `rounded-md px-2 py-1 text-sm font-semibold transition-colors ${
+    isActive ? 'nav-highlight text-ink' : 'text-ink-muted hover:text-ink'
   }`
 
 const DESKTOP_LINKS = [
@@ -65,7 +63,7 @@ function StatsChip() {
         aria-label={`Level ${stats.level}${stats.dailyStreak > 0 ? `, ${stats.dailyStreak} day streak` : ''}, ${Math.round(ringPct * 100)} percent to next level`}
       >
         <svg viewBox="0 0 32 32" className="absolute inset-0 h-full w-full -rotate-90" aria-hidden="true">
-          <circle cx="16" cy="16" r={r} fill="none" strokeWidth="3.5" className="stroke-slate-200 dark:stroke-white/15" />
+          <circle cx="16" cy="16" r={r} fill="none" strokeWidth="3.5" className="stroke-line" />
           <circle
             cx="16"
             cy="16"
@@ -77,7 +75,7 @@ function StatsChip() {
             strokeDasharray={`${ringPct * c} ${c}`}
           />
         </svg>
-        <span className="text-xs font-bold text-primary dark:text-cream-100">{stats.level}</span>
+        <span className="text-xs font-bold text-ink">{stats.level}</span>
       </span>
     </>
   )
@@ -104,30 +102,30 @@ function AccountMenu() {
         <DropdownMenu.Content
           sideOffset={8}
           align="end"
-          className="z-50 min-w-56 rounded-xl border border-slate-200 bg-white p-1.5 shadow-lg dark:border-white/10 dark:bg-night-900 dark:shadow-none"
+          className="z-50 min-w-56 rounded-xl border border-line bg-card p-1.5 shadow-paper"
         >
           <div className="px-2.5 py-2">
-            <p className="truncate font-display text-sm font-bold text-primary dark:text-cream-100">
+            <p className="truncate font-display text-sm font-bold text-ink">
               {user.name}
             </p>
-            <p className="truncate text-xs text-slate-500 dark:text-cream-300/70">{user.email}</p>
+            <p className="truncate text-xs text-ink-muted">{user.email}</p>
           </div>
-          <DropdownMenu.Separator className="my-1 h-px bg-slate-200 dark:bg-white/10" />
+          <DropdownMenu.Separator className="my-1 h-px bg-line" />
           <DropdownMenu.Item
             onSelect={() => navigate('/history')}
-            className="flex cursor-pointer items-center rounded-md px-2.5 py-2 text-sm font-medium text-slate-700 transition-colors outline-none hover:bg-slate-100 focus:bg-slate-100 dark:text-cream-100 dark:hover:bg-white/10 dark:focus:bg-white/10"
+            className="flex min-h-11 cursor-pointer items-center rounded-md px-2.5 py-2 text-sm font-medium text-ink transition-colors outline-none hover:bg-raised focus:bg-raised"
           >
             Review history
           </DropdownMenu.Item>
           <DropdownMenu.Item
             onSelect={() => navigate('/settings')}
-            className="flex cursor-pointer items-center rounded-md px-2.5 py-2 text-sm font-medium text-slate-700 transition-colors outline-none hover:bg-slate-100 focus:bg-slate-100 dark:text-cream-100 dark:hover:bg-white/10 dark:focus:bg-white/10"
+            className="flex min-h-11 cursor-pointer items-center rounded-md px-2.5 py-2 text-sm font-medium text-ink transition-colors outline-none hover:bg-raised focus:bg-raised"
           >
             Account settings
           </DropdownMenu.Item>
           <DropdownMenu.Item
             onSelect={() => navigate('/about')}
-            className="flex cursor-pointer items-center rounded-md px-2.5 py-2 text-sm font-medium text-slate-700 transition-colors outline-none hover:bg-slate-100 focus:bg-slate-100 dark:text-cream-100 dark:hover:bg-white/10 dark:focus:bg-white/10"
+            className="flex min-h-11 cursor-pointer items-center rounded-md px-2.5 py-2 text-sm font-medium text-ink transition-colors outline-none hover:bg-raised focus:bg-raised"
           >
             About, privacy &amp; contact
           </DropdownMenu.Item>
@@ -136,7 +134,7 @@ function AccountMenu() {
               logout()
               navigate('/login', { replace: true })
             }}
-            className="flex cursor-pointer items-center rounded-md px-2.5 py-2 text-sm font-medium text-slate-700 transition-colors outline-none hover:bg-slate-100 focus:bg-slate-100 dark:text-cream-100 dark:hover:bg-white/10 dark:focus:bg-white/10"
+            className="flex min-h-11 cursor-pointer items-center rounded-md px-2.5 py-2 text-sm font-medium text-ink transition-colors outline-none hover:bg-raised focus:bg-raised"
           >
             Logout
           </DropdownMenu.Item>
@@ -150,7 +148,7 @@ function MobileTabBar() {
   return (
     <nav
       aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur sm:hidden dark:border-white/10 dark:bg-night-900/95"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur sm:hidden"
     >
       <div className="grid grid-cols-4">
         {TABS.map((t) => (
@@ -160,7 +158,7 @@ function MobileTabBar() {
             end={t.end}
             className={({ isActive }) =>
               `flex min-h-14 flex-col items-center justify-center gap-0.5 text-xs font-bold transition-colors ${
-                isActive ? 'text-accent-deep dark:text-accent' : 'text-slate-400 dark:text-cream-300/60'
+                isActive ? 'text-accent-deep dark:text-accent' : 'text-ink-muted'
               }`
             }
           >
@@ -179,11 +177,11 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="border-b border-slate-200 bg-white dark:border-white/10 dark:bg-night-900">
+      <header className="border-b border-line bg-card">
         <nav className="mx-auto grid max-w-5xl grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-3">
           <Link to="/" className="flex min-w-0 items-center gap-2 justify-self-start">
             <Logo size={26} />
-            <span className="truncate font-display text-lg font-bold text-primary dark:text-cream-100">VocabVault</span>
+            <span className="truncate font-display text-lg font-bold text-ink">VocabVault</span>
           </Link>
 
           {user ? (

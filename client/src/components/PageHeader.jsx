@@ -5,15 +5,15 @@ export default function PageHeader({ eyebrow, title, sub }) {
   return (
     <div>
       {eyebrow && (
-        <p className="font-display text-xs font-bold tracking-widest text-accent uppercase">
+        <p className="font-display text-xs font-bold tracking-widest text-accent-ink uppercase">
           {eyebrow}
         </p>
       )}
-      <h1 className="font-display text-display-lg font-bold text-primary dark:text-cream-100">
+      <h1 className="font-display text-display-lg font-bold text-ink">
         {title}
       </h1>
       {sub && (
-        <p className="mt-1 text-sm text-slate-500 dark:text-cream-300/80">{sub}</p>
+        <p className="mt-1 text-sm text-ink-muted">{sub}</p>
       )}
     </div>
   )

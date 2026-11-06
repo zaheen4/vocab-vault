@@ -30,6 +30,37 @@ describe('no raw hex outside the theme', () => {
   })
 })
 
+describe('semantic surface contract', () => {
+  const css = () => readFileSync(join(SRC, 'src/index.css'), 'utf8')
+
+  const SEMANTIC = [
+    'canvas',
+    'card',
+    'raised',
+    'line',
+    'ink',
+    'ink-muted',
+    'accent-ink',
+    'stamp',
+    'sage',
+    'brass',
+  ]
+
+  it('maps semantic utilities through @theme inline', () => {
+    expect(css()).toContain('@theme inline')
+    for (const name of SEMANTIC) {
+      expect(css()).toContain(`--color-${name}: var(--vv-${name});`)
+    }
+  })
+
+  it('defines a light and dark value for every semantic token', () => {
+    for (const name of SEMANTIC) {
+      const matches = css().match(new RegExp(`--vv-${name}:`, 'g')) ?? []
+      expect(matches.length, `--vv-${name}`).toBeGreaterThanOrEqual(2)
+    }
+  })
+})
+
 describe('dark theme contract', () => {
   const css = () => readFileSync(join(SRC, 'src/index.css'), 'utf8')
 

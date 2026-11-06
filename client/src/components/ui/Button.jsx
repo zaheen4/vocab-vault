@@ -6,11 +6,11 @@ const base =
 const variants = {
   primary: 'bg-accent text-primary hover:brightness-95 dark:text-night-950',
   secondary:
-    'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 dark:border-white/15 dark:bg-night-800 dark:text-cream-100 dark:hover:bg-night-800/70',
+    'border border-line bg-card text-ink hover:bg-raised',
   danger:
-    'border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 dark:border-red-400/30 dark:bg-red-950/50 dark:text-red-300 dark:hover:bg-red-950/70',
+    'border border-stamp/30 bg-stamp/10 text-stamp hover:bg-stamp/15',
   success:
-    'border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:border-emerald-400/30 dark:bg-emerald-950/50 dark:text-emerald-300 dark:hover:bg-emerald-950/70',
+    'border border-sage/30 bg-sage/10 text-sage hover:bg-sage/15',
 }
 
 // Primary is always tactile. Other variants go tactile only with chunky.
@@ -18,9 +18,9 @@ const variants = {
 // in a class list (cn() joins without deduping).
 const tactileEdge = {
   primary: 'border-accent-deep',
-  secondary: 'border-slate-400',
-  danger: 'border-red-800',
-  success: 'border-emerald-800',
+  secondary: 'border-line',
+  danger: 'border-stamp/60',
+  success: 'border-sage/60',
 }
 
 export default function Button({

@@ -19,7 +19,7 @@ setup('authenticate as QA user', async ({ page }) => {
   await page.fill('input[type="password"]', password)
   await page.click('button[type="submit"]')
   await page.waitForURL('http://localhost:5173/', { timeout: 20000 })
-  await expect(page.getByText('Master your words.')).toBeVisible({ timeout: 10000 })
+  await expect(page.getByTestId('home-ready')).toBeVisible({ timeout: 10000 })
 
   await page.context().storageState({ path: authFile })
 })

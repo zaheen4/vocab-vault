@@ -10,7 +10,7 @@ test.beforeEach(async ({ page }) => {
   page.on('pageerror', (e) => errors.push(String(e)))
   page.context().errors = errors
   await page.goto('/')
-  await page.waitForSelector('text=Master your words.', { timeout: 15000 })
+  await page.getByTestId('home-ready').waitFor({ timeout: 15000 })
 })
 
 test.afterEach(async ({ page }) => {
@@ -49,7 +49,7 @@ test('reduced motion disables celebratory animation', async ({ browser }) => {
   })
   const pg = await ctx.newPage()
   await pg.goto('/')
-  await pg.waitForSelector('text=Master your words.', { timeout: 15000 })
+  await pg.getByTestId('home-ready').waitFor({ timeout: 15000 })
   expect(await pg.evaluate("matchMedia('(prefers-reduced-motion: reduce)').matches")).toBe(true)
   const anim = await pg
     .locator('div.animate-fade-up')
