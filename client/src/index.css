@@ -23,6 +23,12 @@
   --text-display-lg: clamp(1.5rem, 1.25rem + 1.4vw, 2rem);
   /* Micro annotations only (nav due counts); never body copy. */
   --text-2xs: 0.625rem;
+  /* Motion timing for CSS-only cases. The JS source of truth is
+     client/src/lib/motion.jsx (MOTION); update both together. */
+  --ease-travel: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 120ms;
+  --dur-base: 180ms;
+  --dur-slow: 240ms;
   --font-display: "Baloo 2", ui-sans-serif, system-ui, sans-serif;
   --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
 }
@@ -79,16 +85,6 @@
     background-color: var(--vv-canvas);
     color: var(--vv-ink);
   }
-}
-
-/* Highlighter swipe for the active primary nav item. */
-.nav-highlight {
-  background-image: linear-gradient(
-    to top,
-    color-mix(in oklab, var(--color-accent) 30%, transparent) 0 38%,
-    transparent 38%
-  );
-  background-repeat: no-repeat;
 }
 
 /* 3D card flip */
