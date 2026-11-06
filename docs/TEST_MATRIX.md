@@ -49,7 +49,7 @@
 | 10 | History audit hub (`/history`) | Toggles `Card Reviews` filter tabs and expands quiz question audits |
 | 11 | Deck detail header | `GROUP nn · ALL PARTS`, title, `n words · n% mastered`, and a `DUE n` stamp using review-due, never raw practicable count |
 | 12 | Keyboard answer | `Space` flips the card, `2` answers `Got it`, and the session reaches `Session complete`; study keys never fire inside the Typing input |
-| 13 | Review queues share one shell | `/practice/due`, `/practice/weak`, `/bookmarks/practice` all render the same card, `Again` / `Got it`, `SessionHud`, and `SessionResults` |
+| 13 | Review queues share one shell | `/practice/due`, `/practice/weak`, `/bookmarks/practice` all render the same card, `Missed it` / `Got it`, `SessionHud`, and `SessionResults` |
 
 ## Flow 4 — auth lifecycle & security (automated in `e2e/auth-lifecycle.spec.js`)
 
@@ -98,10 +98,11 @@ decks intact.
 - Study is one shell now: `ReviewSession` backs `/practice/due`, `/practice/weak`,
   and `/bookmarks/practice` (three near-duplicate pages became thin wrappers), and
   Practice/Quiz/Typing share `AnswerBar`, `SessionHud`, and `SessionResults`.
-- Card is an index card: accent top rule, `CARD`/`MEANING` corner tab, stacked
-  card behind, mono dashed `Tap to reveal`, `text-display-xl` word,
-  `min-h-72 / sm:min-h-80`. `AnswerBar` is two 48px buttons (`Again`/`Got it`,
-  `1`/`2` hints) on an opaque `bg-canvas` panel at `bottom-18` on phones.
+- Card is an index card: `CARD`/`MEANING` corner tab, stacked card behind,
+  mono dashed `Tap to reveal`, `text-display-xl` word,
+  `min-h-72 / sm:min-h-80`. `AnswerBar` is two 48px buttons (`Missed it` /
+  `Got it`, `1`/`2` hints) on an opaque `bg-canvas` panel at `bottom-18` on
+  phones.
 - Keyboard map (`utils/studyKeys.js` + `useStudyKeys`): Space/Enter flip,
   1/2 answer after flip, S/R/B speak/reverse/bookmark; never inside inputs,
   and flip keys defer to focused buttons/links. 10 resolver tests.

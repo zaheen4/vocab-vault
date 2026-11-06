@@ -142,15 +142,15 @@ action, or preserves context while something leaves. Anything else is cut.
 - Page headers come from shared `PageHeader` (eyebrow + H1 + sub); session
   screens share `SessionHud` + `ScoreRing`; deck identity comes from `DeckTile`.
 - **Study session.** One column (`max-w-2xl`), one card, one answer bar:
-  - The card is an index card: `bg-card`, 2px `border-line`, a 4px accent top
-    rule, a corner tab (`CARD` / `MEANING`), a stacked card behind it, and
-    `min-h-72` / `sm:min-h-80`. Front is the word + a mono dashed
-    `Tap to reveal`; the back repeats the word as an eyebrow over the
-    definition. Flip stays 3D and is killed by reduced motion.
-  - `AnswerBar` is two 48px buttons — `Again` / `Got it` — with `1` / `2`
+  - The card is an index card: `bg-card`, 2px `border-line`, a corner tab
+    (`CARD` / `MEANING`), a stacked card behind it, and `min-h-72` /
+    `sm:min-h-80`. Front is the word + a mono dashed `Tap to reveal`; the back
+    repeats the word as an eyebrow over the definition. Flip stays 3D and is
+    killed by reduced motion.
+  - `AnswerBar` is two 48px buttons — `Missed it` / `Got it` — with `1` / `2`
     hints from `sm` up. It sticks at `bottom-18` on phones (clearing the tab
     bar) on an opaque `bg-canvas` panel; from `sm` up it sits in normal flow.
-    Accessible names stay exactly `Again` and `Got it`.
+    Accessible names stay exactly `Missed it` and `Got it`.
   - `SessionHud` shows back link, mono position/score/combo/XP chips, one 2px
     progress bar with `role="progressbar"`, and optional tool chips.
   - `SessionResults` is the only done screen: eyebrow `Session complete`,

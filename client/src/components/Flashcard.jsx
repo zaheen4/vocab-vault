@@ -1,7 +1,7 @@
 // Shared flashcard face: prompt on front, answer on back. Study controls
 // (speaker, answer buttons) live outside — never nest interactives here.
-// The surface is an index card: card stock, 2px rule, one accent top rule,
-// a corner tab and a stacked card peeking out behind it.
+// The surface is an index card: card stock, 2px rule, a corner tab and a
+// stacked card peeking out behind it — no decorative color bar.
 export default function Flashcard({ word, flipped, onFlip, shake, reversed }) {
   const prompt = reversed ? (
     <>
@@ -75,10 +75,6 @@ export default function Flashcard({ word, flipped, onFlip, shake, reversed }) {
           <span className={face}>
             <span
               aria-hidden="true"
-              className="absolute inset-x-0 top-0 h-1.5 rounded-t-xl bg-accent"
-            />
-            <span
-              aria-hidden="true"
               className="absolute top-4 right-4 rounded-sm border border-line bg-raised px-1.5 py-0.5 font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase"
             >
               {reversed ? 'Meaning' : 'Card'}
@@ -91,10 +87,6 @@ export default function Flashcard({ word, flipped, onFlip, shake, reversed }) {
             </span>
           </span>
           <span className={`${face} flip-back`}>
-            <span
-              aria-hidden="true"
-              className="absolute inset-x-0 top-0 h-1.5 rounded-t-xl bg-sage"
-            />
             <span
               aria-hidden="true"
               className="absolute top-4 right-4 rounded-sm border border-line bg-raised px-1.5 py-0.5 font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase"
