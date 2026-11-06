@@ -14,10 +14,10 @@ export default function Toast({ message, variant = 'info', onDismiss, duration =
 
   const tone =
     variant === 'error'
-      ? 'border-red-200 bg-red-50 text-red-700 dark:border-red-400/30 dark:bg-red-950/80 dark:text-red-300'
+      ? 'border-stamp/40 bg-stamp/10 text-stamp'
       : variant === 'gold'
-        ? 'border-accent bg-gold text-primary dark:border-accent/40 dark:bg-night-800 dark:text-accent'
-        : 'border-slate-200 bg-white text-primary dark:border-white/15 dark:bg-night-800 dark:text-cream-100'
+        ? 'border-accent/40 bg-gold text-primary dark:bg-raised dark:text-brass'
+        : 'border-line bg-card text-ink'
 
   return (
     <div

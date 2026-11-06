@@ -44,12 +44,12 @@ export default function Input({
   const fieldClass = cn(
     // 16px on touch (text-base): iOS Safari auto-zooms smaller fields and
     // breaks layout on focus. Desktop keeps text-sm density.
-    'w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 placeholder:text-slate-400 sm:text-sm',
+    'w-full rounded-md border border-line bg-card px-3 py-2 text-base text-ink placeholder:text-ink-muted/60 sm:text-sm',
     'transition-colors focus:border-accent focus:ring-2 focus:ring-accent/40 focus:outline-none',
-    'dark:border-white/15 dark:bg-night-800 dark:text-cream-100 dark:placeholder:text-cream-300/40 dark:focus:border-accent',
+    'dark:bg-raised dark:placeholder:text-ink-muted/50',
     icon && 'pl-9',
     isPassword && showPasswordToggle && 'pr-10',
-    error && 'border-red-400 focus:border-red-400 focus:ring-red-400/30 dark:border-red-400/60',
+    error && 'border-stamp focus:border-stamp focus:ring-stamp/30',
     inputClassName
   )
 
@@ -64,13 +64,13 @@ export default function Input({
     <label className={cn('block', className)} htmlFor={inputId}>
       {(label || labelRight) && (
         <span className="mb-1 flex items-center justify-between text-sm font-medium">
-          {label && <span className="text-slate-700 dark:text-cream-300">{label}</span>}
+          {label && <span className="text-ink-muted">{label}</span>}
           {labelRight}
         </span>
       )}
       <span className="relative block">
         {icon && (
-          <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-slate-400 dark:text-cream-300/60">
+          <span className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-ink-muted">
             {icon}
           </span>
         )}
@@ -80,14 +80,14 @@ export default function Input({
             type="button"
             onClick={() => setShowPassword((s) => !s)}
             aria-label={showPassword ? 'Hide password' : 'Show password'}
-            className="absolute top-1/2 right-2.5 -translate-y-1/2 rounded p-1 text-slate-400 hover:text-slate-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:text-cream-300/60 dark:hover:text-cream-100"
+            className="absolute top-1/2 right-2.5 -translate-y-1/2 rounded p-1 text-ink-muted hover:text-ink focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             {showPassword ? <EyeOffIcon className="h-4 w-4" /> : <EyeIcon className="h-4 w-4" />}
           </button>
         )}
       </span>
       {error && (
-        <span className="mt-1 block text-xs text-red-600 dark:text-red-300">{error}</span>
+        <span className="mt-1 block text-xs text-stamp">{error}</span>
       )}
     </label>
   )

@@ -5,33 +5,50 @@ Philosophy: tactile play, not flat minimalism. The app behaves like a game
 while learning content stays calm and readable. Brand shows up in three
 controlled places: color tokens, rounded display type, celebration moments.
 
-Tokens live in `client/src/index.css` (`@theme`). Use the token classes —
-never raw hex in components.
+Tokens live in `client/src/index.css` (`@theme` and `@theme inline`). Use the
+token classes — never raw hex in components.
 
-| Token | Hex | Role |
-|-------|-----|------|
-| `primary` | `#28324E` | Structure (darkest): headings, brand, text on accent fills |
-| `accent` | `#EE964B` | Interaction (warm): CTAs, focus rings, links |
-| `accent-deep` | `#B25F16` | Tactile edge: bottom-shadow edge under accent fills (chunky buttons), dark-mode-safe accent text |
-| `gold` | `#FAF0CA` | Surface (lightest): auth backgrounds, nav highlight |
-| `night-950/900/800` | `#0F1430` / `#171D3A` / `#232B52` | Dark surfaces: page / card / raised |
-| `cream-100/300` | `#F7F1DE` / `#CFC6AB` | Dark ink: headings / muted body text |
-| `display-xl` | `clamp(1.875rem, 1.4rem + 2.4vw, 2.75rem)` | Fluid display: flashcard word, done titles |
-| `display-lg` | `clamp(1.5rem, 1.25rem + 1.4vw, 2rem)` | Fluid display: page H1s, hero |
-| Status greens/ambers/reds | Tailwind palette | SRS states: `emerald` mastered, `amber` learning, `red` wrong |
-| Neutrals | — | Tailwind `slate` for body text, `stone-50` page shell |
+| Token | Light | Dark | Role |
+|-------|-------|------|------|
+| `canvas` | `#E9E6DE` | `#0E1326` | Page shell (semantic) |
+| `card` | `#FBF8EF` | `#171D36` | Card and sheet surfaces (semantic) |
+| `raised` | `#F3EDDD` | `#222A4A` | Nested/raised surfaces (semantic) |
+| `line` | `#D8CDB8` | `rgba(255,255,255,.10)` | Borders and dividers (semantic) |
+| `ink` | `#1F2A44` | `#F4EEDF` | Headings and primary text (semantic) |
+| `ink-muted` | `#5B6478` | `#C9C2AD` | Secondary text (semantic) |
+| `accent-ink` | `#9A4A12` | `#F0A05E` | Small accent text and links (semantic) |
+| `stamp` | `#A63D2F` | `#F08A7A` | Due/error stamps and status (semantic) |
+| `sage` | `#2F6B4F` | `#7FD1A4` | Mastered/success status (semantic) |
+| `brass` | `#8A6414` | `#E0B85C` | Badges, XP, streak accents (semantic) |
+| `primary` | `#1F2A44` | — | Static brand fill: brand panel, hero, ink on accent |
+| `accent` | `#D9772F` | — | Static interaction fill: CTAs, focus rings, bars |
+| `accent-deep` | `#9A4A12` | — | Tactile edge under accent fills; equals light `accent-ink` |
+| `gold` | `#EADFC4` | — | Static manila fill: auth wash, nav highlight, tile tints |
+| `night-950/900/800` | — | `#0E1326` / `#171D36` / `#222A4A` | Static dark fills |
+| `cream-100/300` | — | `#F4EEDF` / `#C9C2AD` | Static dark ink |
+| `display-xl` | `clamp(1.875rem, 1.4rem + 2.4vw, 2.75rem)` | — | Fluid display: flashcard word, done titles |
+| `display-lg` | `clamp(1.5rem, 1.25rem + 1.4vw, 2rem)` | — | Fluid display: page H1s, hero |
 
-- Darkest → foreground, most saturated → interactive, lightest → surfaces.
-- Never white text on `accent` (contrast ~2.5:1 fails); use `text-primary`.
-- `gold` is surfaces only (auth wash, nav highlight, tile tints) — never a
-  status color; SRS states always use the palette row above.
-- `accent` does interaction (buttons, tabs, links) and data-viz (bars, rings);
-  accent-colored text is reserved for eyebrows and XP figures — nowhere else.
-- **Radius scale:** `rounded-md` controls (inputs, buttons, chips),
-  `rounded-lg/xl` cards and sheets, `rounded-full` pills/rings/toggles.
-- Dark mode is class-driven (`.dark` on `<html>`, see `ThemeContext`): every
-  `dark:` utility pairs with a light default, and new dark surfaces use the
-  `night` scale with `cream` ink — never raw slate-on-navy guesses.
+- **Semantic first:** use `bg-canvas`, `bg-card`, `bg-raised`, `border-line`,
+  `text-ink`, and `text-ink-muted` for surfaces and text. They resolve through
+  `@theme inline` → `:root`/`.dark`, so one utility works in both themes.
+- **Static fills stay static:** `primary`, `gold`, `night-*`, and `cream-*` do
+  not auto-switch. Never repurpose `primary` as auto-switching ink; it is a
+  background in the brand panel and hero.
+- **Accent contrast:** `#D9772F` on white is only ~3:1. Use it for fills,
+  focus rings, and large UI — never small text. Small accent text uses
+  `text-accent-ink` (6.1:1 on card, 4.7:1 on manila).
+- **Button ink:** navy `primary` on the accent fill is 4.50:1. Never white text
+  on `accent`.
+- **Stamp:** white on the solid `stamp` fill is 6.31:1; small stamp text on a
+  card uses the semantic `text-stamp` token.
+- **Radii:** `rounded-md` controls (inputs, buttons, chips), `rounded-lg/xl`
+  cards and sheets, `rounded-full` pills/rings/toggles.
+- **Dark mode:** class-driven (`.dark` on `<html>`, see `ThemeContext`). New
+  work uses the semantic tokens; do not add raw slate-on-navy guesses.
+- **Automated check:** `client/src/design-contrast.test.js` reads the tokens
+  from `index.css` and enforces ≥4.5:1 for normal text and ≥3:1 for large
+  text/UI. Update the test and the palette together.
 
 ## Typography: voice vs. reading
 
@@ -47,8 +64,10 @@ never raw hex in components.
   answers in `text-lg font-medium` with `leading-relaxed` — never semibold,
   never competing.
 - **Micro-labels:** uppercase `tracking-wide` labels are rationed to counts
-  and eyebrows; chevrons and hints never go below `text-slate-400`
-  (contrast floor).
+  and eyebrows; hints never go below `text-ink-muted` (contrast floor).
+- **Catalog utility (`font-mono`, system monospace — no download):** uppercase
+  metadata only — `DUE TODAY`, `GROUP 03`, counts, dates, timer digits. It is
+  a utility voice, never body text or headings.
 
 ## Tactile controls
 
@@ -112,9 +131,12 @@ never raw hex in components.
 
 ## Anti-list (closed — additions need team agreement)
 
-No new fonts, no new accent colors, no glassmorphism, no kinetic body text,
-no custom cursor or magnetic effects. (Dark mode shipped in the UI-overhaul
-foundation pass — the old "no dark mode before demo week" rule is retired.)
+No new webfonts, no glassmorphism, no image textures, no kinetic body text, no
+custom cursor or magnetic effects. System monospace is an allowed utility role
+(catalog metadata only). Oxblood (`stamp`) and brass (`brass`) are approved
+status/badge colors, not extra brand accents. (Dark mode shipped in the
+UI-overhaul foundation pass — the old "no dark mode before demo week" rule is
+retired.)
 
 ## Checking a PR against this doc
 
@@ -123,6 +145,13 @@ foundation pass — the old "no dark mode before demo week" rule is retired.)
 - New motion is still under reduced-motion emulation.
 - Loading, error, and empty states exist on every new fetch.
 - One screen width at 375px and one at desktop, zero page errors.
+- Surfaces and text use semantic tokens (`bg-canvas`, `bg-card`, `border-line`,
+  `text-ink`, `text-ink-muted`), not raw slate on navy.
+- Small accent text uses `text-accent-ink`; the accent fill never carries white
+  text.
+- No raw hex outside `index.css` (`design-tokens.test.js`).
+- Automated contrast pairs pass (`design-contrast.test.js`): ≥4.5:1 normal
+  text, ≥3:1 large UI.
 - Automated: `npm run test:e2e` (`e2e/design-contract.spec.js`, Playwright)
 - with dev servers running; `e2e/study-flows.spec.js` covers functional
 - flows. Both stay out of CI (need Atlas).

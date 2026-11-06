@@ -4,17 +4,18 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --color-primary: #28324e;
-  --color-accent: #ee964b;
-  --color-gold: #faf0ca;
-  --color-accent-deep: #b25f16;
+  /* Static brand fills — these do NOT auto-switch with dark mode. */
+  --color-primary: #1f2a44;
+  --color-accent: #d9772f;
+  --color-gold: #eadfc4;
+  --color-accent-deep: #9a4a12;
   /* Dark surfaces + ink. Light mode never references these; every dark:
      utility below pairs with a light default so nothing renders unstyled. */
-  --color-night-950: #0f1430;
-  --color-night-900: #171d3a;
-  --color-night-800: #232b52;
-  --color-cream-100: #f7f1de;
-  --color-cream-300: #cfc6ab;
+  --color-night-950: #0e1326;
+  --color-night-900: #171d36;
+  --color-night-800: #222a4a;
+  --color-cream-100: #f4eedf;
+  --color-cream-300: #c9c2ad;
   /* Fluid display sizes: floors match the fixed sizes they replace, so
      nothing shrinks below approved mobile sizes; caps stay calm inside
      max-w-xl columns. Body text stays fixed — never fluid. */
@@ -24,11 +25,68 @@
   --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
 }
 
+/* Semantic surfaces and ink. Values live in :root/.dark, so one utility
+   (bg-canvas, bg-card, text-ink, border-line) works in both themes. Keep
+   static brand fills above for backgrounds that must not flip in dark mode. */
+@theme inline {
+  --color-canvas: var(--vv-canvas);
+  --color-card: var(--vv-card);
+  --color-raised: var(--vv-raised);
+  --color-line: var(--vv-line);
+  --color-ink: var(--vv-ink);
+  --color-ink-muted: var(--vv-ink-muted);
+  --color-accent-ink: var(--vv-accent-ink);
+  --color-stamp: var(--vv-stamp);
+  --color-sage: var(--vv-sage);
+  --color-brass: var(--vv-brass);
+  --shadow-paper: var(--vv-shadow-paper);
+}
+
 :root {
   color-scheme: light;
+  --vv-canvas: #e9e6de;
+  --vv-card: #fbf8ef;
+  --vv-raised: #f3eddd;
+  --vv-line: #d8cdb8;
+  --vv-ink: #1f2a44;
+  --vv-ink-muted: #5b6478;
+  --vv-accent-ink: #9a4a12;
+  --vv-stamp: #a63d2f;
+  --vv-sage: #2f6b4f;
+  --vv-brass: #8a6414;
+  --vv-shadow-paper: 0 1px 0 0 var(--vv-line), 0 12px 28px -24px rgba(31, 42, 68, 0.55);
 }
+
 .dark {
   color-scheme: dark;
+  --vv-canvas: #0e1326;
+  --vv-card: #171d36;
+  --vv-raised: #222a4a;
+  --vv-line: rgba(255, 255, 255, 0.1);
+  --vv-ink: #f4eedf;
+  --vv-ink-muted: #c9c2ad;
+  --vv-accent-ink: #f0a05e;
+  --vv-stamp: #f08a7a;
+  --vv-sage: #7fd1a4;
+  --vv-brass: #e0b85c;
+  --vv-shadow-paper: 0 1px 0 0 var(--vv-line);
+}
+
+@layer base {
+  body {
+    background-color: var(--vv-canvas);
+    color: var(--vv-ink);
+  }
+}
+
+/* Highlighter swipe for the active primary nav item. */
+.nav-highlight {
+  background-image: linear-gradient(
+    to top,
+    color-mix(in oklab, var(--color-accent) 30%, transparent) 0 38%,
+    transparent 38%
+  );
+  background-repeat: no-repeat;
 }
 
 /* 3D card flip */
