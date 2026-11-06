@@ -170,6 +170,31 @@ action, or preserves context while something leaves. Anything else is cut.
   `DUE n` stamp using review-due. Parts are a segmented strip where each
   segment states its own next best reason to pick it — `Part 1 · 3 due` or
   `Part 2 · 45%` — with the accent pill travelling between segments.
+- **Progress = one passport, not six boxes.** `Sheet` gives every section the
+  same card stock, rule, and corner tab (`PASSPORT`, `PIPELINE`, `STUDY LOG`,
+  `DAILY GOAL`, `MISTAKE BANK`, `BADGES`).
+  - Level passport: `ProgressRing` (same geometry as the navbar chip, one size
+    up) plus level, total XP, day streak, freeze count, and `n% to level n+1`.
+    All numerals are `tabular-nums`.
+  - `PipelineBar` replaces the three pastel cards: mastered (sage) / learning
+    (accent) / not started (line) as one segmented bar with counts, shares, and
+    an `aria-label` sentence. No zero-count segment is drawn.
+  - `WeekStrip` is a rolling seven days ending today — today outlined in ink,
+    an empty day keeps a dashed cell instead of disappearing, fill density is
+    relative to the week's busiest day (`utils/weekActivity.js`).
+  - Daily goal is the same ring plus a target picker (`aria-pressed`, 4-up on
+    phones / 8-up from `sm`); the glow on a met goal is the only celebration.
+  - `BadgeStamp` reads as a rubber stamp: brass and an inked border when
+    earned, dashed outline with the `x/y` hint while locked.
+  - Exactly one `Activity history →` link, in the page header. History is also
+    in the account menu, never in the nav.
+- **History = a day-grouped timeline.** The route, `History & Performance`
+  heading, `Quiz History` / `Card Reviews` tabs, and `All` / `Correct` /
+  `Needs Review` filters are contractual (e2e matches them). Days group in
+  `utils/historyDays.js` with `Today` / `Yesterday` / `Tue, Nov 3` labels, one
+  quiet mono divider per day. Entries are rows inside one sheet, not a card
+  each: word or deck title, mono status/box/mode chips, relative time on the
+  right. The quiz question audit stays expandable under its row.
 - Complex behavior (dropdowns, dialogs, tooltips) uses Radix primitives,
   token-styled, pulled one package at a time — never hand-rolled focus traps.
 - Join conditional classes with `utils/cn.js` (tailwind-merge: later colliding
