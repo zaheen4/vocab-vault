@@ -31,7 +31,7 @@
 | 3 | Typing session, correct spelling | `✓ Correct!`; typo within tolerance → `✓ Correct (typo forgiven!)`; wrong → shows correct spelling |
 | 4 | Practice card speaker | Pre-rendered clip plays (`/audio/words/*.mp3` 200) or first-run volume tip toast |
 | 5 | Silent device (no Web Speech voices) | Disabled speaker with `aria-label` hint; no crash, no page errors |
-| 6 | Full automated Playwright E2E suite | `npm run test:e2e` 41/41 across chromium + mobile (design-contract runs in both projects) |
+| 6 | Full automated Playwright E2E suite | `npm run test:e2e` 41/41 across chromium + mobile (design-contract runs in both projects). While iterating use the targeted scripts — `test:e2e:study` / `test:e2e:design` / `test:e2e:auth` — and save the full run for review |
 
 ## Flow 3 — study flows, queues & audits (automated in `e2e/`, QA account)
 
