@@ -71,7 +71,7 @@ decks intact.
 | 1 | Desktop primary nav | `Decks · Review · Search · Saved · Progress`; no `History` top-level item |
 | 2 | Review entry | Links to `/practice/due`; 10px due count sits under the Review label (hidden at 0, capped at `99+`) without changing the label baseline |
 | 3 | Nested routes | Decks active on `/decks/:id`; Saved active on `/bookmarks/practice`; Progress active on `/history` |
-| 4 | Active indicator | Current destination is bold ink with a 4px accent underline; mobile active tab adds an accent top rule, accent icon, and accent wash |
+| 4 | Active indicator | Current destination is bold ink on a soft accent wash with a 4px accent underline; mobile active tab adds an accent top rule, accent icon, and accent wash |
 | 5 | Sticky header | Header stays pinned while scrolling on every route; mobile bottom bar stays fixed |
 | 6 | Mobile bottom bar | 5 tabs at 72px, every tab is at least 44px tall, no History tab |
 | 7 | Account menu | Progress and History lead the menu, followed by Account settings, About & privacy, and Log out; no menu headings |
@@ -81,10 +81,10 @@ decks intact.
 
 - Date: 2026-11-06 · Branch: feat/nav-review-first · Executor: agent
 - `npm run test:e2e` 36/36 passed (chromium + mobile Pixel 7), zero page errors.
-- Nav green: sticky header, bold active destination with a 4px accent underline,
-  10px due count under the Review label with all five labels on one baseline,
-  active state on nested `/history`, 72px mobile bar with accent wash + 44px
-  targets, quiet account menu.
+- Nav green: sticky header, bold active destination on a soft accent wash with
+  a 4px accent underline, 10px due count under the Review label with all five
+  labels on one baseline, active state on nested `/history`, 72px mobile bar
+  with accent wash + 44px targets, quiet account menu.
 - Unit tests green (`npm test` 202/202), linters clean, client build green.
 
 - Date: 2026-10-29 · PR: #82 (feat/e2e-suite-expansion) · Executor: agent

@@ -124,10 +124,11 @@ token classes — never raw hex in components.
 - Primary nav is a sticky top bar at every width, so the current section and
   destinations stay visible while the page scrolls. It keeps the brand lockup,
   desktop destinations, level ring, theme toggle, and account menu.
-- Desktop active destination is bold ink with a 4px accent underline flush to
-  the header rule; inactive links stay muted with a line hover underline.
-  Review carries a 10px due count under its label (`text-2xs`, stamp color)
-  so the label baseline still matches the other destinations.
+- Desktop active destination is bold ink on a soft accent wash with a 4px
+  accent underline flush to the header rule; inactive links stay muted with a
+  line hover underline. Review carries a 10px due count under its label
+  (`text-2xs`, stamp color) so the label baseline still matches the other
+  destinations.
 - Brand lockup is the mark plus the wordmark — no tile, subtitle, or extra rule.
 - Below `md:` the same destinations move to a fixed 5-tab bottom bar; the
   active tab gets an accent top rule, accent icon, and a light accent wash.

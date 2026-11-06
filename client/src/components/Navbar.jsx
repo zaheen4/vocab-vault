@@ -113,7 +113,7 @@ function DesktopLinks({ totalDue }) {
             aria-label={showDue ? `Review, ${totalDue} words due` : undefined}
             className={`group relative flex items-center gap-2 text-base transition-colors ${
               active
-                ? 'font-bold text-ink'
+                ? '-mx-2 rounded-sm bg-accent/12 px-2 font-bold text-ink'
                 : 'font-medium text-ink-muted hover:text-ink'
             }`}
           >
