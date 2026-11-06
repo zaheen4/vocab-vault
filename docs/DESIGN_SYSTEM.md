@@ -148,8 +148,9 @@ action, or preserves context while something leaves. Anything else is cut.
     repeats the word as an eyebrow over the definition. Flip stays 3D and is
     killed by reduced motion.
   - `AnswerBar` is two 48px buttons — `Missed it` / `Got it` — with `1` / `2`
-    hints from `sm` up. It sticks at `bottom-18` on phones (clearing the tab
-    bar) on an opaque `bg-canvas` panel; from `sm` up it sits in normal flow.
+    hints from `md` up. It sticks at `bottom-18` on phones (clearing the tab
+    bar) on an opaque `bg-canvas` backing; from `md` up — the same breakpoint
+    where the bottom tab bar becomes the desktop nav — it sits in normal flow.
     Accessible names stay exactly `Missed it` and `Got it`.
   - `SessionHud` shows back link, mono position/score/combo/XP chips, one 2px
     progress bar with `role="progressbar"`, and optional tool chips.

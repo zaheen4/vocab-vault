@@ -101,8 +101,9 @@ decks intact.
 - Card is an index card: `CARD`/`MEANING` corner tab, stacked card behind,
   mono dashed `Tap to reveal`, `text-display-xl` word,
   `min-h-72 / sm:min-h-80`. `AnswerBar` is two 48px buttons (`Missed it` /
-  `Got it`, `1`/`2` hints) on an opaque `bg-canvas` panel at `bottom-18` on
-  phones.
+  `Got it`, `1`/`2` hints from `md`) on an opaque `bg-canvas` backing;
+  `bottom-18` below `md`, `bottom-4` from `md` — the same breakpoint where the
+  mobile tab bar becomes the desktop nav.
 - Keyboard map (`utils/studyKeys.js` + `useStudyKeys`): Space/Enter flip,
   1/2 answer after flip, S/R/B speak/reverse/bookmark; never inside inputs,
   and flip keys defer to focused buttons/links. 10 resolver tests.
