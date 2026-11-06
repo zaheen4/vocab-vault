@@ -2,27 +2,42 @@
 
 ## Quick Start
 ```bash
-node --version         # must be 22 (CI matrix 22/24, Render pins 22; 25/26 untested)
-npm ci                 # root only — root package-lock.json is canonical; never cd + install
-cp server/.env.example server/.env   # set MONGODB_URI + JWT_SECRET; leave CLIENT_URL unset locally
-npm run seed           # seeds Atlas; fails silently if .env bad or Atlas unreachable
-npm run dev            # API :5000 + web :5173 (Vite proxies /api → :5000)
+node -v                 # 22 or 24 (CI: PRs run 22, main pushes run 22+24; Render pins 22)
+npm ci                  # root only — root package-lock.json is canonical
+cp server/.env.example server/.env   # set JWT_SECRET + MONGODB_URI; CLIENT_URL unset locally
+npm run dev             # API :5000 + web :5173 (Vite proxies /api → :5000)
+npm run seed            # seeds Atlas; silent no-op if .env or Atlas is unreachable
 ```
-- `client/` + `server/` each carry a stale tracked `package-lock.json` (Aug installs) — ignore them, never install from them.
-- No `client/.env` needed locally (dev proxy handles `/api`); only prod builds need `VITE_API_URL`.
+- `client/` + `server/` carry stale tracked `package-lock.json` files (Aug installs) — never install from them.
+- No `client/.env` needed locally; only prod builds need `VITE_API_URL`.
+- `.env.example` has no `SMTP_*` keys: password-reset email is logged to the API console locally unless `NODE_ENV=production` and `SMTP_HOST` are set. `nodemailer` is an optional dynamic import, not a dependency.
 
-## Verify (CI runs all of this on every PR — see `.github/workflows/ci.yml`)
+## Verify (CI runs this; `.github/workflows/ci.yml`)
 ```bash
-npm test                        # vitest: pure-logic suites, colocated *.test.js (no DOM needed)
-npm run lint -w client          # oxlint for JS (AuthContext + Search warnings pre-existing, ignore)
-npm run lint:tw -w client       # eslint class hygiene: no contradictions, tokens over arbitrary values
-npm run build -w client         # must pass before any PR (CI sets VITE_API_URL to prod API)
-node --check server/src/<file>.js   # server has no linter; syntax-check touched files
-npm audit --omit=dev --audit-level=high   # CI gate; dev-only findings don't count
+npm test                    # vitest: 25 files / 185 tests, pure logic, colocated *.test.js
+npx vitest run server/src/utils/leitner.test.js    # one suite
+npm run lint -w client      # oxlint; pre-existing warnings are fine, errors are not
+npm run lint:tw -w client   # eslint tailwind class hygiene
+npm run build -w client     # CI injects prod VITE_API_URL
+find server/src -name '*.js' -not -name '*.test.js' -exec node --check {} +
+npm audit --omit=dev --audit-level=high
 ```
-- E2E: curl suites for API, Playwright (JS `@playwright/test`, python only for ad-hoc probes); committed gates run via `npm run test:e2e` (dev servers running, QA account `qa@test.local` authenticated once via `e2e/auth.setup.js` with storage state cached in `.playwright/.auth/user.json`). Specs cover design contracts (`e2e/design-contract.spec.js`), study flows (`e2e/study-flows.spec.js`), daily study queues (`e2e/daily-study.spec.js`), history audits (`e2e/history-audit.spec.js`), and auth lifecycle (`e2e/auth-lifecycle.spec.js`). Assert tight values (`+\d+ XP`, not `+.*XP` — loose regexes hide failures). E2E stays out of CI (needs Atlas).
-- Restart `npm run dev` after any branch switch (`node --watch`/HMR serve stale code across checkouts); curl-verify endpoints before trusting results.
-- Test auth: persistent QA account `qa@test.local` lives in shared Atlas — credentials via `VV_QA_EMAIL` + `VV_QA_PASSWORD` env vars (never committed). Log in, don't register throwaways. Delete any temp users/data you do create (shared M0, 512 MB).
+- PRs always run Node 22; pushes to `main` also run 24. Docs-only pushes skip CI, but docs-only PRs still run it — branch protection requires the check.
+
+## E2E (local only — needs dev servers + Atlas + QA creds)
+- `npm run test:e2e`; `e2e/auth.setup.js` logs in once with `VV_QA_EMAIL` / `VV_QA_PASSWORD` and caches state in `.playwright/.auth/user.json` (gitignored).
+- Specs: `design-contract`, `study-flows`, `daily-study`, `history-audit`, `auth-lifecycle`. `chromium` + `mobile` (Pixel 7, design-contract only) projects.
+- Chromium is auto-detected at `/usr/bin/chromium`; override with `PLAYWRIGHT_CHROMIUM_PATH`. ~30 tests, zero page errors expected.
+- Focus one: `npx playwright test --project=chromium e2e/study-flows.spec.js`. Assert tight values (`+\d+ XP`, never `+.*XP`).
+- Restart `npm run dev` after any branch switch — `node --watch` / HMR serves stale code across checkouts.
+
+## Architecture
+- `client/` React 19 + Vite 8 + Tailwind v4 (CSS-first, no tailwind.config) + Router 7. All pages are `React.lazy()`; vendor chunks split in `client/vite.config.js`. Never touches the DB; JWT from localStorage via `api/client.js`.
+- `server/` Express 5 + Mongoose, entry `src/server.js`. Routers: auth, decks, words, progress, gamification, bookmarks, lists, quiz (history), admin. SRS `utils/leitner.js`, gamification `utils/gamify.js`, history/quiz aggregation `utils/history.js` + `utils/quizHistory.js`.
+- `/api/health` is mounted **before** `apiLimiter` on purpose — warming pings, deploy-gate, and monitors must not be throttled.
+- Auth: JWT HS256 with issuer/audience + `tokenVersion`; revocation bumps `User.tokenVersion` and invalidates old tokens (`middleware/auth.js`).
+- Seed: `server/src/scripts/seed.js`, expects `{ groups: [{ group, words: [{ word, definition, example? }] }] }` (`npm run seed -w server -- path.json`). No bulk-import endpoint exists — cut from scope.
+- Backend warming is an **external cron** hitting `/api/health` (`docs/DEPLOY.md` §6). There is no GitHub keepalive workflow anymore.
 
 ## Workflow (branch protection: PR-only, self-merge OK)
 - Branches: `feat|fix|docs|chore/<thing>`. Team practice: squash-merge with `--delete-branch`.
@@ -30,9 +45,8 @@ npm audit --omit=dev --audit-level=high   # CI gate; dev-only findings don't cou
 - `gh pr create` needs `--head <branch> --base main` when run from another branch.
 - Update `TODO.md` check-offs and `docs/API_CONTRACT.md` in the same PR that changes behavior.
 
-## Architecture
-- `client/` React 19 + Vite 8 + Tailwind v4 (CSS-first, no tailwind.config) + Router 7. Never touches DB; JWT from localStorage via `api/client.js`.
-- `server/` Express 5 + Mongoose, entry `src/server.js` (fail-fast on missing `JWT_SECRET` in prod; CORS fail-closed without `CLIENT_URL`). SRS in `utils/leitner.js`, gamification in `utils/gamify.js`.
-- Seed lives at `server/src/scripts/seed.js`, expects `{ groups: [{ group, words: [{ word, definition, example? }] }] }` (`npm run seed -w server -- path/to.json`). No bulk-import endpoint exists — cut from scope, don't go looking for one.
-- Design tokens (`text-primary`, `bg-accent`, `bg-gold`) in `client/src/index.css` — never raw hex; full voice/tactile/motion rubric in `docs/DESIGN_SYSTEM.md` (touch targets: 24px min, 44px aim).
+## Reference
+- `docs/API_CONTRACT.md` — exact request/response shapes; check before any endpoint work.
+- `docs/DESIGN_SYSTEM.md` — tokens (`text-primary`, `bg-accent`, `bg-gold`) live in `client/src/index.css`; never raw hex. Touch targets: 24px min, 44px aim.
+- `docs/TEST_MATRIX.md` — manual QA flows; `docs/DEPLOY.md` — Render/Pages/Atlas deploy + warm-up.
 - Word schema: `word` + `definition` required, rest optional.
