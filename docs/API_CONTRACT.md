@@ -9,7 +9,8 @@ Tokens are HS256, expire after **1 day** (`expiresIn: 1d`), and carry
 — Mongo internals are never exposed.  
 **Content-Type:** `application/json`  
 **Security:** auth responses carry the user profile only — `passwordHash` is never returned.
-**Rate limits:** `/api` 1000 req/15 min per IP; `/api/auth/*` 30 req/15 min;
+**Rate limits:** production only — local dev and E2E are unthrottled.
+`/api` 1000 req/15 min per IP; `/api/auth/*` 30 req/15 min;
 `POST /api/progress/review` 200 req/15 min. Exceeding a limit returns 429.
 
 ---

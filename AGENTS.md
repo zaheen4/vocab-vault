@@ -14,7 +14,7 @@ npm run seed            # seeds Atlas; silent no-op if .env or Atlas is unreacha
 
 ## Verify (CI runs this; `.github/workflows/ci.yml`)
 ```bash
-npm test                    # vitest: 30 files / 237 tests, pure logic, colocated *.test.js
+npm test                    # vitest: 31 files / 240 tests, pure logic, colocated *.test.js
 npx vitest run server/src/utils/leitner.test.js    # one suite
 npm run lint -w client      # oxlint; pre-existing warnings are fine, errors are not
 npm run lint:tw -w client   # eslint tailwind class hygiene
@@ -25,11 +25,17 @@ npm audit --omit=dev --audit-level=high
 - PRs always run Node 22; pushes to `main` also run 24. Docs-only pushes skip CI, but docs-only PRs still run it — branch protection requires the check.
 
 ## E2E (local only — needs dev servers + Atlas + QA creds)
-- `npm run test:e2e`; `e2e/auth.setup.js` logs in once with `VV_QA_EMAIL` / `VV_QA_PASSWORD` and caches state in `.playwright/.auth/user.json` (gitignored).
+Run the smallest thing that can fail. The full suite is a per-PR gate, not a step after every edit.
+- Cheapest first: `npm test` (~3s, pure logic) and `npm run build -w client` catch most regressions. Reach for a browser only for what a browser alone proves.
+- Targeted, by area: `npm run test:e2e:study` (card, HUD, keyboard, part strip), `npm run test:e2e:design` (nav, tokens, tap targets, motion — chromium + mobile), `npm run test:e2e:auth` (signup → reset → revocation). Each is ~40–60s.
+- Full: `npm run test:e2e` — ~41 tests / ~2.6 min — before requesting review, not after every edit.
+- One case: `npx playwright test --project=chromium -g "keyboard answers"`.
+- Pure look checks (a radius, a breakpoint, spacing) → a throwaway Playwright screenshot script; assert pixels, not accessible names. The suite proves behavior, not appearance.
+- `e2e/auth.setup.js` logs in once with `VV_QA_EMAIL` / `VV_QA_PASSWORD` and caches state in `.playwright/.auth/user.json` (gitignored).
 - Specs: `design-contract`, `study-flows`, `daily-study`, `history-audit`, `auth-lifecycle`. `chromium` + `mobile` (Pixel 7, design-contract only) projects.
-- Chromium is auto-detected at `/usr/bin/chromium`; override with `PLAYWRIGHT_CHROMIUM_PATH`. ~41 tests, zero page errors expected.
-- Focus one: `npx playwright test --project=chromium e2e/study-flows.spec.js`. Assert tight values (`+\d+ XP`, never `+.*XP`).
+- Chromium is auto-detected at `/usr/bin/chromium`; override with `PLAYWRIGHT_CHROMIUM_PATH`. Zero page errors expected. Assert tight values (`+\d+ XP`, never `+.*XP`).
 - Restart `npm run dev` after any branch switch — `node --watch` / HMR serves stale code across checkouts.
+- Rate limits are production-only (`middleware/rateLimit.js`), so reruns never need a restart to clear a 429. A full run still drains the QA account's due cards — use `/practice/due` for study screenshots.
 
 ## Architecture
 - `client/` React 19 + Vite 8 + Tailwind v4 (CSS-first, no tailwind.config) + Router 7. All pages are `React.lazy()`; vendor chunks split in `client/vite.config.js`. Never touches the DB; JWT from localStorage via `api/client.js`.
