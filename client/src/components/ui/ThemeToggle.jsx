@@ -13,7 +13,7 @@ export default function ThemeToggle({ theme: propTheme, onToggle: propOnToggle, 
       aria-pressed={dark}
       aria-label={dark ? 'Switch to light mode' : 'Switch to dark mode'}
       title={dark ? 'Switch to light mode' : 'Switch to dark mode'}
-      className={`inline-flex h-9 w-9 items-center justify-center rounded-full border border-line bg-card text-ink-muted transition-colors hover:border-accent hover:text-accent-ink ${className}`}
+      className={`inline-flex h-11 w-11 items-center justify-center rounded-full border border-line bg-card text-ink-muted transition-colors hover:border-accent hover:text-accent-ink ${className}`}
     >
       {dark ? (
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">

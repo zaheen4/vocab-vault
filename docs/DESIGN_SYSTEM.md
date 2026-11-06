@@ -120,10 +120,14 @@ token classes — never raw hex in components.
 
 ## Responsive (mobile-first)
 
-- Primary nav is a bottom tab bar below `sm:` (thumb reach); the top bar keeps
-  logo, level ring, theme toggle, and the account menu.
-- `Layout` reserves `pb-24` below `sm:` so the tab bar never covers content
-  or CTAs; footer stays above it in flow.
+- Primary nav is a bottom tab bar below `md:` (thumb reach); the top bar keeps
+  the brand lockup, level ring, theme toggle, and account menu.
+- Desktop nav uses index tabs: the active destination is a raised manila tab
+  with an accent top edge; Review carries the due-count stamp.
+- The brand lockup pairs the mark in a manila label with the wordmark and a
+  monospace `WORD CATALOG` line on desktop only.
+- `Layout` reserves `pb-24` below `md:` so the tab bar never covers content or
+  CTAs; footer stays above it in flow.
 - Touch target floor is 24px (e2e-enforced), aim 44px: `Button` base carries
   `min-h-11`; tabs, chips, and icon buttons meet it individually.
 - Overlays stack by design: toasts accept a `className` override so sticky

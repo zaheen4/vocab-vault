@@ -14,7 +14,7 @@ export default function Layout() {
   return (
     <div className="flex min-h-screen flex-col bg-canvas text-ink supports-[height:100dvh]:min-h-dvh">
       <Navbar />
-      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-4 pb-24 sm:px-6 sm:py-6 sm:pb-6">
+      <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-4 pb-24 sm:px-6 sm:py-6 md:pb-6">
         <Outlet />
       </main>
     </div>
