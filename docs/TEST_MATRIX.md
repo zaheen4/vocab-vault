@@ -31,7 +31,7 @@
 | 3 | Typing session, correct spelling | `✓ Correct!`; typo within tolerance → `✓ Correct (typo forgiven!)`; wrong → shows correct spelling |
 | 4 | Practice card speaker | Pre-rendered clip plays (`/audio/words/*.mp3` 200) or first-run volume tip toast |
 | 5 | Silent device (no Web Speech voices) | Disabled speaker with `aria-label` hint; no crash, no page errors |
-| 6 | Full automated Playwright E2E suite | `npm run test:e2e` 32/32 across chromium + mobile |
+| 6 | Full automated Playwright E2E suite | `npm run test:e2e` 34/34 across chromium + mobile (design-contract runs in both projects) |
 
 ## Flow 3 — study flows, queues & audits (automated in `e2e/`, QA account)
 
@@ -69,19 +69,21 @@ decks intact.
 | # | Step | Expected |
 |---|------|----------|
 | 1 | Desktop primary nav | `Decks · Review · Search · Saved · Progress`; no `History` top-level item |
-| 2 | Review entry | Links to `/practice/due`; due badge matches `GET /api/progress/due` `totalDue`, hidden at 0, capped at `99+` |
+| 2 | Review entry | Links to `/practice/due`; inline due count matches `GET /api/progress/due` `totalDue`, hidden at 0, capped at `99+` |
 | 3 | Nested routes | Decks active on `/decks/:id`; Saved active on `/bookmarks/practice`; Progress active on `/history` |
-| 4 | Mobile bottom bar | 5 tabs, Review is visually primary, every tab is at least 44px tall, no History tab |
-| 5 | Account menu | Grouped into Progress & history, Account, and Log out; History reachable in one click |
-| 6 | Secondary history route | `/history` still renders `History & Performance` and is linked from Progress |
+| 4 | Active indicator | Current destination is bold ink with a 4px accent underline; mobile active tab adds an accent top rule, accent icon, and accent wash |
+| 5 | Sticky header | Header stays pinned while scrolling on every route; mobile bottom bar stays fixed |
+| 6 | Mobile bottom bar | 5 tabs, every tab is at least 44px tall, no History tab |
+| 7 | Account menu | Progress and History lead the menu, followed by Account settings, About & privacy, and Log out; no menu headings |
+| 8 | Secondary history route | `/history` still renders `History & Performance` and is linked from Progress |
 
 ## Last execution
 
 - Date: 2026-11-06 · Branch: feat/nav-review-first · Executor: agent
-- `npm run test:e2e` 32/32 passed (chromium + mobile Pixel 7), zero page errors.
-- Nav green: desktop `Decks · Review · Search · Saved · Progress`, due badge
-  capped at `99+`, active state on nested `/history`, 5-tab mobile bar with
-  44px targets, grouped account menu.
+- `npm run test:e2e` 34/34 passed (chromium + mobile Pixel 7), zero page errors.
+- Nav green: sticky header, bold active destination with a 4px accent underline,
+  inline `99+` due count, active state on nested `/history`, 5-tab mobile bar
+  with accent wash + 44px targets, quiet account menu.
 - Unit tests green (`npm test` 202/202), linters clean, client build green.
 
 - Date: 2026-10-29 · PR: #82 (feat/e2e-suite-expansion) · Executor: agent

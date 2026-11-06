@@ -62,20 +62,6 @@ function Glyph({ d, size = 22, className = '' }) {
   )
 }
 
-function DueBadge({ count, solid = false }) {
-  return (
-    <span
-      className={
-        solid
-          ? 'absolute -top-1 -right-2 inline-flex min-w-5 items-center justify-center rounded-sm border border-card bg-stamp px-1 font-mono text-xs leading-5 font-bold text-white'
-          : 'inline-flex min-w-5 items-center justify-center rounded-sm border border-stamp/50 px-1 font-mono text-xs font-bold text-stamp tabular-nums'
-      }
-    >
-      {shortDue(count)}
-    </span>
-  )
-}
-
 function StatsChip() {
   // Shared ['gamification','me'] cache with hero and progress: one request,
   // refreshed by review-post invalidation instead of per-route refetching.
@@ -111,7 +97,11 @@ function StatsChip() {
 function DesktopLinks({ totalDue }) {
   const { pathname } = useLocation()
   return (
-    <div className="hidden h-16 items-end gap-0.5 md:flex" aria-label="Primary" role="navigation">
+    <div
+      className="hidden h-16 items-stretch gap-6 md:flex lg:gap-8"
+      aria-label="Primary"
+      role="navigation"
+    >
       {DESKTOP_LINKS.map((item) => {
         const active = isSectionActive(pathname, item.section)
         const showDue = item.section === 'review' && totalDue > 0
@@ -121,18 +111,24 @@ function DesktopLinks({ totalDue }) {
             to={item.to}
             aria-current={active ? 'page' : undefined}
             aria-label={showDue ? `Review, ${totalDue} words due` : undefined}
-            className="group flex h-16 items-end"
+            className={`group relative flex items-center gap-2 text-base transition-colors ${
+              active
+                ? 'font-bold text-ink'
+                : 'font-medium text-ink-muted hover:text-ink'
+            }`}
           >
+            <span className="px-0.5">{item.label}</span>
+            {showDue && (
+              <span className="text-sm font-bold text-stamp tabular-nums">
+                {shortDue(totalDue)}
+              </span>
+            )}
             <span
-              className={`relative flex h-10 items-center gap-1.5 rounded-t-md border-x border-t-2 px-2.5 text-sm font-semibold transition-colors lg:px-3 ${
-                active
-                  ? 'border-line border-t-accent bg-raised text-ink'
-                  : 'border-transparent text-ink-muted hover:bg-raised/60 hover:text-ink'
+              aria-hidden="true"
+              className={`absolute inset-x-0 -bottom-px h-1 ${
+                active ? 'bg-accent' : 'bg-transparent group-hover:bg-line'
               }`}
-            >
-              {item.label}
-              {showDue && <DueBadge count={totalDue} />}
-            </span>
+            />
           </Link>
         )
       })}
@@ -164,7 +160,7 @@ function AccountMenu() {
           type="button"
           aria-label={`Account: ${user.name}`}
           title={user.name}
-          className={`inline-flex h-11 w-11 items-center justify-center rounded-full font-display text-sm font-bold ring-2 ring-brass/40 ring-offset-2 ring-offset-card focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${tile}`}
+          className={`inline-flex h-11 w-11 items-center justify-center rounded-full border border-line font-display text-sm font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${tile}`}
         >
           {(user.name || '?').trim().charAt(0).toUpperCase()}
         </button>
@@ -180,9 +176,6 @@ function AccountMenu() {
             <p className="truncate text-xs text-ink-muted">{user.email}</p>
           </div>
           <DropdownMenu.Separator className="my-1 h-px bg-line" />
-          <DropdownMenu.Label className="px-2.5 pt-1 pb-1 font-mono text-xs tracking-widest text-ink-muted uppercase">
-            Progress &amp; history
-          </DropdownMenu.Label>
           <MenuItem onSelect={() => navigate('/progress')} glyph={GLYPHS.progress}>
             Progress
           </MenuItem>
@@ -190,9 +183,6 @@ function AccountMenu() {
             History
           </MenuItem>
           <DropdownMenu.Separator className="my-1 h-px bg-line" />
-          <DropdownMenu.Label className="px-2.5 pt-1 pb-1 font-mono text-xs tracking-widest text-ink-muted uppercase">
-            Account
-          </DropdownMenu.Label>
           <MenuItem onSelect={() => navigate('/settings')} glyph={GLYPHS.settings}>
             Account settings
           </MenuItem>
@@ -225,40 +215,36 @@ function MobileTabBar({ totalDue }) {
       <div className="mx-auto grid max-w-md grid-cols-5">
         {TABS.map((tab) => {
           const active = isSectionActive(pathname, tab.section)
-          const review = tab.section === 'review'
-          const showDue = review && totalDue > 0
+          const showDue = tab.section === 'review' && totalDue > 0
           return (
             <Link
               key={tab.label}
               to={tab.to}
               aria-current={active ? 'page' : undefined}
               aria-label={showDue ? `Review, ${totalDue} words due` : undefined}
-              className="relative flex min-h-14 flex-col items-center justify-center gap-0.5 px-1 text-xs font-bold"
+              className={`relative flex min-h-16 flex-col items-center justify-center gap-1 px-1 text-xs transition-colors ${
+                active ? 'bg-accent/10 text-ink' : 'text-ink-muted'
+              }`}
             >
               {active && (
                 <span
                   aria-hidden="true"
-                  className="absolute inset-x-3 top-0 h-0.5 rounded-full bg-accent"
+                  className="absolute inset-x-3 top-0 h-1 rounded-b-full bg-accent"
                 />
               )}
-              {review ? (
-                <span
-                  className={`relative flex h-10 w-10 items-center justify-center rounded-full border-2 transition-colors ${
-                    active
-                      ? 'border-accent bg-accent text-primary'
-                      : 'border-accent/60 bg-accent/10 text-accent-ink'
-                  }`}
-                >
-                  <Glyph d={tab.glyph} size={20} />
-                  {showDue && <DueBadge count={totalDue} solid />}
-                </span>
-              ) : (
-                <Glyph
-                  d={tab.glyph}
-                  className={active ? 'text-accent-ink' : 'text-ink-muted'}
-                />
-              )}
-              <span className={active ? 'text-ink' : 'text-ink-muted'}>{tab.label}</span>
+              <Glyph
+                d={tab.glyph}
+                size={22}
+                className={active ? 'text-accent-ink' : undefined}
+              />
+              <span className="flex items-center gap-1">
+                <span className={active ? 'font-bold' : 'font-medium'}>{tab.label}</span>
+                {showDue && (
+                  <span className="font-mono text-xs font-bold text-stamp tabular-nums">
+                    {shortDue(totalDue)}
+                  </span>
+                )}
+              </span>
             </Link>
           )
         })}
@@ -275,37 +261,28 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="relative border-b border-line bg-card after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-accent/25">
+      <header className="sticky top-0 z-40 border-b border-line bg-card shadow-paper">
         <div className="mx-auto grid h-16 max-w-5xl grid-cols-[1fr_auto_1fr] items-center gap-2 px-4">
           <Link
             to="/"
             aria-label="VocabVault home"
-            className="group flex min-w-0 items-center gap-2.5 justify-self-start"
+            className="flex min-w-0 items-center gap-3 justify-self-start"
           >
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md border border-line bg-gold shadow-paper transition-transform group-hover:-translate-y-0.5">
-              <Logo size={26} />
-            </span>
-            <span className="min-w-0">
-              <span
-                data-testid="brand-wordmark"
-                className="block truncate font-display text-lg leading-none font-bold text-ink"
-              >
-                VocabVault
-              </span>
-              <span className="mt-1 hidden font-mono text-xs tracking-widest text-ink-muted uppercase md:block">
-                Word catalog
-              </span>
+            <Logo size={28} />
+            <span
+              data-testid="brand-wordmark"
+              className="truncate font-display text-xl font-bold text-ink"
+            >
+              VocabVault
             </span>
           </Link>
 
           {user ? (
             <>
               <DesktopLinks totalDue={totalDue} />
-              <div className="col-start-3 flex items-center gap-1 justify-self-end sm:gap-1.5">
+              <div className="col-start-3 flex items-center gap-1.5 justify-self-end">
                 <StatsChip />
-                <span className="mx-0.5 h-6 w-px bg-line" aria-hidden="true" />
                 <ThemeToggle theme={theme} onToggle={toggle} />
-                <span className="mx-0.5 h-6 w-px bg-line" aria-hidden="true" />
                 <AccountMenu />
               </div>
             </>

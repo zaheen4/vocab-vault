@@ -95,6 +95,23 @@ test('desktop nav exposes the review-first destinations', async ({ page }) => {
   await expect(active).toContainText('Progress')
 })
 
+test('primary nav stays pinned and marks the active section', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 })
+
+  const header = page.locator('header')
+  await expect(header).toHaveCSS('position', 'sticky')
+  await expect(header).toHaveCSS('top', '0px')
+
+  await page.evaluate(() => window.scrollTo(0, 900))
+  await page.waitForTimeout(300)
+  const box = await header.boundingBox()
+  expect(Math.round(box?.y ?? -1)).toBe(0)
+
+  const active = header.locator('[aria-current="page"]')
+  await expect(active).toHaveCount(1)
+  await expect(active).toContainText('Decks')
+})
+
 test('mobile bottom tab bar renders 5 primary tabs with >= 44px tap targets', async ({ page }) => {
   const viewport = page.viewportSize()
   if (!viewport || viewport.width >= 768) {

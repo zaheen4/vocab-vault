@@ -120,12 +120,15 @@ token classes — never raw hex in components.
 
 ## Responsive (mobile-first)
 
-- Primary nav is a bottom tab bar below `md:` (thumb reach); the top bar keeps
-  the brand lockup, level ring, theme toggle, and account menu.
-- Desktop nav uses index tabs: the active destination is a raised manila tab
-  with an accent top edge; Review carries the due-count stamp.
-- The brand lockup pairs the mark in a manila label with the wordmark and a
-  monospace `WORD CATALOG` line on desktop only.
+- Primary nav is a sticky top bar at every width, so the current section and
+  destinations stay visible while the page scrolls. It keeps the brand lockup,
+  desktop destinations, level ring, theme toggle, and account menu.
+- Desktop active destination is bold ink with a 4px accent underline flush to
+  the header rule; inactive links stay muted with a line hover underline.
+  Review carries an inline due count in the stamp color instead of a badge.
+- Brand lockup is the mark plus the wordmark — no tile, subtitle, or extra rule.
+- Below `md:` the same destinations move to a fixed 5-tab bottom bar; the
+  active tab gets an accent top rule, accent icon, and a light accent wash.
 - `Layout` reserves `pb-24` below `md:` so the tab bar never covers content or
   CTAs; footer stays above it in flow.
 - Touch target floor is 24px (e2e-enforced), aim 44px: `Button` base carries
