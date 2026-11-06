@@ -31,7 +31,7 @@
 | 3 | Typing session, correct spelling | `✓ Correct!`; typo within tolerance → `✓ Correct (typo forgiven!)`; wrong → shows correct spelling |
 | 4 | Practice card speaker | Pre-rendered clip plays (`/audio/words/*.mp3` 200) or first-run volume tip toast |
 | 5 | Silent device (no Web Speech voices) | Disabled speaker with `aria-label` hint; no crash, no page errors |
-| 6 | Full automated Playwright E2E suite | `npm run test:e2e` 38/38 across chromium + mobile (design-contract runs in both projects) |
+| 6 | Full automated Playwright E2E suite | `npm run test:e2e` 40/40 across chromium + mobile (design-contract runs in both projects) |
 
 ## Flow 3 — study flows, queues & audits (automated in `e2e/`, QA account)
 
@@ -65,7 +65,6 @@ gamification, with temp user/word/decks/progress deleted afterwards and QA
 decks intact.
 
 ## Flow 5 — primary navigation (automated in `e2e/design-contract.spec.js`)
-
 | # | Step | Expected |
 |---|------|----------|
 | 1 | Desktop primary nav | `Decks · Review · Search · Saved · Progress`; no `History` top-level item |
@@ -78,7 +77,30 @@ decks intact.
 | 8 | Account menu | Progress and History lead the menu, followed by Account settings, About & privacy, and Log out; no menu headings |
 | 9 | Secondary history route | `/history` still renders `History & Performance` and is linked from Progress |
 
+## Flow 6 — Home: Today + Library (automated in `e2e/design-contract.spec.js`)
+
+| # | Step | Expected |
+|---|------|----------|
+| 1 | Today panel | Returning users see `Today` + date, due count with one `Start review` action, daily-goal meter, and a streak/level chip pair; first-run users see `Master your words.` with `Start with Group 1` |
+| 2 | Quick actions | `Continue <deck> · Part n`, `Weak words (n)`, and `All-deck quiz` are single-line links with 44px targets |
+| 3 | Library cards | One action per deck (`Start deck` / `Continue Part n` / `Review deck`); no per-part button grid; `DUE n` stamp only when review-due words exist |
+| 4 | Status filters | `All / In progress / Due / New / Mastered` are `aria-pressed` buttons; the count line reads `n of 37 decks` and the grid shows exactly that many cards |
+| 5 | Search | Matches title and group number (`12` → Group 12), empty result offers `Clear filters`, clearing restores all decks |
+| 6 | Layout | No horizontal scroll at 375px; library bar is only sticky from `lg` up |
+
 ## Last execution
+
+- Date: 2026-11-06 · Branch: feat/home-today-library · Executor: agent
+- `npm run test:e2e` 40/40 passed (chromium + mobile Pixel 7), zero page errors.
+- Home is now Today + Library: dated heading with streak/level chips, a due card
+  with one `Start review`, a daily-goal meter, single-line quick actions, a
+  first-run panel, and a status-filtered deck catalog. `DUE n` uses review-due
+  (`dueCount` minus unseen words) so 15 of 37 decks stamp instead of all 37.
+- Filters/search verified at 1280px: 20 in progress / 15 due / 17 new / 0
+  mastered, `12` → Group 12, empty state clears back to 37 decks. Keyboard
+  activation on a chip filters correctly.
+- Unit tests green (`npm test` 227/227), client lints 0 errors, build green
+  (index CSS 63.75 kB), no horizontal scroll at 375/768.
 
 - Date: 2026-11-06 · Branch: fix/due-queue-dangling-words · Executor: agent
 - `npm run test:e2e` 38/38 passed (chromium + mobile Pixel 7), zero page errors.

@@ -127,8 +127,16 @@ action, or preserves context while something leaves. Anything else is cut.
 
 ## Components
 
-- Compose from `Button`, `Card`, `EmptyState`, `Input` — no raw `<button>`,
-  raw `<input>`, or ad-hoc card markup without a documented exception.
+- Compose from `Button`, `Card`, `Chip`, `EmptyState`, `Input` — no raw
+  `<button>`, raw `<input>`, or ad-hoc card markup without a documented
+  exception.
+- **Home = Today + Library.** The page opens with a dated `Today` heading, a
+  due card carrying the one primary action, a goal meter, and a single-line
+  quick-action row. The library keeps all decks visible with
+  `All / In progress / Due / New / Mastered` chips (`Chip`, `aria-pressed`) and
+  one search field. Each catalog card has one action — never a per-part button
+  grid — and a `DUE n` stamp only when spaced-repetition review is actually due
+  (`dueCount` minus never-seen words), not merely practicable.
 - Page headers come from shared `PageHeader` (eyebrow + H1 + sub); session
   screens share `SessionHud` + `ScoreRing`; deck identity comes from `DeckTile`.
 - Complex behavior (dropdowns, dialogs, tooltips) uses Radix primitives,

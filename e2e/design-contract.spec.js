@@ -156,6 +156,32 @@ test('reduced motion puts the nav indicator straight on the active link', async 
   expect(['none', 'matrix(1, 0, 0, 1, 0, 0)']).toContain(transform)
 })
 
+test('home leads with today and gives each deck a single action', async ({ page }) => {
+  await page.getByTestId('home-ready').waitFor({ timeout: 15000 })
+  await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+
+  const cards = page.getByTestId('deck-card')
+  await expect(cards.first()).toBeVisible()
+  const total = await cards.count()
+  expect(total).toBeGreaterThan(0)
+
+  // The library never turns into a grid of part buttons.
+  await expect(page.getByRole('link', { name: /^Practice .* Part \d$/ })).toHaveCount(0)
+
+  // Every card offers an actionable link into the deck.
+  const actionLinks = page.locator('[data-testid="deck-card"] a[href^="/decks/"]')
+  expect(await actionLinks.count()).toBeGreaterThanOrEqual(total)
+
+  const dueChip = page.getByRole('button', { name: 'Due', exact: true })
+  await dueChip.click()
+  const countLine = page.getByText(/\d+ of \d+ decks/)
+  await expect(countLine).toBeVisible()
+
+  const [shown, all] = (await countLine.textContent()).match(/\d+/g).map(Number)
+  expect(all).toBe(total)
+  await expect(cards).toHaveCount(shown)
+})
+
 test('mobile bottom tab bar renders 5 primary tabs with >= 44px tap targets', async ({ page }) => {
   const viewport = page.viewportSize()
   if (!viewport || viewport.width >= 768) {
