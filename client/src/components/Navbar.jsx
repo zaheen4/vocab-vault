@@ -119,7 +119,7 @@ function DesktopLinks({ totalDue }) {
           >
             <span className="px-0.5">{item.label}</span>
             {showDue && (
-              <span className="text-sm font-bold text-stamp tabular-nums">
+              <span className="absolute inset-x-0 top-11 text-center font-mono text-2xs leading-none font-semibold text-stamp tabular-nums">
                 {shortDue(totalDue)}
               </span>
             )}
@@ -222,7 +222,7 @@ function MobileTabBar({ totalDue }) {
               to={tab.to}
               aria-current={active ? 'page' : undefined}
               aria-label={showDue ? `Review, ${totalDue} words due` : undefined}
-              className={`relative flex min-h-16 flex-col items-center justify-center gap-1 px-1 text-xs transition-colors ${
+              className={`relative flex min-h-18 flex-col items-center justify-center gap-1 px-1 text-xs transition-colors ${
                 active ? 'bg-accent/10 text-ink' : 'text-ink-muted'
               }`}
             >
@@ -237,10 +237,10 @@ function MobileTabBar({ totalDue }) {
                 size={22}
                 className={active ? 'text-accent-ink' : undefined}
               />
-              <span className="flex items-center gap-1">
+              <span className="relative flex items-center">
                 <span className={active ? 'font-bold' : 'font-medium'}>{tab.label}</span>
                 {showDue && (
-                  <span className="font-mono text-xs font-bold text-stamp tabular-nums">
+                  <span className="absolute top-full left-1/2 -translate-x-1/2 pt-0.5 font-mono text-2xs leading-none font-semibold text-stamp tabular-nums">
                     {shortDue(totalDue)}
                   </span>
                 )}

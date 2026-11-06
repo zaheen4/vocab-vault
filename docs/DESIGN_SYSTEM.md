@@ -60,6 +60,7 @@ token classes — never raw hex in components.
 - **Heading scale:** page H1s are fluid `text-display-lg` via shared `PageHeader`
   (with an accent eyebrow where the page needs orientation); heroes and done
   screens use fluid `text-display-xl`. Body text stays fixed — never fluid.
+- **Micro type (`text-2xs`, 10px):** nav due counts only, never body copy.
 - **Flashcard hierarchy:** the word (`text-3xl` bold) leads; the definition
   answers in `text-lg font-medium` with `leading-relaxed` — never semibold,
   never competing.
@@ -125,10 +126,13 @@ token classes — never raw hex in components.
   desktop destinations, level ring, theme toggle, and account menu.
 - Desktop active destination is bold ink with a 4px accent underline flush to
   the header rule; inactive links stay muted with a line hover underline.
-  Review carries an inline due count in the stamp color instead of a badge.
+  Review carries a 10px due count under its label (`text-2xs`, stamp color)
+  so the label baseline still matches the other destinations.
 - Brand lockup is the mark plus the wordmark — no tile, subtitle, or extra rule.
 - Below `md:` the same destinations move to a fixed 5-tab bottom bar; the
   active tab gets an accent top rule, accent icon, and a light accent wash.
+  The bar is 72px tall, and Review's due count sits under its label so all five
+  labels share one baseline.
 - `Layout` reserves `pb-24` below `md:` so the tab bar never covers content or
   CTAs; footer stays above it in flow.
 - Touch target floor is 24px (e2e-enforced), aim 44px: `Button` base carries

@@ -31,7 +31,7 @@
 | 3 | Typing session, correct spelling | `✓ Correct!`; typo within tolerance → `✓ Correct (typo forgiven!)`; wrong → shows correct spelling |
 | 4 | Practice card speaker | Pre-rendered clip plays (`/audio/words/*.mp3` 200) or first-run volume tip toast |
 | 5 | Silent device (no Web Speech voices) | Disabled speaker with `aria-label` hint; no crash, no page errors |
-| 6 | Full automated Playwright E2E suite | `npm run test:e2e` 34/34 across chromium + mobile (design-contract runs in both projects) |
+| 6 | Full automated Playwright E2E suite | `npm run test:e2e` 36/36 across chromium + mobile (design-contract runs in both projects) |
 
 ## Flow 3 — study flows, queues & audits (automated in `e2e/`, QA account)
 
@@ -69,21 +69,22 @@ decks intact.
 | # | Step | Expected |
 |---|------|----------|
 | 1 | Desktop primary nav | `Decks · Review · Search · Saved · Progress`; no `History` top-level item |
-| 2 | Review entry | Links to `/practice/due`; inline due count matches `GET /api/progress/due` `totalDue`, hidden at 0, capped at `99+` |
+| 2 | Review entry | Links to `/practice/due`; 10px due count sits under the Review label (hidden at 0, capped at `99+`) without changing the label baseline |
 | 3 | Nested routes | Decks active on `/decks/:id`; Saved active on `/bookmarks/practice`; Progress active on `/history` |
 | 4 | Active indicator | Current destination is bold ink with a 4px accent underline; mobile active tab adds an accent top rule, accent icon, and accent wash |
 | 5 | Sticky header | Header stays pinned while scrolling on every route; mobile bottom bar stays fixed |
-| 6 | Mobile bottom bar | 5 tabs, every tab is at least 44px tall, no History tab |
+| 6 | Mobile bottom bar | 5 tabs at 72px, every tab is at least 44px tall, no History tab |
 | 7 | Account menu | Progress and History lead the menu, followed by Account settings, About & privacy, and Log out; no menu headings |
 | 8 | Secondary history route | `/history` still renders `History & Performance` and is linked from Progress |
 
 ## Last execution
 
 - Date: 2026-11-06 · Branch: feat/nav-review-first · Executor: agent
-- `npm run test:e2e` 34/34 passed (chromium + mobile Pixel 7), zero page errors.
+- `npm run test:e2e` 36/36 passed (chromium + mobile Pixel 7), zero page errors.
 - Nav green: sticky header, bold active destination with a 4px accent underline,
-  inline `99+` due count, active state on nested `/history`, 5-tab mobile bar
-  with accent wash + 44px targets, quiet account menu.
+  10px due count under the Review label with all five labels on one baseline,
+  active state on nested `/history`, 72px mobile bar with accent wash + 44px
+  targets, quiet account menu.
 - Unit tests green (`npm test` 202/202), linters clean, client build green.
 
 - Date: 2026-10-29 · PR: #82 (feat/e2e-suite-expansion) · Executor: agent

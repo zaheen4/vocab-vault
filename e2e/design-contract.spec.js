@@ -112,6 +112,25 @@ test('primary nav stays pinned and marks the active section', async ({ page }) =
   await expect(active).toContainText('Decks')
 })
 
+test('primary nav labels share one baseline', async ({ page }) => {
+  const width = page.viewportSize()?.width ?? 1280
+  const selector =
+    width >= 768
+      ? 'header [role="navigation"][aria-label="Primary"] > a > span:first-child'
+      : 'nav[aria-label="Primary"] a > span:last-child > span:first-child'
+
+  const labels = page.locator(selector)
+  await expect(labels).toHaveCount(5)
+
+  const centers = await labels.evaluateAll((els) =>
+    els.map((el) => {
+      const r = el.getBoundingClientRect()
+      return Math.round(r.top + r.height / 2)
+    })
+  )
+  expect(new Set(centers).size, `label centers: ${centers.join(', ')}`).toBe(1)
+})
+
 test('mobile bottom tab bar renders 5 primary tabs with >= 44px tap targets', async ({ page }) => {
   const viewport = page.viewportSize()
   if (!viewport || viewport.width >= 768) {
