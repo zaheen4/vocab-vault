@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
+import { MOTION, m, useReducedMotion } from '../lib/motion'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 import { useDueWords, useGamification } from '../api/queries'
@@ -96,6 +97,7 @@ function StatsChip() {
 
 function DesktopLinks({ totalDue }) {
   const { pathname } = useLocation()
+  const reduce = useReducedMotion()
   return (
     <div
       className="hidden h-16 items-stretch gap-6 md:flex lg:gap-8"
@@ -111,7 +113,7 @@ function DesktopLinks({ totalDue }) {
             to={item.to}
             aria-current={active ? 'page' : undefined}
             aria-label={showDue ? `Review, ${totalDue} words due` : undefined}
-            className={`group relative flex items-center gap-2 text-base transition-colors ${
+            className={`group relative flex items-center gap-2 text-base transition-colors motion-reduce:transition-none ${
               active
                 ? '-mx-2 rounded-sm bg-accent/12 px-2 font-bold text-ink'
                 : 'font-medium text-ink-muted hover:text-ink'
@@ -119,16 +121,28 @@ function DesktopLinks({ totalDue }) {
           >
             <span className="px-0.5">{item.label}</span>
             {showDue && (
-              <span className="absolute inset-x-0 top-11 text-center font-mono text-2xs leading-none font-semibold text-stamp tabular-nums">
+              <m.span
+                key={shortDue(totalDue)}
+                initial={reduce ? false : { opacity: 0, y: 2 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: MOTION.fast, ease: MOTION.easeOut }}
+                className="absolute inset-x-0 top-11 text-center font-mono text-2xs leading-none font-semibold text-stamp tabular-nums"
+              >
                 {shortDue(totalDue)}
-              </span>
+              </m.span>
             )}
             <span
               aria-hidden="true"
-              className={`absolute inset-x-0 -bottom-px h-1 ${
-                active ? 'bg-accent' : 'bg-transparent group-hover:bg-line'
-              }`}
+              className="absolute inset-x-0 -bottom-px h-1 bg-transparent group-hover:bg-line"
             />
+            {active && (
+              <m.span
+                data-testid="nav-indicator"
+                layoutId="nav-underline"
+                aria-hidden="true"
+                className="absolute inset-x-0 -bottom-px h-1 bg-accent"
+              />
+            )}
           </Link>
         )
       })}
@@ -207,6 +221,7 @@ function AccountMenu() {
 
 function MobileTabBar({ totalDue }) {
   const { pathname } = useLocation()
+  const reduce = useReducedMotion()
   return (
     <nav
       aria-label="Primary"
@@ -222,26 +237,41 @@ function MobileTabBar({ totalDue }) {
               to={tab.to}
               aria-current={active ? 'page' : undefined}
               aria-label={showDue ? `Review, ${totalDue} words due` : undefined}
-              className={`relative flex min-h-18 flex-col items-center justify-center gap-1 px-1 text-xs transition-colors ${
+              className={`relative flex min-h-18 flex-col items-center justify-center gap-1 px-1 text-xs transition-colors motion-reduce:transition-none ${
                 active ? 'bg-accent/10 text-ink' : 'text-ink-muted'
               }`}
             >
               {active && (
-                <span
+                <m.span
+                  data-testid="tab-indicator"
+                  layoutId="tab-rule"
                   aria-hidden="true"
                   className="absolute inset-x-3 top-0 h-1 rounded-b-full bg-accent"
                 />
               )}
-              <Glyph
-                d={tab.glyph}
-                size={22}
-                className={active ? 'text-accent-ink' : undefined}
-              />
+              <m.span
+                className="flex"
+                animate={{ y: active ? -1 : 0, scale: active ? 1.02 : 1 }}
+              >
+                <Glyph
+                  d={tab.glyph}
+                  size={22}
+                  className={active ? 'text-accent-ink' : undefined}
+                />
+              </m.span>
               <span className="relative flex items-center">
                 <span className={active ? 'font-bold' : 'font-medium'}>{tab.label}</span>
                 {showDue && (
-                  <span className="absolute top-full left-1/2 -translate-x-1/2 pt-0.5 font-mono text-2xs leading-none font-semibold text-stamp tabular-nums">
-                    {shortDue(totalDue)}
+                  <span className="absolute top-full left-1/2 -translate-x-1/2 pt-0.5">
+                    <m.span
+                      key={shortDue(totalDue)}
+                      initial={reduce ? false : { opacity: 0, y: 2 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: MOTION.fast, ease: MOTION.easeOut }}
+                      className="block font-mono text-2xs leading-none font-semibold text-stamp tabular-nums"
+                    >
+                      {shortDue(totalDue)}
+                    </m.span>
                   </span>
                 )}
               </span>

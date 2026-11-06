@@ -87,20 +87,43 @@ token classes — never raw hex in components.
 - **Touch targets:** minimum 24×24px (WCAG 2.2 AA), aim 44×44px. Enlarge hit
   areas with padding + compensating negative margin so visuals stay identical.
 
-## Motion: celebrations move, chrome stays calm
+## Motion: explain change, don't decorate
 
-- Keyframes in `client/src/index.css` (`fade-slide-in`, `pop-in`, `shake-x`,
-  `float-up`, `glow-pulse`, `confetti-burst`, `slide-in-right/left`,
-  `fade-up`): page fade-slide, fade-up entrances with per-index stagger.
-- Playful easing belongs on progress moments (unlock pop uses
-  `cubic-bezier(0.34, 1.56, 0.64, 1)`); everyday motion stays linear/ease-out.
-- Celebration rule: confetti fires on strong sessions (≥60%) or level-ups —
-  never on a shutout (`utils/celebrate.js`). All four study modes share
+Motion earns its place when it shows where a change came from, confirms an
+action, or preserves context while something leaves. Anything else is cut.
+
+- **Library:** `motion` v14, wrapped once in `client/src/lib/motion.jsx`
+  (`MotionProvider`, `m`, `MOTION`). Always import `m` and `useReducedMotion`
+  from that module; never `motion` directly. `LazyMotion` runs in `strict` mode
+  so a full import fails loudly.
+- **Timing:** `MOTION.fast` 120ms (hover/press), `MOTION.base` 180ms
+  (nav/toast/list), `MOTION.slow` 240ms (dialog/route). Nothing interactive
+  waits more than 250ms. CSS mirrors these as `--dur-fast/base/slow` and
+  `--ease-travel` in `index.css`.
+- **Easing:** `cubic-bezier(.22, 1, .36, 1)` for travel and entrances; springs
+  only for drag/swipe. The celebration pop keeps
+  `cubic-bezier(0.34, 1.56, 0.64, 1)`.
+- **Properties:** transform and opacity. The nav indicator may animate layout
+  because travelling is its whole job.
+- **Stagger:** at most 8 items, 20ms apart, entrance only.
+- **Banned:** parallax, infinite loops (the one-shot confetti is the exception),
+  scroll-jacking, magnetic cursors, kinetic body text, per-letter animation, and
+  motion that hides information or blocks a click.
+- **Reduced motion:** `MotionConfig reducedMotion="user"` plus the CSS
+  kill-switch. The nav indicator lands instantly, the icon lift and count tick
+  skip, and every keyframe below is disabled.
+- **Nav:** the accent underline is one shared element (`layoutId`) that travels
+  between desktop destinations while the wash cross-fades; on mobile the top
+  rule slides across the five tabs and the active icon lifts 1px.
+- **Celebrations:** confetti still fires on strong sessions (≥60%) or level-ups
+  — never on a shutout (`utils/celebrate.js`). All four study modes share
   `ScoreRing` + `SessionHud` so results read the same.
-- Count-up numbers (`utils/countUp.js`) jump straight to target under
-  reduced-motion, same contract as the CSS kill-switch.
-- Every new keyframe must be covered by the `prefers-reduced-motion`
-  kill-switch in `index.css`. Verify under emulation, not by assumption.
+- **Count-up numbers** (`utils/countUp.js`) jump straight to target under
+  reduced motion.
+- Existing keyframes in `client/src/index.css` (`fade-slide-in`, `pop-in`,
+  `shake-x`, `float-up`, `glow-pulse`, `confetti-burst`, `slide-in-right/left`,
+  `fade-up`) stay for CSS-only surfaces and remain under the reduced-motion
+  kill-switch.
 
 ## Components
 

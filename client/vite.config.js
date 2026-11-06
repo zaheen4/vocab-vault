@@ -30,6 +30,14 @@ export default defineConfig({
             if (id.includes('@radix-ui') || id.includes('tailwind-merge')) {
               return 'vendor-ui'
             }
+            if (
+              id.includes('/framer-motion/') ||
+              id.includes('/motion-dom/') ||
+              id.includes('/motion-utils/') ||
+              id.includes('/motion/')
+            ) {
+              return 'vendor-motion'
+            }
             return 'vendor'
           }
         },

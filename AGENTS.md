@@ -33,6 +33,7 @@ npm audit --omit=dev --audit-level=high
 
 ## Architecture
 - `client/` React 19 + Vite 8 + Tailwind v4 (CSS-first, no tailwind.config) + Router 7. All pages are `React.lazy()`; vendor chunks split in `client/vite.config.js`. Never touches the DB; JWT from localStorage via `api/client.js`.
+- Motion: `motion` v14 is the only animation dependency. Import `m`, `useReducedMotion`, and `MotionProvider` from `client/src/lib/motion.jsx`; never `motion` directly (`LazyMotion` runs in `strict` mode). Policy in `docs/DESIGN_SYSTEM.md` § Motion.
 - `server/` Express 5 + Mongoose, entry `src/server.js`. Routers: auth, decks, words, progress, gamification, bookmarks, lists, quiz (history), admin. SRS `utils/leitner.js`, gamification `utils/gamify.js`, history/quiz aggregation `utils/history.js` + `utils/quizHistory.js`.
 - `/api/health` is mounted **before** `apiLimiter` on purpose — warming pings, deploy-gate, and monitors must not be throttled.
 - Auth: JWT HS256 with issuer/audience + `tokenVersion`; revocation bumps `User.tokenVersion` and invalidates old tokens (`middleware/auth.js`).

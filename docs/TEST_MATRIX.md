@@ -31,7 +31,7 @@
 | 3 | Typing session, correct spelling | `✓ Correct!`; typo within tolerance → `✓ Correct (typo forgiven!)`; wrong → shows correct spelling |
 | 4 | Practice card speaker | Pre-rendered clip plays (`/audio/words/*.mp3` 200) or first-run volume tip toast |
 | 5 | Silent device (no Web Speech voices) | Disabled speaker with `aria-label` hint; no crash, no page errors |
-| 6 | Full automated Playwright E2E suite | `npm run test:e2e` 36/36 across chromium + mobile (design-contract runs in both projects) |
+| 6 | Full automated Playwright E2E suite | `npm run test:e2e` 38/38 across chromium + mobile (design-contract runs in both projects) |
 
 ## Flow 3 — study flows, queues & audits (automated in `e2e/`, QA account)
 
@@ -71,21 +71,29 @@ decks intact.
 | 1 | Desktop primary nav | `Decks · Review · Search · Saved · Progress`; no `History` top-level item |
 | 2 | Review entry | Links to `/practice/due`; 10px due count sits under the Review label (hidden at 0, capped at `99+`) without changing the label baseline |
 | 3 | Nested routes | Decks active on `/decks/:id`; Saved active on `/bookmarks/practice`; Progress active on `/history` |
-| 4 | Active indicator | Current destination is bold ink on a soft accent wash with a 4px accent underline; mobile active tab adds an accent top rule, accent icon, and accent wash |
-| 5 | Sticky header | Header stays pinned while scrolling on every route; mobile bottom bar stays fixed |
-| 6 | Mobile bottom bar | 5 tabs at 72px, every tab is at least 44px tall, no History tab |
-| 7 | Account menu | Progress and History lead the menu, followed by Account settings, About & privacy, and Log out; no menu headings |
-| 8 | Secondary history route | `/history` still renders `History & Performance` and is linked from Progress |
+| 4 | Active indicator | Current destination is bold ink on a soft accent wash with a 4px accent underline that travels between destinations (~180ms); mobile active tab adds an accent top rule that slides, accent icon, and accent wash |
+| 5 | Reduced motion | Under `prefers-reduced-motion: reduce` the underline lands instantly, perfectly centred on the active link with no residual transform; icon lift and count tick are skipped |
+| 6 | Sticky header | Header stays pinned while scrolling on every route; mobile bottom bar stays fixed |
+| 7 | Mobile bottom bar | 5 tabs at 72px, every tab is at least 44px tall, no History tab |
+| 8 | Account menu | Progress and History lead the menu, followed by Account settings, About & privacy, and Log out; no menu headings |
+| 9 | Secondary history route | `/history` still renders `History & Performance` and is linked from Progress |
 
 ## Last execution
 
-- Date: 2026-11-06 · Branch: feat/nav-review-first · Executor: agent
-- `npm run test:e2e` 36/36 passed (chromium + mobile Pixel 7), zero page errors.
-- Nav green: sticky header, bold active destination on a soft accent wash with
-  a 4px accent underline, 10px due count under the Review label with all five
-  labels on one baseline, active state on nested `/history`, 72px mobile bar
-  with accent wash + 44px targets, quiet account menu.
-- Unit tests green (`npm test` 202/202), linters clean, client build green.
+- Date: 2026-11-06 · Branch: feat/motion-system · Executor: agent
+- `npm run test:e2e` 38/38 passed (chromium + mobile Pixel 7), zero page errors.
+- Nav green: sticky header, bold active destination on a soft accent wash, one
+  shared accent underline that travels between destinations, 10px due count
+  under the Review label with all five labels on one baseline, active state on
+  nested `/history`, 72px mobile bar with sliding top rule + 44px targets,
+  quiet account menu.
+- Motion green: indicator travel measured frame-by-frame (moves from 509→679px
+  and settles on the active link), reduced-motion run lands instantly with
+  `transform: none` and the underline centred within 2px of the label.
+- Bundle: 208.96 → 255.05 kB gzipped (+46.09 kB, one 45.03 kB `vendor-motion`
+  chunk); ceiling raised to 50 kB by decision on 2026-11-06.
+- Unit tests green (`npm test` 202/202), linters clean, client build green,
+  `npm audit --omit=dev` 0 vulnerabilities.
 
 - Date: 2026-10-29 · PR: #82 (feat/e2e-suite-expansion) · Executor: agent
 - `npm run test:e2e` 30/30 passed (chromium + mobile Pixel 7), zero page/console errors.

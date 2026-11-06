@@ -131,6 +131,31 @@ test('primary nav labels share one baseline', async ({ page }) => {
   expect(new Set(centers).size, `label centers: ${centers.join(', ')}`).toBe(1)
 })
 
+test('reduced motion puts the nav indicator straight on the active link', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.setViewportSize({ width: 1280, height: 800 })
+
+  await page.goto('/search')
+  const active = page.locator('header [aria-current="page"]')
+  await expect(active).toContainText('Search')
+
+  const indicator = page.getByTestId('nav-indicator')
+  await expect(indicator).toBeVisible()
+
+  const [bar, label] = await Promise.all([
+    indicator.boundingBox(),
+    active.locator('span').first().boundingBox(),
+  ])
+  expect(bar && label, 'indicator and label boxes').toBeTruthy()
+
+  const barCenter = bar.x + bar.width / 2
+  const labelCenter = label.x + label.width / 2
+  expect(Math.abs(barCenter - labelCenter)).toBeLessThan(2)
+
+  const transform = await indicator.evaluate((el) => getComputedStyle(el).transform)
+  expect(['none', 'matrix(1, 0, 0, 1, 0, 0)']).toContain(transform)
+})
+
 test('mobile bottom tab bar renders 5 primary tabs with >= 44px tap targets', async ({ page }) => {
   const viewport = page.viewportSize()
   if (!viewport || viewport.width >= 768) {
