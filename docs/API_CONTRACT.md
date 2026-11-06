@@ -377,7 +377,7 @@ Keys are zero-filled — a fresh user gets `{ "new": 0, "learning": 0, "mastered
   "totalDue": 14
 }
 ```
-Aggregates all learning/mastered cards whose `reviewDueAfter` timestamp is past or equal to the current time across all decks, ordered chronologically by due date. Returns `{ "words": [], "totalDue": 0 }` when nothing is due.  
+Aggregates all learning/mastered cards whose `reviewDueAfter` timestamp is past or equal to the current time across all decks, ordered chronologically by due date. Progress rows whose word has been deleted are ignored entirely — they neither appear in `words` nor count toward `totalDue`, so a retired word can never fill the batch window. Returns `{ "words": [], "totalDue": 0 }` when nothing is due.  
 **Errors:** 401, 500
 
 ---
@@ -394,7 +394,7 @@ Aggregates all learning/mastered cards whose `reviewDueAfter` timestamp is past 
   "totalWeak": 6
 }
 ```
-Returns learning words currently stuck in Box 1 with low correct streaks, ordered by streak ascending and last reviewed descending. Returns `{ "words": [], "totalWeak": 0 }` when no words are in Box 1.  
+Returns learning words currently stuck in Box 1 with low correct streaks, ordered by streak ascending and last reviewed descending. Progress rows whose word has been deleted are ignored in both `words` and `totalWeak`. Returns `{ "words": [], "totalWeak": 0 }` when no words are in Box 1.  
 **Errors:** 401, 500
 
 ---

@@ -17,6 +17,7 @@ import {
 import { pushHistory, recordActivity } from '../utils/analytics.js'
 import { toSafeMessage } from '../utils/security.js'
 import { validateHistoryQuery, buildHistoryPipeline } from '../utils/history.js'
+import { buildWordQueuePipeline, readWordQueue } from '../utils/wordQueue.js'
 
 const router = Router()
 
@@ -48,16 +49,10 @@ router.get('/due', requireDB, requireAuth, async (req, res) => {
       reviewDueAfter: { $lte: now },
     }
 
-    const [totalDue, dueProgress] = await Promise.all([
-      Progress.countDocuments(filter),
-      Progress.find(filter)
-        .sort({ reviewDueAfter: 1 })
-        .limit(limit)
-        .populate('wordId')
-        .lean(),
-    ])
-
-    const words = dueProgress.map((p) => p.wordId).filter(Boolean)
+    const result = await Progress.aggregate(
+      buildWordQueuePipeline({ match: filter, sort: { reviewDueAfter: 1 }, limit })
+    )
+    const { words, total: totalDue } = readWordQueue(result)
     res.json({ words, totalDue })
   } catch (err) {
     res.status(500).json({ message: toSafeMessage(err) })
@@ -75,16 +70,14 @@ router.get('/weak', requireDB, requireAuth, async (req, res) => {
       box: 1,
     }
 
-    const [totalWeak, weakProgress] = await Promise.all([
-      Progress.countDocuments(filter),
-      Progress.find(filter)
-        .sort({ streakCorrect: 1, lastReviewed: -1 })
-        .limit(limit)
-        .populate('wordId')
-        .lean(),
-    ])
-
-    const words = weakProgress.map((p) => p.wordId).filter(Boolean)
+    const result = await Progress.aggregate(
+      buildWordQueuePipeline({
+        match: filter,
+        sort: { streakCorrect: 1, lastReviewed: -1 },
+        limit,
+      })
+    )
+    const { words, total: totalWeak } = readWordQueue(result)
     res.json({ words, totalWeak })
   } catch (err) {
     res.status(500).json({ message: toSafeMessage(err) })
