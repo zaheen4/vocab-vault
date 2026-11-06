@@ -8,6 +8,7 @@ import { isSectionActive } from '../utils/navSections'
 import { pickSeeded } from './art/seed'
 import { TILE_STYLES } from './DeckTile'
 import Logo from './Logo'
+import ProgressRing from './ProgressRing'
 import Button from './ui/Button'
 import ThemeToggle from './ui/ThemeToggle'
 
@@ -69,30 +70,15 @@ function StatsChip() {
   const { data: stats } = useGamification()
   if (!stats) return null
   const ringPct = stats.progressToNext || 0
-  // r + strokeWidth/2 must stay inside the 16-unit half-viewBox or the ring
-  // gets clipped at its top/bottom/left/right extremes: 14 + 1.75 = 15.75.
-  const r = 14
-  const c = 2 * Math.PI * r
   return (
     <span
       className="relative inline-flex h-11 w-11 items-center justify-center"
       title={`Level ${stats.level} · ${stats.dailyStreak > 0 ? `${stats.dailyStreak}d streak · ` : ''}${Math.round(ringPct * 100)}% to next`}
       aria-label={`Level ${stats.level}${stats.dailyStreak > 0 ? `, ${stats.dailyStreak} day streak` : ''}, ${Math.round(ringPct * 100)} percent to next level`}
     >
-      <svg viewBox="0 0 32 32" className="absolute inset-0 h-full w-full -rotate-90" aria-hidden="true">
-        <circle cx="16" cy="16" r={r} fill="none" strokeWidth="3.5" className="stroke-line" />
-        <circle
-          cx="16"
-          cy="16"
-          r={r}
-          fill="none"
-          strokeWidth="3.5"
-          strokeLinecap="round"
-          className="stroke-accent"
-          strokeDasharray={`${ringPct * c} ${c}`}
-        />
-      </svg>
-      <span className="text-xs font-bold text-ink">{stats.level}</span>
+      <ProgressRing pct={ringPct} size={44}>
+        <span className="text-xs font-bold text-ink">{stats.level}</span>
+      </ProgressRing>
     </span>
   )
 }

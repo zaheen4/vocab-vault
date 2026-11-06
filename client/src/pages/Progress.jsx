@@ -2,13 +2,12 @@ import { Link } from 'react-router-dom'
 import { useGamification, useProgressSummary, useSetGoalTarget, useWeakWords } from '../api/queries'
 import { useCountUp } from '../utils/countUp'
 import PageHeader from '../components/PageHeader'
+import Sheet from '../components/Sheet'
+import ProgressRing from '../components/ProgressRing'
+import PipelineBar from '../components/PipelineBar'
+import WeekStrip from '../components/WeekStrip'
+import BadgeStamp from '../components/BadgeStamp'
 import { FlameIcon, GemIcon, HundredIcon, SproutIcon, StarIcon } from '../components/art/icons'
-
-const CARDS = [
-  { key: 'mastered', label: 'Mastered', class: 'border-emerald-200 bg-emerald-50 dark:border-emerald-400/20 dark:bg-emerald-950/40', text: 'text-emerald-700 dark:text-emerald-300' },
-  { key: 'learning', label: 'Learning', class: 'border-amber-200 bg-amber-50 dark:border-amber-400/20 dark:bg-amber-950/40', text: 'text-amber-700 dark:text-amber-300' },
-  { key: 'new', label: 'Not started', class: 'border-slate-200 bg-slate-50 dark:border-white/10 dark:bg-night-800', text: 'text-slate-500 dark:text-cream-300/80' },
-]
 
 const GOAL_TARGETS = [5, 10, 15, 20, 25, 30, 40, 50]
 
@@ -17,141 +16,131 @@ const GOAL_TARGETS = [5, 10, 15, 20, 25, 30, 40, 50]
 // (null when the payload carries no measure — flawless needs perfectRun,
 // which the endpoint doesn't return).
 const BADGES = [
-  { id: 'first-word', name: 'First Word', Icon: SproutIcon, iconClass: 'text-emerald-600 dark:text-emerald-300', description: 'Review your first word', progress: (s) => `${Math.min(s.totalReviewed || 0, 1)}/1 review` },
-  { id: 'century', name: 'Century', Icon: HundredIcon, iconClass: 'text-accent-deep dark:text-accent', description: 'Review 100 words', progress: (s) => `${Math.min(s.totalReviewed || 0, 100)}/100 reviews` },
-  { id: 'week-warrior', name: 'Week Warrior', Icon: FlameIcon, iconClass: 'text-accent', description: 'Reach a 7-day streak', progress: (s) => `${Math.min(s.dailyStreak || 0, 7)}/7 day streak` },
-  { id: 'level-5', name: 'Level 5', Icon: StarIcon, iconClass: 'text-amber-500 dark:text-amber-300', description: 'Reach level 5', progress: (s) => `level ${Math.min(s.level || 1, 5)}/5` },
-  { id: 'flawless', name: 'Flawless', Icon: GemIcon, iconClass: 'text-primary dark:text-cream-100', description: '10 correct in a row', progress: null },
+  { id: 'first-word', name: 'First Word', Icon: SproutIcon, description: 'Review your first word', progress: (s) => `${Math.min(s.totalReviewed || 0, 1)}/1 review` },
+  { id: 'century', name: 'Century', Icon: HundredIcon, description: 'Review 100 words', progress: (s) => `${Math.min(s.totalReviewed || 0, 100)}/100 reviews` },
+  { id: 'week-warrior', name: 'Week Warrior', Icon: FlameIcon, description: 'Reach a 7-day streak', progress: (s) => `${Math.min(s.dailyStreak || 0, 7)}/7 day streak` },
+  { id: 'level-5', name: 'Level 5', Icon: StarIcon, description: 'Reach level 5', progress: (s) => `level ${Math.min(s.level || 1, 5)}/5` },
+  { id: 'flawless', name: 'Flawless', Icon: GemIcon, description: '10 correct in a row', progress: null },
 ]
 
-const DAY_LETTERS = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+const HISTORY_LINK =
+  'inline-flex min-h-11 items-center gap-1.5 rounded-md border border-line bg-card px-4 font-display text-sm font-bold text-ink transition-colors hover:bg-raised focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent'
 
-function dayKey(d) {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-}
+const STAMP_LINK =
+  'inline-flex min-h-11 items-center justify-center rounded-xl border border-b-4 border-stamp/60 bg-stamp px-4 font-display text-sm font-bold text-white transition-all dark:text-night-950 hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:translate-y-1 active:border-b-0'
 
-// 7-day activity strip. Decorative: guards on missing activity, never blocks.
-function ActivityStrip({ activity }) {
-  const byDate = new Map((activity || []).map((a) => [a.date, a.reviews || 0]))
-  const today = new Date()
-  const days = []
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(today.getFullYear(), today.getMonth(), today.getDate() - i)
-    days.push({ key: dayKey(d), letter: DAY_LETTERS[d.getDay()], isToday: i === 0, reviews: byDate.get(dayKey(d)) || 0 })
-  }
-  const max = Math.max(1, ...days.map((d) => d.reviews))
-  const total = days.reduce((a, d) => a + d.reviews, 0)
-  const tone = (n) =>
-    n === 0
-      ? 'bg-slate-100 dark:bg-night-800'
-      : n / max < 0.34
-        ? 'bg-accent/30'
-        : n / max < 0.67
-          ? 'bg-accent/60'
-          : 'bg-accent'
-
+function Stat({ label, value }) {
   return (
-    <div className="rounded-xl border border-primary/10 bg-white p-5 dark:border-white/10 dark:bg-night-900">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="font-display text-base font-bold text-primary dark:text-cream-100">This week</h2>
-        <div className="flex items-center gap-3">
-          <p className="text-xs text-slate-500 dark:text-cream-300/80">
-            {total} review{total === 1 ? '' : 's'}
-          </p>
-          <Link
-            to="/history"
-            className="font-display text-xs font-bold text-accent hover:text-accent-deep dark:text-accent dark:hover:text-gold"
-          >
-            Review history &rarr;
-          </Link>
-        </div>
-      </div>
-      <div className="mt-3 grid grid-cols-7 gap-1">
-        {days.map((d) => (
-          <div key={d.key} className="flex flex-col items-center gap-1">
-            <span
-              title={`${d.key}: ${d.reviews} review${d.reviews === 1 ? '' : 's'}`}
-              className={`flex h-10 w-full items-center justify-center rounded-md text-xs font-bold text-primary dark:text-cream-100 ${tone(d.reviews)} ${d.isToday ? 'ring-2 ring-primary dark:ring-accent' : ''}`}
-            >
-              {d.reviews > 0 ? d.reviews : ''}
-            </span>
-            <span className="text-xs text-slate-400 dark:text-cream-300/60">{d.letter}</span>
-          </div>
-        ))}
-      </div>
+    <div>
+      <dt className="font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase">
+        {label}
+      </dt>
+      <dd className="font-display text-2xl font-bold text-ink tabular-nums">{value}</dd>
     </div>
   )
 }
 
-// Daily-goal section: ring + target picker. The ring glows once the goal
-// is met — the day's payoff moment.
+// Level passport: who you are in the catalog, at a glance. The ring is the
+// same geometry as the navbar chip, one size up.
+function Passport({ stats, level, streak, xp }) {
+  const pct = stats.progressToNext || 0
+  return (
+    <Sheet tab="Passport" className="bg-gold/35 dark:bg-night-900">
+      <div className="flex flex-wrap items-center gap-x-10 gap-y-5">
+        <div className="flex items-center gap-4">
+          <ProgressRing pct={pct} size={76} strokeWidth={3}>
+            <span className="font-display text-xl font-bold text-ink tabular-nums">{level}</span>
+          </ProgressRing>
+          <div>
+            <p className="font-display text-2xl font-bold text-ink">Level {stats.level}</p>
+            <p className="text-xs font-semibold text-ink-muted tabular-nums">
+              {Math.round(pct * 100)}% to level {stats.level + 1}
+            </p>
+          </div>
+        </div>
+
+        <dl className="flex flex-wrap items-start gap-x-10 gap-y-4">
+          <Stat label="Total XP" value={xp.toLocaleString('en-US')} />
+          <Stat label="Day streak" value={streak} />
+          <div>
+            <dt className="font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase">
+              Freeze
+            </dt>
+            <dd className="font-display text-2xl font-bold text-ink tabular-nums">
+              {stats.streakFreezes > 0 ? `×${stats.streakFreezes}` : '—'}
+            </dd>
+          </div>
+        </dl>
+      </div>
+      <p className="mt-4 border-t border-line pt-3 text-xs text-ink-muted">
+        {stats.goalsMet > 0
+          ? `${stats.goalsMet} daily goal${stats.goalsMet === 1 ? '' : 's'} met so far.`
+          : 'Meet your daily goal to earn a streak freeze.'}
+      </p>
+    </Sheet>
+  )
+}
+
 function GoalSection({ stats, setGoal }) {
   const target = stats.dailyGoalTarget || 10
-  const done = (stats.reviewsToday || 0)
+  const done = stats.reviewsToday || 0
   const met = done >= target
   return (
-    <div className="flex flex-wrap items-center gap-6">
-      <div
-        className={`relative flex h-20 w-20 items-center justify-center rounded-full ${met ? 'animate-glow' : ''}`}
-      >
-        <svg className="h-full w-full -rotate-90" viewBox="0 0 36 36">
-          <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--color-slate-200)" strokeWidth="3" />
-          <circle
-            cx="18" cy="18" r="15.5" fill="none" stroke="var(--color-accent)"
-            strokeWidth="3" strokeLinecap="round"
-            strokeDasharray={`${Math.min(1, done / target) * 97.4} 97.4`}
-          />
-        </svg>
-        <span className="absolute text-sm font-bold text-primary dark:text-cream-100">
-          {done}
+    <Sheet
+      tab="Daily goal"
+      title="Today"
+      meta={
+        <span className="font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase tabular-nums">
+          {done} / {target}
         </span>
-      </div>
-      <div className="min-w-56 flex-1">
-        <div className="flex flex-wrap items-center gap-3">
-          <p className="text-sm font-semibold text-primary dark:text-cream-100">
-            {met ? 'Daily goal met — nice work!' : `Daily goal: ${done} / ${target}`}
+      }
+    >
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+        <div className={met ? 'animate-glow rounded-full' : ''}>
+          <ProgressRing pct={done / target} size={76} strokeWidth={3}>
+            <span className="font-display text-lg font-bold text-ink tabular-nums">{done}</span>
+          </ProgressRing>
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold text-ink">
+            {met ? 'Daily goal met — nice work!' : `${target - done} to go today`}
           </p>
-          {stats.streakFreezes > 0 && (
-            <span
-              title="A freeze survives one missed practice day. It refills when you meet your daily goal."
-              className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary dark:bg-accent/15 dark:text-accent"
-            >
-              🧊 × {stats.streakFreezes}
-            </span>
-          )}
-          {stats.goalsMet > 0 && (
-            <span
-              title="Daily goals met, all time."
-              className="text-xs text-slate-400 dark:text-cream-300/70"
-            >
-              {stats.goalsMet} goal{stats.goalsMet > 1 ? 's' : ''} met
-            </span>
-          )}
+          <p className="mt-0.5 text-xs text-ink-muted">
+            {stats.streakFreezes > 0
+              ? `${stats.streakFreezes} freeze${stats.streakFreezes === 1 ? '' : 's'} in reserve — one survives a missed day.`
+              : 'A freeze covers one missed practice day.'}
+          </p>
         </div>
-        <div className="mt-2 flex flex-wrap gap-1.5">
-                {GOAL_TARGETS.map((t) => (
-                  <button
-                    key={t}
-                    disabled={setGoal.isPending}
-                    onClick={() => setGoal.mutate(t)}
-                    className={`relative rounded-md border px-3 py-0.5 text-xs font-medium transition-colors before:absolute before:inset-x-0 before:-inset-y-2.5 before:content-[''] ${
-                      target === t
-                        ? 'border-accent bg-accent text-primary'
-                        : 'border-slate-200 text-slate-500 hover:border-slate-300 dark:border-white/15 dark:text-cream-300/80 dark:hover:border-white/30'
-                    }`}
-                  >
-                    {t}
-                  </button>
-                ))}
+        <div
+          className="grid w-full grid-cols-4 gap-1.5 sm:grid-cols-8"
+          role="group"
+          aria-label="Daily goal target"
+        >
+          {GOAL_TARGETS.map((value) => (
+            <button
+              key={value}
+              type="button"
+              disabled={setGoal.isPending}
+              aria-pressed={target === value}
+              onClick={() => setGoal.mutate(value)}
+              className={`flex min-h-9 items-center justify-center rounded-md border px-2 font-mono text-2xs font-bold tabular-nums transition-colors disabled:opacity-50 ${
+                target === value
+                  ? 'border-accent bg-accent/20 text-accent-ink'
+                  : 'border-line bg-card text-ink-muted hover:text-ink'
+              }`}
+            >
+              {value}
+            </button>
+          ))}
         </div>
       </div>
-    </div>
+    </Sheet>
   )
 }
 
 export default function Progress() {
   const { data: summary, isLoading, isError } = useProgressSummary()
-  // Decorative gamification banner: never block the page on failure
+  // Decorative gamification surfaces: never block the page on failure
   const { data: stats } = useGamification()
   const { data: weakData } = useWeakWords(1)
   const setGoal = useSetGoalTarget()
@@ -161,19 +150,22 @@ export default function Progress() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="h-28 animate-pulse rounded-lg bg-slate-200 dark:bg-night-800" />
-        ))}
+      <div className="space-y-6" aria-busy="true" aria-label="Loading progress">
+        <div className="h-24 animate-pulse rounded-xl border border-line bg-raised" />
+        <div className="h-32 animate-pulse rounded-xl border border-line bg-raised" />
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <div className="h-40 animate-pulse rounded-xl border border-line bg-raised" />
+          <div className="h-40 animate-pulse rounded-xl border border-line bg-raised" />
+        </div>
       </div>
     )
   }
 
   if (isError) {
     return (
-      <div className="rounded-lg bg-red-50 p-4 text-center text-sm text-red-600 dark:bg-red-950/50 dark:text-red-300">
+      <div className="rounded-xl border border-stamp/30 bg-stamp/5 p-4 text-center text-sm text-stamp">
         Failed to load progress.{' '}
-        <button className="underline" onClick={() => window.location.reload()}>
+        <button type="button" className="underline" onClick={() => window.location.reload()}>
           Retry
         </button>
       </div>
@@ -194,129 +186,73 @@ export default function Progress() {
               : `${total} word${total === 1 ? '' : 's'} in your learning pipeline.`
           }
         />
-        <Link
-          to="/history"
-          className="inline-flex min-h-9 items-center gap-1 rounded-md border border-slate-200 bg-white px-3 py-1.5 font-display text-xs font-bold text-slate-700 transition-colors hover:bg-slate-50 dark:border-white/10 dark:bg-night-900 dark:text-cream-100 dark:hover:bg-night-800"
-        >
-          Review history &rarr;
+        <Link to="/history" className={HISTORY_LINK}>
+          Activity history <span aria-hidden="true">→</span>
         </Link>
       </div>
 
       {stats && (
-        <div className="rounded-xl border border-accent bg-gold/60 p-5 dark:border-accent/30 dark:bg-night-900">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-6">
-              <div className="text-center">
-                <p className="flex items-center justify-center gap-1.5 text-3xl font-bold text-primary dark:text-cream-100">
-                  <StarIcon size={26} className="text-accent" /> {shownLevel}
-                </p>
-                <p className="text-xs text-slate-500 dark:text-cream-300/80">Level</p>
-              </div>
-              <div className="text-center">
-                <p className="flex items-center justify-center gap-1.5 text-3xl font-bold text-primary dark:text-cream-100">
-                  <FlameIcon size={26} className="text-accent" /> {shownStreak}
-                </p>
-                <p className="text-xs text-slate-500 dark:text-cream-300/80">Day streak</p>
-              </div>
-              <div className="text-center">
-                <p className="text-3xl font-bold text-accent">+{shownXp} XP</p>
-                <p className="text-xs text-slate-500 dark:text-cream-300/80">Total XP</p>
-              </div>
-            </div>
-            <div className="min-w-56 flex-1">
-              <div className="mb-1 flex justify-between text-xs text-slate-500 dark:text-cream-300/80">
-                <span>
-                  Level {stats.level}
-                </span>
-                <span>Level {stats.level + 1}</span>
-              </div>
-              <div className="h-2.5 overflow-hidden rounded-full bg-slate-200 dark:bg-night-800">
-                <div
-                  className="h-full rounded-full bg-accent transition-all duration-500"
-                  style={{ width: `${(stats.progressToNext || 0) * 100}%` }}
-                />
-              </div>
-              <p className="mt-1 text-right text-xs text-slate-400 dark:text-cream-300/60">
-                {Math.round((stats.progressToNext || 0) * 100)}% to next level
-              </p>
-            </div>
-          </div>
-        </div>
+        <Passport stats={stats} level={shownLevel} streak={shownStreak} xp={shownXp} />
       )}
 
-      {stats && <ActivityStrip activity={stats.activity || []} />}
+      <PipelineBar summary={summary} />
 
-      {stats && (
-        <div className="rounded-xl border border-primary/10 bg-white p-5 dark:border-white/10 dark:bg-night-900">
-          <GoalSection stats={stats} setGoal={setGoal} />
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        {CARDS.map(({ key, label, class: cardClass, text }, i) => (
-          <div
-            key={key}
-            className={`animate-fade-up rounded-lg border p-5 ${cardClass}`}
-            style={{ animationDelay: `${i * 60}ms` }}
-          >
-            <p className={`text-3xl font-bold ${text}`}>{summary[key] || 0}</p>
-            <p className="mt-1 text-sm font-medium text-slate-500 dark:text-cream-300/80">{label}</p>
-          </div>
-        ))}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <WeekStrip activity={stats?.activity} />
+        {stats && <GoalSection stats={stats} setGoal={setGoal} />}
       </div>
 
       {(weakData?.totalWeak || 0) > 0 && (
-        <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-red-200 bg-red-50/70 p-5 dark:border-red-400/20 dark:bg-red-950/30">
-          <div>
-            <h3 className="font-display text-base font-bold text-red-900 dark:text-red-200">
-              Mistake Bank ({weakData.totalWeak} word{weakData.totalWeak === 1 ? '' : 's'})
-            </h3>
-            <p className="mt-0.5 text-xs text-red-700/80 dark:text-red-300/80">
-              Words currently stuck in Box 1 needing extra practice.
-            </p>
+        <Sheet tab="Mistake bank" className="border-stamp/30 bg-stamp/5">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="font-display text-3xl font-bold text-stamp tabular-nums">
+                {weakData.totalWeak}
+                <span className="ml-2 text-base font-bold text-ink">
+                  word{weakData.totalWeak === 1 ? '' : 's'}
+                </span>
+              </p>
+              <p className="mt-1 text-xs text-ink-muted">
+                Stuck in box 1 — clear them before they harden.
+              </p>
+            </div>
+            <Link to="/practice/weak" className={STAMP_LINK}>
+              Cram weak words <span aria-hidden="true">→</span>
+            </Link>
           </div>
-          <Link
-            to="/practice/weak"
-            className="inline-flex min-h-9 items-center justify-center rounded-md bg-red-600 px-4 py-2 font-display text-xs font-bold text-white transition-colors hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600"
-          >
-            Cram weak words &rarr;
-          </Link>
-        </div>
+        </Sheet>
       )}
 
       {stats && (
-        <div className="rounded-xl border border-primary/10 bg-white p-5 dark:border-white/10 dark:bg-night-900">
-          <h2 className="font-display text-base font-bold text-primary dark:text-cream-100">Badges</h2>
-          <p className="mt-0.5 text-xs text-slate-500 dark:text-cream-300/80">
-            {(stats.badges || []).length} of {BADGES.length} earned — keep practicing to unlock the rest.
-          </p>
-          <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
-            {BADGES.map((badge, i) => {
+        <Sheet
+          tab="Badges"
+          title="Badges"
+          meta={
+            <span className="font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase tabular-nums">
+              {(stats.badges || []).length} of {BADGES.length} earned
+            </span>
+          }
+        >
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+            {BADGES.map((badge) => {
               const earned = (stats.badges || []).find((b) => b.id === badge.id)
-              const Icon = badge.Icon
+              const progressText = badge.progress ? badge.progress(stats) : badge.description
               return (
-                <div
+                <BadgeStamp
                   key={badge.id}
-                  title={badge.description}
-                  className={`animate-fade-up rounded-lg border p-3 text-center ${
-                    earned
-                      ? 'border-accent bg-gold/40 dark:border-accent/30 dark:bg-accent/10'
-                      : 'border-slate-200 bg-slate-50 opacity-60 dark:border-white/10 dark:bg-night-800'
-                  }`}
-                  style={{ animationDelay: `${i * 60}ms` }}
-                >
-                  <p className={`${earned ? '' : 'opacity-70 grayscale'} ${badge.iconClass}`}>
-                    <Icon size={28} />
-                  </p>
-                  <p className="mt-1 text-xs font-bold text-primary dark:text-cream-100">{badge.name}</p>
-                  <p className="mt-0.5 text-xs text-slate-500 dark:text-cream-300/80">
-                    {earned || !badge.progress ? badge.description : badge.progress(stats)}
-                  </p>
-                </div>
+                  badge={badge}
+                  earned={Boolean(earned)}
+                  progressText={progressText}
+                />
               )
             })}
           </div>
-        </div>
+          <p className="mt-3 text-xs text-ink-muted">
+            {(stats.badges || []).length < BADGES.length
+              ? 'Keep practicing to unlock the rest.'
+              : 'Every badge earned — the catalog is yours.'}
+          </p>
+        </Sheet>
       )}
     </div>
   )
