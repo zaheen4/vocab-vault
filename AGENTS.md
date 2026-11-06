@@ -14,7 +14,7 @@ npm run seed            # seeds Atlas; silent no-op if .env or Atlas is unreacha
 
 ## Verify (CI runs this; `.github/workflows/ci.yml`)
 ```bash
-npm test                    # vitest: 29 files / 227 tests, pure logic, colocated *.test.js
+npm test                    # vitest: 30 files / 237 tests, pure logic, colocated *.test.js
 npx vitest run server/src/utils/leitner.test.js    # one suite
 npm run lint -w client      # oxlint; pre-existing warnings are fine, errors are not
 npm run lint:tw -w client   # eslint tailwind class hygiene
@@ -27,7 +27,7 @@ npm audit --omit=dev --audit-level=high
 ## E2E (local only — needs dev servers + Atlas + QA creds)
 - `npm run test:e2e`; `e2e/auth.setup.js` logs in once with `VV_QA_EMAIL` / `VV_QA_PASSWORD` and caches state in `.playwright/.auth/user.json` (gitignored).
 - Specs: `design-contract`, `study-flows`, `daily-study`, `history-audit`, `auth-lifecycle`. `chromium` + `mobile` (Pixel 7, design-contract only) projects.
-- Chromium is auto-detected at `/usr/bin/chromium`; override with `PLAYWRIGHT_CHROMIUM_PATH`. ~30 tests, zero page errors expected.
+- Chromium is auto-detected at `/usr/bin/chromium`; override with `PLAYWRIGHT_CHROMIUM_PATH`. ~41 tests, zero page errors expected.
 - Focus one: `npx playwright test --project=chromium e2e/study-flows.spec.js`. Assert tight values (`+\d+ XP`, never `+.*XP`).
 - Restart `npm run dev` after any branch switch — `node --watch` / HMR serves stale code across checkouts.
 

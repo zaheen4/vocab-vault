@@ -69,7 +69,9 @@ function StatsChip() {
   const { data: stats } = useGamification()
   if (!stats) return null
   const ringPct = stats.progressToNext || 0
-  const r = 15
+  // r + strokeWidth/2 must stay inside the 16-unit half-viewBox or the ring
+  // gets clipped at its top/bottom/left/right extremes: 14 + 1.75 = 15.75.
+  const r = 14
   const c = 2 * Math.PI * r
   return (
     <span

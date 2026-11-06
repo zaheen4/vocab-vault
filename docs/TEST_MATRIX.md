@@ -31,14 +31,14 @@
 | 3 | Typing session, correct spelling | `✓ Correct!`; typo within tolerance → `✓ Correct (typo forgiven!)`; wrong → shows correct spelling |
 | 4 | Practice card speaker | Pre-rendered clip plays (`/audio/words/*.mp3` 200) or first-run volume tip toast |
 | 5 | Silent device (no Web Speech voices) | Disabled speaker with `aria-label` hint; no crash, no page errors |
-| 6 | Full automated Playwright E2E suite | `npm run test:e2e` 40/40 across chromium + mobile (design-contract runs in both projects) |
+| 6 | Full automated Playwright E2E suite | `npm run test:e2e` 41/41 across chromium + mobile (design-contract runs in both projects) |
 
 ## Flow 3 — study flows, queues & audits (automated in `e2e/`, QA account)
 
 | # | Step | Expected |
 |---|------|----------|
 | 1 | Practice answer on a due deck | `Box \d` or `Mastered` label plus tight `+\d+ XP` feedback; review recorded |
-| 2 | Part tabs switching | Multi-part deck switches parts, resets progress indices cleanly |
+| 2 | Part tabs switching | Segmented strip shows `Part n · n due` or `Part n · n%`; switching parts resets progress indices cleanly |
 | 3 | Reverse card mode | `⇄ Reverse` flips prompt to definition with word target |
 | 4 | Quiz answer on a due deck | First option advances to `Next` / `See results` |
 | 5 | Typing submit (wrong on purpose) | Correction banner `The spelling is …` names the word |
@@ -47,6 +47,9 @@
 | 8 | Weak words remediation (`/practice/weak`) | Crams Leitner Box 1 mistake cards or shows clean EmptyState |
 | 9 | All-deck quiz (`/quiz`) | Generates multi-deck MCQ pool across full catalog |
 | 10 | History audit hub (`/history`) | Toggles `Card Reviews` filter tabs and expands quiz question audits |
+| 11 | Deck detail header | `GROUP nn · ALL PARTS`, title, `n words · n% mastered`, and a `DUE n` stamp using review-due, never raw practicable count |
+| 12 | Keyboard answer | `Space` flips the card, `2` answers `Got it`, and the session reaches `Session complete`; study keys never fire inside the Typing input |
+| 13 | Review queues share one shell | `/practice/due`, `/practice/weak`, `/bookmarks/practice` all render the same card, `Missed it` / `Got it`, `SessionHud`, and `SessionResults` |
 
 ## Flow 4 — auth lifecycle & security (automated in `e2e/auth-lifecycle.spec.js`)
 
@@ -89,6 +92,28 @@ decks intact.
 | 6 | Layout | No horizontal scroll at 375px; library bar is only sticky from `lg` up |
 
 ## Last execution
+
+- Date: 2026-11-06 · Branch: feat/study-session-focus · Executor: agent
+- `npm run test:e2e` 41/41 passed (chromium + mobile Pixel 7), zero page errors.
+- Study is one shell now: `ReviewSession` backs `/practice/due`, `/practice/weak`,
+  and `/bookmarks/practice` (three near-duplicate pages became thin wrappers), and
+  Practice/Quiz/Typing share `AnswerBar`, `SessionHud`, and `SessionResults`.
+- Card is an index card: `CARD`/`MEANING` corner tab, stacked card behind,
+  mono dashed `Tap to reveal`, `text-display-xl` word,
+  `min-h-72 / sm:min-h-80`. `AnswerBar` is two 48px buttons (`Missed it` /
+  `Got it`, `1`/`2` hints from `md`) on an opaque `bg-canvas` backing;
+  `bottom-18` below `md`, `bottom-4` from `md` — the same breakpoint where the
+  mobile tab bar becomes the desktop nav.
+- Keyboard map (`utils/studyKeys.js` + `useStudyKeys`): Space/Enter flip,
+  1/2 answer after flip, S/R/B speak/reverse/bookmark; never inside inputs,
+  and flip keys defer to focused buttons/links. 10 resolver tests.
+- Deck detail gained `DeckHeader` (`GROUP 01 · ALL PARTS`, `n words · n%
+  mastered`, review-due `DUE n`) and a segmented part strip (`Part 1 · 3 due` /
+  `Part 2 · 1 due` / `Part 3 · 2 due`). `DUE` uses review-due, matching Home.
+- Verified: `npm test` 237/237 across 30 files; oxlint 0 errors; Tailwind lint
+  0 errors (3 pre-existing warnings); build green (CSS 63.29 kB); no horizontal
+  scroll at 375/768/1440; light/dark reviewed; keyboard Space→flip and 2→answer
+  reach results.
 
 - Date: 2026-11-06 · Branch: feat/home-today-library · Executor: agent
 - `npm run test:e2e` 40/40 passed (chromium + mobile Pixel 7), zero page errors.

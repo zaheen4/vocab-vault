@@ -6,9 +6,8 @@ import { useSlideDirection } from '../utils/navDirection'
 import { getSessionMessage } from '../utils/sessionMessages'
 import { shouldCelebrate } from '../utils/celebrate'
 import Button from '../components/ui/Button'
-import Confetti from '../components/Confetti'
-import ScoreRing from '../components/ScoreRing'
 import SessionHud from '../components/SessionHud'
+import SessionResults from '../components/SessionResults'
 import DeckTile from '../components/DeckTile'
 import EmptyState from '../components/ui/EmptyState'
 import EmptyArt from '../components/art/EmptyArt'
@@ -226,16 +225,18 @@ export default function Quiz({ deckId }) {
   }
 
   if (status === 'loading') {
-    return <div className="mx-auto h-64 max-w-xl animate-pulse rounded-xl bg-slate-200 dark:bg-night-800" />
+    return (
+      <div className="mx-auto h-64 max-w-2xl animate-pulse rounded-xl border border-line bg-card" />
+    )
   }
 
   if (status === 'error') {
     return (
-      <div className="rounded-lg bg-red-50 p-4 text-center text-sm text-red-600 dark:bg-red-950/50 dark:text-red-300">
+      <div className="rounded-lg border border-stamp/30 bg-stamp/10 p-4 text-center text-sm text-stamp">
         Failed to load the quiz.{' '}
-        <button className="underline" onClick={() => window.location.reload()}>
+        <Button variant="secondary" className="ml-2" onClick={() => window.location.reload()}>
           Retry
-        </button>
+        </Button>
       </div>
     )
   }
@@ -270,10 +271,10 @@ export default function Quiz({ deckId }) {
 
   if (status === 'idle') {
     return (
-      <div className={`mx-auto max-w-xl space-y-4 text-center ${slideCls}`}>
+      <div className={`mx-auto max-w-2xl space-y-4 text-center ${slideCls}`}>
         <Link
           to="/"
-          className="inline-block text-sm text-slate-400 hover:text-primary dark:text-cream-300/60 dark:hover:text-cream-100"
+          className="inline-block text-sm text-ink-muted hover:text-ink"
         >
           ← {isAllDeck ? 'Back to decks' : deckTitle}
         </Link>
@@ -283,7 +284,7 @@ export default function Quiz({ deckId }) {
         <h1 className="font-display text-2xl font-bold text-primary dark:text-cream-100">
           {isAllDeck ? 'All-Deck Quiz' : 'Quiz yourself'}
         </h1>
-        <p className="text-sm text-slate-500 dark:text-cream-300/80">
+        <p className="text-sm text-ink-muted">
           {isAllDeck
             ? 'Cumulative test across all 37 GregMat groups. Pick a definition for each word — every answer feeds your SRS and XP.'
             : `${pool.length} viewed word${pool.length === 1 ? '' : 's'} ready. Pick a definition for each word — every answer is recorded like practice.`}
@@ -323,7 +324,7 @@ export default function Quiz({ deckId }) {
             </Button>
           ))}
         </div>
-        <p className="text-xs text-slate-400 dark:text-cream-300/60">
+        <p className="text-xs text-ink-muted">
           {Math.min(length, pool.length || length)} questions
         </p>
         <Button onClick={start}>Start quiz</Button>
@@ -335,47 +336,32 @@ export default function Quiz({ deckId }) {
     const correctCount = results.filter((r) => r.correct).length
     const pct = results.length === 0 ? 0 : Math.round((correctCount / results.length) * 100)
     return (
-      <div className="animate-page mx-auto max-w-2xl space-y-6 py-6 text-center">
-        <Confetti active={confetti} pieces={70} />
-        <h1 className="font-display text-display-xl font-bold text-primary dark:text-cream-100">{finalMessage || 'Quiz complete!'}</h1>
-        <p className="text-slate-500 dark:text-cream-300/80">
-          You scored {correctCount} of {results.length} ({pct}%).
-        </p>
-        <ScoreRing correct={correctCount} total={results.length} />
-        {results.length > 0 && (
-          <div className="flex flex-wrap justify-center gap-1.5">
-            {results.map((r, i) => (
-              <span
-                key={i}
-                title={r.word}
-                className={`rounded px-1.5 py-0.5 text-xs font-semibold ${
-                  r.correct
-                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300'
-                    : 'bg-red-100 text-red-600 dark:bg-red-950/60 dark:text-red-300'
-                }`}
-              >
-                {r.correct ? '✓' : '✗'}
-              </span>
-            ))}
-          </div>
-        )}
-        <div className="flex flex-wrap justify-center gap-3">
-          <Button variant="secondary" onClick={() => setStatus('idle')}>
-            New quiz
-          </Button>
-          <Link to="/history">
-            <Button variant="secondary">View in Quiz History &rarr;</Button>
-          </Link>
-          {!isAllDeck && (
-            <Link to={`/decks/${id}`}>
-              <Button variant="secondary">Practice flashcards</Button>
+      <SessionResults
+        confetti={confetti}
+        message={finalMessage || 'Quiz complete!'}
+        subtitle={`You scored ${correctCount} of ${results.length} (${pct}%).`}
+        correct={correctCount}
+        total={results.length}
+        results={results}
+        actions={
+          <>
+            <Button variant="secondary" onClick={() => setStatus('idle')}>
+              New quiz
+            </Button>
+            <Link to="/history">
+              <Button variant="secondary">View in Quiz History &rarr;</Button>
             </Link>
-          )}
-          <Link to="/">
-            <Button>Back to decks</Button>
-          </Link>
-        </div>
-      </div>
+            {!isAllDeck && (
+              <Link to={`/decks/${id}`}>
+                <Button variant="secondary">Practice flashcards</Button>
+              </Link>
+            )}
+            <Link to="/">
+              <Button>Back to decks</Button>
+            </Link>
+          </>
+        }
+      />
     )
   }
 
@@ -383,7 +369,7 @@ export default function Quiz({ deckId }) {
   const answered = picked !== null && !pending
 
   return (
-    <div className={`mx-auto max-w-xl space-y-4 ${slideCls}`}>
+    <div className={`mx-auto max-w-2xl space-y-4 py-2 ${slideCls}`}>
       <SessionHud
         backTo="/"
         backLabel={deckTitle}
@@ -407,22 +393,25 @@ export default function Quiz({ deckId }) {
         }
       />
 
-      <div className="rounded-xl border-2 border-slate-200 bg-white p-8 text-center shadow-sm dark:border-white/10 dark:bg-night-900 dark:shadow-none">
-        <p className="text-xs font-medium tracking-wide text-slate-400 uppercase dark:text-cream-300/70">
+      <div className="relative overflow-hidden rounded-xl border-2 border-line bg-card p-8 pt-9 text-center shadow-paper">
+        <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1.5 bg-accent" />
+        <p className="font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase">
           {q.word.partOfSpeech || 'What does this mean?'}
         </p>
-        <h2 className="mt-1 text-3xl font-bold break-words text-primary dark:text-cream-100">{q.word.word}</h2>
+        <h2 className="mt-2 text-display-lg font-bold break-words text-primary dark:text-cream-100">
+          {q.word.word}
+        </h2>
       </div>
 
       <div className="grid grid-cols-1 gap-2" key={q.word._id}>
         {q.options.map((opt, i) => {
-          let cls = 'border-slate-200 bg-white hover:border-accent hover:bg-gold/40 dark:border-white/10 dark:bg-night-900 dark:hover:border-accent dark:hover:bg-accent/10'
+          let cls = 'border-line bg-card hover:border-accent hover:bg-gold/30'
           if (picked !== null) {
             if (i === q.answerIndex)
-              cls = 'border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-400/40 dark:bg-emerald-950/50 dark:text-emerald-300'
+              cls = 'border-sage/50 bg-sage/10 text-sage'
             else if (i === picked)
-              cls = 'border-red-300 bg-red-50 text-red-700 dark:border-red-400/40 dark:bg-red-950/50 dark:text-red-300'
-            else cls = 'border-slate-200 bg-white opacity-50 dark:border-white/10 dark:bg-night-900'
+              cls = 'border-stamp/50 bg-stamp/10 text-stamp'
+            else cls = 'border-line bg-card opacity-50'
           }
           return (
             <button
@@ -430,9 +419,9 @@ export default function Quiz({ deckId }) {
               onClick={() => choose(i)}
               disabled={picked !== null}
               style={picked === null ? { animationDelay: `${i * 50}ms` } : undefined}
-              className={`rounded-lg border-2 px-4 py-3 text-left font-display text-sm font-bold text-primary transition-all active:scale-99 disabled:cursor-default dark:text-cream-100 ${picked === null ? 'animate-fade-up' : 'animate-pop'} ${cls}`}
+              className={`min-h-12 rounded-lg border-2 px-4 py-3 text-left font-display text-sm font-bold text-ink transition-all active:scale-99 disabled:cursor-default ${picked === null ? 'animate-fade-up' : 'animate-pop'} ${cls}`}
             >
-              <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-500 dark:bg-night-800 dark:text-cream-300">
+              <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-raised font-mono text-xs font-bold text-ink-muted">
                 {picked !== null && i === q.answerIndex
                   ? '✓'
                   : picked === i && i !== q.answerIndex
@@ -446,7 +435,7 @@ export default function Quiz({ deckId }) {
       </div>
 
       {saveError && (
-        <div className="animate-pop flex items-center justify-center gap-3 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm font-semibold text-red-700 dark:border-red-400/30 dark:bg-red-950/50 dark:text-red-300">
+        <div className="animate-pop flex items-center justify-center gap-3 rounded-lg border border-stamp/30 bg-stamp/10 px-4 py-3 text-sm font-semibold text-stamp">
           <span>Couldn&apos;t save that answer.</span>
           <button className="ml-auto underline" onClick={retrySave}>
             Retry
@@ -456,7 +445,7 @@ export default function Quiz({ deckId }) {
 
       {answered && (
         <div className="space-y-3">
-          <p className="text-center text-sm text-slate-500 dark:text-cream-300/80">
+          <p className="text-center text-sm text-ink-muted">
             {q.word.word} — {q.word.definition}
             {q.word.example && <span className="italic"> “{q.word.example}”</span>}
           </p>

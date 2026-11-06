@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useLocation, useParams, useSearchParams } from 'react-router-dom'
 import ModeTabs from './ModeTabs'
 import PartTabs from './PartTabs'
+import DeckHeader from './DeckHeader'
 import Practice from '../pages/Practice'
 import Quiz from '../pages/Quiz'
 import Typing from '../pages/Typing'
@@ -50,10 +51,11 @@ export default function DeckLayout() {
   const hasParts = parts.length > 1 || (deck?.wordIds && deck.wordIds.length > 10)
 
   return (
-    <div className="mx-auto max-w-xl space-y-4">
+    <div className="mx-auto max-w-2xl space-y-4">
+      <DeckHeader deck={deck} part={currentPart} />
       <ModeTabs deckId={id} />
       {hasParts && (
-        <div className="flex justify-center">
+        <div className="flex w-full justify-center">
           <PartTabs
             currentPart={currentPart}
             onSelectPart={selectPart}
