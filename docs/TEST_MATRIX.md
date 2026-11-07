@@ -20,7 +20,8 @@
 | 5 | `POST /api/progress/review` valid | 200, `progress.box` in 1–5, `gamification` has `xpEarned`, `level`, `dailyStreak`, `reviewsToday`, `dailyGoalTarget`, `newBadges: []` or badge entries |
 | 6 | `POST /api/progress/review` bad id / non-boolean | 400 both cases |
 | 7 | Progress + History | Passport shows `Level \d+`, total XP, streak, `% to level n+1`; pipeline segments sum to practiced words; study log is 7 cells with today outlined and empty days dashed; goal ring matches `reviewsToday`; exactly one `Activity history` link. `/history` keeps `History & Performance`, a day-grouped timeline, the two tabs, and the three filters |
-| 8 | Delete temp account + probe data | `GET /api/gamification/me` with temp token → 401 afterwards |
+| 8 | Settings (Appearance, Study, Security) | Appearance OptionTiles toggle Light/Dark/System theme immediately; Study GoalPicker updates daily target (5–50 reviews); Security "Log out other devices" revokes sessions; Danger zone Dialogs (Confirm Progress Reset, Delete Account Permanently) prompt for password and dismiss on Cancel |
+| 9 | Delete temp account + probe data | `GET /api/gamification/me` with temp token → 401 afterwards |
 
 ## Flow 2 — quiz → typing → TTS (all client-side, UI-only — no API paths)
 
@@ -31,7 +32,7 @@
 | 3 | Typing session, correct spelling | `✓ Correct!`; typo within tolerance → `✓ Correct (typo forgiven!)`; wrong → shows correct spelling |
 | 4 | Practice card speaker | Pre-rendered clip plays (`/audio/words/*.mp3` 200) or first-run volume tip toast |
 | 5 | Silent device (no Web Speech voices) | Disabled speaker with `aria-label` hint; no crash, no page errors |
-| 6 | Full automated Playwright E2E suite | `npm run test:e2e` 41/41 across chromium + mobile (design-contract runs in both projects). While iterating use the targeted scripts — `test:e2e:study` / `test:e2e:design` / `test:e2e:auth` — and save the full run for review |
+| 6 | Full automated Playwright E2E suite | `npm run test:e2e` 42/42 across chromium + mobile (design-contract runs in both projects). While iterating use the targeted scripts — `test:e2e:study` / `test:e2e:design` / `test:e2e:auth` — and save the full run for review |
 
 ## Flow 3 — study flows, queues & audits (automated in `e2e/`, QA account)
 
@@ -59,7 +60,8 @@
 | 2 | Password strength & validation | Live meter evaluates entropy, mismatch blocks submission with error |
 | 3 | Forgot password anti-enumeration | Success feedback displayed without revealing account existence |
 | 4 | Profile settings update & cleanup | Name updated via UI, restored to original state (zero residue) |
-| 5 | Danger zone confirmation | Reset progress and delete account modals require confirmation |
+| 5 | Appearance theme switcher | System / Light / Dark option tiles apply immediately and toggle `.dark` on `html` |
+| 6 | Danger zone confirmation | Reset progress and delete account modals render Dialog confirmation prompts and dismiss on cancel |
 
 Formal temp-account regression passes when every step above is green:
 register → decks → practice → review (incl. both 400s) → quiz → search →

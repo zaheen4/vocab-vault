@@ -21,8 +21,8 @@ token classes — never raw hex in components.
 | `stamp-deep` | `#76271C` | `#B8564A` | Tactile edge under a solid `stamp` fill (semantic) |
 | `sage` | `#2F6B4F` | `#7FD1A4` | Mastered/success status (semantic) |
 | `brass` | `#8A6414` | `#E0B85C` | Badges, XP, streak accents (semantic) |
-| `manila` | `#E9E4D5` | `#282B39` | Passport / special-stock surface (semantic) |
-| `stamp-wash` | `#E7E1D9` | `#19192A` | Mistake-bank tinted stock (semantic) |
+| `manila` | `#E9E4D5` | `#282B39` | Passport / auth special-stock surface (semantic) |
+| `stamp-wash` | `#E7E1D9` | `#19192A` | Mistake-bank / danger-zone tinted stock (semantic) |
 | `primary` | `#1F2A44` | — | Static brand fill: brand panel, hero, ink on accent |
 | `accent` | `#D9772F` | — | Static interaction fill: CTAs, focus rings, bars |
 | `accent-deep` | `#9A4A12` | — | Tactile edge under accent fills; equals light `accent-ink` |
@@ -45,6 +45,17 @@ token classes — never raw hex in components.
   on `accent`.
 - **Stamp:** white on the solid `stamp` fill is 6.31:1; small stamp text on a
   card uses the semantic `text-stamp` token.
+- **Small-text contrast on manila stock:** `stamp` (4.96:1) and `sage` (4.95:1
+  light / 5.61:1 dark) meet WCAG AA normal text contrast (≥4.5:1) on `manila`.
+  `brass` on `manila` measures 4.22:1 (fails AA), so brass is excluded on
+  manila stock; neutral `text-ink` is used for status labels on manila instead
+  (e.g. Fair/Good password strength).
+- **Brand panel contrast:** `cream-100` on static `primary` is 12.62:1;
+  `cream-300` on `primary` is 8.36:1, ensuring brand pitch copy and headings
+  meet AA/AAA requirements.
+- **Form control contrast:** Checkbox inputs use `accent-primary` (static navy)
+  because `accent` (#D9772F) is only 2.98:1 and checkmark glyph contrast
+  varies across browser engines.
 - **Radii:** `rounded-md` controls (inputs, buttons, chips), `rounded-lg/xl`
   cards and sheets, `rounded-full` pills/rings/toggles.
 - **Dark mode:** class-driven (`.dark` on `<html>`, see `ThemeContext`). New
@@ -248,6 +259,62 @@ action, or preserves context while something leaves. Anything else is cut.
   quiet mono divider per day. Entries are rows inside one sheet, not a card
   each: word or deck title, mono status/box/mode chips, relative time on the
   right. The quiz question audit stays expandable under its row.
+- **Account surfaces.** Auth, settings, about, and not-found screens use
+  semantic tokens, shared primitives, and card stocks with zero raw hex or
+  legacy Tailwind neutrals:
+  - **Auth (`AuthShell`, `Login`, `Register`, `ForgotPassword`, `ResetPassword`):**
+    Centered canvas shell (`bg-canvas`), split card on manila stock (`bg-manila`,
+    `rounded-xl`, `border-line`, `shadow-paper`) without a corner tab (preventing
+    seam collisions on narrow stacked mobile layouts). Left side is a static navy
+    brand panel (`bg-primary`, `text-cream-100`, pitch copy in `text-cream-300`,
+    mascot and logo chips in `bg-gold` / `dark:bg-night-900`, checkmark glyphs in
+    `text-accent`). Links use `text-accent-ink hover:underline`. Alerts and server
+    feedback use `Notice`. `PasswordStrength` evaluates entropy with tokenized bar
+    fills (`bg-stamp`, `bg-brass`, `bg-sage`) and accessible labels (`Weak` in
+    `text-stamp`, `Strong` in `text-sage`, `Fair` and `Good` in `text-ink` to avoid
+    the 4.22:1 brass-on-manila contrast failure).
+  - **Settings:** Catalog structure built with five `Sheet`s (`Profile`,
+    `Appearance`, `Study`, `Security`, `Danger zone`) preserving the folder-tab
+    aesthetic. Disabled email inputs use `bg-raised text-ink-muted cursor-not-allowed`.
+    Theme preference is a `role="group" aria-label="Theme preference"` group with
+    three `OptionTile` buttons (`System`, `Light`, `Dark`). Study preferences feature
+    the `GoalPicker` (`role="group" aria-label="Daily goal target"`) with live
+    review counts and audio fallback guidance. Danger zone uses a tinted sheet
+    (`border-stamp/30 bg-stamp-wash`) with custom `text-stamp` heading (no default ink
+    title) and two destructive actions that prompt confirmation through `Dialog`.
+  - **About & NotFound:** About renders a mascot hero (`text-ink` / `text-ink-muted`)
+    and two manila sheets (`<Sheet tab="Privacy" title="Privacy, plainly stated" className="bg-manila">`
+    and `<Sheet tab="Contact" title="Contact" className="bg-manila">`) with GitHub issue link.
+    NotFound (404) renders `EmptyArt variant="mascot"`, uppercase `404` eyebrow
+    in `text-accent-ink`, heading `This word isn't in the vault.` in `text-ink`, and
+    navigation buttons back to decks or search.
+  - **Primitives:**
+    - `Notice`: status and alert banner (`tone="info" | "error" | "success"`).
+      Error tone uses `role="alert"`; info and success use `role="status"`.
+      Styles apply tint tokens (`border-stamp/30 bg-stamp/5 text-stamp`,
+      `border-sage/30 bg-sage/5 text-sage`, `border-line bg-raised text-ink`).
+      Settings forms pass `className="text-xs font-semibold"` to match dense layouts.
+    - `Checkbox`: accessible native checkbox wrapped in `<label>` (`inline-flex min-h-11 items-center gap-2 text-sm text-ink`).
+      Input is `size-4 rounded border-line accent-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent`.
+      Uses static navy `accent-primary` to guarantee WCAG AA glyph contrast across browsers.
+    - `OptionTile`: pressable selection tile with `aria-pressed`, `min-h-11 rounded-md border p-2 text-left transition-colors`.
+      Active state is `border-accent bg-accent/10`; idle is `border-line bg-raised/50 hover:border-accent/50`.
+      Renders swatch indicator, display label, and muted hint.
+    - `Dialog`: accessible in-tree modal dialog (`labelledBy`, `onClose`, `children`).
+      Fixed overlay with `bg-night-950/60 p-4 backdrop-blur-xs`, focus-trapped panel
+      with `role="dialog" aria-modal="true" aria-labelledby={labelledBy}` wrapping `<Card className="p-6">`.
+      Focuses panel on mount, restores previous focus on unmount, handles `Escape` key,
+      and closes on backdrop mousedown.
+    - `GoalPicker`: daily review goal selector extracted from Progress.
+      Exports `GOAL_TARGETS = [5, 10, 15, 20, 25, 30, 40, 50]` and renders a
+      `role="group" aria-label="Daily goal target"` of `Chip`s with tabular numbers.
+    - `Button` (`ghost` variant): `variant="ghost"` renders `text-accent-ink hover:underline`
+      without border or background, maintaining base `min-h-11` touch target.
+    - `Chip` (`disabled` state): applies `disabled:opacity-60 disabled:cursor-not-allowed`
+      for read-only or in-flight mutation states without altering pressed styles.
+- **Unmigrated legacy surfaces.** Legacy screens (`Search.jsx`, `Bookmarks.jsx`,
+  `AddWord.jsx`, and `WordHistory.jsx`) remain unmigrated and are reserved for
+  a follow-up branch (`fix/ui-legacy-surfaces`).
 - Complex behavior (dropdowns, dialogs, tooltips) uses Radix primitives,
   token-styled, pulled one package at a time — never hand-rolled focus traps.
 - Join conditional classes with `utils/cn.js` (tailwind-merge: later colliding

@@ -175,27 +175,41 @@ Brand palette defined as Tailwind v4 theme tokens in `client/src/index.css`.
 Use the token classes (`text-primary`, `bg-accent`, `bg-gold`, …) — never raw
 hex values in components.
 
-| Token    | Hex       | Role                  | Usage                                            |
-|----------|-----------|-----------------------|--------------------------------------------------|
-| primary  | `#28324E` | Structure (darkest)   | Headings, brand, text on accent backgrounds      |
-| accent   | `#EE964B` | Interaction (warm)    | CTAs, focus rings, links                         |
-| accent-deep | `#B25F16` | Tactile edge       | Bottom-shadow edge under accent fills (chunky buttons) |
-| gold     | `#FAF0CA` | Surface (lightest)    | Auth page backgrounds, active-nav pill highlight |
-| night-950/900/800 | `#0F1430` / `#171D3A` / `#232B52` | Dark surfaces | Page / card / raised (dark mode) |
-| cream-100/300 | `#F7F1DE` / `#CFC6AB` | Dark ink | Headings / muted body (dark mode) |
-| display-xl | fluid clamp | Display | Flashcard word, done titles (`text-display-xl`) |
-| display-lg | fluid clamp | Display | Page H1s, hero (`text-display-lg` via `PageHeader`) |
+| Token | Light | Dark | Role |
+|-------|-------|------|------|
+| `canvas` | `#E9E6DE` | `#0E1326` | Page shell (semantic) |
+| `card` | `#FBF8EF` | `#171D36` | Card and sheet surfaces (semantic) |
+| `raised` | `#F3EDDD` | `#222A4A` | Nested/raised surfaces (semantic) |
+| `line` | `#D8CDB8` | `rgba(255,255,255,.10)` | Borders and dividers (semantic) |
+| `ink` | `#1F2A44` | `#F4EEDF` | Headings and primary text (semantic) |
+| `ink-muted` | `#5B6478` | `#C9C2AD` | Secondary text (semantic) |
+| `accent-ink` | `#9A4A12` | `#F0A05E` | Small accent text and links (semantic) |
+| `stamp` | `#A63D2F` | `#F08A7A` | Due/error stamps and status (semantic) |
+| `stamp-deep` | `#76271C` | `#B8564A` | Tactile edge under a solid `stamp` fill (semantic) |
+| `sage` | `#2F6B4F` | `#7FD1A4` | Mastered/success status (semantic) |
+| `brass` | `#8A6414` | `#E0B85C` | Badges, XP, streak accents (semantic) |
+| `manila` | `#E9E4D5` | `#282B39` | Passport / auth stock (semantic) |
+| `stamp-wash` | `#E7E1D9` | `#19192A` | Mistake-bank / danger stock (semantic) |
+| `primary` | `#1F2A44` | — | Static brand fill: brand panel, hero, ink on accent |
+| `accent` | `#D9772F` | — | Static interaction fill: CTAs, focus rings, bars |
+| `accent-deep` | `#9A4A12` | — | Tactile edge under accent fills; equals light `accent-ink` |
+| `gold` | `#EADFC4` | — | Static manila fill: auth wash, nav highlight, tile tints |
+| `night-950/900/800` | — | `#0E1326` / `#171D36` / `#222A4A` | Static dark fills |
+| `cream-100/300` | — | `#F4EEDF` / `#C9C2AD` | Static dark ink |
+| `display-xl` | `clamp(1.875rem, 1.4rem + 2.4vw, 2.75rem)` | — | Fluid display: flashcard word, done titles |
+| `display-lg` | `clamp(1.5rem, 1.25rem + 1.4vw, 2rem)` | — | Fluid display: page H1s, hero |
 
 Rules of thumb:
 
 - **Darkest → foreground**, **most saturated → interactive elements**,
   **lightest → surfaces/backgrounds**
-- Never put white text on `accent` — contrast fails (~2.5:1); use
-  `text-primary` on accent fills instead
+- Never put white text on `accent` — contrast fails (~2.98:1); use
+  `text-primary` on accent fills instead (4.50:1)
 - Touch targets: minimum 24×24px (WCAG 2.2 AA), aim 44×44px (Apple HIG).
   Enlarge hit areas with padding + compensating negative margin so the
   visuals stay identical
-- Neutrals come from Tailwind's built-in `slate` scale
+- Semantic tokens switch automatically between light and dark themes; see
+  [docs/DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md) for full contrast rules and component usage
 
 ## Team
 

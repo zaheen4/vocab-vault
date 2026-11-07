@@ -14,7 +14,7 @@ npm run seed            # seeds Atlas; silent no-op if .env or Atlas is unreacha
 
 ## Verify (CI runs this; `.github/workflows/ci.yml`)
 ```bash
-npm test                    # vitest: 33 files / 254 tests, pure logic, colocated *.test.js
+npm test                    # vitest: 33 files / 263 tests, pure logic, colocated *.test.js
 npx vitest run server/src/utils/leitner.test.js    # one suite
 npm run lint -w client      # oxlint; pre-existing warnings are fine, errors are not
 npm run lint:tw -w client   # eslint class hygiene; zero warnings allowed (`--max-warnings 0`)
@@ -28,7 +28,7 @@ npm audit --omit=dev --audit-level=high
 Run the smallest thing that can fail. The full suite is a per-PR gate, not a step after every edit.
 - Cheapest first: `npm test` (~3s, pure logic) and `npm run build -w client` catch most regressions. Reach for a browser only for what a browser alone proves.
 - Targeted, by area: `npm run test:e2e:study` (card, HUD, keyboard, part strip), `npm run test:e2e:design` (nav, tokens, tap targets, motion — chromium + mobile), `npm run test:e2e:auth` (signup → reset → revocation). Each is ~40–60s.
-- Full: `npm run test:e2e` — ~41 tests / ~2.6 min — before requesting review, not after every edit.
+- Full: `npm run test:e2e` — ~42 tests / ~2.6 min — before requesting review, not after every edit.
 - One case: `npx playwright test --project=chromium -g "keyboard answers"`.
 - Pure look checks (a radius, a breakpoint, spacing) → a throwaway Playwright screenshot script; assert pixels, not accessible names. The suite proves behavior, not appearance.
 - `e2e/auth.setup.js` logs in once with `VV_QA_EMAIL` / `VV_QA_PASSWORD` and caches state in `.playwright/.auth/user.json` (gitignored).
