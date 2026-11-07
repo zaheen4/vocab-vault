@@ -14,10 +14,10 @@ npm run seed            # seeds Atlas; silent no-op if .env or Atlas is unreacha
 
 ## Verify (CI runs this; `.github/workflows/ci.yml`)
 ```bash
-npm test                    # vitest: 31 files / 240 tests, pure logic, colocated *.test.js
+npm test                    # vitest: 33 files / 254 tests, pure logic, colocated *.test.js
 npx vitest run server/src/utils/leitner.test.js    # one suite
 npm run lint -w client      # oxlint; pre-existing warnings are fine, errors are not
-npm run lint:tw -w client   # eslint tailwind class hygiene
+npm run lint:tw -w client   # eslint class hygiene; zero warnings allowed (`--max-warnings 0`)
 npm run build -w client     # CI injects prod VITE_API_URL
 find server/src -name '*.js' -not -name '*.test.js' -exec node --check {} +
 npm audit --omit=dev --audit-level=high

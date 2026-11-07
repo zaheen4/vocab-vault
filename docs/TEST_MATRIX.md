@@ -19,7 +19,7 @@
 | 4 | Open Group 1 practice, flip card, answer | Instant ✓/✗ feedback, floating `+\d+ XP` matches `xpEarned` in review response |
 | 5 | `POST /api/progress/review` valid | 200, `progress.box` in 1–5, `gamification` has `xpEarned`, `level`, `dailyStreak`, `reviewsToday`, `dailyGoalTarget`, `newBadges: []` or badge entries |
 | 6 | `POST /api/progress/review` bad id / non-boolean | 400 both cases |
-| 7 | Progress page | Counts sum to practiced words; XP banner shows `Level \d+`, streak, `+\d+ XP`; goal ring `reviewsToday ≥ 1` |
+| 7 | Progress + History | Passport shows `Level \d+`, total XP, streak, `% to level n+1`; pipeline segments sum to practiced words; study log is 7 cells with today outlined and empty days dashed; goal ring matches `reviewsToday`; exactly one `Activity history` link. `/history` keeps `History & Performance`, a day-grouped timeline, the two tabs, and the three filters |
 | 8 | Delete temp account + probe data | `GET /api/gamification/me` with temp token → 401 afterwards |
 
 ## Flow 2 — quiz → typing → TTS (all client-side, UI-only — no API paths)

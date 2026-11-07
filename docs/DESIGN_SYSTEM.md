@@ -18,8 +18,11 @@ token classes — never raw hex in components.
 | `ink-muted` | `#5B6478` | `#C9C2AD` | Secondary text (semantic) |
 | `accent-ink` | `#9A4A12` | `#F0A05E` | Small accent text and links (semantic) |
 | `stamp` | `#A63D2F` | `#F08A7A` | Due/error stamps and status (semantic) |
+| `stamp-deep` | `#76271C` | `#B8564A` | Tactile edge under a solid `stamp` fill (semantic) |
 | `sage` | `#2F6B4F` | `#7FD1A4` | Mastered/success status (semantic) |
 | `brass` | `#8A6414` | `#E0B85C` | Badges, XP, streak accents (semantic) |
+| `manila` | `#E9E4D5` | `#282B39` | Passport / special-stock surface (semantic) |
+| `stamp-wash` | `#E7E1D9` | `#19192A` | Mistake-bank tinted stock (semantic) |
 | `primary` | `#1F2A44` | — | Static brand fill: brand panel, hero, ink on accent |
 | `accent` | `#D9772F` | — | Static interaction fill: CTAs, focus rings, bars |
 | `accent-deep` | `#9A4A12` | — | Tactile edge under accent fills; equals light `accent-ink` |
@@ -37,7 +40,7 @@ token classes — never raw hex in components.
   background in the brand panel and hero.
 - **Accent contrast:** `#D9772F` on white is only ~3:1. Use it for fills,
   focus rings, and large UI — never small text. Small accent text uses
-  `text-accent-ink` (6.1:1 on card, 4.7:1 on manila).
+  `text-accent-ink` (5.9:1 on card, 4.7:1 on `gold`, 4.9:1 on `manila`).
 - **Button ink:** navy `primary` on the accent fill is 4.50:1. Never white text
   on `accent`.
 - **Stamp:** white on the solid `stamp` fill is 6.31:1; small stamp text on a
@@ -78,6 +81,11 @@ token classes — never raw hex in components.
   Shared `Button` does this automatically for `primary`; other variants opt
   in with the `chunky` prop. Radius is chosen in one place — never put
   `rounded-md` and `rounded-xl` in the same class list.
+- **Solid `stamp` is the one loud action on a stamped surface** (`Cram weak
+  words`), passed with `chunky`. Never hand-roll a maroon CTA: the shared
+  variant already carries the edge, press, and focus ring. The edge is
+  `stamp-deep`, not `stamp/60` — a translucent border over the same fill is
+  invisible, so the button read as a flat slab.
 - **Everything pressable scales:** `active:scale-[0.97]` on buttons
   (built into shared `Button`), `active:scale-[0.99]` on large option rows.
 - **2px borders on touchables** (deck cards, quiz options, flashcard faces,
@@ -139,8 +147,11 @@ action, or preserves context while something leaves. Anything else is cut.
   one search field. Each catalog card has one action — never a per-part button
   grid — and a `DUE n` stamp only when spaced-repetition review is actually due
   (`dueCount` minus never-seen words), not merely practicable.
-- Page headers come from shared `PageHeader` (eyebrow + H1 + sub); session
-  screens share `SessionHud` + `ScoreRing`; deck identity comes from `DeckTile`.
+- Page headers come from shared `PageHeader` (eyebrow + H1 + sub, plus an
+  optional `action`). The action sits on the **eyebrow row**, right-aligned, at
+  every width — parked under the subtitle it took a whole band of its own on a
+  phone and read as a second title. Session screens share `SessionHud` +
+  `ScoreRing`; deck identity comes from `DeckTile`.
 - **Study session.** One column (`max-w-2xl`), one card, one answer bar:
   - The card is an index card: `bg-card`, 2px `border-line`, a corner tab
     (`CARD` / `MEANING`), a stacked card behind it, and `min-h-72` /
@@ -170,6 +181,73 @@ action, or preserves context while something leaves. Anything else is cut.
   `DUE n` stamp using review-due. Parts are a segmented strip where each
   segment states its own next best reason to pick it — `Part 1 · 3 due` or
   `Part 2 · 45%` — with the accent pill travelling between segments.
+- **Progress = a record spread, not six boxes.** `Sheet` gives every section the
+  same card stock, rule, and corner tab (`PASSPORT`, `PIPELINE`, `STUDY LOG`,
+  `DAILY GOAL`, `MISTAKE BANK`, `BADGES`), but the page is laid out as three
+  uneven rows on a 12-column grid — **4 against 8** — so it reads as a spread
+  rather than a stack of equal cards. Cards keep their natural height; a ragged
+  bottom edge is part of the pinned-to-the-board feel. The corner tab inherits
+  its sheet's surface **and** border (`bg-inherit border-inherit`), so a tinted
+  sheet gets a tab of the same stock; a card-coloured tab reads as a hole
+  punched through the top edge. Tints that sit under a tab are opaque tokens
+  (`bg-manila` for the passport, `bg-stamp-wash` for the mistake bank — never
+  `bg-gold/35` or `bg-stamp/5`): a translucent tint composites twice over the
+  overlap and lets the card's top rule run through the tab label.
+  - Level passport: `ProgressRing` (navbar geometry, two sizes up) beside the
+    level, then three **ledger lines** — mono label, dotted leader, figure
+    right-aligned against one edge — instead of three floating stat columns.
+    All numerals are `tabular-nums`. The sheet sits on `manila`, the page's
+    only special stock, in both themes.
+  - `PipelineBar` replaces the three pastel cards: not started (line in light,
+    muted ink in dark) / learning (accent) / mastered (sage) as one segmented
+    bar with counts, shares, and an `aria-label` sentence. Segments run in
+    pipeline order, so the rail fills toward the finish instead of starting
+    with a green knob at zero, and the legend reads left to right the way a
+    word travels. The rail is a `bg-raised` track with inset pills (`p-1`,
+    `gap-1`): a slice sits inside the track rather than flush against a
+    rounded end, so a 1% slice is a short pill, not a slider knob. No
+    zero-count segment is drawn; a non-zero segment keeps an 8px floor.
+    The legend is three rule-separated cells — label, then the count at
+    display weight, then its share on its own line — so a number never drifts
+    away from the word it describes, and "1 1%" never reads as a stutter. The
+    card carries no header meta: the legend already states every count and
+    share.
+  - `WeekStrip` is a rolling seven days ending today — today outlined in ink,
+    an empty day keeps a dashed cell instead of disappearing, fill density is
+    relative to the week's busiest day (`utils/weekActivity.js`).
+  - Daily goal is the same ring plus a target picker (`aria-pressed`): a
+    compact 4x2 block on the right from `sm`, full width under the ring on
+    phones. A met goal pulses a halo that is
+    `absolute inset-0` inside the ring's own box, so it is concentric by
+    construction — never a `box-shadow` on a wrapper holding an inline child,
+    which leaves a baseline gap and turns `rounded-full` into an ellipse. The
+    halo is the only celebration, and reduced motion holds it still.
+  - `BadgeStamp` reads as a rubber stamp: brass and an inked border when
+    earned, dashed outline with the `x/y` hint while locked. The shelf is a
+    wrapping flex row (`justify-center`) so the odd fifth stamp centres at
+    phone width instead of sitting alone against the left edge; every stamp
+    takes an equal share from `sm`, and all of them stretch to one height. No
+    header rule — with no title the only thing on it was the count floating
+    over an empty line — so the footer carries the count and names the next
+    unlock with its real measure.
+  - The mistake bank is the page's one loud surface: a hand-tinted card
+    (`bg-stamp-wash`, a `stamp` border at 30%) whose count and reason centre
+    in the space above a pinned, full-width `stamp` action — never a
+    full-width band with the action stranded at the far edge.
+  - Rows are equal height. Each `Sheet` in a row is `flex h-full flex-col`
+    and its closing note or action is `mt-auto`, so the passport footnote, the
+    study-log caption, the badge footer and the Cram action all sit on the row
+    baseline instead of leaving a ragged bottom edge.
+  - Exactly one `Activity history →` link, in the page header, as a
+    `Button variant="secondary"`. History is also in the account menu, never in
+    the nav. `Cram weak words` is the page's one `Button variant="stamp" chunky`.
+- **History = a day-grouped timeline.** The route, `History & Performance`
+  heading, `Quiz History` / `Card Reviews` tabs, and `All` / `Correct` /
+  `Needs Review` filters are contractual (e2e matches them). Days group in
+  `utils/historyDays.js` with `Today` / `Yesterday` / `Tue, Nov 3` labels, one
+  quiet mono divider per day. Entries are rows inside one sheet, not a card
+  each: word or deck title, mono status/box/mode chips, relative time on the
+  right. The quiz question audit stays expandable under its row.
 - Complex behavior (dropdowns, dialogs, tooltips) uses Radix primitives,
   token-styled, pulled one package at a time — never hand-rolled focus traps.
 - Join conditional classes with `utils/cn.js` (tailwind-merge: later colliding
@@ -196,8 +274,11 @@ action, or preserves context while something leaves. Anything else is cut.
   active tab gets an accent top rule, accent icon, and a light accent wash.
   The bar is 72px tall, and Review's due count sits under its label so all five
   labels share one baseline.
-- `Layout` reserves `pb-24` below `md:` so the tab bar never covers content or
-  CTAs; footer stays above it in flow.
+- `Layout` reserves the tab bar's height below `md:` with `pb-32` (128px against
+  a 72px bar, so the last line clears the bar even when iOS puts it on a
+  shorter visual viewport) and the normal gutter from `md`. `pt-*` is set
+  separately from `pb-*` on `<main>` so no responsive `py-*` can quietly shrink
+  the reserved space.
 - Touch target floor is 24px (e2e-enforced), aim 44px: `Button` base carries
   `min-h-11`; tabs, chips, and icon buttons meet it individually.
 - Overlays stack by design: toasts accept a `className` override so sticky

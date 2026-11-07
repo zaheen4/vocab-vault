@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQuizHistory, useReviewHistory } from '../api/queries'
+import { groupByDay } from '../utils/historyDays'
 import PageHeader from '../components/PageHeader'
-import Card from '../components/ui/Card'
+import Sheet from '../components/Sheet'
 import Button from '../components/ui/Button'
 import EmptyState from '../components/ui/EmptyState'
 import EmptyArt from '../components/art/EmptyArt'
@@ -21,6 +22,10 @@ const MODE_LABELS = {
   typing: 'Typing',
 }
 
+// Mono chip shared by parts, scope, box and mode: catalog metadata, not prose.
+const CHIP =
+  'inline-flex items-center rounded-sm border border-line px-1.5 py-0.5 font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase'
+
 function formatDuration(seconds) {
   if (!seconds || seconds <= 0) return '< 1m'
   const m = Math.floor(seconds / 60)
@@ -33,90 +38,110 @@ function HistorySkeleton() {
   return (
     <div className="space-y-3" aria-busy="true" aria-label="Loading history">
       {[...Array(3)].map((_, i) => (
-        <div
-          key={i}
-          className="h-28 animate-pulse rounded-lg border border-slate-200 bg-slate-100 p-4 dark:border-white/10 dark:bg-night-900"
-        />
+        <div key={i} className="h-28 animate-pulse rounded-xl border border-line bg-raised" />
       ))}
     </div>
   )
 }
 
-function QuizSessionCard({ session }) {
+// Day divider: the timeline's only structural element, so it stays quiet —
+// a mono date, a rule, and how much happened.
+function DayGroup({ label, count, children }) {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-3">
+        <h2 className="font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase">
+          {label}
+        </h2>
+        <span aria-hidden="true" className="h-px flex-1 bg-line" />
+        <span className="font-mono text-2xs text-ink-muted tabular-nums">
+          {count} {count === 1 ? 'entry' : 'entries'}
+        </span>
+      </div>
+      <Sheet className="divide-y divide-line px-4 py-1">{children}</Sheet>
+    </div>
+  )
+}
+
+function ScoreStamp({ score, total, percentage }) {
+  const tone =
+    percentage >= 80
+      ? 'border-sage/50 text-sage'
+      : percentage >= 50
+        ? 'border-accent/50 text-accent-ink'
+        : 'border-stamp/50 text-stamp'
+  return (
+    <span
+      className={cn(
+        'rounded-sm border px-1.5 py-0.5 font-mono text-2xs font-bold tracking-widest tabular-nums',
+        tone
+      )}
+    >
+      {score}/{total} · {percentage}%
+    </span>
+  )
+}
+
+function QuizSessionRow({ session }) {
   const [expanded, setExpanded] = useState(false)
   const timeFormatted = formatRelativeTime(session.createdAt)
 
-  const scoreBadgeTone =
-    session.percentage >= 80
-      ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
-      : session.percentage >= 50
-        ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
-        : 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300'
-
   return (
-    <Card className="p-4 sm:p-5">
-      <div className="flex flex-col gap-3">
+    <div className="py-4">
+      <div className="flex flex-col gap-2">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex flex-wrap items-center gap-2">
-            <h2 className="font-sans text-lg font-bold text-primary dark:text-cream-100">
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <h3 className="truncate font-display text-lg font-bold text-ink">
               {session.deckTitle}
-            </h2>
-            {session.part && (
-              <span className="inline-flex items-center rounded-md border border-slate-200 px-2 py-0.5 font-display text-xs font-semibold text-slate-600 dark:border-white/10 dark:text-cream-300">
-                Part {session.part}
-              </span>
-            )}
-            <span className="inline-flex items-center rounded-md bg-slate-100 px-2 py-0.5 font-display text-xs text-slate-500 dark:bg-night-800 dark:text-cream-300/70">
-              {session.scope === 'all' ? 'All Words' : 'Studied Words'}
-            </span>
-            <span className={cn('inline-flex items-center rounded-full px-2.5 py-0.5 font-display text-xs font-bold', scoreBadgeTone)}>
-              {session.score}/{session.total} ({session.percentage}%)
-            </span>
+            </h3>
+            <ScoreStamp
+              score={session.score}
+              total={session.total}
+              percentage={session.percentage}
+            />
+            {session.part && <span className={CHIP}>Part {session.part}</span>}
+            <span className={CHIP}>{session.scope === 'all' ? 'All words' : 'Studied words'}</span>
           </div>
-
-          <div className="flex items-center gap-3 font-sans text-xs text-slate-400 dark:text-cream-300/60">
-            <span>{formatDuration(session.timeSpentSeconds)}</span>
+          <div className="flex items-center gap-3 font-mono text-2xs text-ink-muted">
+            <span className="tabular-nums">{formatDuration(session.timeSpentSeconds)}</span>
             {timeFormatted && <time dateTime={session.createdAt}>{timeFormatted}</time>}
           </div>
         </div>
 
-        <div className="flex items-center justify-between border-t border-slate-100 pt-2 dark:border-white/5">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <button
             type="button"
             onClick={() => setExpanded((v) => !v)}
-            className="font-display text-xs font-bold text-accent hover:text-accent-deep dark:text-accent dark:hover:text-gold"
+            aria-expanded={expanded}
+            className="font-display text-xs font-bold text-accent-ink underline-offset-2 hover:underline"
           >
             {expanded ? 'Hide question audit' : `Review ${session.answers?.length || 0} questions`}
           </button>
-          <span className="font-sans text-xs text-slate-400 dark:text-cream-300/60">
+          <span className="font-mono text-2xs text-ink-muted tabular-nums">
             {session.score} correct · {session.total - session.score} missed
           </span>
         </div>
 
         {expanded && session.answers?.length > 0 && (
-          <div className="mt-2 space-y-2 border-t border-slate-100 pt-3 dark:border-white/10">
+          <div className="mt-1 space-y-2 border-t border-line pt-3">
             {session.answers.map((ans, idx) => (
               <div
                 key={ans.wordId || idx}
-                className="rounded-md border border-slate-100 bg-slate-50/60 p-3 text-sm dark:border-white/5 dark:bg-night-950/40"
+                className="rounded-md border border-line bg-raised/60 p-3 text-sm"
               >
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="font-sans font-bold text-primary dark:text-cream-100">
-                      {ans.word}
-                    </span>
+                    <span className="font-display font-bold text-ink">{ans.word}</span>
                     {ans.partOfSpeech && (
-                      <span className="font-sans text-xs text-slate-400 italic dark:text-cream-300/60">
-                        {ans.partOfSpeech}.
-                      </span>
+                      <span className="text-xs text-ink-muted italic">{ans.partOfSpeech}.</span>
                     )}
                   </div>
                   <span
                     className={cn(
-                      'inline-flex items-center rounded px-2 py-0.5 font-display text-xs font-bold',
+                      'rounded-sm border px-1.5 py-0.5 font-mono text-2xs font-bold tracking-widest uppercase',
                       ans.correct
-                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
-                        : 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300'
+                        ? 'border-sage/50 text-sage'
+                        : 'border-stamp/50 text-stamp'
                     )}
                   >
                     {ans.correct ? 'Correct' : 'Missed'}
@@ -124,16 +149,17 @@ function QuizSessionCard({ session }) {
                 </div>
 
                 {ans.correct ? (
-                  <p className="mt-1 font-sans text-xs text-slate-600 dark:text-cream-300">
+                  <p className="mt-1 text-xs text-ink-muted">
                     {ans.correctAnswer || ans.definition}
                   </p>
                 ) : (
-                  <div className="mt-1 space-y-0.5 font-sans text-xs">
-                    <p className="text-red-600 dark:text-red-400">
+                  <div className="mt-1 space-y-0.5 text-xs">
+                    <p className="text-stamp">
                       <span className="font-bold">Your answer:</span> {ans.userAnswer || 'No answer'}
                     </p>
-                    <p className="text-emerald-700 dark:text-emerald-300">
-                      <span className="font-bold">Correct:</span> {ans.correctAnswer || ans.definition}
+                    <p className="text-sage">
+                      <span className="font-bold">Correct:</span>{' '}
+                      {ans.correctAnswer || ans.definition}
                     </p>
                   </div>
                 )}
@@ -142,7 +168,7 @@ function QuizSessionCard({ session }) {
           </div>
         )}
       </div>
-    </Card>
+    </div>
   )
 }
 
@@ -151,51 +177,54 @@ function ReviewRow({ review }) {
   const timeFormatted = formatRelativeTime(review.reviewedAt)
 
   return (
-    <Card className="p-4 sm:p-5">
-      <div className="flex flex-col gap-2">
+    <div className="py-4">
+      <div className="flex flex-col gap-1.5">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex flex-wrap items-center gap-2.5">
-            <h2 className="font-sans text-xl font-bold text-primary dark:text-cream-100">
-              {review.word}
-            </h2>
+          <div className="flex min-w-0 flex-wrap items-center gap-2">
+            <h3 className="truncate font-display text-lg font-bold text-ink">{review.word}</h3>
             <span
               className={cn(
-                'inline-flex items-center rounded-full px-2.5 py-0.5 font-display text-xs font-bold',
-                review.correct
-                  ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
-                  : 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300'
+                'rounded-sm border px-1.5 py-0.5 font-mono text-2xs font-bold tracking-widest uppercase',
+                review.correct ? 'border-sage/50 text-sage' : 'border-stamp/50 text-stamp'
               )}
             >
               {review.correct ? 'Correct' : 'Needs Review'}
             </span>
-            <span className="inline-flex items-center rounded-full bg-slate-100 px-2 py-0.5 font-display text-xs font-semibold text-slate-700 dark:bg-night-800 dark:text-cream-300">
-              Box {review.box}
-            </span>
-            <span className="inline-flex items-center rounded-full border border-slate-200 px-2 py-0.5 font-display text-xs font-semibold text-slate-500 dark:border-white/10 dark:text-cream-300/80">
-              {modeLabel}
-            </span>
+            <span className={CHIP}>Box {review.box}</span>
+            <span className={CHIP}>{modeLabel}</span>
           </div>
-
           {timeFormatted && (
-            <time
-              dateTime={review.reviewedAt}
-              className="font-sans text-xs text-slate-400 dark:text-cream-300/60"
-            >
+            <time dateTime={review.reviewedAt} className="font-mono text-2xs text-ink-muted">
               {timeFormatted}
             </time>
           )}
         </div>
 
-        <p className="font-sans text-sm leading-relaxed font-medium text-slate-600 dark:text-cream-300">
+        <p className="max-w-prose text-sm leading-relaxed font-medium text-ink-muted">
           {review.partOfSpeech && (
-            <span className="mr-1.5 text-slate-400 italic dark:text-cream-300/70">
-              {review.partOfSpeech}.
-            </span>
+            <span className="mr-1.5 italic">{review.partOfSpeech}.</span>
           )}
           {review.definition}
         </p>
       </div>
-    </Card>
+    </div>
+  )
+}
+
+function Pagination({ page, totalPages, onChange }) {
+  if (totalPages <= 1) return null
+  return (
+    <div className="flex items-center justify-between pt-2">
+      <Button variant="secondary" disabled={page <= 1} onClick={() => onChange(page - 1)}>
+        Previous
+      </Button>
+      <span className="font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase tabular-nums">
+        Page {page} of {totalPages}
+      </span>
+      <Button variant="secondary" disabled={page >= totalPages} onClick={() => onChange(page + 1)}>
+        Next
+      </Button>
+    </div>
   )
 }
 
@@ -228,10 +257,19 @@ export default function History() {
   const cardTotal = cardData?.total || 0
   const cardTotalPages = cardData?.totalPages || 0
 
+  const quizGroups = groupByDay(sessions, (session) => session.createdAt)
+  const cardGroups = groupByDay(cardHistory, (review) => review.reviewedAt)
+
   function handleFilterChange(tabId) {
     setCardFilter(tabId)
     setCardPage(1)
   }
+
+  const tabClass = (active) =>
+    cn(
+      'rounded-lg px-4 py-2 font-display text-sm font-bold transition-colors',
+      active ? 'bg-card text-ink shadow-paper' : 'text-ink-muted hover:text-ink'
+    )
 
   return (
     <div className="animate-page space-y-6 pb-24 sm:pb-8">
@@ -241,18 +279,17 @@ export default function History() {
         sub="Track your quiz scores, audit test attempts, and inspect SRS card transitions."
       />
 
-      <div className="flex border-b border-slate-200 dark:border-white/10" role="tablist" aria-label="History categories">
+      <div
+        className="flex w-full gap-1 rounded-xl border border-line bg-raised/60 p-1 sm:inline-flex sm:w-auto"
+        role="tablist"
+        aria-label="History categories"
+      >
         <button
           type="button"
           role="tab"
           aria-selected={activeTab === 'quiz'}
           onClick={() => setActiveTab('quiz')}
-          className={cn(
-            'border-b-2 px-4 py-2 font-display text-sm font-bold transition-colors',
-            activeTab === 'quiz'
-              ? 'border-accent text-accent-deep dark:text-accent'
-              : 'border-transparent text-slate-500 hover:text-primary dark:text-cream-300/70 dark:hover:text-cream-100'
-          )}
+          className={tabClass(activeTab === 'quiz')}
         >
           Quiz History ({quizTotal})
         </button>
@@ -261,12 +298,7 @@ export default function History() {
           role="tab"
           aria-selected={activeTab === 'cards'}
           onClick={() => setActiveTab('cards')}
-          className={cn(
-            'border-b-2 px-4 py-2 font-display text-sm font-bold transition-colors',
-            activeTab === 'cards'
-              ? 'border-accent text-accent-deep dark:text-accent'
-              : 'border-transparent text-slate-500 hover:text-primary dark:text-cream-300/70 dark:hover:text-cream-100'
-          )}
+          className={tabClass(activeTab === 'cards')}
         >
           Card Reviews ({cardTotal})
         </button>
@@ -276,45 +308,31 @@ export default function History() {
         <>
           {stats.totalQuizzes > 0 && (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <div className="rounded-xl border border-slate-200 bg-white p-3.5 text-center dark:border-white/10 dark:bg-night-900">
-                <p className="font-display text-2xl font-bold text-primary dark:text-cream-100">
-                  {stats.totalQuizzes}
-                </p>
-                <p className="mt-0.5 font-sans text-xs text-slate-500 dark:text-cream-300/70">
-                  Quizzes Taken
-                </p>
-              </div>
-              <div className="rounded-xl border border-slate-200 bg-white p-3.5 text-center dark:border-white/10 dark:bg-night-900">
-                <p className="font-display text-2xl font-bold text-accent">
-                  {stats.averageScore}%
-                </p>
-                <p className="mt-0.5 font-sans text-xs text-slate-500 dark:text-cream-300/70">
-                  Average Score
-                </p>
-              </div>
-              <div className="rounded-xl border border-slate-200 bg-white p-3.5 text-center dark:border-white/10 dark:bg-night-900">
-                <p className="font-display text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-                  {stats.bestScore}%
-                </p>
-                <p className="mt-0.5 font-sans text-xs text-slate-500 dark:text-cream-300/70">
-                  Best Score
-                </p>
-              </div>
-              <div className="rounded-xl border border-slate-200 bg-white p-3.5 text-center dark:border-white/10 dark:bg-night-900">
-                <p className="font-display text-2xl font-bold text-primary dark:text-cream-100">
-                  {stats.totalQuestions}
-                </p>
-                <p className="mt-0.5 font-sans text-xs text-slate-500 dark:text-cream-300/70">
-                  Questions Tested
-                </p>
-              </div>
+              {[
+                { label: 'Quizzes taken', value: stats.totalQuizzes, tone: 'text-ink' },
+                { label: 'Average score', value: `${stats.averageScore}%`, tone: 'text-accent-ink' },
+                { label: 'Best score', value: `${stats.bestScore}%`, tone: 'text-sage' },
+                { label: 'Questions tested', value: stats.totalQuestions, tone: 'text-ink' },
+              ].map((tile) => (
+                <div
+                  key={tile.label}
+                  className="rounded-xl border border-line bg-card p-3.5 text-center shadow-paper"
+                >
+                  <p className={cn('font-display text-2xl font-bold tabular-nums', tile.tone)}>
+                    {tile.value}
+                  </p>
+                  <p className="mt-0.5 font-mono text-2xs tracking-widest text-ink-muted uppercase">
+                    {tile.label}
+                  </p>
+                </div>
+              ))}
             </div>
           )}
 
           {isQuizLoading ? (
             <HistorySkeleton />
           ) : isQuizError ? (
-            <div className="rounded-lg bg-red-50 p-4 text-center text-sm text-red-600 dark:bg-red-950/50 dark:text-red-300">
+            <div className="rounded-xl border border-stamp/30 bg-stamp/5 p-4 text-center text-sm text-stamp">
               Failed to load quiz history.{' '}
               <button type="button" className="underline" onClick={() => refetchQuiz()}>
                 Retry
@@ -333,35 +351,17 @@ export default function History() {
             />
           ) : (
             <>
-              <div className="space-y-3">
-                {sessions.map((s) => (
-                  <QuizSessionCard key={s._id} session={s} />
+              <div className="space-y-4">
+                {quizGroups.map((group) => (
+                  <DayGroup key={group.key} label={group.label} count={group.items.length}>
+                    {group.items.map((session) => (
+                      <QuizSessionRow key={session._id} session={session} />
+                    ))}
+                  </DayGroup>
                 ))}
               </div>
 
-              {quizTotalPages > 1 && (
-                <div className="flex items-center justify-between pt-2">
-                  <Button
-                    variant="secondary"
-                    chunky
-                    disabled={quizPage <= 1}
-                    onClick={() => setQuizPage((p) => Math.max(1, p - 1))}
-                  >
-                    Previous
-                  </Button>
-                  <span className="font-display text-xs font-bold text-slate-500 dark:text-cream-300/80">
-                    Page {quizPage} of {quizTotalPages}
-                  </span>
-                  <Button
-                    variant="secondary"
-                    chunky
-                    disabled={quizPage >= quizTotalPages}
-                    onClick={() => setQuizPage((p) => p + 1)}
-                  >
-                    Next
-                  </Button>
-                </div>
-              )}
+              <Pagination page={quizPage} totalPages={quizTotalPages} onChange={setQuizPage} />
             </>
           )}
         </>
@@ -378,10 +378,10 @@ export default function History() {
                   aria-selected={active}
                   onClick={() => handleFilterChange(tab.id)}
                   className={cn(
-                    'rounded-full px-3.5 py-1.5 font-display text-xs font-bold transition-all',
+                    'inline-flex min-h-9 items-center rounded-full border px-3.5 font-display text-xs font-bold transition-colors',
                     active
-                      ? 'bg-accent text-primary shadow-sm'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-night-800 dark:text-cream-300 dark:hover:bg-night-800/80'
+                      ? 'border-accent bg-accent/15 text-accent-ink'
+                      : 'border-line bg-card text-ink-muted hover:text-ink'
                   )}
                 >
                   {tab.label}
@@ -393,7 +393,7 @@ export default function History() {
           {isCardLoading ? (
             <HistorySkeleton />
           ) : isCardError ? (
-            <div className="rounded-lg bg-red-50 p-4 text-center text-sm text-red-600 dark:bg-red-950/50 dark:text-red-300">
+            <div className="rounded-xl border border-stamp/30 bg-stamp/5 p-4 text-center text-sm text-stamp">
               Failed to load card reviews.{' '}
               <button type="button" className="underline" onClick={() => refetchCard()}>
                 Retry
@@ -412,35 +412,17 @@ export default function History() {
             />
           ) : (
             <>
-              <div className="space-y-3">
-                {cardHistory.map((review) => (
-                  <ReviewRow key={review.reviewId} review={review} />
+              <div className="space-y-4">
+                {cardGroups.map((group) => (
+                  <DayGroup key={group.key} label={group.label} count={group.items.length}>
+                    {group.items.map((review) => (
+                      <ReviewRow key={review.reviewId} review={review} />
+                    ))}
+                  </DayGroup>
                 ))}
               </div>
 
-              {cardTotalPages > 1 && (
-                <div className="flex items-center justify-between pt-2">
-                  <Button
-                    variant="secondary"
-                    chunky
-                    disabled={cardPage <= 1}
-                    onClick={() => setCardPage((p) => Math.max(1, p - 1))}
-                  >
-                    Previous
-                  </Button>
-                  <span className="font-display text-xs font-bold text-slate-500 dark:text-cream-300/80">
-                    Page {cardPage} of {cardTotalPages}
-                  </span>
-                  <Button
-                    variant="secondary"
-                    chunky
-                    disabled={cardPage >= cardTotalPages}
-                    onClick={() => setCardPage((p) => p + 1)}
-                  >
-                    Next
-                  </Button>
-                </div>
-              )}
+              <Pagination page={cardPage} totalPages={cardTotalPages} onChange={setCardPage} />
             </>
           )}
         </>

@@ -45,8 +45,11 @@
   --color-ink-muted: var(--vv-ink-muted);
   --color-accent-ink: var(--vv-accent-ink);
   --color-stamp: var(--vv-stamp);
+  --color-stamp-deep: var(--vv-stamp-deep);
   --color-sage: var(--vv-sage);
   --color-brass: var(--vv-brass);
+  --color-manila: var(--vv-manila);
+  --color-stamp-wash: var(--vv-stamp-wash);
   --shadow-paper: var(--vv-shadow-paper);
 }
 
@@ -60,8 +63,18 @@
   --vv-ink-muted: #5b6478;
   --vv-accent-ink: #9a4a12;
   --vv-stamp: #a63d2f;
+  --vv-stamp-deep: #76271c;
   --vv-sage: #2f6b4f;
   --vv-brass: #8a6414;
+  /* Manila stock: gold 35% over the page shell, pre-blended to an opaque
+     token. The corner tab inherits its sheet's surface, and a translucent
+     tint would composite twice where the tab overlaps the card's top edge. */
+  --vv-manila: #e9e4d5;
+  /* Mistake-bank wash: stamp over the page shell, pre-blended for the same
+     reason — a translucent fill lets the card's top rule show through the tab.
+     Light sits at ~3% rather than the dark token's 5%: at 5% the wash left
+     `ink-muted` at 4.42:1, under AA for the 12px line and the tab label. */
+  --vv-stamp-wash: #e7e1d9;
   --vv-shadow-paper: 0 1px 0 0 var(--vv-line), 0 12px 28px -24px rgba(31, 42, 68, 0.55);
 }
 
@@ -75,8 +88,11 @@
   --vv-ink-muted: #c9c2ad;
   --vv-accent-ink: #f0a05e;
   --vv-stamp: #f08a7a;
+  --vv-stamp-deep: #b8564a;
   --vv-sage: #7fd1a4;
   --vv-brass: #e0b85c;
+  --vv-manila: #282b39;
+  --vv-stamp-wash: #19192a;
   --vv-shadow-paper: 0 1px 0 0 var(--vv-line);
 }
 

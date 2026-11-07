@@ -56,9 +56,31 @@ describe('light theme contrast', () => {
     expect(contrast(lightColor('ink-muted'), lightColor('card'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
   })
 
-  it('keeps small accent text readable on card and manila', () => {
+  it('keeps small accent text readable on card and gold', () => {
     expect(contrast(lightColor('accent-ink'), lightColor('card'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
     expect(contrast(lightColor('accent-ink'), staticColor('gold'))).toBeGreaterThanOrEqual(
+      NORMAL_TEXT
+    )
+  })
+
+  it('keeps ink readable on the manila passport stock', () => {
+    expect(contrast(lightColor('ink'), lightColor('manila'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
+    expect(contrast(lightColor('ink-muted'), lightColor('manila'))).toBeGreaterThanOrEqual(
+      NORMAL_TEXT
+    )
+    expect(contrast(lightColor('accent-ink'), lightColor('manila'))).toBeGreaterThanOrEqual(
+      NORMAL_TEXT
+    )
+  })
+
+  it('keeps ink readable on the mistake-bank wash', () => {
+    // The wash is tinted stock, not a card: the muted 12px reason line and the
+    // 10px tab label have to clear AA against the tint itself.
+    expect(contrast(lightColor('ink'), lightColor('stamp-wash'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
+    expect(contrast(lightColor('ink-muted'), lightColor('stamp-wash'))).toBeGreaterThanOrEqual(
+      NORMAL_TEXT
+    )
+    expect(contrast(lightColor('stamp'), lightColor('stamp-wash'))).toBeGreaterThanOrEqual(
       NORMAL_TEXT
     )
   })
@@ -88,6 +110,24 @@ describe('dark theme contrast', () => {
     }
   })
 
+  it('keeps ink readable on the manila passport stock', () => {
+    expect(contrast(darkColor('ink'), darkColor('manila'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
+    expect(contrast(darkColor('ink-muted'), darkColor('manila'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
+    expect(contrast(darkColor('accent-ink'), darkColor('manila'))).toBeGreaterThanOrEqual(
+      NORMAL_TEXT
+    )
+  })
+
+  it('keeps ink readable on the mistake-bank wash', () => {
+    expect(contrast(darkColor('ink'), darkColor('stamp-wash'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
+    expect(contrast(darkColor('ink-muted'), darkColor('stamp-wash'))).toBeGreaterThanOrEqual(
+      NORMAL_TEXT
+    )
+    expect(contrast(darkColor('stamp'), darkColor('stamp-wash'))).toBeGreaterThanOrEqual(
+      NORMAL_TEXT
+    )
+  })
+
   it('keeps cream ink readable on the night surfaces', () => {
     expect(contrast(staticColor('cream-100'), staticColor('night-900'))).toBeGreaterThanOrEqual(
       NORMAL_TEXT
@@ -110,5 +150,18 @@ describe('brand fill contrast', () => {
 
   it('keeps the accent text token aligned with the static accent-deep fill', () => {
     expect(lightColor('accent-ink')).toBe(staticColor('accent-deep'))
+  })
+
+  it('keeps each tactile edge distinct from its own fill and visible on a card', () => {
+    // A chunky border painted with a translucent version of the fill under it
+    // is invisible; the edge has to be its own darker token.
+    expect(contrast(staticColor('accent-deep'), staticColor('accent'))).toBeGreaterThan(1.5)
+    for (const theme of [
+      { fill: lightColor('stamp'), edge: lightColor('stamp-deep'), card: lightColor('card') },
+      { fill: darkColor('stamp'), edge: darkColor('stamp-deep'), card: darkColor('card') },
+    ]) {
+      expect(contrast(theme.edge, theme.fill)).toBeGreaterThan(1.5)
+      expect(contrast(theme.edge, theme.card)).toBeGreaterThanOrEqual(LARGE_TEXT_OR_UI)
+    }
   })
 })
