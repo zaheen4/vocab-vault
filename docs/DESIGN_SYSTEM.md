@@ -189,14 +189,20 @@ action, or preserves context while something leaves. Anything else is cut.
     level, then three **ledger lines** — mono label, dotted leader, figure
     right-aligned against one edge — instead of three floating stat columns.
     All numerals are `tabular-nums`.
-  - `PipelineBar` replaces the three pastel cards: mastered (sage) / learning
-    (accent) / not started (line in light, muted ink in dark) as one segmented
-    bar with counts, shares, and an `aria-label` sentence. No zero-count
-    segment is drawn; a non-zero segment keeps a 6px floor so a 1% slice stays
-    a slice instead of a hairline. The legend is three equal cells — label
-    above its own count and share — so a number never drifts away from the word
-    it describes. The card carries no header meta: the legend already states
-    every count and share.
+  - `PipelineBar` replaces the three pastel cards: not started (line in light,
+    muted ink in dark) / learning (accent) / mastered (sage) as one segmented
+    bar with counts, shares, and an `aria-label` sentence. Segments run in
+    pipeline order, so the rail fills toward the finish instead of starting
+    with a green knob at zero, and the legend reads left to right the way a
+    word travels. The rail is a `bg-raised` track with inset pills (`p-1`,
+    `gap-1`): a slice sits inside the track rather than flush against a
+    rounded end, so a 1% slice is a short pill, not a slider knob. No
+    zero-count segment is drawn; a non-zero segment keeps an 8px floor.
+    The legend is three rule-separated cells — label, then the count at
+    display weight, then its share on its own line — so a number never drifts
+    away from the word it describes, and "1 1%" never reads as a stutter. The
+    card carries no header meta: the legend already states every count and
+    share.
   - `WeekStrip` is a rolling seven days ending today — today outlined in ink,
     an empty day keeps a dashed cell instead of disappearing, fill density is
     relative to the week's busiest day (`utils/weekActivity.js`).

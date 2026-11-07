@@ -1,19 +1,22 @@
 import Sheet from './Sheet'
 import { cn } from '../utils/cn'
 
-// Three pastel cards used to say what this bar says in one read. Sage is
-// mastered, accent is learning, and the third fill is neutral. `line` is a
-// hairline color — 10% white in dark mode — so a fill built from it vanishes
-// on the dark card. The unstarted swatch uses muted ink instead.
+// Three pastel cards used to say what this bar says in one read. The order is
+// the pipeline itself — not started, learning, mastered — so the bar grows
+// toward the finish instead of starting with a green knob at zero, and the
+// legend reads left to right the way a word travels. Sage is mastered, accent
+// is learning, and the third fill is neutral. `line` is a hairline color — 10%
+// white in dark mode — so a fill built from it vanishes on the dark card. The
+// unstarted swatch uses muted ink instead.
 const SEGMENTS = [
-  { key: 'mastered', label: 'Mastered', fill: 'bg-sage', dot: 'bg-sage' },
-  { key: 'learning', label: 'Learning', fill: 'bg-accent', dot: 'bg-accent' },
   {
     key: 'new',
     label: 'Not started',
     fill: 'bg-line dark:bg-ink-muted/40',
     dot: 'bg-line dark:bg-ink-muted/40',
   },
+  { key: 'learning', label: 'Learning', fill: 'bg-accent', dot: 'bg-accent' },
+  { key: 'mastered', label: 'Mastered', fill: 'bg-sage', dot: 'bg-sage' },
 ]
 
 export default function PipelineBar({ summary = {} }) {
@@ -32,41 +35,51 @@ export default function PipelineBar({ summary = {} }) {
     // a "1% mastered" chip beside it repeated the first legend line.
     <Sheet tab="Pipeline" title="Where the words sit" className="flex h-full flex-col">
       <div className="flex flex-1 flex-col justify-center">
-        {/* Proportional slices with a floor: at 1% the mastered slice was a
-            hairline that read as a rendering artifact. flexGrow keeps the true
-            ratio while guaranteeing every non-zero segment stays legible, and
-            the gap keeps two adjacent fills from merging into one slab. */}
+        {/* One rail with inset pills: a slice sits inside the track rather than
+            flush against its rounded end, so a 1% slice reads as a short pill
+            instead of a slider knob parked at zero. flexGrow keeps the true
+            ratio while the floor guarantees every non-zero segment stays
+            visible, and the gaps keep two adjacent fills from merging into one
+            uninterrupted slab. */}
         <div
           role="img"
           aria-label={summaryText}
-          className="flex h-3 gap-0.5 overflow-hidden rounded-full bg-raised"
+          className="flex h-5 items-stretch gap-1 rounded-full bg-raised p-1"
         >
           {segments.map((segment) =>
             segment.count > 0 ? (
               <span
                 key={segment.key}
-                className={cn('h-full', segment.fill)}
-                style={{ flexGrow: segment.count, flexBasis: 0, minWidth: 6 }}
+                className={cn('min-w-2 rounded-full', segment.fill)}
+                style={{ flexGrow: segment.count, flexBasis: 0 }}
               />
             ) : null
           )}
         </div>
 
-        {/* Three equal cells, each holding its own label above its own numbers.
-            A justified single row pushed a label and its count to opposite
-            edges of the card; stacking keeps the pair together by proximity. */}
-        <dl className="mt-5 grid grid-cols-3 gap-x-4 gap-y-3">
-          {segments.map((segment) => (
-            <div key={segment.key}>
+        {/* Three equal cells, each a small ledger entry: label, then the count
+            at display weight, then its share on its own line. The old count and
+            share sat on one baseline at nearly the same size — "1 1%" read as
+            a stutter. Rule-separated cells keep each stage's numbers together
+            without letting a label drift away from the value it names. */}
+        <dl className="mt-5 grid grid-cols-3 gap-x-3">
+          {segments.map((segment, i) => (
+            <div
+              key={segment.key}
+              className={cn('min-w-0', i > 0 && 'border-l border-line pl-3')}
+            >
               <dt className="flex items-center gap-1.5 text-2xs font-bold tracking-wide text-ink-muted uppercase">
-                <span aria-hidden="true" className={cn('h-2 w-2 shrink-0 rounded-sm', segment.dot)} />
-                {segment.label}
+                <span
+                  aria-hidden="true"
+                  className={cn('h-2 w-2 shrink-0 rounded-sm', segment.dot)}
+                />
+                <span className="truncate">{segment.label}</span>
               </dt>
-              <dd className="mt-1 flex items-baseline gap-1.5 font-mono text-sm font-bold text-ink tabular-nums">
+              <dd className="mt-1.5 font-mono text-base leading-none font-bold text-ink tabular-nums sm:text-lg">
                 {segment.count}
-                <span className="text-2xs font-normal text-ink-muted">
-                  {total === 0 ? '—' : `${Math.round((segment.count / total) * 100)}%`}
-                </span>
+              </dd>
+              <dd className="mt-1 font-mono text-2xs text-ink-muted tabular-nums">
+                {total === 0 ? '—' : `${Math.round((segment.count / total) * 100)}%`}
               </dd>
             </div>
           ))}
