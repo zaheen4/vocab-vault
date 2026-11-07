@@ -8,13 +8,13 @@ export default function NotFound() {
       <div className="flex justify-center" aria-hidden="true">
         <EmptyArt variant="mascot" />
       </div>
-      <p className="font-display text-sm font-bold tracking-widest text-accent uppercase">
+      <p className="font-display text-sm font-bold tracking-widest text-accent-ink uppercase">
         404
       </p>
-      <h1 className="mt-1 font-display text-2xl font-bold text-primary dark:text-cream-100">
-        Lost in the word vault?
+      <h1 className="mt-1 font-display text-2xl font-bold text-ink">
+        This word isn&apos;t in the vault.
       </h1>
-      <p className="mx-auto mt-2 max-w-sm text-sm text-slate-500 dark:text-cream-300/80">
+      <p className="mx-auto mt-2 max-w-sm text-sm text-ink-muted">
         That page doesn&apos;t exist — it may have moved, or the link has a typo.
       </p>
       <div className="mt-5 flex justify-center gap-3">
