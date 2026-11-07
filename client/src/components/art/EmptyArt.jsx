@@ -1,7 +1,5 @@
 import Mascot from './Mascot'
 
-// Small scene illustrations for empty states. Token fills only (no hex),
-// currentColor-free so they read on light + dark transparent backgrounds.
 function Scene({ children, size = 120 }) {
   return (
     <svg width={size} height={size * 0.75} viewBox="0 0 160 120" fill="none" aria-hidden="true">
@@ -104,7 +102,6 @@ const ART = {
   mascot: Mascot,
 }
 
-// variant: decks | search | saved | progress | lists | review | mascot
 export default function EmptyArt({ variant = 'decks', size }) {
   const Cmp = ART[variant] ?? DecksArt
   if (variant === 'mascot') return <Mascot size={size ?? 96} />

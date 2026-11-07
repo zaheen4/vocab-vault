@@ -1,6 +1,3 @@
-// Celebration gating: confetti fires on strong sessions (>=60%) or level-ups,
-// never on a shutout. Shared by all four study modes so the moment means
-// the same thing everywhere.
 export const CELEBRATE_MIN_PCT = 60
 
 export function sessionPct(correct, total) {

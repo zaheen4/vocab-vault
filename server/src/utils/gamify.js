@@ -1,10 +1,7 @@
-// XP curve: level 1 at 0 XP, next levels require progressively more XP.
-// derived XP -> level via sqrt curve: level = floor(sqrt(xp / 100)) + 1
 const XP_PER_LEVEL_BASE = 100
 export const MAX_STREAK_FREEZES = 1
 export const PERFECT_RUN_TARGET = 10
 
-// Badge catalog: id, display name, icon, and how it is earned.
 export const BADGES = [
   { id: 'first-word', name: 'First Word', icon: '🌱', description: 'Review your first word' },
   { id: 'century', name: 'Century', icon: '💯', description: 'Review 100 words' },
@@ -18,9 +15,6 @@ export const BADGES = [
   },
 ]
 
-// Award badges whose conditions are met and not already earned.
-// Mutates user.badges (pushes { id, awardedAt }). Returns the catalog
-// entries that were newly earned, so routes can surface them.
 export function awardBadges(user, now = new Date()) {
   const earned = new Set((user.badges || []).map((b) => b.id))
   const fresh = []
@@ -45,8 +39,7 @@ export function awardBadges(user, now = new Date()) {
 }
 
 export function xpForAnswer(correct, box = 1) {
-  // correct: more XP for higher boxes (well-retrieved = more valuable)
-  if (!correct) return 3 // still reward attempting
+  if (!correct) return 3
   return 10 + (box || 1) * 2
 }
 
@@ -55,7 +48,6 @@ export function levelFor(xp) {
 }
 
 export function xpForLevel(level) {
-  // cumulative XP threshold to reach `level`
   return XP_PER_LEVEL_BASE * (level - 1) * (level - 1)
 }
 
@@ -67,13 +59,10 @@ export function xpProgress(level, xp) {
   return { current, next, progress: span <= 0 ? 0 : Math.min(1, into / span) }
 }
 
-// Strip time and return a UTC-only date bucket (avoids DST drift).
 function toDayKey(date) {
   return Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
 }
 
-// Update a user's daily practice streak. Idempotent within a day.
-// Returns { dailyStreak, streakIncreased, freezeUsed }
 export function applyDailyStreak(user, now = new Date()) {
   const todayKey = toDayKey(now)
   let streak = user.practiceStreakDays || 0
@@ -86,16 +75,13 @@ export function applyDailyStreak(user, now = new Date()) {
     const diffDays = Math.round((todayKey - lastKey) / 86400000)
 
     if (diffDays === 0) {
-      // already practiced today — keep streak
     } else if (diffDays === 1) {
       streak += 1
     } else if (diffDays === 2 && (user.streakFreezes || 0) > 0) {
-      // 1-day gap: survive via freeze
       streak += 1
       freezeUsed = true
       user.streakFreezes = (user.streakFreezes || 1) - 1
     } else {
-      // gap of 2+ without freeze, or 3+ — streak breaks
       streak = 1
     }
   }
@@ -103,8 +89,6 @@ export function applyDailyStreak(user, now = new Date()) {
   return { dailyStreak: streak, streakIncreased: streak > (user.practiceStreakDays || 0), freezeUsed }
 }
 
-// Check whether daily goal has been met and award a freeze refill.
-// Returns { goalMet, freezeRefilled }
 export function awardGoalRefill(user, now = new Date()) {
   const todayKey = toDayKey(now)
   const reviewsToday = user.reviewsToday || 0
@@ -112,7 +96,6 @@ export function awardGoalRefill(user, now = new Date()) {
 
   if (reviewsToday < target) return { goalMet: false, freezeRefilled: false }
 
-  // Already awarded today?
   if (user.goalMetDate && toDayKey(new Date(user.goalMetDate)) === todayKey) {
     return { goalMet: true, freezeRefilled: false }
   }

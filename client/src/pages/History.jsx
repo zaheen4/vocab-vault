@@ -22,7 +22,6 @@ const MODE_LABELS = {
   typing: 'Typing',
 }
 
-// Mono chip shared by parts, scope, box and mode: catalog metadata, not prose.
 const CHIP =
   'inline-flex items-center rounded-sm border border-line px-1.5 py-0.5 font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase'
 
@@ -44,8 +43,6 @@ function HistorySkeleton() {
   )
 }
 
-// Day divider: the timeline's only structural element, so it stays quiet —
-// a mono date, a rule, and how much happened.
 function DayGroup({ label, count, children }) {
   return (
     <div className="space-y-2">

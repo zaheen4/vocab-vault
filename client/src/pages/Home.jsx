@@ -350,7 +350,6 @@ function HomeSkeleton() {
 
 export default function Home() {
   const { data: decks = [], isLoading, isError } = useDecks()
-  // Decorative and non-blocking: Home still renders without either.
   const { data: stats } = useGamification()
   const { data: dueData } = useDueWords(1)
   const { data: weakData } = useWeakWords(1)
@@ -402,7 +401,6 @@ export default function Home() {
     )
   }
 
-  // Numeric group order; decks without a group sink to the end.
   const sorted = [...decks].sort(
     (a, b) => (a.group ?? Infinity) - (b.group ?? Infinity)
   )

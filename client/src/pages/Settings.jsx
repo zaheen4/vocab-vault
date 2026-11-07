@@ -31,13 +31,11 @@ export default function Settings() {
   const { preference: themePreference, setTheme } = useTheme()
   const navigate = useNavigate()
 
-  // Profile state
   const [name, setName] = useState(user?.name || '')
   const [profileMsg, setProfileMsg] = useState('')
   const [profileErr, setProfileErr] = useState('')
   const updateProfileMutation = useUpdateProfile()
 
-  // Password state
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -45,11 +43,9 @@ export default function Settings() {
   const [passwordErr, setPasswordErr] = useState('')
   const changePasswordMutation = useChangePassword()
 
-  // Sessions state
   const [sessionMsg, setSessionMsg] = useState('')
   const revokeSessionsMutation = useRevokeAllSessions()
 
-  // Danger zone state
   const [showResetModal, setShowResetModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [dangerPassword, setDangerPassword] = useState('')
@@ -140,7 +136,6 @@ export default function Settings() {
         sub="Manage your profile, password, session security, and study data."
       />
 
-      {/* Profile Card */}
       <Card className="p-6">
         <h2 className="font-display text-lg font-bold text-primary dark:text-cream-100">
           Profile Details
@@ -186,7 +181,6 @@ export default function Settings() {
         </form>
       </Card>
 
-      {/* Appearance Card */}
       <Card className="p-6">
         <h2 className="font-display text-lg font-bold text-ink">Appearance</h2>
         <p className="mt-0.5 text-xs text-ink-muted">
@@ -226,7 +220,6 @@ export default function Settings() {
         </div>
       </Card>
 
-      {/* Password & Security Card */}
       <Card className="p-6">
         <h2 className="font-display text-lg font-bold text-primary dark:text-cream-100">
           Password & Security
@@ -300,7 +293,6 @@ export default function Settings() {
         </form>
       </Card>
 
-      {/* Danger Zone Card */}
       <Card className="border-red-200 p-6 dark:border-red-400/30">
         <h2 className="font-display text-lg font-bold text-red-700 dark:text-red-300">
           Danger Zone
@@ -354,7 +346,6 @@ export default function Settings() {
         </div>
       </Card>
 
-      {/* Reset Progress Confirmation Modal */}
       {showResetModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
           <Card className="max-w-md p-6">
@@ -395,7 +386,6 @@ export default function Settings() {
         </div>
       )}
 
-      {/* Delete Account Confirmation Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
           <Card className="max-w-md p-6">

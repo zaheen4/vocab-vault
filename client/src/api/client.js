@@ -1,5 +1,3 @@
-// Normalized base (no trailing slash) + timeout + global 401 hook.
-// Auth state owns the 401 handler; api stays a thin fetch wrapper.
 const BASE = (import.meta.env.VITE_API_URL || '/api').replace(/\/+$/, '') || '/api'
 const TOKEN_KEY = 'vv_token'
 const REQUEST_TIMEOUT_MS = 15000
@@ -18,7 +16,6 @@ function request(path, { method = 'GET', body, signal } = {}) {
   const token = getToken()
   if (token) headers.Authorization = `Bearer ${token}`
 
-  // Per-request timeout that still respects a caller-passed signal.
   const timeout = AbortSignal.timeout(REQUEST_TIMEOUT_MS)
   const combined = signal ? AbortSignal.any([signal, timeout]) : timeout
 
@@ -35,7 +32,6 @@ function request(path, { method = 'GET', body, signal } = {}) {
           try {
             unauthorizedHandler()
           } catch {
-            // never let session cleanup break error propagation
           }
         }
         const err = new Error(data.message || `Request failed (${res.status})`)
@@ -64,8 +60,6 @@ export const api = {
   delete: (path, opts) => request(path, { ...opts, method: 'DELETE' }),
 }
 
-// Fire-and-forget server acknowledgement for logout. Bypasses the 401
-// handler on purpose: a dead token must not re-trigger logout in a loop.
 export function authLogoutBeacon(token) {
   if (!token) return
   fetch(`${BASE}/auth/logout`, {

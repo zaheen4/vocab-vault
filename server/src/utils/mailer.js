@@ -1,4 +1,3 @@
-// Development console logger and optional production email transport dispatcher
 export async function sendPasswordResetEmail({ email, resetUrl }) {
   if (process.env.NODE_ENV !== 'production' || !process.env.SMTP_HOST) {
     console.log(`[AUTH] Password reset requested for: ${email}`)

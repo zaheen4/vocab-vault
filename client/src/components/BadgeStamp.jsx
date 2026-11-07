@@ -1,7 +1,5 @@
 import { cn } from '../utils/cn'
 
-// A badge reads as a rubber stamp: brass and an inked border once earned, a
-// dashed outline and its progress hint while it is still locked.
 export default function BadgeStamp({ badge, earned, progressText }) {
   const Icon = badge.Icon
   return (

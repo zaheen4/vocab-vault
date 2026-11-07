@@ -65,8 +65,6 @@ function Glyph({ d, size = 22, className = '' }) {
 }
 
 function StatsChip() {
-  // Shared ['gamification','me'] cache with hero and progress: one request,
-  // refreshed by review-post invalidation instead of per-route refetching.
   const { data: stats } = useGamification()
   if (!stats) return null
   const ringPct = stats.progressToNext || 0

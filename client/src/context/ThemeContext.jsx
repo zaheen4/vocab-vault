@@ -24,7 +24,6 @@ export function ThemeProvider({ children }) {
     document.documentElement.classList.toggle('dark', theme === 'dark')
   }, [theme])
 
-  // Follow the OS while on 'system' (e.g. sunset auto-switch).
   useEffect(() => {
     if (preference !== 'system') return undefined
     const mq = window.matchMedia?.('(prefers-color-scheme: dark)')
@@ -40,7 +39,6 @@ export function ThemeProvider({ children }) {
       if (next === 'system') localStorage.removeItem(THEME_KEY)
       else localStorage.setItem(THEME_KEY, next)
     } catch {
-      // private mode: theme still applies for this session
     }
   }, [])
 
@@ -51,7 +49,6 @@ export function ThemeProvider({ children }) {
       try {
         localStorage.setItem(THEME_KEY, next)
       } catch {
-        // private mode: theme still applies for this session
       }
       return next
     })

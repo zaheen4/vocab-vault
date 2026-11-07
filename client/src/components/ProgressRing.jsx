@@ -1,9 +1,5 @@
 import { useReducedMotion } from '../lib/motion'
 
-// One ring for the navbar level chip, the level passport and the daily goal.
-// The geometry lives here so a radius change can never clip one of them.
-// r + strokeWidth/2 must stay inside the 16-unit half-viewBox: 14 + 1.75 =
-// 15.75. At r=15 the browser flattened the circle at its four extremes.
 const RADIUS = 14
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS
 

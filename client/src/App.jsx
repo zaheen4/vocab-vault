@@ -35,8 +35,6 @@ function PageFallback() {
   )
 }
 
-// Authenticated users never need the auth forms: send them home instead of
-// letting a re-submit silently overwrite the active session.
 function GuestRoute({ children }) {
   const { token, loading } = useAuth()
   if (loading) {

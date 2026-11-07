@@ -1,10 +1,6 @@
 import { useEffect } from 'react'
 import { cn } from '../../utils/cn'
 
-// Lightweight status toast. Auto-dismisses; pass onDismiss to render a close
-// control. Voice surface per DESIGN_SYSTEM, so it reads in font-display.
-// className override lets stacked contexts (e.g. bookmarks select mode with
-// its sticky BatchBar) lift the toast clear of bottom-anchored chrome.
 export default function Toast({ message, variant = 'info', onDismiss, duration = 5000, className = '' }) {
   useEffect(() => {
     if (!onDismiss || duration == null) return undefined

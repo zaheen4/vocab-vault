@@ -4,7 +4,6 @@ import { requireDB } from '../middleware/requireDB.js'
 
 const router = Router()
 
-// Bulk import cut from sprint scope — only the admin ping lives here.
 router.use(requireAuth, requireAdmin)
 
 router.get('/ping', requireDB, (req, res) => {

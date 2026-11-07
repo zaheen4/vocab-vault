@@ -30,14 +30,14 @@ describe('isCorrectSpelling', () => {
   })
 
   it('accepts small typos within tolerance', () => {
-    expect(toleranceFor('aberration')).toBe(2) // len 10
-    expect(isCorrectSpelling('aberration', 'aberation')).toBe(true) // missing t
-    expect(isCorrectSpelling('aberration', 'aberratoin')).toBe(true) // transposition-ish (2 edits)
+    expect(toleranceFor('aberration')).toBe(2)
+    expect(isCorrectSpelling('aberration', 'aberation')).toBe(true)
+    expect(isCorrectSpelling('aberration', 'aberratoin')).toBe(true)
   })
 
   it('rejects far misses and short-word typos beyond tolerance', () => {
-    expect(toleranceFor('cat')).toBe(1) // len 3
-    expect(isCorrectSpelling('cat', 'cut')).toBe(true) // 1 edit, tolerated
+    expect(toleranceFor('cat')).toBe(1)
+    expect(isCorrectSpelling('cat', 'cut')).toBe(true)
     expect(isCorrectSpelling('cat', 'dog')).toBe(false)
     expect(isCorrectSpelling('aberration', 'banana')).toBe(false)
   })

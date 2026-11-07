@@ -101,7 +101,6 @@ describe('applyDailyStreak', () => {
   it('does not double-consume freeze on same-day re-entry', () => {
     const user = { practiceStreakDays: 5, lastPracticeDate: noon(2026, 9, 4), streakFreezes: 1 }
     const first = applyDailyStreak(user, noon(2026, 9, 6))
-    // simulate route writing back the result
     user.practiceStreakDays = first.dailyStreak
     user.lastPracticeDate = noon(2026, 9, 6)
     const result = applyDailyStreak(user, noon(2026, 9, 6))

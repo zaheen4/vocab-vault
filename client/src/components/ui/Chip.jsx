@@ -1,7 +1,5 @@
 import { cn } from '../../utils/cn'
 
-// Toggle chip for filter rows (Home library, lists). `pressed` maps to
-// aria-pressed so screen readers announce the current filter.
 export default function Chip({ pressed = false, className = '', children, ...props }) {
   return (
     <button

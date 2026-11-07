@@ -370,7 +370,7 @@ export default function Bookmarks() {
     .sort((a, b) => {
       if (sort === 'az') return (a.word?.word || '').localeCompare(b.word?.word || '')
       if (sort === 'hardest') return (a.box || 0) - (b.box || 0)
-      return 0 // newest: server order
+      return 0
     })
 
   function toggleSelect(id) {

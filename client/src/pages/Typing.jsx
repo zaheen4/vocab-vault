@@ -39,12 +39,12 @@ export default function Typing() {
   const baseTitle = poolData?.title || ''
   const deckTitle = baseTitle ? (part ? `${baseTitle} — Part ${part}` : baseTitle) : ''
   const pool = poolData?.words ?? []
-  const [status, setStatus] = useState('loading') // loading|error|empty|idle|ready|done
+  const [status, setStatus] = useState('loading')
   const [length, setLength] = useState(10)
   const [words, setWords] = useState([])
   const [index, setIndex] = useState(0)
   const [value, setValue] = useState('')
-  const [answered, setAnswered] = useState(null) // {correct} after submit
+  const [answered, setAnswered] = useState(null)
   const [pending, setPending] = useState(null)
   const [saveError, setSaveError] = useState(false)
   const [results, setResults] = useState([])
@@ -54,8 +54,6 @@ export default function Typing() {
   const [toast, setToast] = useState(null)
   const [finalMessage, setFinalMessage] = useState(null)
   const slideCls = useSlideDirection()
-  // Synchronous submit guard (see Practice.jsx busyRef): state flags are
-  // stale across rapid double-submits, so the ref owns the lock
   const busyRef = useRef(false)
 
   useEffect(() => {

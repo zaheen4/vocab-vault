@@ -23,9 +23,6 @@ import SessionResults from './SessionResults'
 
 const BOX_LABELS = { 1: 'Box 1', 2: 'Box 2', 3: 'Box 3', 4: 'Box 4', 5: 'Mastered' }
 
-// Shared flashcard session for the cross-deck queues (due, weak, saved). The
-// page owns the query and passes the batch plus its copy; everything about
-// answering, keyboard control, feedback and results lives here.
 export default function ReviewSession({
   words: incomingWords,
   isLoading = false,

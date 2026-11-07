@@ -2,9 +2,6 @@ import Confetti from './Confetti'
 import LevelUpBanner from './LevelUpBanner'
 import ScoreRing from './ScoreRing'
 
-// Shared end-of-session treatment: one heading, the score ring, optional stat
-// tiles, the ✓/✗ word roll and the caller's actions. Every study mode ends on
-// this shape so results never feel like four different products.
 function ResultChip({ result }) {
   return (
     <span

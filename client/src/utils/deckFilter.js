@@ -1,6 +1,3 @@
-// Pure deck-list filter for the home finder box. Matches title substring
-// (case-insensitive), group/part numbers (partial digits: "1" matches groups
-// 1, 10-19, 21, 31, or "p1" / "part 1" matches part 1 decks). Empty query returns the full list.
 export function filterDecks(decks, query) {
   const q = String(query ?? '').trim().toLowerCase()
   if (!q) return decks

@@ -2,9 +2,6 @@ import { Link } from 'react-router-dom'
 import { useCountUp } from '../utils/countUp'
 import { FlameIcon } from './art/icons'
 
-// Shared session HUD: back link, position, live score/combo/XP and one strong
-// progress bar. Practice/Quiz/Typing/Review share it so a session reads the
-// same everywhere. SavedPractice keeps no bar on purpose (short saved queue).
 export default function SessionHud({
   backTo,
   backLabel,

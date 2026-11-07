@@ -2,9 +2,6 @@ import { Link } from 'react-router-dom'
 import { deckTotals } from '../utils/homeSections'
 import DeckTile from './DeckTile'
 
-// Deck detail header: where you are, how much is left, and how to get back.
-// Part context comes from the URL filter, so "All parts" vs "Part 2" is always
-// honest about what the session below is drawing from.
 export default function DeckHeader({ deck, part = 'all' }) {
   if (!deck) return null
   const totals = deckTotals(deck)

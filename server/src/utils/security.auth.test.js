@@ -35,7 +35,6 @@ describe('tokenVersion revocation logic', () => {
       audience: 'vocabvault-web',
     })
 
-    // User changes password or revokes all sessions -> tokenVersion becomes 1
     const userAfterRevoke = { ...userAtLogin, tokenVersion: 1 }
     const isValid = (payload.v ?? 0) === (userAfterRevoke.tokenVersion ?? 0)
     expect(isValid).toBe(false)

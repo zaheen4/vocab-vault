@@ -1,5 +1,3 @@
-// Game icon set: currentColor fills so callers set light/dark ink via
-// text-* classes. No emoji above text-base anywhere in src.
 function base(size) {
   return {
     width: size,

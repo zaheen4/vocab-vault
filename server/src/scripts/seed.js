@@ -8,11 +8,6 @@ import Progress from '../models/Progress.js'
 import Bookmark from '../models/Bookmark.js'
 import CustomList from '../models/CustomList.js'
 
-// Usage: node src/scripts/seed.js [dataFile.json]
-// Default: server/data/gregmat-words.json — the canonical GregMat dataset,
-// a JSON object { groups: [{ group, words: [{ word, definition, example }] }] }.
-// Mapping GregMat progression (frequency/ascending difficulty) to the
-// word-level difficulty tiers used by Search.
 const defaultFile = fileURLToPath(
   new URL('../../data/gregmat-words.json', import.meta.url)
 )
@@ -38,7 +33,6 @@ async function main() {
     process.exit(1)
   }
 
-  // upsert every word; pairwise group -> difficulty band; index -> part 1..3
   let inserted = 0
   let updated = 0
   for (const { group, words } of groups) {
@@ -70,8 +64,6 @@ async function main() {
   }
   console.log(`Seed upserted ${inserted} words`)
 
-  // retire the previous auto-built difficulty decks and their words —
-  // never touch user-created content (source 'custom')
   const wordCount = await Word.countDocuments({ source: { $nin: ['gregmat', 'custom'] } })
   const deckCount = await Deck.countDocuments({ source: { $nin: ['gregmat', 'custom'] } })
   await Word.deleteMany({ source: { $nin: ['gregmat', 'custom'] } })
@@ -80,7 +72,6 @@ async function main() {
     `Removed ${wordCount} legacy words (not in GregMat) and ${deckCount} legacy decks`
   )
 
-  // drop GregMat words/decks whose group is no longer in the dataset
   const validGroups = groups.map((g) => g.group)
   const staleWords = await Word.deleteMany({
     source: 'gregmat',
@@ -94,9 +85,6 @@ async function main() {
     `Removed ${staleWords.deletedCount} out-of-dataset words and ${staleDecks.deletedCount} stale decks`
   )
 
-  // Per-user progress, bookmarks, and lists point at word ids, so retiring a
-  // word leaves rows that outlive it. Left alone they clog the due/weak queues
-  // and inflate their totals, so sweep every orphan now that all deletions ran.
   const liveWordIds = await Word.distinct('_id')
   const [orphanProgress, orphanBookmarks, prunedLists] = await Promise.all([
     Progress.deleteMany({ wordId: { $nin: liveWordIds } }),
@@ -111,7 +99,6 @@ async function main() {
       `${orphanBookmarks.deletedCount} bookmarks and ${prunedLists.modifiedCount} lists`
   )
 
-  // create one deck per group, discarding stale ones for that group
   let decks = 0
   for (const { group } of groups) {
     const words = await Word.find({ source: 'gregmat', group })

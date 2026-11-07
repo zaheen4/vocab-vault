@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { dayLabel, groupByDay } from './historyDays'
 
-// Local noon so the day never shifts under a different timezone.
 const NOW = new Date(2026, 10, 6, 12)
 const at = (year, month, day, hour = 12) => new Date(year, month, day, hour)
 

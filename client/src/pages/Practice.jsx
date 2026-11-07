@@ -28,16 +28,12 @@ export default function Practice({ active = true }) {
   const partParam = searchParams.get('part')
   const part = partParam ? Number(partParam) : undefined
   const { user } = useAuth()
-  // Session pool revalidates on every mount (staleTime 0) but paints the
-  // prefetched cache instantly; deck title is long-lived cache.
   const { data: deck } = useDeck(id)
   const { data: sessionWords, isLoading, isError } = usePracticeSession(id, 10, part)
   const invalidateAfterReview = useInvalidateAfterReview()
   const { data: bookmarks = [] } = useBookmarks()
   const toggleBookmark = useToggleBookmark()
   const deckTitle = deck?.title ? (part ? `${deck.title} — Part ${part}` : deck.title) : ''
-  // Freeze the session batch once per deck: background refetches (invalidation,
-  // tab-hover prefetch, window focus) must not swap the card mid-run.
   const [pool, setPool] = useState(null)
   const words = pool ?? []
   const [index, setIndex] = useState(0)
@@ -59,17 +55,12 @@ export default function Practice({ active = true }) {
   const ttsAvailable = useTtsAvailable()
   const advanceTimer = useRef(null)
   const [shake, setShake] = useState(false)
-  // Synchronous submit guard: state-based `submitting` is stale within rapid
-  // double-clicks (no re-render between them), so a ref owns the lock
   const busyRef = useRef(false)
-  // Session totals mirrored in a ref so the end-of-session message can be
-  // computed exactly once inside the advance timer (no render-phase side effects)
   const sessionRef = useRef({ correct: 0, total: 0, bestCombo: 0, levelUp: false, level: null })
   const [finalMessage, setFinalMessage] = useState(null)
   const slideCls = useSlideDirection()
   const current = words[index] ?? null
 
-  // Keyboard map: Space/Enter flip, 1/2 answer, S/R/B for the tool chips.
   useStudyKeys({
     enabled: !done && !!current,
     flipped,
@@ -88,15 +79,12 @@ export default function Practice({ active = true }) {
     },
   })
 
-  // Timer cleanup only — data comes from the session query above.
-  // (advanceTimer is read inside cleanup so the latest timer is cleared.)
   useEffect(() => {
     return () => {
       clearTimeout(advanceTimer.current)
       stopSpeaking()
     }
   }, [])
-  // Fresh session state per deck (query key change remounts data, not UI).
   useEffect(() => {
     stopSpeaking()
     setPool(null)
@@ -121,13 +109,10 @@ export default function Practice({ active = true }) {
     sessionRef.current = { correct: 0, total: 0, bestCombo: 0, levelUp: false, level: null }
   }, [id, part])
 
-  // Capture the batch when it arrives; later refetches of the same query are
-  // ignored so the frozen pool drives the whole run.
   useEffect(() => {
     if (pool === null && sessionWords) setPool(sessionWords)
   }, [sessionWords, pool])
 
-  // Silence pronunciation when this mode is switched away from.
   useEffect(() => {
     if (!active) stopSpeaking()
   }, [active])
@@ -156,17 +141,14 @@ export default function Practice({ active = true }) {
       box = data.progress?.box || box
     } catch (err) {
       console.error(err)
-      // Don't record the result — let the user retry instead of losing progress
       busyRef.current = false
       setSubmitting(false)
       setFeedback({ error: true })
       return
     }
 
-    // Only committed once the server has recorded the review
     setResults((r) => [...r, { word: word.word, correct }])
 
-    // live HUD
     const newCombo = correct ? combo + 1 : 0
     setCombo(newCombo)
     setBestCombo((b) => Math.max(b, newCombo))
@@ -299,7 +281,6 @@ export default function Practice({ active = true }) {
 
   return (
     <div className={`mx-auto max-w-2xl space-y-4 py-2 ${slideCls}`}>
-      {/* HUD */}
       <SessionHud
         backTo="/"
         backLabel={deckTitle}
@@ -310,8 +291,6 @@ export default function Practice({ active = true }) {
         sessionXp={sessionXp}
       />
 
-      {/* Study controls sit outside the flip button: no nested interactives.
-          Speaker stays silent in reverse mode until the word is revealed. */}
       <div className="flex flex-wrap items-center justify-end gap-2">
         {ttsAvailable !== null && (
           <span

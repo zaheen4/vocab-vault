@@ -9,10 +9,6 @@ const COLORS = [
   'var(--color-blue-400)',
 ]
 
-// Renders a one-shot confetti burst. `active` toggles a new burst.
-// Burst-from-center: pieces spawn in a bell around the middle, fan outward
-// via --drift, and spin. Shapes alternate rect/circle. Seeded per burst
-// index so StrictMode double-effects don't permanently diverge the layout.
 function mulberry(seed) {
   let a = seed | 0
   return () => {
@@ -23,7 +19,6 @@ function mulberry(seed) {
   }
 }
 
-// Renders a one-shot confetti burst. `active` toggles a new burst.
 export default function Confetti({ active = false, pieces = 70 }) {
   const [burst, setBurst] = useState(0)
 
@@ -35,7 +30,6 @@ export default function Confetti({ active = false, pieces = 70 }) {
     if (!burst) return []
     const rand = mulberry(burst * 7919 + pieces)
     return Array.from({ length: pieces }, (_, i) => {
-      // Triangular center bias: (r1+r2+r3)/3 clusters spawns mid-screen.
       const center = (rand() + rand() + rand()) / 3
       return {
         id: `${burst}-${i}`,

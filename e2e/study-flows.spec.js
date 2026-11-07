@@ -1,9 +1,5 @@
 import { expect, test } from '@playwright/test'
 
-// Functional study flows (design-contract.spec.js covers static/visual gates).
-// Auth is handled via the global QA setup and storageState (see AGENTS.md).
-// Residue is legitimate review activity, never temp entities. Stays out of CI.
-
 async function apiGet(page, path) {
   const token = await page.evaluate(() => localStorage.getItem('vv_token'))
   const res = await page.request.get(`http://localhost:5000/api${path}`, {
@@ -44,7 +40,6 @@ test('practice answer records a review with XP', async ({ page }) => {
   await page.getByRole('button', { name: /tap to reveal/i }).first().waitFor({ timeout: 15000 })
   await page.getByRole('button', { name: /tap to reveal/i }).first().click()
   await page.getByRole('button', { name: /^got it$/i }).click()
-  // Tight feedback shape: box label plus earned XP, never a vague toast.
   await expect(page.getByText(/Box \d|Mastered/)).toBeVisible({ timeout: 10000 })
   await expect(page.getByText(/\+\d+ XP/).first()).toBeVisible({ timeout: 10000 })
 })
@@ -53,16 +48,12 @@ test('deck header labels the session and keyboard answers a card', async ({ page
   const id = await firstGroupDeckId(page)
   await page.goto(`/decks/${id}`)
 
-  // Header states where the session draws from, in catalog voice.
   const header = page.getByTestId('deck-header')
   await header.waitFor({ timeout: 15000 })
   await expect(header).toContainText(/Group \d+ · All parts/i)
   await expect(header).toContainText(/\d+ words/)
-  // Every part segment says why to pick it: cards due, or mastery so far.
   await expect(page.getByRole('tab', { name: /Part 1/ })).toContainText(/\d+ due|\d+%/)
 
-  // Space flips without a click; 2 answers the open card. Use the cross-deck
-  // queue so this never depends on which deck the previous test drained.
   await page.goto('/practice/due')
   await page.getByRole('button', { name: /tap to reveal/i }).first().waitFor({ timeout: 15000 })
   await page.keyboard.press(' ')
@@ -76,7 +67,6 @@ test('quiz answer advances to next', async ({ page }) => {
   await page.goto(`/decks/${id}/quiz`)
   await page.getByRole('button', { name: 'Start quiz', exact: true }).waitFor({ timeout: 15000 })
   await page.getByRole('button', { name: 'Start quiz', exact: true }).click()
-  // Option buttons render the letter glued to the text ("Awealth…").
   const option = page.locator('div.grid button', { hasText: /^[A-D]/ }).first()
   await option.waitFor({ timeout: 10000 })
   await option.click()
@@ -92,7 +82,6 @@ test('typing submit grades the spelling', async ({ page }) => {
   await page.getByRole('button', { name: 'Start typing', exact: true }).click()
   await page.getByLabel('Your spelling').fill('x')
   await page.getByRole('button', { name: /check spelling/i }).click()
-  // Wrong on purpose: the correction banner names the word.
   await expect(page.getByText(/The spelling is/)).toBeVisible({ timeout: 10000 })
 })
 
@@ -118,7 +107,6 @@ test('reverse card toggle alters flashcard orientation', async ({ page }) => {
   await toggle.click()
   await page.waitForTimeout(200)
   expect(await toggle.getAttribute('aria-pressed')).not.toBe(initialPressed)
-  // Restore original state
   await toggle.click()
 })
 
@@ -144,11 +132,9 @@ test('search, star, and unstar round-trip', async ({ page }) => {
   if (label?.startsWith('Save')) {
     await page.goto('/bookmarks')
     await expect(page.getByText('abate', { exact: false }).first()).toBeVisible({ timeout: 15000 })
-    // Restore: leave no residue on the shared account.
     await page.getByRole('button', { name: /Remove abate from saved/ }).first().click()
     await expect(page.getByText('abate', { exact: false })).toHaveCount(0, { timeout: 15000 })
   } else {
-    // Was already starred: unstar from here to restore the prior state.
     await page.goto('/bookmarks')
     await page.getByRole('button', { name: /Remove abate from saved/ }).first().click()
     await expect(page.getByText('abate', { exact: false })).toHaveCount(0, { timeout: 15000 })

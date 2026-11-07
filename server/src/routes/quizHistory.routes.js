@@ -27,7 +27,6 @@ router.post('/session', requireDB, requireAuth, async (req, res) => {
 
     await session.save()
 
-    // Non-blocking prune: keeps user within the 100-attempt boundary
     pruneOldSessions(QuizSession, req.user._id)
 
     res.status(201).json({ session })

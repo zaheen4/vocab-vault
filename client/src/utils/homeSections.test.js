@@ -32,9 +32,7 @@ describe('deckTotals', () => {
   })
 
   it('separates practicable due from spaced-repetition review due', () => {
-    // Untouched decks: every word is practicable, none is due for review.
     expect(deckTotals(deck({ dueCount: 30 })).reviewDue).toBe(0)
-    // Started: dueCount includes the unseen share, so review due is the rest.
     const totals = deckTotals(started({ dueCount: 26 }))
     expect(totals.due).toBe(26)
     expect(totals.reviewDue).toBe(6)
@@ -109,7 +107,6 @@ describe('pickContinueDeck', () => {
       deck({ _id: 'a', group: 1, dueCount: 30 }),
       deck({ _id: 'b', group: 2, dueCount: 30, progress: { new: 25, learning: 5, mastered: 0 } }),
     ]
-    // b has 5 review-due (30 practicable - 25 unseen) and is started.
     expect(pickContinueDeck(list)._id).toBe('b')
   })
 

@@ -10,22 +10,15 @@ import { toSafeMessage } from '../utils/security.js'
 
 const router = Router()
 
-// Owner-scoped deck lookup: shared decks (no creator) plus the caller's own
-// personal decks — never another user's. Unknown/forbidden ids read as 404
-// so existence is never leaked.
 function accessibleDeckQuery(id, userId) {
   return Deck.findOne({ _id: id, $or: [{ createdBy: null }, { createdBy: userId }] })
 }
 
 router.get('/', requireDB, requireAuth, async (req, res) => {
   try {
-    // Caller-scoped: shared decks (no creator) plus the caller's own
-    // personal decks — never another user's.
     const decks = await Deck.find({
       $or: [{ createdBy: null }, { createdBy: req.user._id }],
     }).select('-__v')
-    // Caller-scoped progress join: one extra query for all of the user's
-    // progress, matched to deck words in memory (no per-deck fan-out).
     const progressDocs = await Progress.find({ userId: req.user._id }).select('wordId status reviewDueAfter')
     const byWord = new Map(progressDocs.map((p) => [String(p.wordId), p.status]))
     const progressByDeck = new Map(
@@ -40,7 +33,6 @@ router.get('/', requireDB, requireAuth, async (req, res) => {
     const partsByDeck = new Map(
       decks.map((deck) => [String(deck._id), summarizeDeckParts(deck, byWord, detailByWord, new Date())])
     )
-    // Deterministic order: numeric group first, group-less decks last.
     const ordered = decks
       .map((deck) => ({
         ...deck.toObject(),
@@ -101,8 +93,6 @@ router.get('/:id/practice', requireDB, requireAuth, async (req, res) => {
       else if (partNum === 3) targetWordIds = deck.wordIds.slice(20)
     }
 
-    // unseen words first (deck order), then due words oldest-reviewDueAfter first;
-    // seen-but-not-due words are excluded until their SRS date arrives
     const progressDocs = await Progress.find({
       userId: req.user._id,
       wordId: { $in: targetWordIds },
@@ -134,9 +124,6 @@ router.get('/:id/practice', requireDB, requireAuth, async (req, res) => {
   }
 })
 
-// All-Deck Quiz pool: cumulative quiz across all decks.
-// Supports ?scope=viewed (default: user's seen words) or ?scope=all (entire catalog)
-// with ?limit=50 (1-100).
 router.get('/all/quiz', requireDB, requireAuth, async (req, res) => {
   try {
     const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 50, 1), 100)
@@ -167,7 +154,6 @@ router.get('/all/quiz', requireDB, requireAuth, async (req, res) => {
       )
       .slice(0, limit)
 
-    // If user has fewer than 4 viewed words, supplement from catalog so options can be generated
     if (words.length < 4) {
       const existingIds = words.map((w) => w._id)
       const extras = await Word.find({ source: 'gregmat', _id: { $nin: existingIds } }).limit(
@@ -182,9 +168,6 @@ router.get('/all/quiz', requireDB, requireAuth, async (req, res) => {
   }
 })
 
-// Quiz pool: words in this deck the user has already viewed (has a Progress
-// record for), most-recently-reviewed first. Unviewed words are excluded so
-// quizzes test recall, not first exposure.
 router.get('/:id/quiz', requireDB, requireAuth, async (req, res) => {
   try {
     const { id } = req.params

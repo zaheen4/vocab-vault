@@ -37,7 +37,6 @@ const sign = (user, rememberMe = false) =>
     }
   )
 
-// Never expose the password hash or reset token hashes: auth responses carry the public profile only.
 function publicUser(user) {
   const obj = user.toObject ? user.toObject() : { ...user }
   delete obj.passwordHash
@@ -59,8 +58,6 @@ function validateCredentials({ name, email, password }, { requireName = false } 
   if (!isValidEmail(cleanEmail)) return 'valid email is required'
   if (typeof password !== 'string' || !password) return 'password is required'
   if (password.length < 6) return 'Password must be at least 6 characters'
-  // bcrypt truncates past 72 bytes and huge inputs burn CPU; cap well above
-  // any legitimate password while keeping hashing cost predictable.
   if (password.length > MAX_PASSWORD_LENGTH) {
     return `Password must be at most ${MAX_PASSWORD_LENGTH} characters`
   }
@@ -75,14 +72,12 @@ router.post('/register', requireDB, authLimiter, async (req, res) => {
 
     const cleanEmail = normalizeEmail(email)
     const exists = await User.findOne({ email: cleanEmail })
-    // Generic conflict message: avoids confirming which emails are registered.
     if (exists) return res.status(409).json({ message: 'Unable to create account' })
 
     const passwordHash = await bcrypt.hash(password, 12)
     const user = await User.create({ name: name.trim(), email: cleanEmail, passwordHash })
     res.status(201).json({ token: sign(user), user: publicUser(user) })
   } catch (err) {
-    // Check-then-act race: a concurrent register wins the unique index.
     if (isDuplicateKeyError(err)) {
       return res.status(409).json({ message: 'Unable to create account' })
     }

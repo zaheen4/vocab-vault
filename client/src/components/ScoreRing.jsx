@@ -1,7 +1,5 @@
 import { useCountUp } from '../utils/countUp'
 
-// Shared end-of-session score ring: animated count-up number plus a ring
-// that fills with it. Used by all four study modes so results read the same.
 export default function ScoreRing({ correct, total }) {
   const pct = total === 0 ? 0 : Math.round((correct / total) * 100)
   const shown = useCountUp(pct)

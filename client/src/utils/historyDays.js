@@ -1,6 +1,3 @@
-// Day grouping for the History timeline. Entries arrive newest first from the
-// API, so groups keep first-seen order instead of sorting — the server already
-// decided what "newest" means.
 import { dayKey } from './date'
 
 export function dayLabel(key, now = new Date()) {

@@ -1,7 +1,3 @@
-// Pure per-deck progress summarizer for GET /api/decks.
-// decks: [{ _id, wordIds }] (wordIds may be ObjectIds or strings).
-// progressByWord: Map-like wordId-string -> 'new' | 'learning' | 'mastered'.
-// Words without a record count as new (never reviewed).
 export function summarizeDeckProgress(decks, progressByWord) {
   const get = (wid) => {
     const key = typeof wid === 'string' ? wid : String(wid?._id ?? wid)
@@ -20,11 +16,6 @@ export function summarizeDeckProgress(decks, progressByWord) {
   })
 }
 
-// Pure per-deck due counter for GET /api/decks.
-// detailByWord: Map wordId-string -> { status, reviewDueAfter } (fields optional).
-// Mirrors the practice-pool selection order exactly: unseen words first, then
-// seen words whose due date has passed (or was never set). Seen-but-not-due
-// words are excluded until their SRS date arrives.
 export function countDeckDue(decks, detailByWord, now = new Date()) {
   const get = (wid) => {
     const key = typeof wid === 'string' ? wid : String(wid?._id ?? wid)
@@ -36,7 +27,7 @@ export function countDeckDue(decks, detailByWord, now = new Date()) {
     for (const wid of ids) {
       const rec = get(wid)
       if (!rec) {
-        dueCount += 1 // unseen: always practicable
+        dueCount += 1
       } else if (!rec.reviewDueAfter || new Date(rec.reviewDueAfter) <= now) {
         dueCount += 1
       }
@@ -45,8 +36,6 @@ export function countDeckDue(decks, detailByWord, now = new Date()) {
   })
 }
 
-// Pure per-deck parts summarizer for GET /api/decks.
-// Divides deck.wordIds into 3 parts (0..9, 10..19, 20..end) for multi-part decks (>10 words).
 export function summarizeDeckParts(deck, progressByWord, detailByWord, now = new Date()) {
   const ids = deck.wordIds || []
   if (ids.length <= 10) return []

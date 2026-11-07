@@ -1,8 +1,6 @@
 import Mascot from './art/Mascot'
 import { cn } from '../utils/cn'
 
-// Level-up celebration banner with Bolt as companion. Fires conditionally at
-// call sites (level-up events only) so the mascot marks genuine payoffs.
 export default function LevelUpBanner({ level, className = '' }) {
   return (
     <div

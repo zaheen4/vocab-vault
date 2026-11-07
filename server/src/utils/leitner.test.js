@@ -28,7 +28,7 @@ describe('nextReviewState', () => {
   it('schedules the next review per the resulting box interval', () => {
     const before = Date.now()
     const s = nextReviewState({ box: 2 }, true)
-    expect(s.box).toBe(3) // correct advances first, interval follows the new box
+    expect(s.box).toBe(3)
     const dueIn = new Date(s.reviewDueAfter).getTime() - before
     expect(dueIn).toBeGreaterThan(0)
     expect(dueIn).toBeLessThanOrEqual(BOX_INTERVALS[s.box] * 86400000 + 5000)

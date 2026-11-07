@@ -54,7 +54,6 @@ describe('countDeckDue', () => {
       ['w2', { status: 'learning', reviewDueAfter: future }],
       ['w3', { status: 'mastered', reviewDueAfter: null }],
     ])
-    // w1 due, w2 not due, w3 due (no date), w4 unseen
     expect(countDeckDue(decks, detail, now)).toEqual([{ deckId: 'd1', dueCount: 3 }])
   })
 
@@ -88,8 +87,8 @@ describe('summarizeDeckParts', () => {
       ['w21', 'mastered'],
     ])
     const detail = new Map([
-      ['w1', { status: 'mastered', reviewDueAfter: new Date('2026-09-20T00:00:00Z') }], // not due
-      ['w11', { status: 'learning', reviewDueAfter: new Date('2026-09-10T00:00:00Z') }], // due
+      ['w1', { status: 'mastered', reviewDueAfter: new Date('2026-09-20T00:00:00Z') }],
+      ['w11', { status: 'learning', reviewDueAfter: new Date('2026-09-10T00:00:00Z') }],
     ])
 
     const parts = summarizeDeckParts(deck, progress, detail, now)
@@ -98,19 +97,19 @@ describe('summarizeDeckParts', () => {
       part: 1,
       wordCount: 10,
       progress: { new: 9, learning: 0, mastered: 1 },
-      dueCount: 9, // 9 unseen + 0 due (w1 is not due)
+      dueCount: 9,
     })
     expect(parts[1]).toEqual({
       part: 2,
       wordCount: 10,
       progress: { new: 9, learning: 1, mastered: 0 },
-      dueCount: 10, // 9 unseen + 1 due
+      dueCount: 10,
     })
     expect(parts[2]).toEqual({
       part: 3,
       wordCount: 10,
       progress: { new: 9, learning: 0, mastered: 1 },
-      dueCount: 10, // 9 unseen + 1 due (no reviewDueAfter date)
+      dueCount: 10,
     })
   })
 })

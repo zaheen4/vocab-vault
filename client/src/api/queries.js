@@ -1,9 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from './client'
 
-// Central read layer. Quiz and Typing share one pool key; Practice
-// sessions revalidate on every mount because SRS due states move fast.
-
 const GAMIFICATION_KEY = ['gamification', 'me']
 const SUMMARY_KEY = ['progress', 'summary']
 
@@ -49,7 +46,7 @@ export function useDecks() {
   return useQuery({
     queryKey: ['decks'],
     queryFn: fetchDecks,
-    staleTime: 5 * 60 * 1000, // deck list changes only via admin import
+    staleTime: 5 * 60 * 1000,
   })
 }
 
@@ -129,9 +126,6 @@ export function useSaveQuizSession() {
   })
 }
 
-// Quiz and Typing share one viewed-words pool: switching between them is a
-// cache hit. The viewed set grows only via practice sessions, so a minute
-// of staleness is invisible.
 export function useQuizPool(id, limit = 50, scope = 'viewed', part) {
   return useQuery({
     queryKey: ['quizpool', id, limit, scope, part],
@@ -141,8 +135,6 @@ export function useQuizPool(id, limit = 50, scope = 'viewed', part) {
   })
 }
 
-// Warm the practice session + deck title on card hover/focus so the
-// Practice page usually opens from cache.
 export function usePrefetchDeck() {
   const qc = useQueryClient()
   return (id) => {
@@ -155,7 +147,6 @@ export function usePrefetchDeck() {
   }
 }
 
-// Warm sibling modes on tab hover/focus so mode switches paint from cache.
 export function usePrefetchQuizPool() {
   const qc = useQueryClient()
   return (id) => {
@@ -167,11 +158,6 @@ export function usePrefetchQuizPool() {
   }
 }
 
-// Invalidation to run after a review is recorded. The practice session is
-// marked stale with `refetchType: 'none'` on purpose: it is a fixed batch for
-// the current run, and refetching it mid-session swaps the card under the user
-// (answer -> pool shifts -> card jumps). staleTime is 0, so the next mount
-// still refetches.
 export function invalidateAfterReview(qc, deckId) {
   qc.invalidateQueries({ queryKey: GAMIFICATION_KEY })
   qc.invalidateQueries({ queryKey: SUMMARY_KEY })
@@ -197,14 +183,10 @@ export function useSetGoalTarget() {
   })
 }
 
-// ---- Personal library: bookmarks + custom lists ----
-
 const BOOKMARKS_KEY = ['bookmarks']
 const LISTS_KEY = ['lists']
 const listKey = (id) => ['list', id]
 
-// Bookmark entries carry the word inline ({ _id, word, addedAt }),
-// so a Set of starred ids derives straight from the cache.
 export function isStarred(bookmarks = [], wordId) {
   return bookmarks.some((b) => (b.word?._id || b.wordId) === wordId)
 }
@@ -311,8 +293,6 @@ export function useAddListWord() {
 export function useRemoveListWord() {
   return useListMutation(({ id, wordId }) => api.delete(`/lists/${id}/words/${wordId}`))
 }
-
-// ---- Account & security operations ----
 
 export function useForgotPassword() {
   return useMutation({
