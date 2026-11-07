@@ -2,11 +2,18 @@ import Sheet from './Sheet'
 import { cn } from '../utils/cn'
 
 // Three pastel cards used to say what this bar says in one read. Sage is
-// mastered, accent is learning, the neutral rule is not started.
+// mastered, accent is learning, and the third fill is neutral. `line` is a
+// hairline color — 10% white in dark mode — so a fill built from it vanishes
+// on the dark card. The unstarted swatch uses muted ink instead.
 const SEGMENTS = [
   { key: 'mastered', label: 'Mastered', fill: 'bg-sage', dot: 'bg-sage' },
   { key: 'learning', label: 'Learning', fill: 'bg-accent', dot: 'bg-accent' },
-  { key: 'new', label: 'Not started', fill: 'bg-line', dot: 'bg-line' },
+  {
+    key: 'new',
+    label: 'Not started',
+    fill: 'bg-line dark:bg-ink-muted/40',
+    dot: 'bg-line dark:bg-ink-muted/40',
+  },
 ]
 
 export default function PipelineBar({ summary = {} }) {
@@ -21,15 +28,9 @@ export default function PipelineBar({ summary = {} }) {
       : `${segments.map((s) => `${s.count} ${s.label.toLowerCase()}`).join(', ')} — ${total} words in total.`
 
   return (
-    <Sheet
-      tab="Pipeline"
-      title="Learning pipeline"
-      meta={
-        <span className="font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase tabular-nums">
-          {total} {total === 1 ? 'word' : 'words'}
-        </span>
-      }
-    >
+    // No header meta: the legend already states every count and its share, and
+    // a "1% mastered" chip beside it repeated the first legend line.
+    <Sheet tab="Pipeline" title="Where the words sit">
       {/* Proportional slices with a floor: at 1% the mastered slice was a
           hairline that read as a rendering artifact. flexGrow keeps the true
           ratio while guaranteeing every non-zero segment stays legible, and

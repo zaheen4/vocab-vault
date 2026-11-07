@@ -22,17 +22,23 @@ const BADGES = [
   { id: 'first-word', name: 'First Word', Icon: SproutIcon, description: 'Review your first word', progress: (s) => `${Math.min(s.totalReviewed || 0, 1)}/1 review` },
   { id: 'century', name: 'Century', Icon: HundredIcon, description: 'Review 100 words', progress: (s) => `${Math.min(s.totalReviewed || 0, 100)}/100 reviews` },
   { id: 'week-warrior', name: 'Week Warrior', Icon: FlameIcon, description: 'Reach a 7-day streak', progress: (s) => `${Math.min(s.dailyStreak || 0, 7)}/7 day streak` },
-  { id: 'level-5', name: 'Level 5', Icon: StarIcon, description: 'Reach level 5', progress: (s) => `level ${Math.min(s.level || 1, 5)}/5` },
+  { id: 'level-5', name: 'Level 5', Icon: StarIcon, description: 'Reach level 5', progress: (s) => `${Math.min(s.level || 1, 5)}/5 levels` },
   { id: 'flawless', name: 'Flawless', Icon: GemIcon, description: '10 correct in a row', progress: null },
 ]
 
-function Stat({ label, value }) {
+// A ledger line, not a stat tile: label at the left margin, figure right-
+// aligned against the same edge, dotted leader between. Three figures in three
+// floating columns read as a template; three ledger lines read as a record.
+function LedgerRow({ label, value }) {
   return (
-    <div>
-      <dt className="font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase">
+    <div className="flex items-baseline gap-2">
+      <dt className="shrink-0 font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase">
         {label}
       </dt>
-      <dd className="font-display text-2xl font-bold text-ink tabular-nums">{value}</dd>
+      <dd className="flex min-w-0 flex-1 items-baseline gap-2">
+        <span aria-hidden="true" className="min-w-3 flex-1 border-b border-dotted border-line" />
+        <span className="font-display text-sm font-bold text-ink tabular-nums">{value}</span>
+      </dd>
     </div>
   )
 }
@@ -65,37 +71,34 @@ function GoalRing({ done, target, met }) {
   )
 }
 
-// Level passport: who you are in the catalog, at a glance. The ring is the
-// same geometry as the navbar chip, one size up.
+// Level passport: the page's identity block, laid out as the inside cover of a
+// record — ring, level, then three ledger lines. The ring is the navbar chip's
+// geometry two sizes up, so the number in the navbar and the number here are
+// recognisably the same instrument.
 function Passport({ stats, level, streak, xp }) {
   const pct = stats.progressToNext || 0
   return (
     <Sheet tab="Passport" className="bg-gold/35 dark:bg-night-900">
-      <div className="flex flex-wrap items-center gap-x-10 gap-y-5">
-        <div className="flex items-center gap-4">
-          <ProgressRing pct={pct} size={76} strokeWidth={3}>
-            <span className="font-display text-xl font-bold text-ink tabular-nums">{level}</span>
-          </ProgressRing>
-          <div>
-            <p className="font-display text-2xl font-bold text-ink">Level {stats.level}</p>
-            <p className="text-xs font-semibold text-ink-muted tabular-nums">
-              {Math.round(pct * 100)}% to level {stats.level + 1}
-            </p>
-          </div>
+      <div className="flex items-center gap-5">
+        <ProgressRing pct={pct} size={84} strokeWidth={3.5}>
+          <span className="font-display text-xl font-bold text-ink tabular-nums">{level}</span>
+        </ProgressRing>
+        <div className="min-w-0 flex-1">
+          <p className="font-display text-2xl leading-tight font-bold text-ink">
+            Level {stats.level}
+          </p>
+          <p className="text-xs font-semibold text-ink-muted tabular-nums">
+            {Math.round(pct * 100)}% to level {stats.level + 1}
+          </p>
+          <dl className="mt-3 space-y-1.5">
+            <LedgerRow label="Total XP" value={xp.toLocaleString('en-US')} />
+            <LedgerRow label="Day streak" value={streak} />
+            <LedgerRow
+              label="Freeze"
+              value={stats.streakFreezes > 0 ? `×${stats.streakFreezes}` : '—'}
+            />
+          </dl>
         </div>
-
-        <dl className="flex flex-wrap items-start gap-x-10 gap-y-4">
-          <Stat label="Total XP" value={xp.toLocaleString('en-US')} />
-          <Stat label="Day streak" value={streak} />
-          <div>
-            <dt className="font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase">
-              Freeze
-            </dt>
-            <dd className="font-display text-2xl font-bold text-ink tabular-nums">
-              {stats.streakFreezes > 0 ? `×${stats.streakFreezes}` : '—'}
-            </dd>
-          </div>
-        </dl>
       </div>
       <p className="mt-4 border-t border-line pt-3 text-xs text-ink-muted">
         {stats.goalsMet > 0
@@ -155,6 +158,68 @@ function GoalSection({ stats, setGoal }) {
   )
 }
 
+// The only loud surface on the page: everything else is quiet paper, so the
+// one stamped card carries the urgency — count, reason, one action.
+function MistakeBank({ count }) {
+  return (
+    <Sheet tab="Mistake bank" className="border-stamp/30 bg-stamp/5">
+      <p className="font-display text-3xl font-bold text-stamp tabular-nums">
+        {count}
+        <span className="ml-2 text-base font-bold text-ink">word{count === 1 ? '' : 's'}</span>
+      </p>
+      <p className="mt-1 text-xs text-ink-muted">Stuck in box 1 — clear them before they harden.</p>
+      <Link to="/practice/weak" className="mt-4 block">
+        <Button variant="stamp" chunky fullWidth className="gap-1.5">
+          Cram weak words <span aria-hidden="true">→</span>
+        </Button>
+      </Link>
+    </Sheet>
+  )
+}
+
+// Badges stay a shelf of stamps, but the footer names the next unlock with its
+// real measure instead of telling the reader to keep practising.
+function BadgeShelf({ stats }) {
+  const earned = stats.badges || []
+  const earnedIds = new Set(earned.map((badge) => badge.id))
+  const next = BADGES.find((badge) => !earnedIds.has(badge.id))
+  const nextText = next ? (next.progress ? next.progress(stats) : next.description) : ''
+
+  return (
+    <Sheet
+      tab="Badges"
+      meta={
+        <span className="font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase tabular-nums">
+          {earned.length} of {BADGES.length} earned
+        </span>
+      }
+    >
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+        {BADGES.map((badge) => {
+          const progressText = badge.progress ? badge.progress(stats) : badge.description
+          return (
+            <BadgeStamp
+              key={badge.id}
+              badge={badge}
+              earned={earnedIds.has(badge.id)}
+              progressText={progressText}
+            />
+          )
+        })}
+      </div>
+      <p className="mt-3 text-xs text-ink-muted">
+        {next ? (
+          <>
+            Next up: <span className="font-semibold text-ink">{next.name}</span> — {nextText}.
+          </>
+        ) : (
+          'Every badge earned — the catalog is yours.'
+        )}
+      </p>
+    </Sheet>
+  )
+}
+
 export default function Progress() {
   const { data: summary, isLoading, isError } = useProgressSummary()
   // Decorative gamification surfaces: never block the page on failure
@@ -167,12 +232,14 @@ export default function Progress() {
 
   if (isLoading) {
     return (
-      <div className="space-y-6" aria-busy="true" aria-label="Loading progress">
-        <div className="h-24 animate-pulse rounded-xl border border-line bg-raised" />
-        <div className="h-32 animate-pulse rounded-xl border border-line bg-raised" />
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <div className="h-40 animate-pulse rounded-xl border border-line bg-raised" />
-          <div className="h-40 animate-pulse rounded-xl border border-line bg-raised" />
+      <div aria-busy="true" aria-label="Loading progress">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+          <div className="h-48 animate-pulse rounded-xl border border-line bg-raised lg:col-span-4" />
+          <div className="h-48 animate-pulse rounded-xl border border-line bg-raised lg:col-span-8" />
+          <div className="h-40 animate-pulse rounded-xl border border-line bg-raised lg:col-span-4" />
+          <div className="h-40 animate-pulse rounded-xl border border-line bg-raised lg:col-span-8" />
+          <div className="h-44 animate-pulse rounded-xl border border-line bg-raised lg:col-span-4" />
+          <div className="h-44 animate-pulse rounded-xl border border-line bg-raised lg:col-span-8" />
         </div>
       </div>
     )
@@ -190,6 +257,7 @@ export default function Progress() {
   }
 
   const total = Object.values(summary).reduce((a, b) => a + b, 0)
+  const weakCount = weakData?.totalWeak || 0
 
   return (
     <div className="animate-page space-y-6">
@@ -210,71 +278,40 @@ export default function Progress() {
         </Link>
       </div>
 
-      {stats && (
-        <Passport stats={stats} level={shownLevel} streak={shownStreak} xp={shownXp} />
-      )}
+      {/* Three uneven rows, four columns against eight: identity beside
+          today's commitment, the week beside the inventory bar, the mistake
+          bank beside the badge shelf. A stack of six equal cards reads as a
+          template; a spread reads as a record. */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        {stats && (
+          <div className="lg:col-span-4">
+            <Passport stats={stats} level={shownLevel} streak={shownStreak} xp={shownXp} />
+          </div>
+        )}
+        {stats && (
+          <div className="lg:col-span-8">
+            <GoalSection stats={stats} setGoal={setGoal} />
+          </div>
+        )}
 
-      <PipelineBar summary={summary} />
+        <div className="lg:col-span-4">
+          <WeekStrip activity={stats?.activity} />
+        </div>
+        <div className="lg:col-span-8">
+          <PipelineBar summary={summary} />
+        </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <WeekStrip activity={stats?.activity} />
-        {stats && <GoalSection stats={stats} setGoal={setGoal} />}
+        {weakCount > 0 && (
+          <div className="lg:col-span-4">
+            <MistakeBank count={weakCount} />
+          </div>
+        )}
+        {stats && (
+          <div className={weakCount > 0 ? 'lg:col-span-8' : 'lg:col-span-12'}>
+            <BadgeShelf stats={stats} />
+          </div>
+        )}
       </div>
-
-      {(weakData?.totalWeak || 0) > 0 && (
-        <Sheet tab="Mistake bank" className="border-stamp/30 bg-stamp/5">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <p className="font-display text-3xl font-bold text-stamp tabular-nums">
-                {weakData.totalWeak}
-                <span className="ml-2 text-base font-bold text-ink">
-                  word{weakData.totalWeak === 1 ? '' : 's'}
-                </span>
-              </p>
-              <p className="mt-1 text-xs text-ink-muted">
-                Stuck in box 1 — clear them before they harden.
-              </p>
-            </div>
-            <Link to="/practice/weak">
-              <Button variant="stamp" chunky className="gap-1.5">
-                Cram weak words <span aria-hidden="true">→</span>
-              </Button>
-            </Link>
-          </div>
-        </Sheet>
-      )}
-
-      {stats && (
-        <Sheet
-          tab="Badges"
-          title="Badges"
-          meta={
-            <span className="font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase tabular-nums">
-              {(stats.badges || []).length} of {BADGES.length} earned
-            </span>
-          }
-        >
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
-            {BADGES.map((badge) => {
-              const earned = (stats.badges || []).find((b) => b.id === badge.id)
-              const progressText = badge.progress ? badge.progress(stats) : badge.description
-              return (
-                <BadgeStamp
-                  key={badge.id}
-                  badge={badge}
-                  earned={Boolean(earned)}
-                  progressText={progressText}
-                />
-              )
-            })}
-          </div>
-          <p className="mt-3 text-xs text-ink-muted">
-            {(stats.badges || []).length < BADGES.length
-              ? 'Keep practicing to unlock the rest.'
-              : 'Every badge earned — the catalog is yours.'}
-          </p>
-        </Sheet>
-      )}
     </div>
   )
 }

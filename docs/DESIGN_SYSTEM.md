@@ -173,18 +173,24 @@ action, or preserves context while something leaves. Anything else is cut.
   `DUE n` stamp using review-due. Parts are a segmented strip where each
   segment states its own next best reason to pick it — `Part 1 · 3 due` or
   `Part 2 · 45%` — with the accent pill travelling between segments.
-- **Progress = one passport, not six boxes.** `Sheet` gives every section the
+- **Progress = a record spread, not six boxes.** `Sheet` gives every section the
   same card stock, rule, and corner tab (`PASSPORT`, `PIPELINE`, `STUDY LOG`,
-  `DAILY GOAL`, `MISTAKE BANK`, `BADGES`).
-  - Level passport: `ProgressRing` (same geometry as the navbar chip, one size
-    up) plus level, total XP, day streak, freeze count, and `n% to level n+1`.
+  `DAILY GOAL`, `MISTAKE BANK`, `BADGES`), but the page is laid out as three
+  uneven rows on a 12-column grid — **4 against 8** — so it reads as a spread
+  rather than a stack of equal cards. Cards keep their natural height; a ragged
+  bottom edge is part of the pinned-to-the-board feel.
+  - Level passport: `ProgressRing` (navbar geometry, two sizes up) beside the
+    level, then three **ledger lines** — mono label, dotted leader, figure
+    right-aligned against one edge — instead of three floating stat columns.
     All numerals are `tabular-nums`.
   - `PipelineBar` replaces the three pastel cards: mastered (sage) / learning
-    (accent) / not started (line) as one segmented bar with counts, shares, and
-    an `aria-label` sentence. No zero-count segment is drawn; a non-zero
-    segment keeps a 6px floor so a 1% slice stays a slice instead of a
-    hairline. The legend is three equal cells — label above its own count and
-    share — so a number never drifts away from the word it describes.
+    (accent) / not started (line in light, muted ink in dark) as one segmented
+    bar with counts, shares, and an `aria-label` sentence. No zero-count
+    segment is drawn; a non-zero segment keeps a 6px floor so a 1% slice stays
+    a slice instead of a hairline. The legend is three equal cells — label
+    above its own count and share — so a number never drifts away from the word
+    it describes. The card carries no header meta: the legend already states
+    every count and share.
   - `WeekStrip` is a rolling seven days ending today — today outlined in ink,
     an empty day keeps a dashed cell instead of disappearing, fill density is
     relative to the week's busiest day (`utils/weekActivity.js`).
@@ -195,7 +201,11 @@ action, or preserves context while something leaves. Anything else is cut.
     which leaves a baseline gap and turns `rounded-full` into an ellipse. The
     halo is the only celebration, and reduced motion holds it still.
   - `BadgeStamp` reads as a rubber stamp: brass and an inked border when
-    earned, dashed outline with the `x/y` hint while locked.
+    earned, dashed outline with the `x/y` hint while locked. The shelf's footer
+    names the next unlock and its real measure, not "keep practising".
+  - The mistake bank is the page's one loud surface: a 4-column stamped card
+    whose count, reason and full-width `stamp` action sit in one column, never
+    a full-width band with the action stranded at the far edge.
   - Exactly one `Activity history →` link, in the page header, as a
     `Button variant="secondary"`. History is also in the account menu, never in
     the nav. `Cram weak words` is the page's one `Button variant="stamp" chunky`.
