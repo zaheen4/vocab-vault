@@ -1,12 +1,15 @@
 import { Link } from 'react-router-dom'
 import { useGamification, useProgressSummary, useSetGoalTarget, useWeakWords } from '../api/queries'
 import { useCountUp } from '../utils/countUp'
+import { useReducedMotion, m } from '../lib/motion'
 import PageHeader from '../components/PageHeader'
 import Sheet from '../components/Sheet'
 import ProgressRing from '../components/ProgressRing'
 import PipelineBar from '../components/PipelineBar'
 import WeekStrip from '../components/WeekStrip'
 import BadgeStamp from '../components/BadgeStamp'
+import Button from '../components/ui/Button'
+import Chip from '../components/ui/Chip'
 import { FlameIcon, GemIcon, HundredIcon, SproutIcon, StarIcon } from '../components/art/icons'
 
 const GOAL_TARGETS = [5, 10, 15, 20, 25, 30, 40, 50]
@@ -23,12 +26,6 @@ const BADGES = [
   { id: 'flawless', name: 'Flawless', Icon: GemIcon, description: '10 correct in a row', progress: null },
 ]
 
-const HISTORY_LINK =
-  'inline-flex min-h-11 items-center gap-1.5 rounded-md border border-line bg-card px-4 font-display text-sm font-bold text-ink transition-colors hover:bg-raised focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent'
-
-const STAMP_LINK =
-  'inline-flex min-h-11 items-center justify-center rounded-xl border border-b-4 border-stamp/60 bg-stamp px-4 font-display text-sm font-bold text-white transition-all dark:text-night-950 hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent active:translate-y-1 active:border-b-0'
-
 function Stat({ label, value }) {
   return (
     <div>
@@ -37,6 +34,34 @@ function Stat({ label, value }) {
       </dt>
       <dd className="font-display text-2xl font-bold text-ink tabular-nums">{value}</dd>
     </div>
+  )
+}
+
+// The goal ring celebrates with a halo, not a box-shadow: the halo is an
+// absolutely positioned circle sharing the ring's box, so it is concentric by
+// construction. The old glow wrapped an inline child, which left a baseline
+// gap — 76×83 — and `rounded-full` drew an ellipse 3.5px below the ring.
+function GoalRing({ done, target, met }) {
+  const reduceMotion = useReducedMotion()
+  return (
+    <span className="relative flex shrink-0">
+      <ProgressRing pct={done / target} size={76} strokeWidth={3}>
+        <span className="font-display text-lg font-bold text-ink tabular-nums">{done}</span>
+      </ProgressRing>
+      {met && (
+        <m.span
+          aria-hidden="true"
+          initial={false}
+          className="pointer-events-none absolute inset-0 rounded-full border-2 border-accent/60"
+          animate={reduceMotion ? { opacity: 0.4 } : { scale: [1, 1.22], opacity: [0.55, 0] }}
+          transition={
+            reduceMotion
+              ? { duration: 0 }
+              : { duration: 1.9, repeat: Infinity, ease: 'easeOut' }
+          }
+        />
+      )}
+    </span>
   )
 }
 
@@ -96,11 +121,7 @@ function GoalSection({ stats, setGoal }) {
       }
     >
       <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
-        <div className={met ? 'animate-glow rounded-full' : ''}>
-          <ProgressRing pct={done / target} size={76} strokeWidth={3}>
-            <span className="font-display text-lg font-bold text-ink tabular-nums">{done}</span>
-          </ProgressRing>
-        </div>
+        <GoalRing done={done} target={target} met={met} />
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-ink">
             {met ? 'Daily goal met — nice work!' : `${target - done} to go today`}
@@ -117,20 +138,16 @@ function GoalSection({ stats, setGoal }) {
           aria-label="Daily goal target"
         >
           {GOAL_TARGETS.map((value) => (
-            <button
+            <Chip
               key={value}
-              type="button"
+              pressed={target === value}
               disabled={setGoal.isPending}
-              aria-pressed={target === value}
+              aria-label={`Set daily goal to ${value} reviews`}
               onClick={() => setGoal.mutate(value)}
-              className={`flex min-h-9 items-center justify-center rounded-md border px-2 font-mono text-2xs font-bold tabular-nums transition-colors disabled:opacity-50 ${
-                target === value
-                  ? 'border-accent bg-accent/20 text-accent-ink'
-                  : 'border-line bg-card text-ink-muted hover:text-ink'
-              }`}
+              className="justify-center rounded-md px-2 font-mono tabular-nums"
             >
               {value}
-            </button>
+            </Chip>
           ))}
         </div>
       </div>
@@ -186,8 +203,10 @@ export default function Progress() {
               : `${total} word${total === 1 ? '' : 's'} in your learning pipeline.`
           }
         />
-        <Link to="/history" className={HISTORY_LINK}>
-          Activity history <span aria-hidden="true">→</span>
+        <Link to="/history">
+          <Button variant="secondary" className="gap-1.5">
+            Activity history <span aria-hidden="true">→</span>
+          </Button>
         </Link>
       </div>
 
@@ -216,8 +235,10 @@ export default function Progress() {
                 Stuck in box 1 — clear them before they harden.
               </p>
             </div>
-            <Link to="/practice/weak" className={STAMP_LINK}>
-              Cram weak words <span aria-hidden="true">→</span>
+            <Link to="/practice/weak">
+              <Button variant="stamp" chunky className="gap-1.5">
+                Cram weak words <span aria-hidden="true">→</span>
+              </Button>
             </Link>
           </div>
         </Sheet>

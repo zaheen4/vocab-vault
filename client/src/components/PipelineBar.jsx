@@ -30,36 +30,40 @@ export default function PipelineBar({ summary = {} }) {
         </span>
       }
     >
+      {/* Proportional slices with a floor: at 1% the mastered slice was a
+          hairline that read as a rendering artifact. flexGrow keeps the true
+          ratio while guaranteeing every non-zero segment stays legible, and
+          the gap keeps two adjacent fills from merging into one slab. */}
       <div
         role="img"
         aria-label={summaryText}
-        className="flex h-3 overflow-hidden rounded-full bg-raised"
+        className="flex h-3 gap-0.5 overflow-hidden rounded-full bg-raised"
       >
         {segments.map((segment) =>
           segment.count > 0 ? (
             <span
               key={segment.key}
               className={cn('h-full', segment.fill)}
-              style={{ width: `${(segment.count / total) * 100}%` }}
+              style={{ flexGrow: segment.count, flexBasis: 0, minWidth: 6 }}
             />
           ) : null
         )}
       </div>
 
-      {/* Legend reads as three tight pairs. The old version justified each line
-          across its column, which pushed a label and its own count to opposite
-          edges — the number stopped belonging to the word. */}
-      <dl className="mt-4 grid grid-cols-1 gap-y-2 sm:grid-cols-3 sm:gap-x-8">
+      {/* Three equal cells, each holding its own label above its own numbers.
+          A justified single row pushed a label and its count to opposite
+          edges of the card; stacking keeps the pair together by proximity. */}
+      <dl className="mt-4 grid grid-cols-3 gap-x-4 gap-y-3">
         {segments.map((segment) => (
-          <div key={segment.key} className="flex items-baseline gap-2">
-            <dt className="flex items-center gap-2 text-xs font-semibold text-ink-muted">
-              <span aria-hidden="true" className={cn('h-2 w-2 rounded-sm', segment.dot)} />
+          <div key={segment.key}>
+            <dt className="flex items-center gap-1.5 text-2xs font-bold tracking-wide text-ink-muted uppercase">
+              <span aria-hidden="true" className={cn('h-2 w-2 shrink-0 rounded-sm', segment.dot)} />
               {segment.label}
             </dt>
-            <dd className="font-mono text-sm font-bold text-ink tabular-nums">
+            <dd className="mt-1 flex items-baseline gap-1.5 font-mono text-sm font-bold text-ink tabular-nums">
               {segment.count}
-              <span className="ml-1.5 text-2xs font-normal text-ink-muted">
-                {total === 0 ? '' : `${Math.round((segment.count / total) * 100)}%`}
+              <span className="text-2xs font-normal text-ink-muted">
+                {total === 0 ? '—' : `${Math.round((segment.count / total) * 100)}%`}
               </span>
             </dd>
           </div>

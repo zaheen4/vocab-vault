@@ -78,6 +78,9 @@ token classes — never raw hex in components.
   Shared `Button` does this automatically for `primary`; other variants opt
   in with the `chunky` prop. Radius is chosen in one place — never put
   `rounded-md` and `rounded-xl` in the same class list.
+- **Solid `stamp` is the one loud action on a stamped surface** (`Cram weak
+  words`), passed with `chunky`. Never hand-roll a maroon CTA: the shared
+  variant already carries the edge, press, and focus ring.
 - **Everything pressable scales:** `active:scale-[0.97]` on buttons
   (built into shared `Button`), `active:scale-[0.99]` on large option rows.
 - **2px borders on touchables** (deck cards, quiz options, flashcard faces,
@@ -178,16 +181,24 @@ action, or preserves context while something leaves. Anything else is cut.
     All numerals are `tabular-nums`.
   - `PipelineBar` replaces the three pastel cards: mastered (sage) / learning
     (accent) / not started (line) as one segmented bar with counts, shares, and
-    an `aria-label` sentence. No zero-count segment is drawn.
+    an `aria-label` sentence. No zero-count segment is drawn; a non-zero
+    segment keeps a 6px floor so a 1% slice stays a slice instead of a
+    hairline. The legend is three equal cells — label above its own count and
+    share — so a number never drifts away from the word it describes.
   - `WeekStrip` is a rolling seven days ending today — today outlined in ink,
     an empty day keeps a dashed cell instead of disappearing, fill density is
     relative to the week's busiest day (`utils/weekActivity.js`).
   - Daily goal is the same ring plus a target picker (`aria-pressed`, 4-up on
-    phones / 8-up from `sm`); the glow on a met goal is the only celebration.
+    phones / 8-up from `sm`). A met goal pulses a halo that is
+    `absolute inset-0` inside the ring's own box, so it is concentric by
+    construction — never a `box-shadow` on a wrapper holding an inline child,
+    which leaves a baseline gap and turns `rounded-full` into an ellipse. The
+    halo is the only celebration, and reduced motion holds it still.
   - `BadgeStamp` reads as a rubber stamp: brass and an inked border when
     earned, dashed outline with the `x/y` hint while locked.
-  - Exactly one `Activity history →` link, in the page header. History is also
-    in the account menu, never in the nav.
+  - Exactly one `Activity history →` link, in the page header, as a
+    `Button variant="secondary"`. History is also in the account menu, never in
+    the nav. `Cram weak words` is the page's one `Button variant="stamp" chunky`.
 - **History = a day-grouped timeline.** The route, `History & Performance`
   heading, `Quiz History` / `Card Reviews` tabs, and `All` / `Correct` /
   `Needs Review` filters are contractual (e2e matches them). Days group in
