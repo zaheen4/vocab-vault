@@ -73,6 +73,18 @@ describe('light theme contrast', () => {
     )
   })
 
+  it('keeps ink readable on the mistake-bank wash', () => {
+    // The wash is tinted stock, not a card: the muted 12px reason line and the
+    // 10px tab label have to clear AA against the tint itself.
+    expect(contrast(lightColor('ink'), lightColor('stamp-wash'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
+    expect(contrast(lightColor('ink-muted'), lightColor('stamp-wash'))).toBeGreaterThanOrEqual(
+      NORMAL_TEXT
+    )
+    expect(contrast(lightColor('stamp'), lightColor('stamp-wash'))).toBeGreaterThanOrEqual(
+      NORMAL_TEXT
+    )
+  })
+
   it('keeps status ink readable on cards', () => {
     expect(contrast(lightColor('stamp'), lightColor('card'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
     expect(contrast(lightColor('sage'), lightColor('card'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
@@ -102,6 +114,16 @@ describe('dark theme contrast', () => {
     expect(contrast(darkColor('ink'), darkColor('manila'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
     expect(contrast(darkColor('ink-muted'), darkColor('manila'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
     expect(contrast(darkColor('accent-ink'), darkColor('manila'))).toBeGreaterThanOrEqual(
+      NORMAL_TEXT
+    )
+  })
+
+  it('keeps ink readable on the mistake-bank wash', () => {
+    expect(contrast(darkColor('ink'), darkColor('stamp-wash'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
+    expect(contrast(darkColor('ink-muted'), darkColor('stamp-wash'))).toBeGreaterThanOrEqual(
+      NORMAL_TEXT
+    )
+    expect(contrast(darkColor('stamp'), darkColor('stamp-wash'))).toBeGreaterThanOrEqual(
       NORMAL_TEXT
     )
   })

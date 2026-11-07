@@ -167,7 +167,7 @@ function GoalSection({ stats, setGoal }) {
 // one stamped card carries the urgency — count, reason, one action.
 function MistakeBank({ count }) {
   return (
-    <Sheet tab="Mistake bank" className="flex h-full flex-col border-stamp/30 bg-stamp/5">
+    <Sheet tab="Mistake bank" className="flex h-full flex-col border-stamp/30 bg-stamp-wash">
       {/* The count and its reason centre in the space above the pinned action:
           the card matches the badge shelf's height, so top-aligning a three-
           line block left a hole in the middle of the card. */}

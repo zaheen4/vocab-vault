@@ -22,6 +22,7 @@ token classes — never raw hex in components.
 | `sage` | `#2F6B4F` | `#7FD1A4` | Mastered/success status (semantic) |
 | `brass` | `#8A6414` | `#E0B85C` | Badges, XP, streak accents (semantic) |
 | `manila` | `#E9E4D5` | `#282B39` | Passport / special-stock surface (semantic) |
+| `stamp-wash` | `#E7E1D9` | `#19192A` | Mistake-bank tinted stock (semantic) |
 | `primary` | `#1F2A44` | — | Static brand fill: brand panel, hero, ink on accent |
 | `accent` | `#D9772F` | — | Static interaction fill: CTAs, focus rings, bars |
 | `accent-deep` | `#9A4A12` | — | Tactile edge under accent fills; equals light `accent-ink` |
@@ -189,8 +190,9 @@ action, or preserves context while something leaves. Anything else is cut.
   its sheet's surface **and** border (`bg-inherit border-inherit`), so a tinted
   sheet gets a tab of the same stock; a card-coloured tab reads as a hole
   punched through the top edge. Tints that sit under a tab are opaque tokens
-  (`bg-manila`, not `bg-gold/35`): a translucent tint composites twice over the
-  overlap and leaves a pale band.
+  (`bg-manila` for the passport, `bg-stamp-wash` for the mistake bank — never
+  `bg-gold/35` or `bg-stamp/5`): a translucent tint composites twice over the
+  overlap and lets the card's top rule run through the tab label.
   - Level passport: `ProgressRing` (navbar geometry, two sizes up) beside the
     level, then three **ledger lines** — mono label, dotted leader, figure
     right-aligned against one edge — instead of three floating stat columns.
@@ -228,10 +230,10 @@ action, or preserves context while something leaves. Anything else is cut.
     header rule — with no title the only thing on it was the count floating
     over an empty line — so the footer carries the count and names the next
     unlock with its real measure.
-  - The mistake bank is the page's one loud surface: a 4-column stamped card
-    whose count and reason centre in the space above a pinned, full-width
-    `stamp` action — never a full-width band with the action stranded at the
-    far edge.
+  - The mistake bank is the page's one loud surface: a hand-tinted card
+    (`bg-stamp-wash`, a `stamp` border at 30%) whose count and reason centre
+    in the space above a pinned, full-width `stamp` action — never a
+    full-width band with the action stranded at the far edge.
   - Rows are equal height. Each `Sheet` in a row is `flex h-full flex-col`
     and its closing note or action is `mt-auto`, so the passport footnote, the
     study-log caption, the badge footer and the Cram action all sit on the row
