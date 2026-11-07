@@ -103,6 +103,16 @@ test.describe('authenticated account settings', () => {
     await expect(page.getByText(/Display name updated successfully/i)).toBeVisible({ timeout: 10000 })
   })
 
+  test('appearance setting applies immediately and restores system', async ({ page }) => {
+    const group = page.getByRole('group', { name: 'Theme preference' })
+    await expect(group.getByRole('button')).toHaveCount(3)
+    await group.getByRole('button', { name: /Dark/ }).click()
+    await expect(page.locator('html')).toHaveClass(/dark/)
+    await group.getByRole('button', { name: /Light/ }).click()
+    await expect(page.locator('html')).not.toHaveClass(/dark/)
+    await group.getByRole('button', { name: /System/ }).click()
+  })
+
   test('danger zone modals render confirmation prompts and dismiss on cancel', async ({ page }) => {
     const resetTrigger = page.getByRole('button', { name: 'Reset progress', exact: true })
     await resetTrigger.scrollIntoViewIfNeeded()
