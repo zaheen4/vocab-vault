@@ -18,6 +18,7 @@ token classes — never raw hex in components.
 | `ink-muted` | `#5B6478` | `#C9C2AD` | Secondary text (semantic) |
 | `accent-ink` | `#9A4A12` | `#F0A05E` | Small accent text and links (semantic) |
 | `stamp` | `#A63D2F` | `#F08A7A` | Due/error stamps and status (semantic) |
+| `stamp-deep` | `#76271C` | `#B8564A` | Tactile edge under a solid `stamp` fill (semantic) |
 | `sage` | `#2F6B4F` | `#7FD1A4` | Mastered/success status (semantic) |
 | `brass` | `#8A6414` | `#E0B85C` | Badges, XP, streak accents (semantic) |
 | `primary` | `#1F2A44` | — | Static brand fill: brand panel, hero, ink on accent |
@@ -80,7 +81,9 @@ token classes — never raw hex in components.
   `rounded-md` and `rounded-xl` in the same class list.
 - **Solid `stamp` is the one loud action on a stamped surface** (`Cram weak
   words`), passed with `chunky`. Never hand-roll a maroon CTA: the shared
-  variant already carries the edge, press, and focus ring.
+  variant already carries the edge, press, and focus ring. The edge is
+  `stamp-deep`, not `stamp/60` — a translucent border over the same fill is
+  invisible, so the button read as a flat slab.
 - **Everything pressable scales:** `active:scale-[0.97]` on buttons
   (built into shared `Button`), `active:scale-[0.99]` on large option rows.
 - **2px borders on touchables** (deck cards, quiz options, flashcard faces,
@@ -194,18 +197,27 @@ action, or preserves context while something leaves. Anything else is cut.
   - `WeekStrip` is a rolling seven days ending today — today outlined in ink,
     an empty day keeps a dashed cell instead of disappearing, fill density is
     relative to the week's busiest day (`utils/weekActivity.js`).
-  - Daily goal is the same ring plus a target picker (`aria-pressed`, 4-up on
-    phones / 8-up from `sm`). A met goal pulses a halo that is
+  - Daily goal is the same ring plus a target picker (`aria-pressed`): a
+    compact 4x2 block on the right from `sm`, full width under the ring on
+    phones. A met goal pulses a halo that is
     `absolute inset-0` inside the ring's own box, so it is concentric by
     construction — never a `box-shadow` on a wrapper holding an inline child,
     which leaves a baseline gap and turns `rounded-full` into an ellipse. The
     halo is the only celebration, and reduced motion holds it still.
   - `BadgeStamp` reads as a rubber stamp: brass and an inked border when
-    earned, dashed outline with the `x/y` hint while locked. The shelf's footer
-    names the next unlock and its real measure, not "keep practising".
+    earned, dashed outline with the `x/y` hint while locked. The shelf is a
+    wrapping flex row (`justify-center`) so the odd fifth stamp centres at
+    phone width instead of sitting alone against the left edge; every stamp
+    takes an equal share from `sm`, and all of them stretch to one height. The
+    footer names the next unlock and its real measure, not "keep practising".
   - The mistake bank is the page's one loud surface: a 4-column stamped card
-    whose count, reason and full-width `stamp` action sit in one column, never
-    a full-width band with the action stranded at the far edge.
+    whose count and reason centre in the space above a pinned, full-width
+    `stamp` action — never a full-width band with the action stranded at the
+    far edge.
+  - Rows are equal height. Each `Sheet` in a row is `flex h-full flex-col`
+    and its closing note or action is `mt-auto`, so the passport footnote, the
+    study-log caption, the badge footer and the Cram action all sit on the row
+    baseline instead of leaving a ragged bottom edge.
   - Exactly one `Activity history →` link, in the page header, as a
     `Button variant="secondary"`. History is also in the account menu, never in
     the nav. `Cram weak words` is the page's one `Button variant="stamp" chunky`.

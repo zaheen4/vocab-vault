@@ -111,4 +111,17 @@ describe('brand fill contrast', () => {
   it('keeps the accent text token aligned with the static accent-deep fill', () => {
     expect(lightColor('accent-ink')).toBe(staticColor('accent-deep'))
   })
+
+  it('keeps each tactile edge distinct from its own fill and visible on a card', () => {
+    // A chunky border painted with a translucent version of the fill under it
+    // is invisible; the edge has to be its own darker token.
+    expect(contrast(staticColor('accent-deep'), staticColor('accent'))).toBeGreaterThan(1.5)
+    for (const theme of [
+      { fill: lightColor('stamp'), edge: lightColor('stamp-deep'), card: lightColor('card') },
+      { fill: darkColor('stamp'), edge: darkColor('stamp-deep'), card: darkColor('card') },
+    ]) {
+      expect(contrast(theme.edge, theme.fill)).toBeGreaterThan(1.5)
+      expect(contrast(theme.edge, theme.card)).toBeGreaterThanOrEqual(LARGE_TEXT_OR_UI)
+    }
+  })
 })

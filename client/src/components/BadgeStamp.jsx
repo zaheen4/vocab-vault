@@ -8,7 +8,7 @@ export default function BadgeStamp({ badge, earned, progressText }) {
     <div
       title={badge.description}
       className={cn(
-        'rounded-lg border-2 p-3 text-center',
+        'h-full rounded-lg border-2 p-3 text-center',
         earned ? 'border-accent/50 bg-brass/10' : 'border-dashed border-line bg-raised/40'
       )}
     >

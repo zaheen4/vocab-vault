@@ -20,6 +20,7 @@ export default function WeekStrip({ activity = [] }) {
     <Sheet
       tab="Study log"
       title="This week"
+      className="flex h-full flex-col"
       meta={
         <span className="font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase tabular-nums">
           {total} {total === 1 ? 'review' : 'reviews'}
@@ -50,7 +51,7 @@ export default function WeekStrip({ activity = [] }) {
           )
         })}
       </div>
-      <p className="mt-3 text-xs text-ink-muted">
+      <p className="mt-auto pt-3 text-xs text-ink-muted">
         {total === 0
           ? 'No reviews this week yet.'
           : `${total} review${total === 1 ? '' : 's'} in the last seven days.`}

@@ -78,7 +78,7 @@ function GoalRing({ done, target, met }) {
 function Passport({ stats, level, streak, xp }) {
   const pct = stats.progressToNext || 0
   return (
-    <Sheet tab="Passport" className="bg-gold/35 dark:bg-night-900">
+    <Sheet tab="Passport" className="flex h-full flex-col bg-gold/35 dark:bg-night-900">
       <div className="flex items-center gap-5">
         <ProgressRing pct={pct} size={84} strokeWidth={3.5}>
           <span className="font-display text-xl font-bold text-ink tabular-nums">{level}</span>
@@ -100,7 +100,7 @@ function Passport({ stats, level, streak, xp }) {
           </dl>
         </div>
       </div>
-      <p className="mt-4 border-t border-line pt-3 text-xs text-ink-muted">
+      <p className="mt-auto border-t border-line pt-3 text-xs text-ink-muted">
         {stats.goalsMet > 0
           ? `${stats.goalsMet} daily goal${stats.goalsMet === 1 ? '' : 's'} met so far.`
           : 'Meet your daily goal to earn a streak freeze.'}
@@ -117,13 +117,18 @@ function GoalSection({ stats, setGoal }) {
     <Sheet
       tab="Daily goal"
       title="Today"
+      className="flex h-full flex-col"
       meta={
         <span className="font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase tabular-nums">
           {done} / {target}
         </span>
       }
     >
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+      {/* Ring and promise on the left, the picker as a compact 4x2 block on
+          the right. The old full-width 8-across strip left a dead band across
+          the middle of a wide card and made the card taller than the passport
+          beside it. */}
+      <div className="flex flex-1 flex-wrap items-center gap-x-6 gap-y-4">
         <GoalRing done={done} target={target} met={met} />
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-ink">
@@ -136,7 +141,7 @@ function GoalSection({ stats, setGoal }) {
           </p>
         </div>
         <div
-          className="grid w-full grid-cols-4 gap-1.5 sm:grid-cols-8"
+          className="grid w-full grid-cols-4 gap-1.5 sm:w-48 sm:shrink-0"
           role="group"
           aria-label="Daily goal target"
         >
@@ -162,12 +167,17 @@ function GoalSection({ stats, setGoal }) {
 // one stamped card carries the urgency — count, reason, one action.
 function MistakeBank({ count }) {
   return (
-    <Sheet tab="Mistake bank" className="border-stamp/30 bg-stamp/5">
-      <p className="font-display text-3xl font-bold text-stamp tabular-nums">
-        {count}
-        <span className="ml-2 text-base font-bold text-ink">word{count === 1 ? '' : 's'}</span>
-      </p>
-      <p className="mt-1 text-xs text-ink-muted">Stuck in box 1 — clear them before they harden.</p>
+    <Sheet tab="Mistake bank" className="flex h-full flex-col border-stamp/30 bg-stamp/5">
+      {/* The count and its reason centre in the space above the pinned action:
+          the card matches the badge shelf's height, so top-aligning a three-
+          line block left a hole in the middle of the card. */}
+      <div className="flex flex-1 flex-col justify-center">
+        <p className="font-display text-3xl font-bold text-stamp tabular-nums">
+          {count}
+          <span className="ml-2 text-base font-bold text-ink">word{count === 1 ? '' : 's'}</span>
+        </p>
+        <p className="mt-1 text-xs text-ink-muted">Stuck in box 1 — clear them before they harden.</p>
+      </div>
       <Link to="/practice/weak" className="mt-4 block">
         <Button variant="stamp" chunky fullWidth className="gap-1.5">
           Cram weak words <span aria-hidden="true">→</span>
@@ -188,26 +198,33 @@ function BadgeShelf({ stats }) {
   return (
     <Sheet
       tab="Badges"
+      className="flex h-full flex-col"
       meta={
         <span className="font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase tabular-nums">
           {earned.length} of {BADGES.length} earned
         </span>
       }
     >
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+      {/* Flex, not a grid: five stamps never divide evenly into two phone
+          columns, and the odd one out used to sit alone against the left edge.
+          `justify-center` centres it; from `sm` every stamp takes an equal
+          share of the row. The negative gutters keep the outer edges flush with
+          the card while every item is exactly half the row. */}
+      <div className="-mx-1 -mb-2 flex flex-wrap justify-center">
         {BADGES.map((badge) => {
           const progressText = badge.progress ? badge.progress(stats) : badge.description
           return (
-            <BadgeStamp
-              key={badge.id}
-              badge={badge}
-              earned={earnedIds.has(badge.id)}
-              progressText={progressText}
-            />
+            <div key={badge.id} className="w-1/2 px-1 pb-2 sm:w-auto sm:flex-1">
+              <BadgeStamp
+                badge={badge}
+                earned={earnedIds.has(badge.id)}
+                progressText={progressText}
+              />
+            </div>
           )
         })}
       </div>
-      <p className="mt-3 text-xs text-ink-muted">
+      <p className="mt-auto pt-3 text-xs text-ink-muted">
         {next ? (
           <>
             Next up: <span className="font-semibold text-ink">{next.name}</span> — {nextText}.

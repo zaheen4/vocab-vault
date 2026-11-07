@@ -24,7 +24,7 @@ const tactileEdge = {
   secondary: 'border-line',
   danger: 'border-stamp/60',
   success: 'border-sage/60',
-  stamp: 'border-stamp/60',
+  stamp: 'border-stamp-deep',
 }
 
 export default function Button({
