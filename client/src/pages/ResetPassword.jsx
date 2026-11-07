@@ -4,6 +4,7 @@ import { useResetPassword } from '../api/queries'
 import AuthShell from '../components/AuthShell'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
+import Notice from '../components/ui/Notice'
 import PasswordStrength from '../components/ui/PasswordStrength'
 
 export default function ResetPassword() {
@@ -51,9 +52,9 @@ export default function ResetPassword() {
     return (
       <AuthShell title="Invalid Reset Link">
         <div className="space-y-4 text-center">
-          <p className="rounded-md bg-red-50 p-4 text-sm text-red-600 dark:bg-red-950/50 dark:text-red-300">
+          <Notice tone="error">
             This password reset link is missing a token or is invalid.
-          </p>
+          </Notice>
           <Link to="/forgot-password">
             <Button fullWidth>Request new reset link</Button>
           </Link>
@@ -66,22 +67,21 @@ export default function ResetPassword() {
     <AuthShell title="Set new password">
       {success ? (
         <div className="space-y-4 text-center">
-          <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800 dark:border-emerald-400/30 dark:bg-emerald-950/40 dark:text-emerald-200">
-            <p className="font-semibold">Password updated!</p>
-            <p className="mt-1">{success} Redirecting to login…</p>
-          </div>
+          <Notice tone="success" title="Password updated!">
+            <p>{success} Redirecting to login…</p>
+          </Notice>
           <Link to="/login">
             <Button fullWidth>Continue to login</Button>
           </Link>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
-          <p className="text-sm text-slate-500 dark:text-cream-300/80">
+          <p className="text-sm text-ink-muted">
             Enter your new password below.
           </p>
 
           {error && (
-            <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-950/50 dark:text-red-300">{error}</p>
+            <Notice tone="error">{error}</Notice>
           )}
 
           <div>
@@ -119,8 +119,8 @@ export default function ResetPassword() {
             {resetMutation.isPending ? 'Updating…' : 'Reset password'}
           </Button>
 
-          <p className="text-center text-sm text-slate-500 dark:text-cream-300/80">
-            <Link to="/login" className="font-medium text-accent hover:underline">
+          <p className="text-center text-sm text-ink-muted">
+            <Link to="/login" className="font-medium text-accent-ink hover:underline">
               Back to login
             </Link>
           </p>

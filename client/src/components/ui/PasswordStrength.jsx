@@ -25,37 +25,37 @@ export default function PasswordStrength({ password = '' }) {
 
   const colorClass =
     score === 1
-      ? 'bg-red-500'
+      ? 'bg-stamp'
       : score === 2
-        ? 'bg-amber-500'
-        : 'bg-emerald-500'
+        ? 'bg-brass'
+        : 'bg-sage'
 
   return (
     <div className="mt-2 space-y-1.5" aria-live="polite">
       <div className="flex items-center justify-between text-xs">
-        <span className="text-slate-500 dark:text-cream-300/70">Password strength</span>
+        <span className="text-ink-muted">Password strength</span>
         <span
           className={`font-semibold ${
             score === 1
-              ? 'text-red-600 dark:text-red-400'
+              ? 'text-stamp'
               : score === 2
-                ? 'text-amber-600 dark:text-amber-400'
-                : 'text-emerald-600 dark:text-emerald-400'
+                ? 'text-ink'
+                : 'text-sage'
           }`}
         >
           {label}
         </span>
       </div>
       <div className="grid grid-cols-3 gap-1">
-        <div className={`h-1.5 rounded-full transition-colors ${score >= 1 ? colorClass : 'bg-slate-200 dark:bg-night-800'}`} />
-        <div className={`h-1.5 rounded-full transition-colors ${score >= 2 ? colorClass : 'bg-slate-200 dark:bg-night-800'}`} />
-        <div className={`h-1.5 rounded-full transition-colors ${score >= 3 ? colorClass : 'bg-slate-200 dark:bg-night-800'}`} />
+        <div className={`h-1.5 rounded-full transition-colors ${score >= 1 ? colorClass : 'bg-line'}`} />
+        <div className={`h-1.5 rounded-full transition-colors ${score >= 2 ? colorClass : 'bg-line'}`} />
+        <div className={`h-1.5 rounded-full transition-colors ${score >= 3 ? colorClass : 'bg-line'}`} />
       </div>
-      <ul className="space-y-0.5 text-xs text-slate-500 dark:text-cream-300/70">
-        <li className={lengthOk ? 'text-emerald-600 dark:text-emerald-400' : ''}>
+      <ul className="space-y-0.5 text-xs text-ink-muted">
+        <li className={lengthOk ? 'text-sage' : ''}>
           {lengthOk ? '✓' : '·'} At least 8 characters
         </li>
-        <li className={varietyOk ? 'text-emerald-600 dark:text-emerald-400' : ''}>
+        <li className={varietyOk ? 'text-sage' : ''}>
           {varietyOk ? '✓' : '·'} Mix of letters and numbers or symbols
         </li>
       </ul>
