@@ -21,7 +21,9 @@ export default [
       // No two classes fighting over one property (caught a real
       // rounded-md/rounded-xl collision during review).
       'tailwindcss/no-contradicting-classname': 'error',
-      // Tokens over arbitrary values; warn while one-offs are audited.
+      // Tokens over arbitrary values. The CLI runs with `--max-warnings 0`, so
+      // a deliberate one-off needs an inline disable and a reason — see the
+      // `env()` tab-bar padding and header grid tracks in Navbar.jsx.
       'tailwindcss/no-arbitrary-value': 'warn',
       // Consistent class order (autofixable).
       'tailwindcss/classnames-order': 'warn',

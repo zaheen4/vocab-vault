@@ -213,6 +213,7 @@ function MobileTabBar({ totalDue }) {
   return (
     <nav
       aria-label="Primary"
+      // eslint-disable-next-line tailwindcss/no-arbitrary-value -- env() is runtime-only; no scale step can express it
       className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-card pb-[env(safe-area-inset-bottom)] md:hidden"
     >
       <div className="mx-auto grid max-w-md grid-cols-5">
@@ -280,7 +281,10 @@ export default function Navbar() {
   return (
     <>
       <header className="sticky top-0 z-40 border-b border-line bg-card shadow-paper">
-        <div className="mx-auto grid h-16 max-w-5xl grid-cols-[1fr_auto_1fr] items-center gap-2 px-4">
+        <div
+          // eslint-disable-next-line tailwindcss/no-arbitrary-value -- equal side tracks keep the nav optically centred
+          className="mx-auto grid h-16 max-w-5xl grid-cols-[1fr_auto_1fr] items-center gap-2 px-4"
+        >
           <Link
             to="/"
             aria-label="VocabVault home"
