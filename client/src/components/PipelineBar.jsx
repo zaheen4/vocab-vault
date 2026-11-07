@@ -46,9 +46,12 @@ export default function PipelineBar({ summary = {} }) {
         )}
       </div>
 
-      <dl className="mt-4 grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-3">
+      {/* Legend reads as three tight pairs. The old version justified each line
+          across its column, which pushed a label and its own count to opposite
+          edges — the number stopped belonging to the word. */}
+      <dl className="mt-4 grid grid-cols-1 gap-y-2 sm:grid-cols-3 sm:gap-x-8">
         {segments.map((segment) => (
-          <div key={segment.key} className="flex items-baseline justify-between gap-3">
+          <div key={segment.key} className="flex items-baseline gap-2">
             <dt className="flex items-center gap-2 text-xs font-semibold text-ink-muted">
               <span aria-hidden="true" className={cn('h-2 w-2 rounded-sm', segment.dot)} />
               {segment.label}
