@@ -12,7 +12,6 @@ function readStoredUser() {
     const raw = localStorage.getItem(USER_KEY)
     if (!raw) return null
     const parsed = JSON.parse(raw)
-    // Minimal shape guard: tampered or legacy values must not reach the UI.
     if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return null
     if (typeof parsed.name !== 'string' || typeof parsed.email !== 'string') return null
     return parsed
@@ -28,28 +27,19 @@ export function AuthProvider({ children }) {
 
   const logout = useCallback(() => {
     const staleToken = localStorage.getItem(TOKEN_KEY)
-    // Best-effort server acknowledgement; logout stays local-first so a dead
-    // network never traps the user in a logged-in shell.
     authLogoutBeacon(staleToken)
     setToken(null)
     setUser(null)
     localStorage.removeItem(TOKEN_KEY)
     localStorage.removeItem(USER_KEY)
-    // Drop the previous user's cached decks/bookmarks/progress so the next
-    // login on a shared device never paints stale private data.
     queryClient.clear()
   }, [])
 
-  // Any 401 from the api layer means the token is dead — end the session once.
   useEffect(() => {
     setUnauthorizedHandler(() => logout())
     return () => setUnauthorizedHandler(null)
   }, [logout])
 
-  // Revalidate whenever the token changes (login, logout, multi-tab writes).
-  // Only a 401 ends the session: aborts (unload/navigation races), timeouts,
-  // and transient network failures must never wipe a stored session — the
-  // request layer surfaces those to the failing query instead.
   useEffect(() => {
     if (!token) {
       setLoading(false)

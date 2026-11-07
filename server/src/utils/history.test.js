@@ -56,7 +56,6 @@ describe('buildHistoryPipeline', () => {
     expect(pipeline[0].$match.userId).toEqual(dummyId)
     expect(pipeline[1].$unwind).toBe('$history')
 
-    // No filter match stage in the middle when filter is 'all'
     const lookupStage = pipeline.find((stage) => stage.$lookup)
     expect(lookupStage).toBeDefined()
     expect(lookupStage.$lookup.from).toBe('words')

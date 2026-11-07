@@ -1,4 +1,3 @@
-// Shared server-side input + error hygiene. Pure functions, covered by unit tests.
 export const MAX_EMAIL_LENGTH = 254
 export const MAX_PASSWORD_LENGTH = 128
 export const MAX_QUERY_LENGTH = 100
@@ -18,12 +17,10 @@ export function isValidEmail(email) {
   )
 }
 
-// Escape user input before embedding in a RegExp ($regex search).
 export function escapeRegExp(s) {
   return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 }
 
-// Parse + clamp ?page=&limit=. Never throws; always returns safe numbers.
 export function parsePagination(query, { defaultPage = 1, defaultLimit = 20, maxLimit = 100 } = {}) {
   const rawPage = Number.parseInt(query?.page, 10)
   const rawLimit = Number.parseInt(query?.limit, 10)
@@ -42,9 +39,6 @@ export function isCastError(err) {
   return err?.name === 'CastError'
 }
 
-// Map unexpected errors to safe client messages. Validation/Cast/duplicate
-// messages are intentional UX; everything else becomes generic in production
-// so Mongo internals (index names, key values, paths) never leak.
 export function toSafeMessage(err, fallback = 'Server error') {
   if (!err) return fallback
   if (err.status && err.status < 500 && typeof err.message === 'string') return err.message

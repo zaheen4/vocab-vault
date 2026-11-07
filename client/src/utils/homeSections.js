@@ -1,7 +1,3 @@
-// Pure derivations for the Home "Today + Library" surface. Home renders cards
-// from the same /decks payload the rest of the app uses; these helpers keep the
-// filtering, the continue target, and the goal math out of the component.
-
 export const DECK_STATUS_FILTERS = [
   { id: 'all', label: 'All' },
   { id: 'in-progress', label: 'In progress' },
@@ -12,8 +8,6 @@ export const DECK_STATUS_FILTERS = [
 
 export function deckTotals(deck) {
   const parts = deck?.parts ?? []
-  // `/decks/:id` returns per-part progress only; aggregate it so the deck
-  // header can state counts, mastery and review-due without a second request.
   const source =
     deck?.progress == null && parts.length > 0
       ? parts.reduce(
@@ -42,9 +36,6 @@ export function deckTotals(deck) {
     seen,
     unseen,
     due,
-    // `dueCount` from /decks includes never-seen words (they are practicable).
-    // The stamp and the Due filter mean spaced-repetition review, so subtract
-    // the unseen share — a brand-new deck has nothing due for review.
     reviewDue: Math.max(0, due - unseen),
     started: seen > 0,
     pct: count > 0 ? Math.round((mastered / count) * 100) : 0,
@@ -75,8 +66,6 @@ export function filterDecksByStatus(decks, status) {
 
 const byGroup = (a, b) => (a.group ?? Number.POSITIVE_INFINITY) - (b.group ?? Number.POSITIVE_INFINITY)
 
-// Continue order: a started deck with due cards, then a started deck with
-// learning cards, then the first deck in group order (new users).
 export function pickContinueDeck(decks) {
   const ordered = [...(decks ?? [])].sort(byGroup)
   return (
@@ -91,8 +80,6 @@ export function pickContinueDeck(decks) {
   )
 }
 
-// The part a learner should open next: first due part, then first unfinished
-// part, then part 1. Decks with one part (or none) return null.
 export function nextDeckPart(deck) {
   const parts = deck?.parts ?? []
   if (parts.length === 0) return null
@@ -104,7 +91,6 @@ export function nextDeckPart(deck) {
   return (unfinished ?? parts[0]).part
 }
 
-// One action per card: never a grid of part buttons.
 export function deckAction(deck) {
   if (!deck?._id) return null
   const totals = deckTotals(deck)
@@ -116,7 +102,6 @@ export function deckAction(deck) {
   return { label: query ? `Continue Part ${query} →` : 'Continue deck →', to }
 }
 
-// Goal math for the Today panel: never divides by zero, never exceeds 100%.
 export function goalProgress(reviewsToday = 0, target = 0) {
   const reviews = Math.max(0, reviewsToday)
   const goal = Math.max(0, target)

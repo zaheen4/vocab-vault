@@ -17,10 +17,6 @@ function activeLabel(pathname, deckId) {
   return hit ? hit.label : tabs[0].label
 }
 
-// Last measured geometry survives remounts: every tab switch mounts a fresh
-// ModeTabs, so without this the pill would fly in from x=0 each time.
-// fresh=true only on the very first measurement ever (snap); afterwards the
-// pill glides between live positions.
 let lastGeometry = null
 
 export default function ModeTabs({ deckId }) {

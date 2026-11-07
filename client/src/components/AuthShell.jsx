@@ -8,9 +8,6 @@ const PITCH = [
   { title: 'Streaks, XP, and badges', body: 'Small wins that compound into a habit.' },
 ]
 
-// Split-hero auth shell: brand pitch beside the form on desktop, compact
-// brand on top for mobile. Used by Login + Register so the two can never
-// drift apart again.
 export default function AuthShell({ title, children }) {
   return (
     <div className="animate-page relative flex min-h-screen items-center justify-center bg-gold px-4 py-6 supports-[height:100dvh]:min-h-dvh sm:py-10 dark:bg-night-950">

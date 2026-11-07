@@ -1,5 +1,3 @@
-// Lenient spelling check for typing mode: case, surrounding whitespace and
-// punctuation are ignored; small typos scale with word length.
 export function normalizeAnswer(s) {
   return (s || '').toLowerCase().trim().replace(/[^a-z0-9]/g, '')
 }

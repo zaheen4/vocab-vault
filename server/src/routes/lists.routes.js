@@ -13,7 +13,6 @@ function validId(id) {
   return mongoose.isValidObjectId(id)
 }
 
-// Owner-scoped lookup: another user's list reads as 404 (never leak existence).
 async function findOwnList(id, userId, populate = false) {
   if (!validId(id)) return { status: 400 }
   const query = CustomList.findOne({ _id: id, userId })

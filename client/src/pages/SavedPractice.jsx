@@ -4,8 +4,6 @@ import Button from '../components/ui/Button'
 import EmptyArt from '../components/art/EmptyArt'
 import ReviewSession from '../components/ReviewSession'
 
-// Flashcard session over saved words (no deck): unseen saved words first, then
-// due ones. Records through the standard review endpoint.
 export default function SavedPractice() {
   const { data: words, isLoading, isError, refetch } = useSavedPracticeSession(10)
   return (

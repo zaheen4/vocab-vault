@@ -24,9 +24,6 @@ function shuffle(arr) {
   return a
 }
 
-// Build `count` multiple-choice questions from deck words. Distractors prefer
-// the same part of speech; `fallbackPool` (cross-deck words) fills in when the
-// deck itself has fewer than 4 words.
 function buildQuestions(deckWords, fallbackPool, count) {
   const inDeck = new Set(deckWords.map((w) => w._id))
   const pool = [
@@ -55,8 +52,7 @@ export default function Quiz({ deckId }) {
   const isAllDeck = id === 'all'
   const partParam = searchParams.get('part')
   const part = !isAllDeck && partParam ? Number(partParam) : undefined
-  const [scope, setScope] = useState('viewed') // 'viewed' | 'all'
-  // Shared pool with Typing: switching modes is a cache hit after first load.
+  const [scope, setScope] = useState('viewed')
   const { data: poolData, isLoading, isError } = useQuizPool(id, 50, isAllDeck ? scope : 'viewed', part)
   const invalidateAfterReview = useInvalidateAfterReview()
   const { data: bookmarks = [] } = useBookmarks()
@@ -64,12 +60,12 @@ export default function Quiz({ deckId }) {
   const baseTitle = poolData?.title || (isAllDeck ? 'All Decks' : '')
   const deckTitle = baseTitle ? (!isAllDeck && part ? `${baseTitle} — Part ${part}` : baseTitle) : ''
   const pool = poolData?.words ?? []
-  const [status, setStatus] = useState('loading') // loading|error|empty|idle|ready|done
+  const [status, setStatus] = useState('loading')
   const [length, setLength] = useState(10)
   const [questions, setQuestions] = useState([])
   const [index, setIndex] = useState(0)
   const [picked, setPicked] = useState(null)
-  const [pending, setPending] = useState(null) // {wordId, correct} awaiting save
+  const [pending, setPending] = useState(null)
   const [saveError, setSaveError] = useState(false)
   const [results, setResults] = useState([])
   const [score, setScore] = useState(0)
@@ -80,8 +76,6 @@ export default function Quiz({ deckId }) {
   const slideCls = useSlideDirection()
   const saveSession = useSaveQuizSession()
   const startTimeRef = useRef(null)
-  // Synchronous submit guard (see Practice.jsx busyRef): state flags are
-  // stale across rapid double-clicks, so the ref owns the lock
   const busyRef = useRef(false)
   const lengths = isAllDeck ? [5, 10, 20, 30] : LENGTHS
 
@@ -110,7 +104,6 @@ export default function Quiz({ deckId }) {
       setStatus('error')
       return
     }
-    // First settle only — afterwards the start/ready/done flow owns status.
     setStatus((s) => (s === 'loading' ? (pool.length === 0 ? 'empty' : 'idle') : s))
   }, [isLoading, isError, pool])
 
@@ -162,7 +155,7 @@ export default function Quiz({ deckId }) {
   }
 
   async function choose(optIdx) {
-    if (busyRef.current || picked !== null || pending) return // one answer per question
+    if (busyRef.current || picked !== null || pending) return
     busyRef.current = true
     const q = questions[index]
     const correct = optIdx === q.answerIndex

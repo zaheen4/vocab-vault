@@ -4,8 +4,6 @@ import Button from '../components/ui/Button'
 import EmptyArt from '../components/art/EmptyArt'
 import ReviewSession from '../components/ReviewSession'
 
-// Mistake-bank remediation. Shares the flashcard shell with due/saved so the
-// three queues differ only in data source and copy.
 export default function WeakPractice() {
   const { data, isLoading, isError, refetch } = useWeakWords(20)
   return (

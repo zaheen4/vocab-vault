@@ -10,7 +10,6 @@ export async function requireAuth(req, res, next) {
   const token = header.startsWith('Bearer ') ? header.slice(7) : null
   if (!token) return res.status(401).json({ message: 'Authentication required' })
 
-  // Token errors (bad signature, expired) are 401 — never conflate with DB state.
   let payload
   try {
     payload = jwt.verify(token, process.env.JWT_SECRET, {
@@ -22,7 +21,6 @@ export async function requireAuth(req, res, next) {
     return res.status(401).json({ message: 'Invalid or expired token' })
   }
 
-  // DB failures here are infrastructure (503), not bad credentials (401).
   let user
   try {
     user = await User.findById(payload.sub).select('-passwordHash')

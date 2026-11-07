@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 
-// Ease-out curve for count-up numbers: fast start, gentle landing.
 export function easeOutCubic(t) {
   const c = Math.min(Math.max(t, 0), 1)
   return 1 - (1 - c) ** 3
@@ -14,8 +13,6 @@ export function prefersReducedMotion() {
   )
 }
 
-// Animated number for end screens and stat banners. Jumps straight to the
-// target under reduced-motion (same kill-switch contract as index.css).
 export function useCountUp(target, duration = 900) {
   const [value, setValue] = useState(() =>
     prefersReducedMotion() ? target : 0

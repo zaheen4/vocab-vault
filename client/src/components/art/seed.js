@@ -1,6 +1,3 @@
-// Deterministic seed + pick for generative art. Seeded (never Math.random
-// in render) so covers are stable across renders, sessions, and devices.
-
 export function hashSeed(str) {
   let h = 5381
   const s = String(str ?? '')

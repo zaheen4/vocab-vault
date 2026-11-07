@@ -28,7 +28,6 @@ router.get('/summary', requireDB, requireAuth, async (req, res) => {
       { $group: { _id: '$status', count: { $sum: 1 } } },
     ])
     const counts = Object.fromEntries(byStatus.map((s) => [s._id, s.count]))
-    // Zero-filled shape: fresh users get explicit zeros, not a sparse object.
     res.json({
       summary: { new: counts.new || 0, learning: counts.learning || 0, mastered: counts.mastered || 0 },
     })
@@ -169,12 +168,8 @@ router.post('/review', requireDB, requireAuth, reviewLimiter, async (req, res) =
       progress = new Progress({ userId: req.user._id, wordId, status: 'new' })
     }
     const before = progress.status
-    // Mutate in memory only — the single save below (after history is pushed)
-    // keeps box/streak/history atomic per review and closes the
-    // last-writer-wins window the old double-save left open.
     Object.assign(progress, nextReviewState(progress, correct))
 
-    // ---- gamification: award XP, update streak, totals, level ----
     const user = await User.findById(req.user._id)
     if (user) {
       const xpGained = xpForAnswer(correct, progress.box)
@@ -185,7 +180,6 @@ router.post('/review', requireDB, requireAuth, reviewLimiter, async (req, res) =
       user.totalReviewed = (user.totalReviewed || 0) + 1
       if (correct) user.totalCorrect = (user.totalCorrect || 0) + 1
 
-      // daily review counter (resets when the day rolls over)
       const todayKey = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())
       const lastKey = user.reviewsTodayDate
         ? Date.UTC(
@@ -204,22 +198,18 @@ router.post('/review', requireDB, requireAuth, reviewLimiter, async (req, res) =
       user.practiceStreakDays = streak.dailyStreak
       user.lastPracticeDate = now
 
-      // goal check + freeze refill (awards once per day)
       const goal = awardGoalRefill(user, now)
 
       const newLevel = levelFor(user.xp)
       const levelUp = newLevel > prevLevel
       user.level = newLevel
 
-      // consecutive-correct run for the flawless badge
       user.perfectRun = correct ? (user.perfectRun || 0) + 1 : 0
 
-      // analytics logs (per-day activity + per-word history)
       recordActivity(user, now)
       pushHistory(progress, { correct, box: progress.box, mode }, now)
       await progress.save()
 
-      // badges (idempotent: already-earned ids are skipped)
       const newBadges = awardBadges(user, now)
 
       await user.save()

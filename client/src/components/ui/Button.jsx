@@ -11,14 +11,9 @@ const variants = {
     'border border-stamp/30 bg-stamp/10 text-stamp hover:bg-stamp/15',
   success:
     'border border-sage/30 bg-sage/10 text-sage hover:bg-sage/15',
-  // Solid stamp fill: the one loud action on a stamped surface. Same chunky
-  // edge as primary (opt in with `chunky`), white ink per the contrast rules.
   stamp: 'bg-stamp text-white hover:brightness-95 dark:text-night-950',
 }
 
-// Primary is always tactile. Other variants go tactile only with chunky.
-// Radius is chosen in one place so rounded-md and rounded-xl never collide
-// in a class list (cn() joins without deduping).
 const tactileEdge = {
   primary: 'border-accent-deep',
   secondary: 'border-line',

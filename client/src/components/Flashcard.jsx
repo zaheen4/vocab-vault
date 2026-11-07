@@ -1,7 +1,3 @@
-// Shared flashcard face: prompt on front, answer on back. Study controls
-// (speaker, answer buttons) live outside — never nest interactives here.
-// The surface is an index card: card stock, 2px rule, a corner tab and a
-// stacked card peeking out behind it — no decorative color bar.
 export default function Flashcard({ word, flipped, onFlip, shake, reversed }) {
   const prompt = reversed ? (
     <>
@@ -47,7 +43,6 @@ export default function Flashcard({ word, flipped, onFlip, shake, reversed }) {
       )}
     </>
   )
-  // Reversed front names no word: screen readers must not hear the answer.
   const label = flipped
     ? reversed
       ? `Word ${word.word}`
@@ -67,7 +62,6 @@ export default function Flashcard({ word, flipped, onFlip, shake, reversed }) {
         <span
           className={`flip-inner relative flex min-h-72 w-full sm:min-h-80 ${flipped ? 'flipped' : ''}`}
         >
-          {/* Stacked card behind the face: a second card peeking out. */}
           <span
             aria-hidden="true"
             className="absolute inset-x-4 top-2 -bottom-2 rounded-xl border border-line bg-raised"

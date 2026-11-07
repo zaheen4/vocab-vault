@@ -10,10 +10,6 @@ import { modeFromPath } from '../utils/deckMode'
 import { useDeck } from '../api/queries'
 import { notePartSwitch } from '../utils/navDirection'
 
-// Deck section shell. All three modes stay mounted (hidden when inactive) so
-// their in-progress session survives switching tabs; a mode mounts lazily the
-// first time it is visited. `key={deckKey}` plus the render-time reset below give a
-// clean slate when the deck or part changes.
 export default function DeckLayout() {
   const { id } = useParams()
   const { pathname } = useLocation()

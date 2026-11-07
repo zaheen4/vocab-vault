@@ -21,8 +21,6 @@ router.get('/', requireDB, requireAuth, async (req, res) => {
     const { page, limit } = parsePagination(req.query, { defaultPage: 1, defaultLimit: 20, maxLimit: 100 })
     const filter = {}
     if (typeof q === 'string' && q.trim()) {
-      // Escaped substring search, capped length: meta-characters are matched
-      // literally (no ReDoS payloads) and leading wildcards stay bounded.
       filter.word = { $regex: escapeRegExp(q.trim().slice(0, MAX_QUERY_LENGTH)), $options: 'i' }
     } else if (q !== undefined && typeof q !== 'string') {
       return res.status(400).json({ message: 'q must be a string' })
@@ -59,10 +57,6 @@ router.get('/:id', requireDB, requireAuth, async (req, res) => {
   }
 })
 
-// Add your own word. `word` is globally unique (case-insensitive): re-adding
-// an existing word returns 409 with its id so the client can link it.
-// The word lands in the caller's personal "My Words" deck, so it is
-// immediately practicable in every study mode.
 router.post('/', requireDB, requireAuth, async (req, res) => {
   try {
     const invalid = validateCustomWord(req.body)
@@ -97,8 +91,6 @@ router.post('/', requireDB, requireAuth, async (req, res) => {
 
     res.status(201).json({ word: created, deckId: deck._id })
   } catch (err) {
-    // Concurrent same-word posts can both pass the findOne check; the unique
-    // index settles the race — report it as 409, not 500.
     if (isDuplicateKeyError(err)) {
       return res.status(409).json({ message: 'That word already exists' })
     }

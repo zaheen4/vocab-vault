@@ -3,10 +3,6 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-// Pure WCAG 2.1 contrast checks for the design tokens. Every color lives in
-// index.css; this test reads those values instead of duplicating the palette,
-// so a token edit that breaks a key pair fails here before it ships.
-
 const SRC = join(fileURLToPath(new URL('.', import.meta.url)), '..')
 const CSS = readFileSync(join(SRC, 'src/index.css'), 'utf8')
 
@@ -74,8 +70,6 @@ describe('light theme contrast', () => {
   })
 
   it('keeps ink readable on the mistake-bank wash', () => {
-    // The wash is tinted stock, not a card: the muted 12px reason line and the
-    // 10px tab label have to clear AA against the tint itself.
     expect(contrast(lightColor('ink'), lightColor('stamp-wash'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
     expect(contrast(lightColor('ink-muted'), lightColor('stamp-wash'))).toBeGreaterThanOrEqual(
       NORMAL_TEXT
@@ -153,8 +147,6 @@ describe('brand fill contrast', () => {
   })
 
   it('keeps each tactile edge distinct from its own fill and visible on a card', () => {
-    // A chunky border painted with a translucent version of the fill under it
-    // is invisible; the edge has to be its own darker token.
     expect(contrast(staticColor('accent-deep'), staticColor('accent'))).toBeGreaterThan(1.5)
     for (const theme of [
       { fill: lightColor('stamp'), edge: lightColor('stamp-deep'), card: lightColor('card') },

@@ -1,13 +1,9 @@
-// Local calendar key (YYYY-MM-DD). Local, never UTC: "today" in the study log
-// must mean the user's today, not Greenwich's.
 export function dayKey(dateInput = new Date()) {
   const date = dateInput instanceof Date ? dateInput : new Date(dateInput)
   if (Number.isNaN(date.getTime())) return ''
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
 }
 
-// Pure relative time formatter with standard human intervals.
-// Respects custom reference time for deterministic testing.
 export function formatRelativeTime(dateInput, now = new Date()) {
   if (!dateInput) return ''
   const date = dateInput instanceof Date ? dateInput : new Date(dateInput)
@@ -16,7 +12,6 @@ export function formatRelativeTime(dateInput, now = new Date()) {
   const nowDate = now instanceof Date ? now : new Date(now)
   const diffMs = nowDate.getTime() - date.getTime()
 
-  // Future timestamp or less than 60 seconds
   if (diffMs < 60 * 1000) {
     return 'just now'
   }

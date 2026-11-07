@@ -21,8 +21,6 @@ function EyeOffIcon({ className }) {
   )
 }
 
-// Single shared text input: focus ring, dark surface, icon slot, error state,
-// password visibility toggle, labelRight slot.
 export default function Input({
   label,
   labelRight,
@@ -42,8 +40,6 @@ export default function Input({
 
   const inputId = id || (label ? `input-${String(label).toLowerCase().replace(/[^a-z0-9]+/g, '-')}` : undefined)
   const fieldClass = cn(
-    // 16px on touch (text-base): iOS Safari auto-zooms smaller fields and
-    // breaks layout on focus. Desktop keeps text-sm density.
     'w-full rounded-md border border-line bg-card px-3 py-2 text-base text-ink placeholder:text-ink-muted/60 sm:text-sm',
     'transition-colors focus:border-accent focus:ring-2 focus:ring-accent/40 focus:outline-none',
     'dark:bg-raised dark:placeholder:text-ink-muted/50',

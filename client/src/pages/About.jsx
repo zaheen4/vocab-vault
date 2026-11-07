@@ -1,8 +1,6 @@
 import Mascot from '../components/art/Mascot'
 import Button from '../components/ui/Button'
 
-// Single home for product, privacy, and contact: one scroll instead of a
-// footer strip plus two orphan routes.
 export default function About() {
   return (
     <div className="animate-page mx-auto max-w-xl space-y-6">

@@ -1,10 +1,5 @@
 import { expect, test } from '@playwright/test'
 
-// Design-contract gate (mirrors docs/DESIGN_SYSTEM.md "Checking a PR"):
-// voice vs reading type, tap-target minimums, reduced-motion kill-switch,
-// clean renders, theme toggling, and mobile tab bar hygiene.
-// Auth is handled via the global QA setup and storageState (see AGENTS.md).
-
 test.beforeEach(async ({ page }) => {
   const errors = []
   page.on('pageerror', (e) => errors.push(String(e)))
@@ -71,7 +66,6 @@ test('theme toggle switches dark mode and persists preference', async ({ page })
   const stored = await page.evaluate(() => localStorage.getItem('vv_theme'))
   expect(stored).toBe(nextDark ? 'dark' : 'light')
 
-  // Restore original state
   await toggle.click()
   await page.waitForTimeout(300)
   expect(await page.evaluate(() => document.documentElement.classList.contains('dark'))).toBe(initialDark)
@@ -165,10 +159,8 @@ test('home leads with today and gives each deck a single action', async ({ page 
   const total = await cards.count()
   expect(total).toBeGreaterThan(0)
 
-  // The library never turns into a grid of part buttons.
   await expect(page.getByRole('link', { name: /^Practice .* Part \d$/ })).toHaveCount(0)
 
-  // Every card offers an actionable link into the deck.
   const actionLinks = page.locator('[data-testid="deck-card"] a[href^="/decks/"]')
   expect(await actionLinks.count()).toBeGreaterThanOrEqual(total)
 

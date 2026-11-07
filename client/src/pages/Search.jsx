@@ -29,7 +29,6 @@ export default function Search() {
   const ttsAvailable = useTtsAvailable()
   const timerRef = useRef(null)
 
-  // Never leave speech playing after navigating away from results.
   useEffect(() => () => stopSpeaking(), [])
 
   function speak(text) {

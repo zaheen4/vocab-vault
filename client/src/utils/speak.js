@@ -1,15 +1,9 @@
-// Pronunciation for flashcards. Pre-rendered Kokoro clips are the primary
-// source (identical on every device); the Web Speech API is a fallback.
-// All browser access is function-scoped so importing in node (vitest) is safe.
 import { useEffect, useState } from 'react'
 
 const TIP_KEY = 'vocabvault:tts-tip-seen'
 const AUDIO_BASE = '/audio'
 
-// Shown when neither a clip nor a browser voice is available.
 export const TTS_UNAVAILABLE_HINT = 'Pronunciation audio unavailable'
-
-// ---------------------------------------------------------------- audio clips
 
 let manifestPromise = null
 const urlCache = new Map()
@@ -33,8 +27,6 @@ function loadManifest() {
   return manifestPromise
 }
 
-// Resolve a word to its clip URL, honouring the manifest (needed for the few
-// multi-word / hyphenated entries) with a slug fallback.
 export async function audioUrlFor(word) {
   const key = (word ?? '').trim().toLowerCase()
   if (!key) return null
@@ -53,8 +45,6 @@ function getAudio() {
   if (!audioEl) audioEl = new Audio()
   return audioEl
 }
-
-// --------------------------------------------------------------- speech API
 
 function getSynth() {
   if (typeof window === 'undefined') return undefined
@@ -85,11 +75,6 @@ function listVoices(synth) {
   }
 }
 
-// speech-dispatcher + espeak-ng exposes every language crossed with ~100
-// variants ("English (Caribbean)+Demonic") and lists Caribbean before
-// America. Score candidates so a plain, standard English voice wins:
-// en-US > en-GB > other en; drop variants and script oddities; prefer
-// non-espeak engines (whose voices are not named "English (…)").
 function scoreVoice(voice) {
   const lang = (voice.lang || '').toLowerCase().replace(/_/g, '-')
   const name = voice.name || ''
@@ -136,8 +121,6 @@ function speakWithSynth(word, { rate = 1, onError } = {}) {
   return true
 }
 
-// Voices load asynchronously in some engines, so "supported" is not the same
-// as "can actually speak". Resolves true only once a voice is known.
 export function voicesAvailable(timeoutMs = 1500) {
   if (!isTtsSupported()) return Promise.resolve(false)
   const synth = getSynth()
@@ -152,9 +135,7 @@ export function voicesAvailable(timeoutMs = 1500) {
       if (timer) clearTimeout(timer)
       try {
         synth.removeEventListener?.('voiceschanged', onChange)
-      } catch {
-        /* engine quirks: ignore */
-      }
+      } catch {}
       resolve(value)
     }
     const onChange = () => {
@@ -162,15 +143,11 @@ export function voicesAvailable(timeoutMs = 1500) {
     }
     try {
       synth.addEventListener?.('voiceschanged', onChange)
-    } catch {
-      /* engine quirks: ignore */
-    }
+    } catch {}
     timer = setTimeout(() => finish(listVoices(synth).length > 0), timeoutMs)
   })
 }
 
-// null while checking, then boolean. True when clips are shipped (the normal
-// case) or, failing that, when the browser has a usable voice.
 export function useTtsAvailable(timeoutMs = 1500) {
   const [available, setAvailable] = useState(null)
   useEffect(() => {
@@ -188,8 +165,6 @@ export function useTtsAvailable(timeoutMs = 1500) {
   return available
 }
 
-// One-time nudge for the undetectable case: audio exists but output is muted.
-// We cannot read system volume, so we ask the human to check it.
 export function claimTtsTip() {
   try {
     if (typeof localStorage === 'undefined') return false
@@ -209,18 +184,14 @@ export function stopSpeaking() {
       audio.pause()
       audio.currentTime = 0
       stopped = true
-    } catch {
-      /* ignore */
-    }
+    } catch {}
   }
   const synth = getSynth()
   if (synth) {
     try {
       synth.cancel()
       stopped = true
-    } catch {
-      /* ignore */
-    }
+    } catch {}
   }
   return stopped
 }
@@ -232,7 +203,6 @@ export function speakWord(text, { rate = 1, onError } = {}) {
   const audio = getAudio()
   if (!audio) return speakWithSynth(word, { rate, onError })
 
-  // Prefer the shipped clip; fall back to speechSynthesis if it cannot play.
   audioUrlFor(word)
     .then((url) => {
       if (!url) throw new Error('no clip')

@@ -14,10 +14,6 @@ import { FlameIcon, GemIcon, HundredIcon, SproutIcon, StarIcon } from '../compon
 
 const GOAL_TARGETS = [5, 10, 15, 20, 25, 30, 40, 50]
 
-// Display catalog mirrors server/src/utils/gamify.js BADGES.
-// progress() derives the locked-state X/Y hint from the gamification payload
-// (null when the payload carries no measure — flawless needs perfectRun,
-// which the endpoint doesn't return).
 const BADGES = [
   { id: 'first-word', name: 'First Word', Icon: SproutIcon, description: 'Review your first word', progress: (s) => `${Math.min(s.totalReviewed || 0, 1)}/1 review` },
   { id: 'century', name: 'Century', Icon: HundredIcon, description: 'Review 100 words', progress: (s) => `${Math.min(s.totalReviewed || 0, 100)}/100 reviews` },
@@ -26,9 +22,6 @@ const BADGES = [
   { id: 'flawless', name: 'Flawless', Icon: GemIcon, description: '10 correct in a row', progress: null },
 ]
 
-// A ledger line, not a stat tile: label at the left margin, figure right-
-// aligned against the same edge, dotted leader between. Three figures in three
-// floating columns read as a template; three ledger lines read as a record.
 function LedgerRow({ label, value }) {
   return (
     <div className="flex items-baseline gap-2">
@@ -43,10 +36,6 @@ function LedgerRow({ label, value }) {
   )
 }
 
-// The goal ring celebrates with a halo, not a box-shadow: the halo is an
-// absolutely positioned circle sharing the ring's box, so it is concentric by
-// construction. The old glow wrapped an inline child, which left a baseline
-// gap — 76×83 — and `rounded-full` drew an ellipse 3.5px below the ring.
 function GoalRing({ done, target, met }) {
   const reduceMotion = useReducedMotion()
   return (
@@ -71,10 +60,6 @@ function GoalRing({ done, target, met }) {
   )
 }
 
-// Level passport: the page's identity block, laid out as the inside cover of a
-// record — ring, level, then three ledger lines. The ring is the navbar chip's
-// geometry two sizes up, so the number in the navbar and the number here are
-// recognisably the same instrument.
 function Passport({ stats, level, streak, xp }) {
   const pct = stats.progressToNext || 0
   return (
@@ -124,10 +109,6 @@ function GoalSection({ stats, setGoal }) {
         </span>
       }
     >
-      {/* Ring and promise on the left, the picker as a compact 4x2 block on
-          the right. The old full-width 8-across strip left a dead band across
-          the middle of a wide card and made the card taller than the passport
-          beside it. */}
       <div className="flex flex-1 flex-wrap items-center gap-x-6 gap-y-4">
         <GoalRing done={done} target={target} met={met} />
         <div className="min-w-0 flex-1">
@@ -163,14 +144,9 @@ function GoalSection({ stats, setGoal }) {
   )
 }
 
-// The only loud surface on the page: everything else is quiet paper, so the
-// one stamped card carries the urgency — count, reason, one action.
 function MistakeBank({ count }) {
   return (
     <Sheet tab="Mistake bank" className="flex h-full flex-col border-stamp/30 bg-stamp-wash">
-      {/* The count and its reason centre in the space above the pinned action:
-          the card matches the badge shelf's height, so top-aligning a three-
-          line block left a hole in the middle of the card. */}
       <div className="flex flex-1 flex-col justify-center">
         <p className="font-display text-3xl font-bold text-stamp tabular-nums">
           {count}
@@ -187,8 +163,6 @@ function MistakeBank({ count }) {
   )
 }
 
-// Badges stay a shelf of stamps, but the footer names the next unlock with its
-// real measure instead of telling the reader to keep practising.
 function BadgeShelf({ stats }) {
   const earned = stats.badges || []
   const earnedIds = new Set(earned.map((badge) => badge.id))
@@ -197,14 +171,6 @@ function BadgeShelf({ stats }) {
 
   return (
     <Sheet tab="Badges" className="flex h-full flex-col">
-      {/* No header row: with no title, the only header content was the count
-          floating on the right of an empty rule. The footer carries it
-          instead, next to the name of the next unlock. */}
-      {/* Flex, not a grid: five stamps never divide evenly into two phone
-          columns, and the odd one out used to sit alone against the left edge.
-          `justify-center` centres it; from `sm` every stamp takes an equal
-          share of the row. The negative gutters keep the outer edges flush with
-          the card while every item is exactly half the row. */}
       <div className="-mx-1 -mb-2 flex flex-wrap justify-center">
         {BADGES.map((badge) => {
           const progressText = badge.progress ? badge.progress(stats) : badge.description
@@ -235,7 +201,6 @@ function BadgeShelf({ stats }) {
 
 export default function Progress() {
   const { data: summary, isLoading, isError } = useProgressSummary()
-  // Decorative gamification surfaces: never block the page on failure
   const { data: stats } = useGamification()
   const { data: weakData } = useWeakWords(1)
   const setGoal = useSetGoalTarget()
@@ -291,10 +256,6 @@ export default function Progress() {
         }
       />
 
-      {/* Three uneven rows, four columns against eight: identity beside
-          today's commitment, the week beside the inventory bar, the mistake
-          bank beside the badge shelf. A stack of six equal cards reads as a
-          template; a spread reads as a record. */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         {stats && (
           <div className="lg:col-span-4">

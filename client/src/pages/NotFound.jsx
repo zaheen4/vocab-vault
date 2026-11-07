@@ -2,8 +2,6 @@ import { Link } from 'react-router-dom'
 import Button from '../components/ui/Button'
 import EmptyArt from '../components/art/EmptyArt'
 
-// Replaces the old silent *-redirect: a mistyped deck link now explains
-// itself instead of vanishing into the home page.
 export default function NotFound() {
   return (
     <div className="animate-page mx-auto max-w-xl py-10 text-center">

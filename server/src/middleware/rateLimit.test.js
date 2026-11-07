@@ -2,9 +2,6 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import express from 'express'
 import { apiLimiter, authLimiter, makeLimiter, reviewLimiter } from './rateLimit.js'
 
-// Boots a one-route app on an ephemeral port. The limiter keys on req.ip, so
-// every request in a case shares one bucket — exactly like a local dev run,
-// where the whole E2E suite arrives from 127.0.0.1.
 async function boot(limiter) {
   const app = express()
   app.get('/ping', limiter, (req, res) => res.json({ ok: true }))
@@ -44,7 +41,6 @@ describe('rate limiters', () => {
     try {
       const responses = await app.hit(5)
       expect(responses.map((r) => r.status)).toEqual([200, 200, 200, 200, 200])
-      // Skipped limiters write no headers at all, so nothing is even counted.
       expect(responses[4].headers.get('ratelimit-policy')).toBeNull()
     } finally {
       await app.close()

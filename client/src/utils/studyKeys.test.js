@@ -46,7 +46,6 @@ describe('resolveStudyKey', () => {
     for (const target of [btn, link]) {
       expect(resolveStudyKey({ key: ' ', target })).toBeNull()
       expect(resolveStudyKey({ key: 'Enter', target })).toBeNull()
-      // Number keys still work when an action button keeps focus.
       expect(resolveStudyKey({ key: '2', flipped: true, target })).toBe('got-it')
     }
   })

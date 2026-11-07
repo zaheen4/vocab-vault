@@ -94,13 +94,13 @@ describe('pre-rendered audio', () => {
 
   it('falls back to speechSynthesis when the clip 404s', async () => {
     const instances = stubAudio()
-    stubFetch({}) // empty manifest -> slug fallback is fine, but audio error
+    stubFetch({})
     const synth = stubSpeech()
     const { speakWord } = await freshSpeak()
 
     speakWord('abound')
     await vi.waitFor(() => expect(instances[0].src).toBe('/audio/words/abound.mp3'))
-    instances[0].onerror() // simulate decode/404 error
+    instances[0].onerror()
     expect(synth.speak).toHaveBeenCalledTimes(1)
   })
 

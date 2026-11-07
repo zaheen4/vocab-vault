@@ -4,8 +4,6 @@ import Button from '../components/ui/Button'
 import EmptyArt from '../components/art/EmptyArt'
 import ReviewSession from '../components/ReviewSession'
 
-// Cross-deck spaced-repetition queue. The session shell lives in
-// ReviewSession; this page only supplies the batch and its copy.
 export default function DuePractice() {
   const { data, isLoading, isError, refetch } = useDueWords(20)
   return (

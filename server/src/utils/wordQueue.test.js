@@ -28,8 +28,6 @@ describe('buildWordQueuePipeline', () => {
       foreignField: '_id',
       as: 'word',
     })
-    // Unwinding is what removes the ghost rows; without it they survive the
-    // facet and still count toward the total.
     expect(unwind).toEqual({ $unwind: '$word' })
     expect(pipeline.indexOf(unwind)).toBeGreaterThan(pipeline.indexOf(lookup))
   })

@@ -182,7 +182,6 @@ export async function pruneOldSessions(QuizSessionModel, userId, max = MAX_QUIZ_
       }
     }
   } catch (err) {
-    // Non-blocking maintenance failure: never fail user request
     console.warn('[quizHistory] prune error:', err.message)
   }
 }

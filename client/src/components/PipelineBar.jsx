@@ -1,13 +1,6 @@
 import Sheet from './Sheet'
 import { cn } from '../utils/cn'
 
-// Three pastel cards used to say what this bar says in one read. The order is
-// the pipeline itself — not started, learning, mastered — so the bar grows
-// toward the finish instead of starting with a green knob at zero, and the
-// legend reads left to right the way a word travels. Sage is mastered, accent
-// is learning, and the third fill is neutral. `line` is a hairline color — 10%
-// white in dark mode — so a fill built from it vanishes on the dark card. The
-// unstarted swatch uses muted ink instead.
 const SEGMENTS = [
   {
     key: 'new',
@@ -31,16 +24,8 @@ export default function PipelineBar({ summary = {} }) {
       : `${segments.map((s) => `${s.count} ${s.label.toLowerCase()}`).join(', ')} — ${total} words in total.`
 
   return (
-    // No header meta: the legend already states every count and its share, and
-    // a "1% mastered" chip beside it repeated the first legend line.
     <Sheet tab="Pipeline" title="Where the words sit" className="flex h-full flex-col">
       <div className="flex flex-1 flex-col justify-center">
-        {/* One rail with inset pills: a slice sits inside the track rather than
-            flush against its rounded end, so a 1% slice reads as a short pill
-            instead of a slider knob parked at zero. flexGrow keeps the true
-            ratio while the floor guarantees every non-zero segment stays
-            visible, and the gaps keep two adjacent fills from merging into one
-            uninterrupted slab. */}
         <div
           role="img"
           aria-label={summaryText}
@@ -57,11 +42,6 @@ export default function PipelineBar({ summary = {} }) {
           )}
         </div>
 
-        {/* Three equal cells, each a small ledger entry: label, then the count
-            at display weight, then its share on its own line. The old count and
-            share sat on one baseline at nearly the same size — "1 1%" read as
-            a stutter. Rule-separated cells keep each stage's numbers together
-            without letting a label drift away from the value it names. */}
         <dl className="mt-5 grid grid-cols-3 gap-x-3">
           {segments.map((segment, i) => (
             <div

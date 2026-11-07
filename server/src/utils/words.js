@@ -1,7 +1,5 @@
 export const WORD_DIFFICULTIES = ['basic', 'intermediate', 'advanced']
 
-// Pure validation for POST /api/words. Returns an error message string,
-// or null when the body is valid.
 export function validateCustomWord(body) {
   const word = typeof body?.word === 'string' ? body.word.trim() : ''
   const definition = typeof body?.definition === 'string' ? body.definition.trim() : ''

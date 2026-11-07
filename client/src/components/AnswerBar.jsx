@@ -1,8 +1,5 @@
 import Button from './ui/Button'
 
-// Two 48px answer targets for flashcard sessions. Keyboard hints appear only
-// once the mobile tab bar hands off to the desktop nav (md), and the sticky
-// offset switches at that same breakpoint so the two never disagree.
 function KeyHint({ children }) {
   return (
     <kbd

@@ -1,7 +1,5 @@
 import { useWordProgress } from '../api/queries'
 
-// Last-5 review timeline for one word. Renders nothing until `active`
-// (callers fetch lazily on expand via the hook's enabled flag).
 export default function WordHistory({ wordId, active }) {
   const { data, isLoading } = useWordProgress(active ? wordId : null)
   if (!active) return null

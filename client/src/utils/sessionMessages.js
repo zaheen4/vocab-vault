@@ -1,8 +1,3 @@
-// Tiered end-of-session messages with round-robin rotation.
-// Each pool cycles without repeating until exhausted; position persists in
-// localStorage per pool. Pure except for the counter store, which is
-// injectable so rotation is unit-testable without a DOM.
-
 export const POOLS = {
   perfect: [
     'Flawless victory! 🏆',
@@ -106,7 +101,6 @@ function webStore() {
   try {
     if (typeof localStorage !== 'undefined') return localStorage
   } catch {
-    // fall through to memory store (node tests, privacy mode)
   }
   const mem = new Map()
   return {
@@ -127,9 +121,6 @@ function resolveVariant(variant, ctx) {
   return typeof variant === 'function' ? variant(ctx) : variant
 }
 
-// Returns the next message for a finished session. Call exactly once per
-// session (e.g. when transitioning to the end screen) — every call advances
-// the pool's rotation counter.
 export function getSessionMessage(
   { correct = 0, total = 0, bestCombo = 0, levelUp = false, level = null } = {},
   store
@@ -151,7 +142,6 @@ export function getSessionMessage(
   try {
     s.setItem(key, String(next))
   } catch {
-    // rotation persistence is best-effort; message still resolves
   }
   return resolveVariant(pool[next], { correct, total, pct, bestCombo, levelUp, level })
 }

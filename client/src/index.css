@@ -1,30 +1,20 @@
 @import "tailwindcss";
 
-/* Class-driven dark mode: ThemeContext toggles .dark on <html>. */
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  /* Static brand fills — these do NOT auto-switch with dark mode. */
   --color-primary: #1f2a44;
   --color-accent: #d9772f;
   --color-gold: #eadfc4;
   --color-accent-deep: #9a4a12;
-  /* Dark surfaces + ink. Light mode never references these; every dark:
-     utility below pairs with a light default so nothing renders unstyled. */
   --color-night-950: #0e1326;
   --color-night-900: #171d36;
   --color-night-800: #222a4a;
   --color-cream-100: #f4eedf;
   --color-cream-300: #c9c2ad;
-  /* Fluid display sizes: floors match the fixed sizes they replace, so
-     nothing shrinks below approved mobile sizes; caps stay calm inside
-     max-w-xl columns. Body text stays fixed — never fluid. */
   --text-display-xl: clamp(1.875rem, 1.4rem + 2.4vw, 2.75rem);
   --text-display-lg: clamp(1.5rem, 1.25rem + 1.4vw, 2rem);
-  /* Micro annotations only (nav due counts); never body copy. */
   --text-2xs: 0.625rem;
-  /* Motion timing for CSS-only cases. The JS source of truth is
-     client/src/lib/motion.jsx (MOTION); update both together. */
   --ease-travel: cubic-bezier(0.22, 1, 0.36, 1);
   --dur-fast: 120ms;
   --dur-base: 180ms;
@@ -33,9 +23,6 @@
   --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
 }
 
-/* Semantic surfaces and ink. Values live in :root/.dark, so one utility
-   (bg-canvas, bg-card, text-ink, border-line) works in both themes. Keep
-   static brand fills above for backgrounds that must not flip in dark mode. */
 @theme inline {
   --color-canvas: var(--vv-canvas);
   --color-card: var(--vv-card);
@@ -66,14 +53,7 @@
   --vv-stamp-deep: #76271c;
   --vv-sage: #2f6b4f;
   --vv-brass: #8a6414;
-  /* Manila stock: gold 35% over the page shell, pre-blended to an opaque
-     token. The corner tab inherits its sheet's surface, and a translucent
-     tint would composite twice where the tab overlaps the card's top edge. */
   --vv-manila: #e9e4d5;
-  /* Mistake-bank wash: stamp over the page shell, pre-blended for the same
-     reason — a translucent fill lets the card's top rule show through the tab.
-     Light sits at ~3% rather than the dark token's 5%: at 5% the wash left
-     `ink-muted` at 4.42:1, under AA for the 12px line and the tab label. */
   --vv-stamp-wash: #e7e1d9;
   --vv-shadow-paper: 0 1px 0 0 var(--vv-line), 0 12px 28px -24px rgba(31, 42, 68, 0.55);
 }
@@ -103,7 +83,6 @@
   }
 }
 
-/* 3D card flip */
 .flip-scene {
   perspective: 1200px;
 }
@@ -122,7 +101,6 @@
   transform: rotateY(180deg);
 }
 
-/* page transition */
 @keyframes fade-slide-in {
   from {
     opacity: 0;
@@ -137,9 +115,6 @@
   animation: fade-slide-in 0.18s ease-out;
 }
 
-/* staggered list entrance (pair with inline animation-delay per index) */
-
-/* answer-result pop */
 @keyframes pop-in {
   0% {
     transform: scale(0.6);
@@ -157,7 +132,6 @@
   animation: pop-in 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
-/* wrong-answer shake */
 @keyframes shake-x {
   0%,
   100% {
@@ -180,7 +154,6 @@
   animation: shake-x 0.45s ease-in-out both;
 }
 
-/* floating "+XP" */
 @keyframes float-up {
   0% {
     transform: translateY(0);
@@ -195,7 +168,6 @@
   animation: float-up 0.9s ease-out forwards;
 }
 
-/* level-up glow pulse */
 @keyframes glow-pulse {
   0% {
     box-shadow: 0 0 0 0 rgba(238, 150, 75, 0.6);
@@ -211,8 +183,6 @@
   animation: glow-pulse 1.1s ease-out infinite;
 }
 
-/* directional mode-switch slides: forward enters from the right,
-   back from the left. Non-mode pages use .animate-page explicitly. */
 @keyframes slide-in-right {
   from {
     opacity: 0;
@@ -240,7 +210,6 @@
   animation: slide-in-left 0.22s ease-out;
 }
 
-/* staggered list entrance (pair with inline animation-delay per index) */
 @keyframes fade-up {
   from {
     opacity: 0;
@@ -255,7 +224,6 @@
   animation: fade-up 0.4s ease-out both;
 }
 
-/* confetti burst pieces: spawn near top, fan outward via --drift */
 @keyframes confetti-burst {
   0% {
     transform: translate(0, -6vh) rotate(0deg);
@@ -274,7 +242,6 @@
   z-index: 60;
 }
 
-/* honor OS reduced-motion: stillness over celebration */
 @media (prefers-reduced-motion: reduce) {
   .animate-slide-forward,
   .animate-slide-back,
@@ -291,5 +258,4 @@
     transition: none;
   }
 }
-
 

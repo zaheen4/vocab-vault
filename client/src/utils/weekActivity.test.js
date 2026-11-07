@@ -1,8 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { weekDays, weekLevel, weekTotal } from './weekActivity'
 
-// Friday 6 Nov 2026, local noon — far enough from midnight that the
-// seven-day window cannot slide a day in any timezone the suite runs in.
 const NOW = new Date(2026, 10, 6, 12)
 
 describe('weekDays', () => {

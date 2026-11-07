@@ -3,8 +3,6 @@ import { cn } from '../utils/cn'
 
 let lastPartGeometry = null
 
-// Part picker as a segmented strip: each segment states what is left there
-// ("2 due") or how far along it is ("45%"), so switching parts is a decision.
 export default function PartTabs({
   currentPart = 'all',
   onSelectPart,
@@ -21,7 +19,6 @@ export default function PartTabs({
       const count = p?.wordCount ?? 10
       const due = p?.dueCount ?? 0
       const unseen = p?.progress?.new ?? 0
-      // Same review-due rule as the deck card: never count never-seen words.
       const reviewDue = Math.max(0, due - unseen)
       const mastered = p?.progress?.mastered ?? 0
       const pct = count > 0 ? Math.round((mastered / count) * 100) : 0

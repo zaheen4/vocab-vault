@@ -15,7 +15,6 @@ function toBookmarkJson(doc, progressByWord) {
   return { _id: doc._id, word: doc.wordId, addedAt: doc.createdAt, ...mastery }
 }
 
-// List my starred words, newest first, each with the user's SRS mastery.
 router.get('/', requireDB, requireAuth, async (req, res) => {
   try {
     const docs = await Bookmark.find({ userId: req.user._id })
@@ -32,7 +31,6 @@ router.get('/', requireDB, requireAuth, async (req, res) => {
   }
 })
 
-// Star a word. Idempotent: an existing star returns 200 with the same shape.
 router.post('/', requireDB, requireAuth, async (req, res) => {
   try {
     const { wordId } = req.body || {}
@@ -53,9 +51,6 @@ router.post('/', requireDB, requireAuth, async (req, res) => {
   }
 })
 
-// Practice session from saved words: unseen first (saved order), then due
-// words oldest-first; seen-but-not-yet-due words are excluded until their
-// SRS date arrives. Mirrors GET /decks/:id/practice selection.
 router.get('/practice', requireDB, requireAuth, async (req, res) => {
   try {
     const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 10, 1), 50)
@@ -94,7 +89,6 @@ router.get('/practice', requireDB, requireAuth, async (req, res) => {
   }
 })
 
-// Unstar a word. Idempotent: still 200 when nothing was starred.
 router.delete('/:wordId', requireDB, requireAuth, async (req, res) => {
   try {
     const { wordId } = req.params

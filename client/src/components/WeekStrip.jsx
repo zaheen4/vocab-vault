@@ -9,8 +9,6 @@ const TONES = {
   3: 'border-line bg-accent/60',
 }
 
-// Seven cells, oldest first, today outlined. A day with no reviews keeps its
-// cell: a gap would read as missing data instead of a day off.
 export default function WeekStrip({ activity = [] }) {
   const days = weekDays(activity)
   const total = weekTotal(days)
