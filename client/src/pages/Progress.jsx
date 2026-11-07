@@ -9,10 +9,8 @@ import PipelineBar from '../components/PipelineBar'
 import WeekStrip from '../components/WeekStrip'
 import BadgeStamp from '../components/BadgeStamp'
 import Button from '../components/ui/Button'
-import Chip from '../components/ui/Chip'
+import GoalPicker from '../components/GoalPicker'
 import { FlameIcon, GemIcon, HundredIcon, SproutIcon, StarIcon } from '../components/art/icons'
-
-const GOAL_TARGETS = [5, 10, 15, 20, 25, 30, 40, 50]
 
 const BADGES = [
   { id: 'first-word', name: 'First Word', Icon: SproutIcon, description: 'Review your first word', progress: (s) => `${Math.min(s.totalReviewed || 0, 1)}/1 review` },
@@ -121,24 +119,12 @@ function GoalSection({ stats, setGoal }) {
               : 'A freeze covers one missed practice day.'}
           </p>
         </div>
-        <div
+        <GoalPicker
           className="grid w-full grid-cols-4 gap-1.5 sm:w-48 sm:shrink-0"
-          role="group"
-          aria-label="Daily goal target"
-        >
-          {GOAL_TARGETS.map((value) => (
-            <Chip
-              key={value}
-              pressed={target === value}
-              disabled={setGoal.isPending}
-              aria-label={`Set daily goal to ${value} reviews`}
-              onClick={() => setGoal.mutate(value)}
-              className="justify-center rounded-md px-2 font-mono tabular-nums"
-            >
-              {value}
-            </Chip>
-          ))}
-        </div>
+          target={target}
+          onChange={setGoal.mutate}
+          busy={setGoal.isPending}
+        />
       </div>
     </Sheet>
   )

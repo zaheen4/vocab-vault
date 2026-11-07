@@ -12,6 +12,7 @@ const variants = {
   success:
     'border border-sage/30 bg-sage/10 text-sage hover:bg-sage/15',
   stamp: 'bg-stamp text-white hover:brightness-95 dark:text-night-950',
+  ghost: 'text-accent-ink hover:underline',
 }
 
 const tactileEdge = {
@@ -32,7 +33,7 @@ export default function Button({
   disabled,
   ...props
 }) {
-  const tactile = chunky || variant === 'primary'
+  const tactile = variant !== 'ghost' && (chunky || variant === 'primary')
   return (
     <button
       {...props}
