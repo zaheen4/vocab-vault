@@ -196,15 +196,10 @@ function BadgeShelf({ stats }) {
   const nextText = next ? (next.progress ? next.progress(stats) : next.description) : ''
 
   return (
-    <Sheet
-      tab="Badges"
-      className="flex h-full flex-col"
-      meta={
-        <span className="font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase tabular-nums">
-          {earned.length} of {BADGES.length} earned
-        </span>
-      }
-    >
+    <Sheet tab="Badges" className="flex h-full flex-col">
+      {/* No header row: with no title, the only header content was the count
+          floating on the right of an empty rule. The footer carries it
+          instead, next to the name of the next unlock. */}
       {/* Flex, not a grid: five stamps never divide evenly into two phone
           columns, and the odd one out used to sit alone against the left edge.
           `justify-center` centres it; from `sm` every stamp takes an equal
@@ -225,12 +220,13 @@ function BadgeShelf({ stats }) {
         })}
       </div>
       <p className="mt-auto pt-3 text-xs text-ink-muted">
+        {earned.length} of {BADGES.length} earned.{' '}
         {next ? (
           <>
             Next up: <span className="font-semibold text-ink">{next.name}</span> — {nextText}.
           </>
         ) : (
-          'Every badge earned — the catalog is yours.'
+          'Every badge collected — the catalog is yours.'
         )}
       </p>
     </Sheet>
@@ -278,22 +274,22 @@ export default function Progress() {
 
   return (
     <div className="animate-page space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <PageHeader
-          eyebrow="Statistics"
-          title="Your progress"
-          sub={
-            total === 0
-              ? 'Practice a deck to start tracking your progress.'
-              : `${total} word${total === 1 ? '' : 's'} in your learning pipeline.`
-          }
-        />
-        <Link to="/history">
-          <Button variant="secondary" className="gap-1.5">
-            Activity history <span aria-hidden="true">→</span>
-          </Button>
-        </Link>
-      </div>
+      <PageHeader
+        eyebrow="Statistics"
+        title="Your progress"
+        sub={
+          total === 0
+            ? 'Practice a deck to start tracking your progress.'
+            : `${total} word${total === 1 ? '' : 's'} in your learning pipeline.`
+        }
+        action={
+          <Link to="/history">
+            <Button variant="secondary" className="gap-1.5">
+              Activity history <span aria-hidden="true">→</span>
+            </Button>
+          </Link>
+        }
+      />
 
       {/* Three uneven rows, four columns against eight: identity beside
           today's commitment, the week beside the inventory bar, the mistake

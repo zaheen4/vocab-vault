@@ -145,8 +145,11 @@ action, or preserves context while something leaves. Anything else is cut.
   one search field. Each catalog card has one action — never a per-part button
   grid — and a `DUE n` stamp only when spaced-repetition review is actually due
   (`dueCount` minus never-seen words), not merely practicable.
-- Page headers come from shared `PageHeader` (eyebrow + H1 + sub); session
-  screens share `SessionHud` + `ScoreRing`; deck identity comes from `DeckTile`.
+- Page headers come from shared `PageHeader` (eyebrow + H1 + sub, plus an
+  optional `action`). The action sits on the **eyebrow row**, right-aligned, at
+  every width — parked under the subtitle it took a whole band of its own on a
+  phone and read as a second title. Session screens share `SessionHud` +
+  `ScoreRing`; deck identity comes from `DeckTile`.
 - **Study session.** One column (`max-w-2xl`), one card, one answer bar:
   - The card is an index card: `bg-card`, 2px `border-line`, a corner tab
     (`CARD` / `MEANING`), a stacked card behind it, and `min-h-72` /
@@ -208,8 +211,10 @@ action, or preserves context while something leaves. Anything else is cut.
     earned, dashed outline with the `x/y` hint while locked. The shelf is a
     wrapping flex row (`justify-center`) so the odd fifth stamp centres at
     phone width instead of sitting alone against the left edge; every stamp
-    takes an equal share from `sm`, and all of them stretch to one height. The
-    footer names the next unlock and its real measure, not "keep practising".
+    takes an equal share from `sm`, and all of them stretch to one height. No
+    header rule — with no title the only thing on it was the count floating
+    over an empty line — so the footer carries the count and names the next
+    unlock with its real measure.
   - The mistake bank is the page's one loud surface: a 4-column stamped card
     whose count and reason centre in the space above a pinned, full-width
     `stamp` action — never a full-width band with the action stranded at the
@@ -254,8 +259,11 @@ action, or preserves context while something leaves. Anything else is cut.
   active tab gets an accent top rule, accent icon, and a light accent wash.
   The bar is 72px tall, and Review's due count sits under its label so all five
   labels share one baseline.
-- `Layout` reserves `pb-24` below `md:` so the tab bar never covers content or
-  CTAs; footer stays above it in flow.
+- `Layout` reserves the tab bar's height below `md:` with `pb-32` (128px against
+  a 72px bar, so the last line clears the bar even when iOS puts it on a
+  shorter visual viewport) and the normal gutter from `md`. `pt-*` is set
+  separately from `pb-*` on `<main>` so no responsive `py-*` can quietly shrink
+  the reserved space.
 - Touch target floor is 24px (e2e-enforced), aim 44px: `Button` base carries
   `min-h-11`; tabs, chips, and icon buttons meet it individually.
 - Overlays stack by design: toasts accept a `className` override so sticky
