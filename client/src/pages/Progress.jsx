@@ -78,7 +78,7 @@ function GoalRing({ done, target, met }) {
 function Passport({ stats, level, streak, xp }) {
   const pct = stats.progressToNext || 0
   return (
-    <Sheet tab="Passport" className="flex h-full flex-col bg-gold/35 dark:bg-night-900">
+    <Sheet tab="Passport" className="flex h-full flex-col bg-manila">
       <div className="flex items-center gap-5">
         <ProgressRing pct={pct} size={84} strokeWidth={3.5}>
           <span className="font-display text-xl font-bold text-ink tabular-nums">{level}</span>

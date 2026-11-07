@@ -56,9 +56,19 @@ describe('light theme contrast', () => {
     expect(contrast(lightColor('ink-muted'), lightColor('card'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
   })
 
-  it('keeps small accent text readable on card and manila', () => {
+  it('keeps small accent text readable on card and gold', () => {
     expect(contrast(lightColor('accent-ink'), lightColor('card'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
     expect(contrast(lightColor('accent-ink'), staticColor('gold'))).toBeGreaterThanOrEqual(
+      NORMAL_TEXT
+    )
+  })
+
+  it('keeps ink readable on the manila passport stock', () => {
+    expect(contrast(lightColor('ink'), lightColor('manila'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
+    expect(contrast(lightColor('ink-muted'), lightColor('manila'))).toBeGreaterThanOrEqual(
+      NORMAL_TEXT
+    )
+    expect(contrast(lightColor('accent-ink'), lightColor('manila'))).toBeGreaterThanOrEqual(
       NORMAL_TEXT
     )
   })
@@ -86,6 +96,14 @@ describe('dark theme contrast', () => {
     for (const name of ['accent-ink', 'stamp', 'sage', 'brass']) {
       expect(contrast(darkColor(name), darkColor('card'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
     }
+  })
+
+  it('keeps ink readable on the manila passport stock', () => {
+    expect(contrast(darkColor('ink'), darkColor('manila'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
+    expect(contrast(darkColor('ink-muted'), darkColor('manila'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
+    expect(contrast(darkColor('accent-ink'), darkColor('manila'))).toBeGreaterThanOrEqual(
+      NORMAL_TEXT
+    )
   })
 
   it('keeps cream ink readable on the night surfaces', () => {

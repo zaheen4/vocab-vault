@@ -21,6 +21,7 @@ token classes — never raw hex in components.
 | `stamp-deep` | `#76271C` | `#B8564A` | Tactile edge under a solid `stamp` fill (semantic) |
 | `sage` | `#2F6B4F` | `#7FD1A4` | Mastered/success status (semantic) |
 | `brass` | `#8A6414` | `#E0B85C` | Badges, XP, streak accents (semantic) |
+| `manila` | `#E9E4D5` | `#282B39` | Passport / special-stock surface (semantic) |
 | `primary` | `#1F2A44` | — | Static brand fill: brand panel, hero, ink on accent |
 | `accent` | `#D9772F` | — | Static interaction fill: CTAs, focus rings, bars |
 | `accent-deep` | `#9A4A12` | — | Tactile edge under accent fills; equals light `accent-ink` |
@@ -38,7 +39,7 @@ token classes — never raw hex in components.
   background in the brand panel and hero.
 - **Accent contrast:** `#D9772F` on white is only ~3:1. Use it for fills,
   focus rings, and large UI — never small text. Small accent text uses
-  `text-accent-ink` (6.1:1 on card, 4.7:1 on manila).
+  `text-accent-ink` (5.9:1 on card, 4.7:1 on `gold`, 4.9:1 on `manila`).
 - **Button ink:** navy `primary` on the accent fill is 4.50:1. Never white text
   on `accent`.
 - **Stamp:** white on the solid `stamp` fill is 6.31:1; small stamp text on a
@@ -184,11 +185,17 @@ action, or preserves context while something leaves. Anything else is cut.
   `DAILY GOAL`, `MISTAKE BANK`, `BADGES`), but the page is laid out as three
   uneven rows on a 12-column grid — **4 against 8** — so it reads as a spread
   rather than a stack of equal cards. Cards keep their natural height; a ragged
-  bottom edge is part of the pinned-to-the-board feel.
+  bottom edge is part of the pinned-to-the-board feel. The corner tab inherits
+  its sheet's surface **and** border (`bg-inherit border-inherit`), so a tinted
+  sheet gets a tab of the same stock; a card-coloured tab reads as a hole
+  punched through the top edge. Tints that sit under a tab are opaque tokens
+  (`bg-manila`, not `bg-gold/35`): a translucent tint composites twice over the
+  overlap and leaves a pale band.
   - Level passport: `ProgressRing` (navbar geometry, two sizes up) beside the
     level, then three **ledger lines** — mono label, dotted leader, figure
     right-aligned against one edge — instead of three floating stat columns.
-    All numerals are `tabular-nums`.
+    All numerals are `tabular-nums`. The sheet sits on `manila`, the page's
+    only special stock, in both themes.
   - `PipelineBar` replaces the three pastel cards: not started (line in light,
     muted ink in dark) / learning (accent) / mastered (sage) as one segmented
     bar with counts, shares, and an `aria-label` sentence. Segments run in

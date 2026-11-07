@@ -48,6 +48,7 @@
   --color-stamp-deep: var(--vv-stamp-deep);
   --color-sage: var(--vv-sage);
   --color-brass: var(--vv-brass);
+  --color-manila: var(--vv-manila);
   --shadow-paper: var(--vv-shadow-paper);
 }
 
@@ -64,6 +65,10 @@
   --vv-stamp-deep: #76271c;
   --vv-sage: #2f6b4f;
   --vv-brass: #8a6414;
+  /* Manila stock: gold 35% over the page shell, pre-blended to an opaque
+     token. The corner tab inherits its sheet's surface, and a translucent
+     tint would composite twice where the tab overlaps the card's top edge. */
+  --vv-manila: #e9e4d5;
   --vv-shadow-paper: 0 1px 0 0 var(--vv-line), 0 12px 28px -24px rgba(31, 42, 68, 0.55);
 }
 
@@ -80,6 +85,7 @@
   --vv-stamp-deep: #b8564a;
   --vv-sage: #7fd1a4;
   --vv-brass: #e0b85c;
+  --vv-manila: #282b39;
   --vv-shadow-paper: 0 1px 0 0 var(--vv-line);
 }
 
