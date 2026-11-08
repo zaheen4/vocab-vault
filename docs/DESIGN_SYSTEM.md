@@ -289,6 +289,9 @@ action, or preserves context while something leaves. Anything else is cut.
     in `text-accent-ink`, heading `This word isn't in the vault.` in `text-ink`, and
     navigation buttons back to decks or search.
   - **Primitives:**
+    - `Input`: text input, textarea, or inline select (`as="select"`).
+      Renders standard card styling (`bg-card text-ink dark:bg-raised`), border tokens,
+      and focus visible rings. Children passed to `as="select"` render directly as `<option>` elements.
     - `Notice`: status and alert banner (`tone="info" | "error" | "success"`).
       Error tone uses `role="alert"`; info and success use `role="status"`.
       Styles apply tint tokens (`border-stamp/30 bg-stamp/5 text-stamp`,
@@ -312,9 +315,12 @@ action, or preserves context while something leaves. Anything else is cut.
       without border or background, maintaining base `min-h-11` touch target.
     - `Chip` (`disabled` state): applies `disabled:opacity-60 disabled:cursor-not-allowed`
       for read-only or in-flight mutation states without altering pressed styles.
-- **Unmigrated legacy surfaces.** Legacy screens (`Search.jsx`, `Bookmarks.jsx`,
-  `AddWord.jsx`, and `WordHistory.jsx`) remain unmigrated and are reserved for
-  a follow-up branch (`fix/ui-legacy-surfaces`).
+- **Data surfaces.** Search, saved words (`Bookmarks`), word creation (`AddWord`), and word history:
+  - Search / Saved rows: card with `shadow-paper`, word label in `text-ink`, definition in `text-ink`, and example or metadata in `text-ink-muted`.
+  - Mastery dot: `sage` (`bg-sage`), `brass` (`bg-brass`), or `ink-muted` (`bg-ink-muted`), never `line` (1.48:1 contrast failure).
+  - Segmented tabs and sort controls: `bg-raised` container, active tab `bg-card text-ink shadow-paper`, idle tab `text-ink-muted`.
+  - Inline selects come from `Input as="select"`.
+  - Score ring: `ScoreRing` uses `stroke="currentColor"` with `text-sage` (≥70%), `text-brass` (≥40%), and `text-stamp` (<40%). Semantic tokens are inlined by `@theme inline` and therefore not available as `--color-*` variables.
 - Complex behavior (dropdowns, dialogs, tooltips) uses Radix primitives,
   token-styled, pulled one package at a time — never hand-rolled focus traps.
   The in-tree `Dialog` focuses its panel and restores focus on close without
