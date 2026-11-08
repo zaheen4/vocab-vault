@@ -1,6 +1,6 @@
 import Chip from './ui/Chip'
 
-export const GOAL_TARGETS = [5, 10, 15, 20, 25, 30, 40, 50]
+const GOAL_TARGETS = [5, 10, 15, 20, 25, 30, 40, 50]
 
 export default function GoalPicker({ target, onChange, busy = false, className = '' }) {
   return (

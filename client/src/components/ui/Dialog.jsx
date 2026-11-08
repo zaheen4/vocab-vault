@@ -4,7 +4,10 @@ import Card from './Card'
 export default function Dialog({ labelledBy, onClose, children }) {
   const panelRef = useRef(null)
   const closeRef = useRef(onClose)
-  closeRef.current = onClose
+
+  useEffect(() => {
+    closeRef.current = onClose
+  }, [onClose])
 
   useEffect(() => {
     const previousActiveElement = document.activeElement
