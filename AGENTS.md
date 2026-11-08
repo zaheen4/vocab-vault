@@ -44,7 +44,7 @@ Run the smallest thing that can fail. The full suite is a per-PR gate, not a ste
 - `/api/health` is mounted **before** `apiLimiter` on purpose — warming pings, deploy-gate, and monitors must not be throttled.
 - Auth: JWT HS256 with issuer/audience + `tokenVersion`; revocation bumps `User.tokenVersion` and invalidates old tokens (`middleware/auth.js`).
 - Seed: `server/src/scripts/seed.js`, expects `{ groups: [{ group, words: [{ word, definition, example? }] }] }` (`npm run seed -w server -- path.json`). No bulk-import endpoint exists — cut from scope.
-- Backend warming is an **external cron** hitting `/api/health` (`docs/DEPLOY.md` §6). There is no GitHub keepalive workflow anymore.
+- Backend warming is an **external cron** hitting `/api/health` (`docs/DEPLOY.md` §6.1: 5–10 min, mind the 750 instance-hour cap). No GitHub keepalive workflow — `schedule` gets delayed past the 15-min idle window.
 
 ## Workflow (branch protection: PR-only, self-merge OK)
 - Branches: `feat|fix|docs|chore/<thing>`. Team practice: squash-merge with `--delete-branch`.
