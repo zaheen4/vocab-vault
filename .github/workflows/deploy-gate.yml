@@ -1,9 +1,13 @@
 name: deploy-gate
 
-# Render posts no commit statuses to GitHub, so a failed prod deploy is
-# silent here. This gate polls /api/health after every main push until it
-# serves the pushed SHA (or times out red). Skips fast when the push touches
-# no backend-affecting paths. Manual runs via workflow_dispatch for backfill.
+# Render posts no commit statuses to GitHub, so a failed prod deploy is silent.
+# This gate polls /api/health after every main push until it serves the pushed
+# SHA with ok status and a live DB (or times out red). Manual runs via
+# workflow_dispatch for backfill.
+#
+# It verifies deploys, not uptime: an instance can be dormant or wedged between
+# merges and this job will never see it. Cold starts and 522s are covered by
+# the warm-up runbook in docs/DEPLOY.md §6.
 
 on:
   push:
@@ -18,27 +22,62 @@ on:
 permissions:
   contents: read
 
+# One group per SHA: a server merge followed by a client-only merge must not
+# cancel the in-flight deploy of the server commit. cancel-in-progress stays
+# false so a manual dispatch queues behind its own push run instead of nuking it.
 concurrency:
-  group: deploy-gate
-  cancel-in-progress: true
+  group: deploy-gate-${{ github.sha }}
+  cancel-in-progress: false
 
 jobs:
   render-health:
     name: render serving pushed sha
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Check backend-affecting paths
         id: paths
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.event.after }}
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
             echo "backend=true" >> "$GITHUB_OUTPUT"
-          elif git diff --name-only HEAD~1 -- server render.yaml | grep -q .; then
+            echo "Manual run — always polling." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          base="$BEFORE"
+          if [ -z "$base" ] || [ "$base" = "0000000000000000000000000000000000000000" ] \
+            || ! git cat-file -e "${base}^{commit}" 2>/dev/null; then
+            base=$(git rev-parse --verify -q HEAD~1 || true)
+            echo "before is unusable — falling back to HEAD~1 (${base:-<none>})"
+          fi
+
+          if [ -z "$base" ]; then
             echo "backend=true" >> "$GITHUB_OUTPUT"
+            echo "No diff base available — polling rather than guessing." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          changed=$(git diff --name-only "$base" "$AFTER" -- server render.yaml)
+          count=$(printf '%s' "$changed" | grep -c . || true)
+          echo "diff ${base:0:7}..${AFTER:0:7}: ${count} backend path(s)"
+          if [ "$count" -gt 0 ]; then
+            echo "backend=true" >> "$GITHUB_OUTPUT"
+            {
+              echo "Backend-affecting paths in \`${base:0:7}..${AFTER:0:7}\` (${count}):"
+              echo '```'
+              printf '%s\n' "$changed" | head -30
+              if [ "$count" -gt 30 ]; then
+                echo "…and $((count - 30)) more"
+              fi
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
           else
             echo "backend=false" >> "$GITHUB_OUTPUT"
           fi
@@ -48,22 +87,107 @@ jobs:
         env:
           EXPECT_FULL: ${{ inputs.expected_sha || github.sha }}
           API_URL: https://vocab-vault-api.onrender.com/api/health
+          POLL_BUDGET_SECONDS: 900
         run: |
+          set -uo pipefail
           expect="${EXPECT_FULL:0:7}"
-          echo "waiting for deploy=$expect"
-          for i in $(seq 1 40); do
-            got=$(curl -fsSL -m 20 "$API_URL" 2>/dev/null \
-              | python3 -c 'import json,sys; print(json.load(sys.stdin).get("deploy",""))' 2>/dev/null || true)
-            echo "poll $i: got=${got:-<none>}"
-            if [ "$got" = "$expect" ]; then
-              echo "live on $expect"
+          budget="$POLL_BUDGET_SECONDS"
+          start=$(date +%s)
+          deadline=$(( start + budget ))
+          body="$(mktemp)"
+          echo "waiting up to ${budget}s for deploy=$expect status=ok db=true"
+
+          attempt=0
+          while :; do
+            attempt=$((attempt + 1))
+            code=$(curl -sS -m 20 -o "$body" -w '%{http_code}' "$API_URL" 2>/dev/null)
+            code=${code:-000}
+            # A 200 alone proves nothing: a stale instance answers 200 with the
+            # old SHA, and a booted-but-DB-less instance answers 200 with db:false.
+            if verdict=$(python3 - "$body" "$expect" "$code" <<'PY'
+          import json, sys
+          body, expect, code = sys.argv[1], sys.argv[2], sys.argv[3]
+          try:
+              d = json.load(open(body))
+              if not isinstance(d, dict):
+                  d = {}
+          except Exception:
+              d = {}
+          status = str(d.get("status", "-"))
+          db = str(d.get("db", "-")).lower()
+          deploy = str(d.get("deploy") or "-")
+          print(f"status={status} db={db} deploy={deploy}")
+          healthy = code == "200" and status == "ok" and db == "true" and deploy == expect
+          raise SystemExit(0 if healthy else 1)
+          PY
+            ); then
+              echo "poll $attempt: http=$code $verdict"
+              echo "live: $expect serving ok with db connected"
               exit 0
             fi
-            sleep 30
+            echo "poll $attempt: http=$code ${verdict:-<unparseable body>}"
+
+            [ "$(date +%s)" -ge "$deadline" ] && break
+            sleep 15
           done
-          echo "timed out waiting for $expect — check Render dashboard Deploys tab"
+
+          elapsed=$(( $(date +%s) - start ))
+          {
+            echo "### deploy-gate failed: \`$expect\` not healthy after ${attempt} polls (${elapsed}s)"
+            echo
+            echo "Expected: HTTP 200, \`deploy=$expect\`, \`status=ok\`, \`db=true\`"
+            echo "Last poll: HTTP ${code} — \`${verdict:-<unparseable body>}\`"
+            echo
+            echo "Last body:"
+            echo '```json'
+            if [ -s "$body" ]; then
+              head -c 2000 "$body"
+              echo
+            else
+              echo '<empty>'
+            fi
+            echo '```'
+            echo
+            echo "Where to look:"
+            echo "1. [Render Deploys](https://dashboard.render.com/) — did a build for \`$expect\` start, finish, or fail? A failed build leaves the old SHA serving."
+            echo "2. Build logs — \`npm ci\` failure, missing env var, or a boot guard (\`CLIENT_URL\`/\`JWT_SECRET\`) crashing the start."
+            echo "3. \`deploy\` stuck on an older SHA with HTTP 200 — the build never ran; check \`rootDir: server\` in \`render.yaml\` and that the merge touched \`server/\`."
+            echo "4. \`deploy\` correct but \`db: false\` — Atlas reachable? Wrong \`MONGODB_URI\` database path?"
+            echo "5. Longer budget for a cold queue: re-run this job (Actions → deploy-gate → Re-run failed jobs)."
+            echo
+            echo "Recovery: docs/DEPLOY.md §6."
+          } >> "$GITHUB_STEP_SUMMARY"
           exit 1
+
+      - name: Verify CORS allows the production web origin
+        if: steps.paths.outputs.backend == 'true'
+        env:
+          API_URL: https://vocab-vault-api.onrender.com/api/health
+          PROD_ORIGIN: https://vvault.pages.dev
+        run: |
+          set -uo pipefail
+          allow=$(curl -sS -m 20 -D - -o /dev/null -H "Origin: $PROD_ORIGIN" "$API_URL" \
+            | tr -d '\r' | awk 'tolower($1) == "access-control-allow-origin:" {print $2}' || true)
+          echo "access-control-allow-origin: ${allow:-<absent>}"
+          if [ "$allow" != "$PROD_ORIGIN" ]; then
+            {
+              echo "### CORS regression: \`$PROD_ORIGIN\` is not allowed"
+              echo
+              echo "Response header: \`${allow:-<absent>}\`"
+              echo
+              echo "The API is booting without that origin, so the deployed web app cannot call it."
+              echo "\`CLIENT_URL\` on Render must contain \`$PROD_ORIGIN\`. In production an empty"
+              echo "\`CLIENT_URL\` refuses to boot; a wrong hostname boots with open CORS."
+            } >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
 
       - name: Skip note (no backend paths)
         if: steps.paths.outputs.backend == 'false'
-        run: echo "No server/ or render.yaml changes — Render rebuild is a no-op restart."
+        run: |
+          echo "No server/ or render.yaml changes."
+          {
+            echo "No deploy expected: \`render.yaml\` sets \`rootDir: server\`, so Render only"
+            echo "builds when \`server/\` (or the Blueprint itself) changes. A client-only push"
+            echo "leaves the running instance — and its \`deploy\` SHA — untouched."
+          } >> "$GITHUB_STEP_SUMMARY"

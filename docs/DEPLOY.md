@@ -97,9 +97,13 @@ curl -fsSL https://<your-api>.onrender.com/api/health | python3 -c 'import json,
 
 > Render posts no commit statuses to GitHub, so a failed prod deploy is
 > silent here. The `deploy-gate` workflow covers it: after every `main`
-> push touching `server/` or `render.yaml` it polls `/api/health` until
-> `deploy` equals the pushed SHA (20 min cap, then red). Docs-only pushes
-> skip. Manual re-check anytime via Actions → deploy-gate → Run workflow.
+> push touching `server/` or `render.yaml` it polls `/api/health` for up to
+> 15 min (20 min job cap) until `deploy` equals the pushed SHA, `status` is
+> `ok`, **and** `db` is `true` — then it asserts that
+> `Access-Control-Allow-Origin` echoes `https://vvault.pages.dev`. A red run
+> prints the last body and where to look. Client-only pushes skip, because
+> `rootDir: server` means Render doesn't rebuild for them. Manual re-check
+> anytime via Actions → deploy-gate → Run workflow.
 
 ## 6. Warm-up runbook (backup ritual before showtime)
 
@@ -114,6 +118,29 @@ If the demo still hits a cold instance:
 2. Keep the app tab open (traffic = awake).
 3. Fallback: run `npm run dev` locally and demo from `localhost:5173`
    (pre-rendered audio + Atlas dev data are identical).
+
+### If the API is down instead of cold (edge 522, empty reply, curl timeout)
+
+A cold instance answers eventually; a dead one answers nothing. Triage with
+`curl -v` before touching DNS or certificates:
+
+1. TLS handshake completes and then **0 bytes** come back on every method and
+   path → the instance is dead, not slow. A nonexistent `*.onrender.com` host
+   returns a fast 404 instead, so a 522 here is not a typo in the URL.
+2. Render dashboard → the service → **Deploys**: no log line for the current
+   request and a stale `deploy` SHA in any cached response confirm it. Render's
+   status page can be green while your single free instance is wedged.
+3. **Manual Deploy → Deploy latest commit** (saving any env var also triggers a
+   redeploy). Watch the log for `Mongo connected`, `listening on :10000`, and a
+   `Live` timestamp.
+4. Re-check: `curl -fsSL https://<your-api>.onrender.com/api/health` must return
+   `db: true` and the current `deploy` SHA, then re-run the §5 smoke test.
+   Rate-limit headers on `/api/*` confirm `NODE_ENV=production` is set.
+
+> `deploy-gate` verifies **deploys**, not uptime: it runs at merge time and a
+> dormant or wedged instance between merges is invisible to it. That's what the
+> external cron warm-up and this runbook are for — don't expect a red check for
+> an outage nobody pushed.
 
 ## 7. After landing
 
