@@ -178,4 +178,9 @@ describe('brand fill contrast', () => {
     expect(contrast(lightColor('sage'), lightColor('manila'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
     expect(contrast(darkColor('sage'), darkColor('manila'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
   })
+
+  it('keeps muted ink readable on raised surfaces', () => {
+    expect(contrast(lightColor('ink-muted'), lightColor('raised'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
+    expect(contrast(darkColor('ink-muted'), darkColor('raised'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
+  })
 })
