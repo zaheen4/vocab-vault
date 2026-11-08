@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import AuthShell from '../components/AuthShell'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
+import Notice from '../components/ui/Notice'
 import PasswordStrength from '../components/ui/PasswordStrength'
 
 export default function Register() {
@@ -47,7 +48,7 @@ export default function Register() {
     <AuthShell title="Create your account">
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-950/50 dark:text-red-300">{error}</p>
+          <Notice tone="error">{error}</Notice>
         )}
 
         <Input
@@ -101,9 +102,9 @@ export default function Register() {
           {submitting ? 'Creating account…' : 'Register'}
         </Button>
 
-        <p className="text-center text-sm text-slate-500 dark:text-cream-300/80">
+        <p className="text-center text-sm text-ink-muted">
           Already have an account?{' '}
-          <Link to="/login" className="font-medium text-accent hover:underline">
+          <Link to="/login" className="font-medium text-accent-ink hover:underline">
             Log in
           </Link>
         </p>

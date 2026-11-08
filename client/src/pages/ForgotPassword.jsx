@@ -4,6 +4,7 @@ import { useForgotPassword } from '../api/queries'
 import AuthShell from '../components/AuthShell'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
+import Notice from '../components/ui/Notice'
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('')
@@ -33,15 +34,14 @@ export default function ForgotPassword() {
     <AuthShell title="Reset your password">
       {sentMessage ? (
         <div className="space-y-4">
-          <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800 dark:border-emerald-400/30 dark:bg-emerald-950/40 dark:text-emerald-200">
-            <p className="font-semibold">Instructions dispatched</p>
-            <p className="mt-1">{sentMessage}</p>
-          </div>
+          <Notice tone="success" title="Instructions dispatched">
+            <p>{sentMessage}</p>
+          </Notice>
 
           {devResetUrl && (
             <div className="rounded-lg border border-accent/40 bg-gold/30 p-3 text-xs dark:bg-accent/10">
-              <span className="font-bold text-primary dark:text-cream-100">Local Dev Helper: </span>
-              <a href={devResetUrl} className="font-semibold break-all text-accent underline hover:text-accent-deep">
+              <span className="font-bold text-ink">Local Dev Helper: </span>
+              <a href={devResetUrl} className="font-semibold break-all text-accent-ink underline hover:underline">
                 Click here to test password reset
               </a>
             </div>
@@ -57,12 +57,12 @@ export default function ForgotPassword() {
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="space-y-4">
-          <p className="text-sm text-slate-500 dark:text-cream-300/80">
+          <p className="text-sm text-ink-muted">
             Enter the email associated with your account, and we will send you a link to reset your password.
           </p>
 
           {error && (
-            <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-950/50 dark:text-red-300">{error}</p>
+            <Notice tone="error">{error}</Notice>
           )}
 
           <Input
@@ -83,9 +83,9 @@ export default function ForgotPassword() {
             {forgotMutation.isPending ? 'Sending…' : 'Send reset link'}
           </Button>
 
-          <p className="text-center text-sm text-slate-500 dark:text-cream-300/80">
+          <p className="text-center text-sm text-ink-muted">
             Remember your password?{' '}
-            <Link to="/login" className="font-medium text-accent hover:underline">
+            <Link to="/login" className="font-medium text-accent-ink hover:underline">
               Log in
             </Link>
           </p>

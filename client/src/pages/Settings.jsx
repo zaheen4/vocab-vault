@@ -1,19 +1,25 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useTheme } from '../context/ThemeContext'
 import {
   useChangePassword,
   useDeleteAccount,
+  useGamification,
   useResetProgress,
   useRevokeAllSessions,
+  useSetGoalTarget,
   useUpdateProfile,
 } from '../api/queries'
 import PageHeader from '../components/PageHeader'
-import Card from '../components/ui/Card'
+import Sheet from '../components/Sheet'
+import GoalPicker from '../components/GoalPicker'
 import Button from '../components/ui/Button'
+import Dialog from '../components/ui/Dialog'
 import Input from '../components/ui/Input'
+import Notice from '../components/ui/Notice'
+import OptionTile from '../components/ui/OptionTile'
 import PasswordStrength from '../components/ui/PasswordStrength'
-import { useTheme } from '../context/ThemeContext'
 
 const THEME_OPTIONS = [
   {
@@ -35,6 +41,11 @@ export default function Settings() {
   const [profileMsg, setProfileMsg] = useState('')
   const [profileErr, setProfileErr] = useState('')
   const updateProfileMutation = useUpdateProfile()
+
+  const { data: stats } = useGamification()
+  const setGoal = useSetGoalTarget()
+  const target = stats?.dailyGoalTarget || 10
+  const reviewsToday = stats?.reviewsToday || 0
 
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -136,23 +147,20 @@ export default function Settings() {
         sub="Manage your profile, password, session security, and study data."
       />
 
-      <Card className="p-6">
-        <h2 className="font-display text-lg font-bold text-primary dark:text-cream-100">
-          Profile Details
-        </h2>
-        <p className="mt-0.5 text-xs text-slate-500 dark:text-cream-300/70">
+      <Sheet tab="Profile" title="Profile details">
+        <p className="text-xs text-ink-muted">
           Your public display name visible on study leaderboards and session summaries.
         </p>
 
         {profileMsg && (
-          <div className="mt-4 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-xs font-semibold text-emerald-800 dark:border-emerald-400/30 dark:bg-emerald-950/40 dark:text-emerald-200">
+          <Notice tone="success" className="mt-4 text-xs font-semibold">
             {profileMsg}
-          </div>
+          </Notice>
         )}
         {profileErr && (
-          <div className="mt-4 rounded-md bg-red-50 p-3 text-xs font-semibold text-red-600 dark:bg-red-950/50 dark:text-red-300">
+          <Notice tone="error" className="mt-4 text-xs font-semibold">
             {profileErr}
-          </div>
+          </Notice>
         )}
 
         <form onSubmit={handleProfileSubmit} className="mt-4 space-y-4">
@@ -169,8 +177,9 @@ export default function Settings() {
             label="Email address"
             type="email"
             disabled
+            readOnly
             value={user?.email || ''}
-            inputClassName="bg-slate-100 text-slate-500 dark:bg-night-950 dark:text-cream-300/50 cursor-not-allowed"
+            inputClassName="bg-raised text-ink-muted cursor-not-allowed"
           />
 
           <div className="flex justify-end">
@@ -179,11 +188,10 @@ export default function Settings() {
             </Button>
           </div>
         </form>
-      </Card>
+      </Sheet>
 
-      <Card className="p-6">
-        <h2 className="font-display text-lg font-bold text-ink">Appearance</h2>
-        <p className="mt-0.5 text-xs text-ink-muted">
+      <Sheet tab="Appearance" title="Appearance & theme">
+        <p className="text-xs text-ink-muted">
           Choose how VocabVault looks. System follows your device setting.
         </p>
 
@@ -192,51 +200,65 @@ export default function Settings() {
           aria-label="Theme preference"
           className="mt-4 grid grid-cols-3 gap-2"
         >
-          {THEME_OPTIONS.map((option) => {
-            const active = themePreference === option.value
-            return (
-              <button
-                key={option.value}
-                type="button"
-                aria-pressed={active}
-                onClick={() => setTheme(option.value)}
-                className={`min-h-11 rounded-lg border p-2 text-left transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                  active
-                    ? 'border-accent bg-accent/10'
-                    : 'border-line bg-raised/50 hover:border-accent/50'
-                }`}
-              >
-                <span
-                  aria-hidden="true"
-                  className={`block h-6 w-full rounded-sm border border-line ${option.swatch}`}
-                />
-                <span className="mt-1.5 block font-display text-xs font-bold text-ink">
-                  {option.label}
-                </span>
-                <span className="block text-xs text-ink-muted">{option.hint}</span>
-              </button>
-            )
-          })}
+          {THEME_OPTIONS.map((option) => (
+            <OptionTile
+              key={option.value}
+              pressed={themePreference === option.value}
+              onClick={() => setTheme(option.value)}
+              swatch={option.swatch}
+              label={option.label}
+              hint={option.hint}
+            />
+          ))}
         </div>
-      </Card>
+      </Sheet>
 
-      <Card className="p-6">
-        <h2 className="font-display text-lg font-bold text-primary dark:text-cream-100">
-          Password & Security
-        </h2>
-        <p className="mt-0.5 text-xs text-slate-500 dark:text-cream-300/70">
+      <Sheet tab="Study" title="Study & audio">
+        <div className="space-y-4">
+          {setGoal.error && (
+            <Notice tone="error" className="text-xs font-semibold">
+              {setGoal.error.message}
+            </Notice>
+          )}
+
+          <div>
+            <p className="text-sm font-semibold text-ink">Daily review goal</p>
+            <p className="mt-0.5 text-xs text-ink-muted">
+              {reviewsToday} of {target} reviews today
+            </p>
+            <div className="mt-3">
+              <GoalPicker
+                className="grid grid-cols-4 gap-1.5 sm:grid-cols-8"
+                target={target}
+                onChange={setGoal.mutate}
+                busy={setGoal.isPending}
+              />
+            </div>
+          </div>
+
+          <div className="border-t border-line pt-4">
+            <p className="text-sm font-semibold text-ink">Audio pronunciation</p>
+            <p className="mt-0.5 text-xs text-ink-muted">
+              Pronunciation plays a pre-rendered clip; if your device has no voices, the speaker is disabled.
+            </p>
+          </div>
+        </div>
+      </Sheet>
+
+      <Sheet tab="Security" title="Password & security">
+        <p className="text-xs text-ink-muted">
           Update your credentials or invalidate sessions across other browsers and devices.
         </p>
 
         {passwordMsg && (
-          <div className="mt-4 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-xs font-semibold text-emerald-800 dark:border-emerald-400/30 dark:bg-emerald-950/40 dark:text-emerald-200">
+          <Notice tone="success" className="mt-4 text-xs font-semibold">
             {passwordMsg}
-          </div>
+          </Notice>
         )}
         {passwordErr && (
-          <div className="mt-4 rounded-md bg-red-50 p-3 text-xs font-semibold text-red-600 dark:bg-red-950/50 dark:text-red-300">
+          <Notice tone="error" className="mt-4 text-xs font-semibold">
             {passwordErr}
-          </div>
+          </Notice>
         )}
 
         <form onSubmit={handlePasswordSubmit} className="mt-4 space-y-4">
@@ -274,7 +296,23 @@ export default function Settings() {
             onChange={(e) => setConfirmPassword(e.target.value)}
           />
 
-          <div className="flex items-center justify-between pt-2">
+          <div className="flex justify-end pt-2">
+            <Button type="submit" loading={changePasswordMutation.isPending}>
+              Update password
+            </Button>
+          </div>
+        </form>
+
+        <div className="mt-6 border-t border-line pt-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-ink">
+                Revoke sessions
+              </p>
+              <p className="text-xs text-ink-muted">
+                Invalidate all active sessions across other browsers and devices.
+              </p>
+            </div>
             <Button
               type="button"
               variant="secondary"
@@ -283,31 +321,30 @@ export default function Settings() {
             >
               Log out other devices
             </Button>
-            <Button type="submit" loading={changePasswordMutation.isPending}>
-              Update password
-            </Button>
           </div>
           {sessionMsg && (
-            <p className="text-right text-xs text-slate-500 dark:text-cream-300/70">{sessionMsg}</p>
+            <Notice tone="info" className="mt-3 text-xs font-semibold">
+              {sessionMsg}
+            </Notice>
           )}
-        </form>
-      </Card>
+        </div>
+      </Sheet>
 
-      <Card className="border-red-200 p-6 dark:border-red-400/30">
-        <h2 className="font-display text-lg font-bold text-red-700 dark:text-red-300">
-          Danger Zone
-        </h2>
-        <p className="mt-0.5 text-xs text-slate-500 dark:text-cream-300/70">
-          Irreversible actions on your study data and account records.
-        </p>
+      <Sheet tab="Danger zone" className="border-stamp/30 bg-stamp-wash">
+        <div className="mb-4 border-b border-stamp/20 pb-3">
+          <h2 className="font-display text-base font-bold text-stamp">Danger zone</h2>
+          <p className="mt-0.5 text-xs text-ink-muted">
+            Irreversible actions on your study data and account records.
+          </p>
+        </div>
 
-        <div className="mt-4 divide-y divide-slate-100 dark:divide-white/10">
+        <div className="divide-y divide-stamp/15">
           <div className="flex flex-wrap items-center justify-between gap-3 py-3">
             <div>
-              <p className="text-sm font-semibold text-slate-900 dark:text-cream-100">
+              <p className="text-sm font-semibold text-ink">
                 Reset study progress
               </p>
-              <p className="text-xs text-slate-500 dark:text-cream-300/70">
+              <p className="text-xs text-ink-muted">
                 Clears all Leitner SRS boxes and quiz history back to day 1. Your account remains active.
               </p>
             </div>
@@ -325,10 +362,10 @@ export default function Settings() {
 
           <div className="flex flex-wrap items-center justify-between gap-3 py-3">
             <div>
-              <p className="text-sm font-semibold text-red-700 dark:text-red-300">
+              <p className="text-sm font-semibold text-stamp">
                 Delete account permanently
               </p>
-              <p className="text-xs text-slate-500 dark:text-cream-300/70">
+              <p className="text-xs text-ink-muted">
                 Permanently deletes your account, bookmarks, custom lists, and study pipeline.
               </p>
             </div>
@@ -344,86 +381,88 @@ export default function Settings() {
             </Button>
           </div>
         </div>
-      </Card>
+      </Sheet>
 
       {showResetModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
-          <Card className="max-w-md p-6">
-            <h3 className="font-display text-lg font-bold text-red-700 dark:text-red-300">
-              Confirm Progress Reset
-            </h3>
-            <p className="mt-2 text-sm text-slate-600 dark:text-cream-300/80">
-              Are you sure you want to reset your study progress? All word mastery levels, XP, streaks, and quiz histories will be wiped clean.
-            </p>
-            {dangerErr && (
-              <p className="mt-3 rounded bg-red-50 p-2 text-xs text-red-600 dark:bg-red-950/50 dark:text-red-300">
-                {dangerErr}
-              </p>
-            )}
-            <form onSubmit={handleResetProgress} className="mt-4 space-y-3">
-              <Input
-                label="Confirm your password"
-                type="password"
-                required
-                showPasswordToggle
-                value={dangerPassword}
-                onChange={(e) => setDangerPassword(e.target.value)}
-              />
-              <div className="flex justify-end gap-2 pt-2">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => setShowResetModal(false)}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" variant="danger" loading={resetProgressMutation.isPending}>
-                  Confirm reset
-                </Button>
-              </div>
-            </form>
-          </Card>
-        </div>
+        <Dialog
+          labelledBy="danger-reset-title"
+          onClose={() => setShowResetModal(false)}
+        >
+          <h3 id="danger-reset-title" className="font-display text-lg font-bold text-stamp">
+            Confirm Progress Reset
+          </h3>
+          <p className="mt-2 text-sm text-ink-muted">
+            Are you sure you want to reset your study progress? All word mastery levels, XP, streaks, and quiz histories will be wiped clean.
+          </p>
+          {dangerErr && (
+            <Notice tone="error" className="mt-3">
+              {dangerErr}
+            </Notice>
+          )}
+          <form onSubmit={handleResetProgress} className="mt-4 space-y-3">
+            <Input
+              label="Confirm your password"
+              type="password"
+              required
+              showPasswordToggle
+              value={dangerPassword}
+              onChange={(e) => setDangerPassword(e.target.value)}
+            />
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setShowResetModal(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" variant="danger" loading={resetProgressMutation.isPending}>
+                Confirm reset
+              </Button>
+            </div>
+          </form>
+        </Dialog>
       )}
 
       {showDeleteModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs">
-          <Card className="max-w-md p-6">
-            <h3 className="font-display text-lg font-bold text-red-700 dark:text-red-300">
-              Delete Account Permanently
-            </h3>
-            <p className="mt-2 text-sm text-slate-600 dark:text-cream-300/80">
-              This action cannot be undone. All your vocabulary records, bookmarks, custom lists, and profile data will be erased immediately.
-            </p>
-            {dangerErr && (
-              <p className="mt-3 rounded bg-red-50 p-2 text-xs text-red-600 dark:bg-red-950/50 dark:text-red-300">
-                {dangerErr}
-              </p>
-            )}
-            <form onSubmit={handleDeleteAccount} className="mt-4 space-y-3">
-              <Input
-                label="Confirm your password"
-                type="password"
-                required
-                showPasswordToggle
-                value={dangerPassword}
-                onChange={(e) => setDangerPassword(e.target.value)}
-              />
-              <div className="flex justify-end gap-2 pt-2">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => setShowDeleteModal(false)}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" variant="danger" loading={deleteAccountMutation.isPending}>
-                  Delete forever
-                </Button>
-              </div>
-            </form>
-          </Card>
-        </div>
+        <Dialog
+          labelledBy="danger-delete-title"
+          onClose={() => setShowDeleteModal(false)}
+        >
+          <h3 id="danger-delete-title" className="font-display text-lg font-bold text-stamp">
+            Delete Account Permanently
+          </h3>
+          <p className="mt-2 text-sm text-ink-muted">
+            This action cannot be undone. All your vocabulary records, bookmarks, custom lists, and profile data will be erased immediately.
+          </p>
+          {dangerErr && (
+            <Notice tone="error" className="mt-3">
+              {dangerErr}
+            </Notice>
+          )}
+          <form onSubmit={handleDeleteAccount} className="mt-4 space-y-3">
+            <Input
+              label="Confirm your password"
+              type="password"
+              required
+              showPasswordToggle
+              value={dangerPassword}
+              onChange={(e) => setDangerPassword(e.target.value)}
+            />
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" variant="danger" loading={deleteAccountMutation.isPending}>
+                Delete forever
+              </Button>
+            </div>
+          </form>
+        </Dialog>
       )}
     </div>
   )

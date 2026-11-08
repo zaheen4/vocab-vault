@@ -10,12 +10,12 @@ const PITCH = [
 
 export default function AuthShell({ title, children }) {
   return (
-    <div className="animate-page relative flex min-h-screen items-center justify-center bg-gold px-4 py-6 supports-[height:100dvh]:min-h-dvh sm:py-10 dark:bg-night-950">
+    <div className="animate-page relative flex min-h-screen items-center justify-center bg-canvas px-4 py-6 supports-[height:100dvh]:min-h-dvh sm:py-10">
       <div className="absolute top-4 right-4 z-20 sm:top-6 sm:right-6">
         <ThemeToggle />
       </div>
-      <div className="grid w-full max-w-3xl overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl sm:grid-cols-2 dark:border-white/10 dark:bg-night-900 dark:shadow-none">
-        <div className="flex flex-col justify-center gap-3 bg-primary p-5 text-white sm:gap-5 sm:p-8 dark:bg-night-800">
+      <div className="grid w-full max-w-3xl overflow-hidden rounded-xl border border-line bg-manila shadow-paper sm:grid-cols-2">
+        <div className="flex flex-col justify-center gap-3 bg-primary p-5 text-cream-100 sm:gap-5 sm:p-8">
           <div className="flex items-center gap-2.5">
             <span className="rounded-lg bg-gold p-1.5 dark:bg-night-900 dark:ring-1 dark:ring-white/10">
               <Logo size={26} />
@@ -33,7 +33,7 @@ export default function AuthShell({ title, children }) {
                 </span>
                 <span>
                   <span className="font-bold">{p.title}</span>
-                  <span className="block text-white/70">{p.body}</span>
+                  <span className="block text-cream-300">{p.body}</span>
                 </span>
               </li>
             ))}
@@ -45,7 +45,7 @@ export default function AuthShell({ title, children }) {
           </div>
         </div>
         <div className="p-6 sm:p-8">
-          <h1 className="font-display text-2xl font-bold text-primary dark:text-cream-100">
+          <h1 className="font-display text-2xl font-bold text-ink">
             {title}
           </h1>
           <div className="mt-4">{children}</div>

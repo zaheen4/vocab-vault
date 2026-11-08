@@ -156,4 +156,26 @@ describe('brand fill contrast', () => {
       expect(contrast(theme.edge, theme.card)).toBeGreaterThanOrEqual(LARGE_TEXT_OR_UI)
     }
   })
+
+  it('keeps cream-100 readable on the primary brand fill', () => {
+    expect(contrast(staticColor('cream-100'), staticColor('primary'))).toBeGreaterThanOrEqual(
+      NORMAL_TEXT
+    )
+  })
+
+  it('keeps cream-300 readable on the primary brand fill', () => {
+    expect(contrast(staticColor('cream-300'), staticColor('primary'))).toBeGreaterThanOrEqual(
+      NORMAL_TEXT
+    )
+  })
+
+  it('keeps stamp readable on the manila passport stock', () => {
+    expect(contrast(lightColor('stamp'), lightColor('manila'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
+    expect(contrast(darkColor('stamp'), darkColor('manila'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
+  })
+
+  it('keeps sage readable on the manila passport stock', () => {
+    expect(contrast(lightColor('sage'), lightColor('manila'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
+    expect(contrast(darkColor('sage'), darkColor('manila'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
+  })
 })
