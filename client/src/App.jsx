@@ -28,8 +28,8 @@ const DeckLayout = lazy(() => import('./components/DeckLayout'))
 
 function PageFallback() {
   return (
-    <div className="flex min-h-64 flex-col items-center justify-center gap-3 text-slate-400 dark:text-cream-300/60">
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-200 border-t-accent dark:border-night-800 dark:border-t-accent" />
+    <div className="flex min-h-64 flex-col items-center justify-center gap-3 text-ink-muted">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-line border-t-accent" />
       <span className="text-xs font-semibold">Loading...</span>
     </div>
   )
@@ -39,7 +39,7 @@ function GuestRoute({ children }) {
   const { token, loading } = useAuth()
   if (loading) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-3 text-slate-500 dark:text-cream-300/70">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-3 text-ink-muted">
         <span className="animate-pop" aria-hidden="true">
           <Mascot size={56} />
         </span>

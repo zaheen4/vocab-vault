@@ -7,7 +7,7 @@ export default function ProtectedRoute({ children }) {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-3 text-slate-500 dark:text-cream-300/70">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-3 text-ink-muted">
         <span className="animate-pop" aria-hidden="true">
           <Mascot size={56} />
         </span>

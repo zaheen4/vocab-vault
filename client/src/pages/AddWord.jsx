@@ -3,11 +3,10 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
+import Notice from '../components/ui/Notice'
 import PageHeader from '../components/PageHeader'
 
 const DIFFICULTIES = ['basic', 'intermediate', 'advanced']
-
-const labelClass = 'mb-1 block text-xs font-semibold text-slate-500 dark:text-cream-300/80'
 
 export default function AddWord() {
   const [searchParams] = useSearchParams()
@@ -54,7 +53,7 @@ export default function AddWord() {
         sub="It lands in your personal My Words deck and joins the regular review rotation."
       />
 
-      <form onSubmit={submit} className="space-y-3 rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-night-900 dark:shadow-none">
+      <form onSubmit={submit} className="space-y-3 rounded-xl border border-line bg-card p-5 shadow-paper">
         <Input
           id="word"
           label="Word"
@@ -89,36 +88,32 @@ export default function AddWord() {
             onChange={(e) => setPartOfSpeech(e.target.value)}
             placeholder="noun"
           />
-          <div>
-            <label htmlFor="difficulty" className={labelClass}>
-              Difficulty
-            </label>
-            <select
-              id="difficulty"
-              value={difficulty}
-              onChange={(e) => setDifficulty(e.target.value)}
-              className="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 transition-colors focus:border-accent focus:ring-2 focus:ring-accent/40 focus:outline-none sm:text-sm dark:border-white/15 dark:bg-night-800 dark:text-cream-100 dark:focus:border-accent"
-            >
-              {DIFFICULTIES.map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
-          </div>
+          <Input
+            id="difficulty"
+            as="select"
+            label="Difficulty"
+            value={difficulty}
+            onChange={(e) => setDifficulty(e.target.value)}
+          >
+            {DIFFICULTIES.map((d) => (
+              <option key={d} value={d}>
+                {d}
+              </option>
+            ))}
+          </Input>
         </div>
 
         {conflict && (
-          <p className="rounded-md bg-gold/40 px-3 py-2 text-sm text-primary dark:bg-accent/15 dark:text-accent">
+          <Notice tone="info">
             “{conflict.word}” already exists.{' '}
-            <Link to={`/search?q=${encodeURIComponent(conflict.word)}`} className="font-semibold underline">
+            <Link to={`/search?q=${encodeURIComponent(conflict.word)}`} className="font-semibold text-accent-ink underline">
               Find it in search
             </Link>{' '}
             and star it instead.
-          </p>
+          </Notice>
         )}
         {error && (
-          <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600 dark:bg-red-950/50 dark:text-red-300">{error}</p>
+          <Notice tone="error">{error}</Notice>
         )}
 
         <Button type="submit" fullWidth disabled={!word.trim() || !definition.trim() || saving}>

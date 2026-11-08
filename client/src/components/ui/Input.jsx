@@ -50,7 +50,9 @@ export default function Input({
   )
 
   const field =
-    as === 'textarea' ? (
+    as === 'select' ? (
+      <select id={inputId} {...props} aria-invalid={error ? true : undefined} className={fieldClass} />
+    ) : as === 'textarea' ? (
       <textarea id={inputId} {...props} aria-invalid={error ? true : undefined} className={fieldClass} />
     ) : (
       <input id={inputId} type={effectiveType} {...props} aria-invalid={error ? true : undefined} className={fieldClass} />
