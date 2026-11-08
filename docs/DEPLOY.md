@@ -105,12 +105,57 @@ curl -fsSL https://<your-api>.onrender.com/api/health | python3 -c 'import json,
 > `rootDir: server` means Render doesn't rebuild for them. Manual re-check
 > anytime via Actions → deploy-gate → Run workflow.
 
-## 6. Warm-up runbook (backup ritual before showtime)
+## 6. Warming the API: keep-warm cron + demo fallbacks
 
-> Backend warming is maintained via an external cronjob pinging `/api/health`.
-> Alternatively, use manual curl warming before showtime.
+> Render spins a free web service down after **15 min** without inbound
+> traffic and needs ~1 min to come back. Nothing inside this repo can prevent
+> that (a merge-time check can't see idle time), so the keep-warm ping is an
+> external cron — §6.1 is the setup. §6.2 and §6.3 are the fallbacks for when a
+> demo starts on a cold or dead instance anyway.
 
-If the demo still hits a cold instance:
+### 6.1 Keep-warm cron (set once, enable for demo week)
+
+Any HTTP scheduler works. [cron-job.org](https://cron-job.org) free is enough;
+UptimeRobot free works too and adds alerting.
+
+1. **URL:** `https://vocab-vault-api.onrender.com/api/health` — `GET`, no
+   headers, **no token** (the endpoint is public and must stay that way; never
+   paste a JWT into a third-party dashboard). Ping the API, not
+   `vvault.pages.dev` — Pages is static and always up, so it wakes nothing.
+2. **Interval:** every 5–10 min. It must be **under 15** min; 5 leaves the most
+   slack for a late tick.
+3. **Timeout:** as high as the plan allows (~30 s). The first ping after a
+   spin-down *is* the wake-up and may exceed it — that is a wake, not an
+   outage. The next tick confirms.
+4. **Alerting:** email after 2 consecutive failures, so a single cold-start
+   timeout doesn't page you.
+5. **Window:** enable it the day before the demo, disable it afterwards (see the
+   budget note below).
+
+Why `/api/health` and not `/api/decks`: it is mounted **before** `apiLimiter`,
+so keep-warm pings never eat the rate limit or touch Mongo, and its response
+(`status`, `db`, `deploy`) doubles as a health and deploy check.
+
+> **Budget trap.** A workspace gets **750 free instance hours per month**, and
+> exhausting them suspends *every* free web service until the next month —
+> including on demo day. Keeping one service awake 24/7 for a 31-day month is
+> 744 h, and a deploy briefly runs two instances. So:
+> - demo week only → 7 × 24 = 168 h, comfortable;
+> - all month → restrict the cron window to waking hours (e.g. 07:00–23:00
+>   ≈ 496 h) rather than 24/7.
+>
+> Check `dashboard.render.com/billing#included-usage` before a long stretch of
+> warming; Render emails you as you approach the cap.
+
+Do **not** use a GitHub Actions `schedule` for this: scheduled workflows are
+best-effort and can be delayed well past 15 min under load — exactly the
+failure mode being prevented.
+
+Verify it works: `curl -w '\n%{time_total}s\n' https://<your-api>.onrender.com/api/health`
+must return `< 2 s` with `db: true`, and the cron service's history must show
+`200` with `status: "ok"`.
+
+### 6.2 If the demo starts and the API is cold
 
 1. ~60 s before showtime: `curl -w '\n%{time_total}s\n' https://<your-api>.onrender.com/api/health`
    - `< 2 s` → warm, go.
@@ -119,7 +164,7 @@ If the demo still hits a cold instance:
 3. Fallback: run `npm run dev` locally and demo from `localhost:5173`
    (pre-rendered audio + Atlas dev data are identical).
 
-### If the API is down instead of cold (edge 522, empty reply, curl timeout)
+### 6.3 If the API is down instead of cold (edge 522, empty reply, curl timeout)
 
 A cold instance answers eventually; a dead one answers nothing. Triage with
 `curl -v` before touching DNS or certificates:

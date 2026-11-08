@@ -27,8 +27,8 @@ vocab-vault/
 
 - Web: `https://vvault.pages.dev` (Cloudflare Pages, auto-deploys `main`)
 - API: `https://vocab-vault-api.onrender.com/api` (Render free tier sleeps
-  after ~15 min idle — hit `/api/health` ~60s before showtime; see
-  `docs/DEPLOY.md` §6 warm-up runbook)
+  after ~15 min idle — hit `/api/health` ~60s before showtime, or keep it awake
+  with the external cron in `docs/DEPLOY.md` §6.1)
 
 ## Study Modes & Gamification
 
