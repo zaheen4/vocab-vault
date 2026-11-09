@@ -445,7 +445,7 @@ export default function Quiz({ deckId }) {
 
         <div className="grid grid-cols-1 gap-2" key={q.word._id}>
           {q.options.map((opt, i) => {
-            let cls = 'border-line bg-card hover:border-accent hover:bg-gold/30'
+            let cls = 'border-line-strong bg-card hover:border-accent-ink hover:bg-gold/30'
             if (picked !== null) {
               if (i === q.answerIndex) cls = 'border-sage/50 bg-sage/10 text-sage'
               else if (i === picked) cls = 'border-stamp/50 bg-stamp/10 text-stamp'

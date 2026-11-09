@@ -28,6 +28,7 @@
   --color-card: var(--vv-card);
   --color-raised: var(--vv-raised);
   --color-line: var(--vv-line);
+  --color-line-strong: var(--vv-line-strong);
   --color-ink: var(--vv-ink);
   --color-ink-muted: var(--vv-ink-muted);
   --color-accent-ink: var(--vv-accent-ink);
@@ -46,6 +47,7 @@
   --vv-card: #fbf8ef;
   --vv-raised: #f3eddd;
   --vv-line: #d8cdb8;
+  --vv-line-strong: #8a7b63;
   --vv-ink: #1f2a44;
   --vv-ink-muted: #5b6478;
   --vv-accent-ink: #9a4a12;
@@ -64,6 +66,7 @@
   --vv-card: #171d36;
   --vv-raised: #222a4a;
   --vv-line: rgba(255, 255, 255, 0.1);
+  --vv-line-strong: #767e9c;
   --vv-ink: #f4eedf;
   --vv-ink-muted: #c9c2ad;
   --vv-accent-ink: #f0a05e;

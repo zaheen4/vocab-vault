@@ -13,7 +13,8 @@ token classes — never raw hex in components.
 | `canvas` | `#E9E6DE` | `#0E1326` | Page shell (semantic) |
 | `card` | `#FBF8EF` | `#171D36` | Card and sheet surfaces (semantic) |
 | `raised` | `#F3EDDD` | `#222A4A` | Nested/raised surfaces (semantic) |
-| `line` | `#D8CDB8` | `rgba(255,255,255,.10)` | Borders and dividers (semantic) |
+| `line` | `#D8CDB8` | `rgba(255,255,255,.10)` | Decorative borders and dividers (semantic) |
+| `line-strong` | `#8A7B63` | `#767E9C` | Form-control borders (semantic) |
 | `ink` | `#1F2A44` | `#F4EEDF` | Headings and primary text (semantic) |
 | `ink-muted` | `#5B6478` | `#C9C2AD` | Secondary text (semantic) |
 | `accent-ink` | `#9A4A12` | `#F0A05E` | Small accent text and links (semantic) |
@@ -53,16 +54,25 @@ token classes — never raw hex in components.
 - **Brand panel contrast:** `cream-100` on static `primary` is 12.62:1;
   `cream-300` on `primary` is 8.36:1, ensuring brand pitch copy and headings
   meet AA/AAA requirements.
-- **Form control contrast:** Checkbox inputs use `accent-primary` (static navy)
-  because `accent` (#D9772F) is only 2.98:1 and checkmark glyph contrast
-  varies across browser engines.
+- **Form control contrast:** `Input` borders use `line-strong` — 3.31–3.88:1
+  light, 3.49–4.59:1 dark against canvas, card, and raised. `line` stays at
+  1.26–1.48:1 light / 1.30–1.35:1 dark and must never be used for a control
+  boundary. Checkbox inputs
+  use `accent-primary` (static navy) because `accent` (#D9772F) is only 2.98:1
+  and checkmark glyph contrast varies across browser engines.
+- **Placeholders:** full `ink-muted` (5.59:1 light, 9.33:1 dark). Never add an
+  alpha suffix to a placeholder — `/60` measured 2.49:1 and `/50` 3.82:1.
+- **Focus:** `focus:border-accent-ink` (5.88 light / 6.61 dark). Plain `accent`
+  is only 2.54–2.98:1 on light surfaces, so it is a fill and ring color only,
+  never the sole focus boundary.
 - **Radii:** `rounded-md` controls (inputs, buttons, chips), `rounded-lg/xl`
   cards and sheets, `rounded-full` pills/rings/toggles.
 - **Dark mode:** class-driven (`.dark` on `<html>`, see `ThemeContext`). New
   work uses the semantic tokens; do not add raw slate-on-navy guesses.
 - **Automated check:** `client/src/design-contrast.test.js` reads the tokens
   from `index.css` and enforces ≥4.5:1 for normal text and ≥3:1 for large
-  text/UI. Update the test and the palette together.
+  text/UI, including control borders against canvas, card, and raised. Update
+  the test and the palette together.
 
 ## Typography: voice vs. reading
 
