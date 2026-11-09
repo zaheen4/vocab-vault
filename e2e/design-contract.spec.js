@@ -23,17 +23,45 @@ test('voice surfaces render Baloo, body reads Nunito', async ({ page }) => {
   expect(body).toContain('Nunito')
 })
 
-test('no tap target under the 24px minimum', async ({ page }) => {
-  const small = await page.locator('a, button').evaluateAll((els) =>
-    els
-      .map((e) => {
-        const r = e.getBoundingClientRect()
-        const label = (e.innerText || e.getAttribute('aria-label') || '?').slice(0, 24)
-        return { tag: e.tagName.toLowerCase(), label, w: Math.round(r.width), h: Math.round(r.height) }
-      })
-      .filter((b) => b.w > 0 && Math.min(b.w, b.h) < 24)
+const TAP_TARGET_ROUTES = [
+  { path: '/', ready: 'main h1' },
+  { path: '/search', ready: '#word-search' },
+  { path: '/bookmarks', ready: 'main h1' },
+  { path: '/history', ready: 'main h1' },
+  { path: '/progress', ready: 'main h1' },
+  { path: '/settings', ready: 'main h1' },
+]
+
+async function subMinimumTargets(page, route) {
+  return page.evaluate(
+    (where) =>
+      [...document.querySelectorAll('a, button')]
+        .map((e) => {
+          const r = e.getBoundingClientRect()
+          const label = (e.innerText || e.getAttribute('aria-label') || '?')
+            .replace(/\s+/g, ' ')
+            .trim()
+            .slice(0, 32)
+          return { where, tag: e.tagName.toLowerCase(), label, w: Math.round(r.width), h: Math.round(r.height) }
+        })
+        .filter((b) => b.w > 0 && Math.min(b.w, b.h) < 24)
+        .map((b) => `${b.where} ${b.tag} "${b.label}" ${b.w}x${b.h}`),
+    route
   )
-  expect(small, 'tap targets under 24px').toEqual([])
+}
+
+test('no tap target under the 24px minimum', async ({ page }) => {
+  const offenders = []
+  for (const { path, ready } of TAP_TARGET_ROUTES) {
+    await page.goto(path)
+    await page.locator(ready).first().waitFor({ timeout: 15000 })
+    if (path === '/search') {
+      await page.getByLabel('Search words').fill('ab')
+      await page.locator('li button[aria-expanded]').first().waitFor({ timeout: 15000 })
+    }
+    offenders.push(...(await subMinimumTargets(page, path)))
+  }
+  expect(offenders, 'tap targets under 24px').toEqual([])
 })
 
 test('reduced motion disables celebratory animation', async ({ browser }) => {

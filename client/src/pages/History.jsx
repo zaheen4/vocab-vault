@@ -112,7 +112,7 @@ function QuizSessionRow({ session }) {
             type="button"
             onClick={() => setExpanded((v) => !v)}
             aria-expanded={expanded}
-            className="inline-flex items-center gap-1.5 font-display text-xs font-bold text-accent-ink underline-offset-2 hover:underline"
+            className="inline-flex min-h-6 items-center gap-1.5 font-display text-xs font-bold text-accent-ink underline-offset-2 hover:underline"
           >
             {expanded ? 'Hide question audit' : `Review ${session.answers?.length || 0} questions`}
             <Chevron open={expanded} className="shrink-0" />
