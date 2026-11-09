@@ -3,6 +3,11 @@
 GRE vocabulary flashcards with Leitner spaced repetition — flashcard practice,
 multiple-choice quizzes, and typing drills in the browser.
 
+[![CI](https://github.com/zaheen4/vocab-vault/actions/workflows/ci.yml/badge.svg)](https://github.com/zaheen4/vocab-vault/actions/workflows/ci.yml)
+[![demo](https://img.shields.io/badge/demo-vvault.pages.dev-2F6B4F)](https://vvault.pages.dev)
+[![node](https://img.shields.io/badge/node-22%20%7C%2024-339933)](https://nodejs.org)
+[![license](https://img.shields.io/badge/license-coursework-8A6414)](#license-and-use)
+
 Course project for CSE 4113 (Internet Programming Lab).
 
 - **Web:** https://vvault.pages.dev
@@ -10,6 +15,18 @@ Course project for CSE 4113 (Internet Programming Lab).
 
 The API runs on Render's free tier, so the first request after ~15 idle minutes
 takes about 30 seconds while the instance wakes. Everything after that is fast.
+
+## Screens
+
+![Daily review: an index card for "iconoclastic" with its definition, example, and the missed-it / got-it answer bar](docs/assets/study.png)
+
+| Quiz, answered | Progress dashboard |
+|---|---|
+| ![Multiple-choice quiz showing the wrong pick in red and the correct answer in green](docs/assets/quiz.png) | ![Level, streak, daily goal, weekly study log, pipeline, and badges](docs/assets/progress.png) |
+
+The same app on a phone, with the five-tab bar replacing the top nav:
+
+<img src="docs/assets/mobile-home.png" width="300" alt="Mobile home screen: today's due count, goal meter, deck filters, and tab bar">
 
 ## Stack
 
@@ -38,14 +55,22 @@ takes about 30 seconds while the instance wakes. Everything after that is fast.
   support, mobile tab bar, installable PWA, pre-rendered pronunciation audio
   with Web Speech fallback.
 
-## Repository layout
+## Architecture
+
+```mermaid
+flowchart LR
+  browser["Browser<br/>React 19 SPA"] -->|"HTTPS /api + Bearer JWT"| api["Express 5"]
+  api -->|"Mongoose"| db[("MongoDB Atlas")]
+  api -.->|"signs"| jwt["JWT HS256<br/>iss + aud + tokenVersion"]
+  api -.->|"schedules"| leitner["Leitner box 1–5<br/>1 / 2 / 4 / 8 / 16 days"]
+```
 
 ```
 client/   React SPA — Vite dev server on :5173, proxies /api → :5000
 server/   Express API on :5000
 e2e/      Playwright specs (local only, not part of CI)
 docs/     API contract, design system, deploy runbook, manual test matrix
-scripts/  Pronunciation audio generation
+scripts/  Docs check, screenshot generation, pronunciation audio
 ```
 
 ## Getting started
@@ -80,6 +105,7 @@ The dev server forwards `/api` to port 5000, so the client needs no
 | `PORT` | no | Defaults to `5000` |
 | `CLIENT_URL` | production | Comma-separated allowed origins; CORS is open when unset |
 | `SMTP_HOST` `SMTP_PORT` `SMTP_USER` `SMTP_PASS` `SMTP_FROM` | no | Password-reset mail. Without them, reset links are written to the API console outside production, and `POST /api/auth/forgot-password` returns `devResetUrl` |
+| `VITE_API_URL` | production build | API base URL baked into the client at build time. Unset locally because Vite proxies `/api`; Cloudflare Pages injects it |
 
 ## Checks
 
@@ -88,8 +114,12 @@ npm test                        # Vitest, pure logic (no network, no database)
 npm run lint -w client          # oxlint
 npm run lint:tw -w client       # eslint, Tailwind class hygiene, zero warnings
 npm run build -w client         # production build
+npm run docs:check              # this README and docs/ vs the code
 find server/src -name '*.js' -not -name '*.test.js' -exec node --check {} +
 ```
+
+`docs:check` fails when the endpoint table, the token table, a relative link, or
+a documented environment variable stops matching the source.
 
 Browser tests run locally against a live API and the seeded database:
 
@@ -240,3 +270,11 @@ environment variables, and rollback are in [`docs/DEPLOY.md`](docs/DEPLOY.md).
 | [`AGENTS.md`](AGENTS.md) | Working conventions and the full verify list |
 | [`CONTRIBUTING.md`](CONTRIBUTING.md) | Branching, commit format, PR workflow |
 | [`TODO.md`](TODO.md) | Sprint status and remaining work |
+
+## License and use
+
+Coursework for CSE 4113 (Internet Programming Lab), completed November 2026. The
+code is not licensed for reuse. The 1,110-word GregMat list in
+`server/data/gregmat-words.json` belongs to its authors and is included for
+coursework only.
+

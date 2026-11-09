@@ -19,7 +19,9 @@
     "test:e2e:auth": "playwright test --project=chromium e2e/auth-lifecycle.spec.js",
     "seed": "npm run seed -w server",
     "audio:generate": "python3 scripts/generate-audio.py",
-    "prepare": "husky || true"
+    "prepare": "husky || true",
+    "docs:check": "node scripts/docs-check.mjs",
+    "screenshots": "node scripts/screenshots.mjs"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.2",

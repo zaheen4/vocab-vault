@@ -14,11 +14,12 @@ npm run seed            # seeds Atlas; silent no-op if .env or Atlas is unreacha
 
 ## Verify (CI runs this; `.github/workflows/ci.yml`)
 ```bash
-npm test                    # vitest: 33 files / 264 tests, pure logic, colocated *.test.js
+npm test                    # vitest, pure logic, colocated *.test.js
 npx vitest run server/src/utils/leitner.test.js    # one suite
 npm run lint -w client      # oxlint; pre-existing warnings are fine, errors are not
 npm run lint:tw -w client   # eslint class hygiene; zero warnings allowed (`--max-warnings 0`)
 npm run build -w client     # CI injects prod VITE_API_URL
+npm run docs:check          # README/docs claims vs routers, tokens, env, links
 find server/src -name '*.js' -not -name '*.test.js' -exec node --check {} +
 npm audit --omit=dev --audit-level=high
 ```
@@ -28,7 +29,7 @@ npm audit --omit=dev --audit-level=high
 Run the smallest thing that can fail. The full suite is a per-PR gate, not a step after every edit.
 - Cheapest first: `npm test` (~3s, pure logic) and `npm run build -w client` catch most regressions. Reach for a browser only for what a browser alone proves.
 - Targeted, by area: `npm run test:e2e:study` (card, HUD, keyboard, part strip), `npm run test:e2e:design` (nav, tokens, tap targets, motion — chromium + mobile), `npm run test:e2e:auth` (signup → reset → revocation). Each is ~40–60s.
-- Full: `npm run test:e2e` — ~42 tests / ~2.6 min — before requesting review, not after every edit.
+- Full: `npm run test:e2e` — before requesting review, not after every edit.
 - One case: `npx playwright test --project=chromium -g "keyboard answers"`.
 - Pure look checks (a radius, a breakpoint, spacing) → a throwaway Playwright screenshot script; assert pixels, not accessible names. The suite proves behavior, not appearance.
 - `e2e/auth.setup.js` logs in once with `VV_QA_EMAIL` / `VV_QA_PASSWORD` and caches state in `.playwright/.auth/user.json` (gitignored).
@@ -51,6 +52,7 @@ Run the smallest thing that can fail. The full suite is a per-PR gate, not a ste
 - Commits: conventional, lowercase subject ≤100 chars, body lines ≤100 chars (hook rejects; never `--no-verify`).
 - `gh pr create` needs `--head <branch> --base main` when run from another branch.
 - Update `TODO.md` check-offs and `docs/API_CONTRACT.md` in the same PR that changes behavior.
+- Formatting is `.editorconfig` only — 2-space indent, LF, final newline, no formatter in the repo. Markdown keeps trailing whitespace because hard breaks are deliberate.
 
 ## Reference
 - `docs/API_CONTRACT.md` — exact request/response shapes; check before any endpoint work.

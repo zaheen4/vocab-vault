@@ -63,7 +63,14 @@ The `commit-msg` hook installs automatically via root `npm ci`
 ## Code Style
 
 - JavaScript (ESM), no build-step types.
+- Formatting comes from `.editorconfig` (2-space indent, LF, UTF-8, final
+  newline). There is no formatter in the repo — match the file you're editing
+  rather than reformatting it. Markdown keeps trailing whitespace: the
+  two-space hard breaks in `docs/API_CONTRACT.md` are deliberate.
 - Run your feature through both apps (`npm run dev`) before opening a PR.
 - `npm test` (vitest, colocated `*.test.js`) must pass; add unit tests for
   pure logic (SRS, gamification, message pools). Browser E2E stays local
   (`npm run test:e2e`: full suite across `e2e/*.spec.js`, needs Atlas) — never in CI.
+- `npm run docs:check` must pass when you touch prose: it compares the README's
+  endpoint and token tables, its relative links, and the documented environment
+  variables against the code.
