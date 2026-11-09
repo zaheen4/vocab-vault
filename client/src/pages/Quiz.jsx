@@ -446,11 +446,11 @@ export default function Quiz({ deckId }) {
 
         <div className="grid grid-cols-1 gap-2" key={q.word._id}>
           {q.options.map((opt, i) => {
-            let cls = 'border-line-strong bg-card hover:border-accent-ink hover:bg-gold/30'
+            let cls = 'border-line-strong bg-card text-ink hover:border-accent-ink hover:bg-gold/30'
             if (picked !== null) {
               if (i === q.answerIndex) cls = 'border-sage/50 bg-sage/10 text-sage'
               else if (i === picked) cls = 'border-stamp/50 bg-stamp/10 text-stamp'
-              else cls = 'border-line bg-card opacity-50'
+              else cls = 'border-line bg-card text-ink-muted'
             }
             return (
               <button
@@ -458,7 +458,7 @@ export default function Quiz({ deckId }) {
                 onClick={() => choose(i)}
                 disabled={picked !== null}
                 style={picked === null ? { animationDelay: `${i * 50}ms` } : undefined}
-                className={`min-h-12 rounded-lg border-2 px-4 py-3 text-left font-display text-sm font-bold text-ink transition-all active:scale-99 disabled:cursor-default ${picked === null ? 'animate-fade-up' : 'animate-pop'} ${cls}`}
+                className={`min-h-12 rounded-lg border-2 px-4 py-3 text-left font-display text-sm font-bold transition-all active:scale-99 disabled:cursor-default ${picked === null ? 'animate-fade-up' : 'animate-pop'} ${cls}`}
               >
                 <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-raised font-mono text-xs font-bold text-ink-muted">
                   {picked !== null && i === q.answerIndex

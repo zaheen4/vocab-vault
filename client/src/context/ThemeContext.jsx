@@ -9,6 +9,16 @@ function resolveTheme(stored) {
   return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
+function applyTheme(theme) {
+  document.documentElement.classList.toggle('dark', theme === 'dark')
+  const meta = document.querySelector('meta[name="theme-color"]')
+  if (!meta) return
+  const canvas = getComputedStyle(document.documentElement)
+    .getPropertyValue('--vv-canvas')
+    .trim()
+  if (canvas) meta.content = canvas
+}
+
 export function ThemeProvider({ children }) {
   const [preference, setPreference] = useState(() => {
     try {
@@ -21,17 +31,32 @@ export function ThemeProvider({ children }) {
   const theme = preference === 'system' ? resolveTheme(null) : preference
 
   useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark')
+    applyTheme(theme)
   }, [theme])
 
   useEffect(() => {
     if (preference !== 'system') return undefined
     const mq = window.matchMedia?.('(prefers-color-scheme: dark)')
     if (!mq) return undefined
-    const apply = () => document.documentElement.classList.toggle('dark', mq.matches)
+    const apply = () => applyTheme(mq.matches ? 'dark' : 'light')
     mq.addEventListener('change', apply)
     return () => mq.removeEventListener('change', apply)
   }, [preference])
+
+  useEffect(() => {
+    function handleStorage(event) {
+      if (event.key !== THEME_KEY && event.key !== null) return
+      let next = 'system'
+      try {
+        next = localStorage.getItem(THEME_KEY) || 'system'
+      } catch {
+      }
+      setPreference(next)
+    }
+
+    window.addEventListener('storage', handleStorage)
+    return () => window.removeEventListener('storage', handleStorage)
+  }, [setPreference])
 
   const setTheme = useCallback((next) => {
     setPreference(next)

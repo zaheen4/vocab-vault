@@ -85,6 +85,20 @@
     background-color: var(--vv-canvas);
     color: var(--vv-ink);
   }
+
+  input:-webkit-autofill,
+  textarea:-webkit-autofill {
+    -webkit-text-fill-color: var(--vv-ink);
+    caret-color: var(--vv-ink);
+    -webkit-box-shadow: 0 0 0 1000px var(--vv-card) inset;
+    box-shadow: 0 0 0 1000px var(--vv-card) inset;
+  }
+
+  .dark input:-webkit-autofill,
+  .dark textarea:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px var(--vv-raised) inset;
+    box-shadow: 0 0 0 1000px var(--vv-raised) inset;
+  }
 }
 
 /* Study card floor: keeps the card readable on short viewports without locking the page. */

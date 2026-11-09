@@ -5,6 +5,8 @@ import { groupByDay } from '../utils/historyDays'
 import PageHeader from '../components/PageHeader'
 import Sheet from '../components/Sheet'
 import Button from '../components/ui/Button'
+import Chevron from '../components/ui/Chevron'
+import Disclosure from '../components/ui/Disclosure'
 import EmptyState from '../components/ui/EmptyState'
 import EmptyArt from '../components/art/EmptyArt'
 import { formatRelativeTime } from '../utils/date'
@@ -110,18 +112,18 @@ function QuizSessionRow({ session }) {
             type="button"
             onClick={() => setExpanded((v) => !v)}
             aria-expanded={expanded}
-            className="font-display text-xs font-bold text-accent-ink underline-offset-2 hover:underline"
+            className="inline-flex items-center gap-1.5 font-display text-xs font-bold text-accent-ink underline-offset-2 hover:underline"
           >
             {expanded ? 'Hide question audit' : `Review ${session.answers?.length || 0} questions`}
+            <Chevron open={expanded} className="shrink-0" />
           </button>
           <span className="font-mono text-2xs text-ink-muted tabular-nums">
             {session.score} correct · {session.total - session.score} missed
           </span>
         </div>
 
-        {expanded && session.answers?.length > 0 && (
-          <div className="mt-1 space-y-2 border-t border-line pt-3">
-            {session.answers.map((ans, idx) => (
+        <Disclosure open={expanded && session.answers?.length > 0} className="mt-1 space-y-2 border-t border-line pt-3">
+          {session.answers.map((ans, idx) => (
               <div
                 key={ans.wordId || idx}
                 className="rounded-md border border-line bg-raised/60 p-3 text-sm"
@@ -162,10 +164,9 @@ function QuizSessionRow({ session }) {
                 )}
               </div>
             ))}
-          </div>
-        )}
+          </Disclosure>
+        </div>
       </div>
-    </div>
   )
 }
 
