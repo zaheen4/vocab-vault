@@ -200,6 +200,39 @@ test('mobile bottom tab bar renders 5 primary tabs with >= 44px tap targets', as
   }
 })
 
+test('study stage keeps the card and its answer row in the first screen', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  const href = await page
+    .locator('[data-testid="deck-card"] a[href^="/decks/"]')
+    .first()
+    .getAttribute('href')
+  await page.goto(href)
+
+  const card = page.locator('button[aria-label$="tap to reveal"]').first()
+  await card.waitFor({ timeout: 15000 })
+  const box = await card.boundingBox()
+  expect(Math.round(box.y), 'card top on mobile').toBeLessThanOrEqual(380)
+  expect(Math.round(box.height), 'card height on mobile').toBeGreaterThanOrEqual(420)
+
+  await expect(page.locator('a[aria-label]').filter({ hasText: '←' })).toHaveCount(1)
+
+  await card.click()
+  const gotIt = page.getByRole('button', { name: /^got it$/i })
+  await expect(gotIt).toBeVisible({ timeout: 10000 })
+  const bar = await gotIt.boundingBox()
+  expect(Math.round(bar.y), 'answer row sits below the card').toBeGreaterThanOrEqual(
+    Math.round(box.y + box.height)
+  )
+})
+
+test('home puts the first deck inside the first screen', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  const first = page.getByTestId('deck-card').first()
+  await expect(first).toBeVisible({ timeout: 15000 })
+  const box = await first.boundingBox()
+  expect(Math.round(box.y), 'first deck card top on mobile').toBeLessThanOrEqual(520)
+})
+
 test('all major routes render clean without page errors', async ({ page }) => {
   const routes = [
     { path: '/search', selector: 'input[type="search"]' },

@@ -161,21 +161,35 @@ action, or preserves context while something leaves. Anything else is cut.
 - Page headers come from shared `PageHeader` (eyebrow + H1 + sub, plus an
   optional `action`). The action sits on the **eyebrow row**, right-aligned, at
   every width — parked under the subtitle it took a whole band of its own on a
-  phone and read as a second title. Session screens share `SessionHud` +
-  `ScoreRing`; deck identity comes from `DeckTile`.
-- **Study session.** One column (`max-w-2xl`), one card, one answer bar:
+  phone and read as a second title. Session screens share `StudyHeader` +
+  `SessionStatus`; deck identity comes from `DeckTile`.
+- **Study session.** One column (`max-w-2xl`), one left axis, four zones —
+  header, controls, status, card — plus a footer row that is always in flow:
+  - `StudyFrame` + `StudyHeader` render once per deck screen. `DeckLayout` owns
+    the chrome above the mounted mode bodies so Practice, Quiz, and Typing
+    cannot each draw their own back link or title. One `←`, one `deck-header`
+    test id, one part selector.
+  - `StudyStage` reserves the footer row (`min-h-14`) whether or not an answer
+    bar is showing, so revealing the card never shifts the card or the page.
+    The card region keeps a floor of `clamp(17rem, 100dvh - 26rem, 35rem)`
+    (`.study-stage-body` in `index.css`) and still grows with `flex-1`; the
+    page scrolls on short viewports rather than locking the body.
   - The card is an index card: `bg-card`, 2px `border-line`, a corner tab
     (`CARD` / `MEANING`), a stacked card behind it, and `min-h-72` /
-    `sm:min-h-80`. Front is the word + a mono dashed `Tap to reveal`; the back
+    `sm:min-h-80`. It fills the stage, and its faces centre their content
+    vertically. Front is the word + a mono dashed `Tap to reveal`; the back
     repeats the word as an eyebrow over the definition. Flip stays 3D and is
     killed by reduced motion.
   - `AnswerBar` is two 48px buttons — `Missed it` / `Got it` — with `1` / `2`
-    hints from `md` up. It sticks at `bottom-18` on phones (clearing the tab
-    bar) on an opaque `bg-canvas` backing; from `md` up — the same breakpoint
-    where the bottom tab bar becomes the desktop nav — it sits in normal flow.
-    Accessible names stay exactly `Missed it` and `Got it`.
-  - `SessionHud` shows back link, mono position/score/combo/XP chips, one 2px
-    progress bar with `role="progressbar"`, and optional tool chips.
+    hints from `md` up. It sits in the reserved footer row in normal flow at
+    every width; it does not stick, so it never covers the card or floats over
+    the fixed tab bar. Accessible names stay exactly `Missed it` and `Got it`.
+  - Quiz and Typing centre their prompt/options block in the same stage with
+    `my-auto` (auto margins, not `justify-center`, so a tall block grows the
+    page instead of clipping its top). Their `Next` / `See results` row uses
+    the same reserved footer.
+  - `SessionStatus` shows mono position/score/combo/XP chips, one 2px progress
+    bar with `role="progressbar"`, and optional tool chips.
   - `SessionResults` is the only done screen: eyebrow `Session complete`,
     message, optional greeting/subtitle, `ScoreRing`, stat tiles, the ✓/✗ word
     roll, then the caller's actions. Quiz and Typing keep their exact
@@ -187,11 +201,12 @@ action, or preserves context while something leaves. Anything else is cut.
   `S` / `R` / `B` speak, reverse, bookmark. Keys never fire while focus is in
   an input or contenteditable, and flip keys defer to focused buttons/links so
   the browser's own activation wins. Every new shortcut needs a resolver test.
-- **Deck detail.** `DeckHeader` sits above the mode tabs: back link, group
-  eyebrow (`GROUP 01 · ALL PARTS`), title, `n words · n% mastered`, and a
-  `DUE n` stamp using review-due. Parts are a segmented strip where each
-  segment states its own next best reason to pick it — `Part 1 · 3 due` or
-  `Part 2 · 45%` — with the accent pill travelling between segments.
+- **Deck detail.** `StudyHeader` sits above the mode row: back link, deck title,
+  `n words · n% mastered`, a part stamp, and a `DUE n` stamp using review-due.
+  `ModeTabs` stays a compact left-aligned pill; parts collapse into
+  `PartSelector` — a Radix `DropdownMenu.RadioGroup` button (`All parts` or
+  `Part n`, chevron at 12px) whose items are `menuitemradio` and state their own
+  next best reason to pick them — `Part 1 · 3 due` or `Part 2 · 45%`.
 - **Progress = a record spread, not six boxes.** `Sheet` gives every section the
   same card stock, rule, and corner tab (`PASSPORT`, `PIPELINE`, `STUDY LOG`,
   `DAILY GOAL`, `MISTAKE BANK`, `BADGES`), but the page is laid out as three

@@ -39,7 +39,7 @@
 | # | Step | Expected |
 |---|------|----------|
 | 1 | Practice answer on a due deck | `Box \d` or `Mastered` label plus tight `+\d+ XP` feedback; review recorded |
-| 2 | Part tabs switching | Segmented strip shows `Part n · n due` or `Part n · n%`; switching parts resets progress indices cleanly |
+| 2 | Part selector switching | `All parts` trigger opens a menu; each `menuitemradio` shows `Part n · n due` or `Part n · n%`; switching parts updates `?part=n` and resets progress indices cleanly |
 | 3 | Reverse card mode | `⇄ Reverse` flips prompt to definition with word target |
 | 4 | Quiz answer on a due deck | First option advances to `Next` / `See results` |
 | 5 | Typing submit (wrong on purpose) | Correction banner `The spelling is …` names the word |
@@ -48,9 +48,10 @@
 | 8 | Weak words remediation (`/practice/weak`) | Crams Leitner Box 1 mistake cards or shows clean EmptyState |
 | 9 | All-deck quiz (`/quiz`) | Generates multi-deck MCQ pool across full catalog |
 | 10 | History audit hub (`/history`) | Toggles `Card Reviews` filter tabs and expands quiz question audits |
-| 11 | Deck detail header | `GROUP nn · ALL PARTS`, title, `n words · n% mastered`, and a `DUE n` stamp using review-due, never raw practicable count |
+| 11 | Deck detail header | One back link, deck title, `n words · n% mastered`, and a `DUE n` stamp using review-due, never raw practicable count; practice, quiz, and typing share this chrome |
 | 12 | Keyboard answer | `Space` flips the card, `2` answers `Got it`, and the session reaches `Session complete`; study keys never fire inside the Typing input |
-| 13 | Review queues share one shell | `/practice/due`, `/practice/weak`, `/bookmarks/practice` all render the same card, `Missed it` / `Got it`, `SessionHud`, and `SessionResults` |
+| 13 | Review queues share one shell | `/practice/due`, `/practice/weak`, `/bookmarks/practice` all render the same card, `Missed it` / `Got it`, `SessionStatus`, and `SessionResults` |
+| 14 | Study stage geometry (390×844) | Card top ≤380px, height ≥420px; `Got it` sits below the card with a visible gap above the fixed tab bar; exactly one `←` back link per study screen |
 
 ## Flow 4 — auth lifecycle & security (automated in `e2e/auth-lifecycle.spec.js`)
 
@@ -86,12 +87,12 @@ decks intact.
 
 | # | Step | Expected |
 |---|------|----------|
-| 1 | Today panel | Returning users see `Today` + date, due count with one `Start review` action, daily-goal meter, and a streak/level chip pair; first-run users see `Master your words.` with `Start with Group 1` |
-| 2 | Quick actions | `Continue <deck> · Part n`, `Weak words (n)`, and `All-deck quiz` are single-line links with 44px targets |
+| 1 | Today panel | Returning users see `Today`, one panel with due count + `Review` action and an inline goal meter, and a streak/level chip pair; first-run users see `Master your words.` with `Start with Group 1` |
+| 2 | Quick actions | `Continue <deck> · Part n`, `Weak (n)`, and `All-deck quiz` share one 36px row above the library |
 | 3 | Library cards | One action per deck (`Start deck` / `Continue Part n` / `Review deck`); no per-part button grid; `DUE n` stamp only when review-due words exist |
 | 4 | Status filters | `All / In progress / Due / New / Mastered` are `aria-pressed` buttons; the count line reads `n of 37 decks` and the grid shows exactly that many cards |
 | 5 | Search | Matches title and group number (`12` → Group 12), empty result offers `Clear filters`, clearing restores all decks |
-| 6 | Layout | No horizontal scroll at 375px; library bar is only sticky from `lg` up |
+| 6 | Layout | No horizontal scroll at 375px; library bar is only sticky from `lg` up; the first deck card starts at ≤520px on 390×844 |
 
 ## Last execution
 
