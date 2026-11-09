@@ -56,15 +56,18 @@ token classes — never raw hex in components.
   meet AA/AAA requirements.
 - **Form control contrast:** `Input` borders use `line-strong` — 3.31–3.88:1
   light, 3.49–4.59:1 dark against canvas, card, and raised. `line` stays at
-  1.26–1.48:1 light / 1.30–1.35:1 dark and must never be used for a control
-  boundary. Checkbox inputs
-  use `accent-primary` (static navy) because `accent` (#D9772F) is only 2.98:1
-  and checkmark glyph contrast varies across browser engines.
+  1.26–1.48:1 light / 1.60–1.66:1 dark and must never be used for a control
+  boundary. Checkbox inputs use `accent-primary` (static navy) because `accent`
+  (#D9772F) is only 2.98:1 and checkmark glyph contrast varies across browser
+  engines.
 - **Placeholders:** full `ink-muted` (5.59:1 light, 9.33:1 dark). Never add an
   alpha suffix to a placeholder — `/60` measured 2.49:1 and `/50` 3.82:1.
 - **Focus:** `focus:border-accent-ink` (5.88 light / 6.61 dark). Plain `accent`
   is only 2.54–2.98:1 on light surfaces, so it is a fill and ring color only,
   never the sole focus boundary.
+- **Disabled controls:** `bg-raised` fill with `text-ink-muted` label —
+  5.08:1 light, 7.88:1 dark. Never `opacity-*` on a control: 50% opacity
+  composites a primary button to 2.58:1 light and 1.69:1 dark.
 - **Radii:** `rounded-md` controls (inputs, buttons, chips), `rounded-lg/xl`
   cards and sheets, `rounded-full` pills/rings/toggles.
 - **Dark mode:** class-driven (`.dark` on `<html>`, see `ThemeContext`). New
@@ -84,7 +87,10 @@ token classes — never raw hex in components.
 - **Heading scale:** page H1s are fluid `text-display-lg` via shared `PageHeader`
   (with an accent eyebrow where the page needs orientation); heroes and done
   screens use fluid `text-display-xl`. Body text stays fixed — never fluid.
-- **Micro type (`text-2xs`, 10px):** nav due counts only, never body copy.
+- **Micro type (`text-2xs`, 11px):** data stamps only — counts, dates,
+  durations, status chips, keycaps. Never body copy.
+- **Eyebrow type (`text-3xs`, 10px):** decorative uppercase labels that name
+  the block below them and carry no data. Never a number, never a date.
 - **Flashcard hierarchy:** the word (`text-display-xl` bold) leads; the
   definition answers in `text-lg font-medium` with `leading-relaxed` — never
   semibold, never competing. On the back face the word repeats as a mono

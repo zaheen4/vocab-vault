@@ -6,7 +6,7 @@ export default function Chip({ pressed = false, className = '', children, ...pro
       type="button"
       aria-pressed={pressed}
       className={cn(
-        'inline-flex min-h-9 items-center rounded-full border px-3 text-xs font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:opacity-60',
+        'inline-flex min-h-9 items-center rounded-full border px-3 text-xs font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:cursor-not-allowed disabled:border-line disabled:bg-raised disabled:text-ink-muted',
         pressed
           ? 'border-accent bg-accent/15 text-accent-ink'
           : 'border-line bg-card text-ink-muted hover:text-ink',

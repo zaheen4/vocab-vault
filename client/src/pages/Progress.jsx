@@ -23,7 +23,7 @@ const BADGES = [
 function LedgerRow({ label, value }) {
   return (
     <div className="flex items-baseline gap-2">
-      <dt className="shrink-0 font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase">
+      <dt className="shrink-0 font-mono text-3xs font-bold tracking-widest text-ink-muted uppercase">
         {label}
       </dt>
       <dd className="flex min-w-0 flex-1 items-baseline gap-2">

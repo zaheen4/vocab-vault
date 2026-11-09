@@ -288,7 +288,7 @@ export default function Quiz({ deckId }) {
   if (status === 'idle') {
     const setup = (
       <div className="rounded-xl border-2 border-line bg-card p-5 shadow-paper dark:shadow-none">
-        <p className="font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase">
+        <p className="font-mono text-3xs font-bold tracking-widest text-ink-muted uppercase">
           Quiz yourself
         </p>
         <p className="mt-2 text-sm text-ink-muted">
