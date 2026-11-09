@@ -1,13 +1,16 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
-import { api } from '../api/client'
-import { isStarred, useBookmarks, useDeck, useInvalidateAfterReview, usePracticeSession, useToggleBookmark } from '../api/queries'
+import {
+  isStarred,
+  useBookmarks,
+  usePracticeSession,
+  useToggleBookmark,
+} from '../api/queries'
 import { useSlideDirection } from '../utils/navDirection'
-import { shouldCelebrate } from '../utils/celebrate'
 import { useAuth } from '../context/AuthContext'
-import { getSessionMessage } from '../utils/sessionMessages'
-import { claimTtsTip, speakWord, stopSpeaking, TTS_UNAVAILABLE_HINT, useTtsAvailable } from '../utils/speak'
+import { TTS_UNAVAILABLE_HINT } from '../utils/speak'
 import { useStudyKeys } from '../utils/useStudyKeys'
+import { useStudySession } from '../hooks/useStudySession'
 import Button from '../components/ui/Button'
 import { FlameIcon } from '../components/art/icons'
 import SpeakerIcon from '../components/ui/SpeakerIcon'
@@ -17,10 +20,10 @@ import EmptyArt from '../components/art/EmptyArt'
 import AnswerBar from '../components/AnswerBar'
 import Flashcard from '../components/Flashcard'
 import LevelUpBanner from '../components/LevelUpBanner'
-import SessionHud from '../components/SessionHud'
 import SessionResults from '../components/SessionResults'
-
-const BOX_LABELS = { 1: 'Box 1', 2: 'Box 2', 3: 'Box 3', 4: 'Box 4', 5: 'Mastered' }
+import SessionStatus from '../components/study/SessionStatus'
+import StudyFeedback from '../components/study/StudyFeedback'
+import StudyStage from '../components/study/StudyStage'
 
 export default function Practice({ active = true }) {
   const { id } = useParams()
@@ -28,190 +31,68 @@ export default function Practice({ active = true }) {
   const partParam = searchParams.get('part')
   const part = partParam ? Number(partParam) : undefined
   const { user } = useAuth()
-  const { data: deck } = useDeck(id)
   const { data: sessionWords, isLoading, isError } = usePracticeSession(id, 10, part)
-  const invalidateAfterReview = useInvalidateAfterReview()
   const { data: bookmarks = [] } = useBookmarks()
   const toggleBookmark = useToggleBookmark()
-  const deckTitle = deck?.title ? (part ? `${deck.title} — Part ${part}` : deck.title) : ''
-  const [pool, setPool] = useState(null)
-  const words = pool ?? []
-  const [index, setIndex] = useState(0)
-  const [flipped, setFlipped] = useState(false)
   const [reversed, setReversed] = useState(false)
-  const [done, setDone] = useState(false)
-  const [results, setResults] = useState([])
-  const [submitting, setSubmitting] = useState(false)
-  const [sessionXp, setSessionXp] = useState(0)
-  const [combo, setCombo] = useState(0)
-  const [bestCombo, setBestCombo] = useState(0)
-  const [score, setScore] = useState(0)
-  const [feedback, setFeedback] = useState(null)
-  const [levelEvent, setLevelEvent] = useState(null)
-  const [confetti, setConfetti] = useState(false)
-  const [newLearned, setNewLearned] = useState(0)
-  const [caughtUp, setCaughtUp] = useState(0)
-  const [toast, setToast] = useState(null)
-  const ttsAvailable = useTtsAvailable()
-  const advanceTimer = useRef(null)
-  const [shake, setShake] = useState(false)
-  const busyRef = useRef(false)
-  const sessionRef = useRef({ correct: 0, total: 0, bestCombo: 0, levelUp: false, level: null })
-  const [finalMessage, setFinalMessage] = useState(null)
   const slideCls = useSlideDirection()
-  const current = words[index] ?? null
+
+  const session = useStudySession({
+    words: sessionWords,
+    resetKey: `${id}-${part ?? 'all'}`,
+    active,
+    advanceMs: 850,
+    mode: 'practice',
+    invalidateKey: id,
+    tipOnFirstSpeak: true,
+  })
+
+  const {
+    words,
+    current,
+    index,
+    total,
+    flipped,
+    toggleFlip,
+    shake,
+    feedback,
+    setFeedback,
+    submitting,
+    done,
+    results,
+    tally,
+    toast,
+    setToast,
+    confetti,
+    finalMessage,
+    ttsAvailable,
+    answer,
+    speak,
+  } = session
+
+  const starred = current ? isStarred(bookmarks, current._id) : false
+  const toggleSaved = () => {
+    if (!current) return
+    toggleBookmark.mutate(
+      { wordId: current._id, starred },
+      { onError: () => setToast({ variant: 'error', message: "Couldn't save that word." }) }
+    )
+  }
 
   useStudyKeys({
     enabled: !done && !!current,
     flipped,
     hasFeedback: !!feedback,
-    onFlip: () => setFlipped((f) => !f),
+    onFlip: toggleFlip,
     onAgain: () => answer(false),
     onGotIt: () => answer(true),
     onSpeak: () => current && ttsAvailable && speak(current.word),
     onReverse: () => setReversed((r) => !r),
-    onBookmark: () => {
-      if (!current) return
-      toggleBookmark.mutate(
-        { wordId: current._id, starred: isStarred(bookmarks, current._id) },
-        { onError: () => setToast({ variant: 'error', message: "Couldn't save that word." }) }
-      )
-    },
+    onBookmark: toggleSaved,
   })
 
-  useEffect(() => {
-    return () => {
-      clearTimeout(advanceTimer.current)
-      stopSpeaking()
-    }
-  }, [])
-  useEffect(() => {
-    stopSpeaking()
-    setPool(null)
-    setIndex(0)
-    setFlipped(false)
-    setReversed(false)
-    setDone(false)
-    setResults([])
-    setSubmitting(false)
-    setSessionXp(0)
-    setCombo(0)
-    setBestCombo(0)
-    setScore(0)
-    setFeedback(null)
-    setLevelEvent(null)
-    setConfetti(false)
-    setNewLearned(0)
-    setToast(null)
-    setCaughtUp(0)
-    setFinalMessage(null)
-    busyRef.current = false
-    sessionRef.current = { correct: 0, total: 0, bestCombo: 0, levelUp: false, level: null }
-  }, [id, part])
-
-  useEffect(() => {
-    if (pool === null && sessionWords) setPool(sessionWords)
-  }, [sessionWords, pool])
-
-  useEffect(() => {
-    if (!active) stopSpeaking()
-  }, [active])
-
-  function speak(text) {
-    const started = speakWord(text, {
-      onError: () =>
-        setToast({ variant: 'error', message: "Couldn't play the pronunciation." }),
-    })
-    if (started && claimTtsTip()) {
-      setToast({ variant: 'info', message: 'No sound? Check your device volume.' })
-    }
-  }
-
-  async function answer(correct) {
-    if (busyRef.current || submitting || feedback) return
-    busyRef.current = true
-    const word = words[index]
-    setSubmitting(true)
-
-    let g = {}
-    let box = correct ? 2 : 1
-    try {
-      const data = await api.post('/progress/review', { wordId: word._id, correct, mode: 'practice' })
-      g = data.gamification || {}
-      box = data.progress?.box || box
-    } catch (err) {
-      console.error(err)
-      busyRef.current = false
-      setSubmitting(false)
-      setFeedback({ error: true })
-      return
-    }
-
-    setResults((r) => [...r, { word: word.word, correct }])
-
-    const newCombo = correct ? combo + 1 : 0
-    setCombo(newCombo)
-    setBestCombo((b) => Math.max(b, newCombo))
-    setScore((s) => s + (correct ? 1 : 0))
-    const ref = sessionRef.current
-    ref.correct += correct ? 1 : 0
-    ref.total += 1
-    ref.bestCombo = Math.max(ref.bestCombo, newCombo)
-    ref.levelUp = ref.levelUp || !!g.levelUp
-    if (g.level != null) ref.level = g.level
-    setSessionXp((x) => x + (g.xpEarned || 0))
-    if (g.newWordsLearned) setNewLearned((n) => n + g.newWordsLearned)
-    if (g.reviewsCaughtUp) setCaughtUp((n) => n + g.reviewsCaughtUp)
-    if (g.levelUp) setLevelEvent({ newLevel: g.level, xp: g.xp })
-    if (g.newBadges?.length) {
-      const names = g.newBadges.map((b) => `${b.icon} ${b.name}`).join(' · ')
-      setToast({ variant: 'gold', message: `🏅 Badge earned: ${names}!` })
-    }
-    invalidateAfterReview(id)
-
-    setFlipped(true)
-    if (!correct) setShake(true)
-
-    setFeedback({
-      correct,
-      xpEarned: g.xpEarned,
-      boxLabel: BOX_LABELS[box] || `Box ${box}`,
-    })
-
-    const finished = index + 1 >= words.length
-    advanceTimer.current = setTimeout(() => {
-      stopSpeaking()
-      setShake(false)
-      setFlipped(false)
-      setFeedback(null)
-      setSubmitting(false)
-      busyRef.current = false
-      clearTimeout(advanceTimer.current)
-      if (finished) {
-        const s = sessionRef.current
-        if (shouldCelebrate({ correct: s.correct, total: s.total, levelUp: s.levelUp })) {
-          setConfetti(true)
-        }
-        setFinalMessage(
-          getSessionMessage({
-            correct: s.correct,
-            total: s.total,
-            bestCombo: s.bestCombo,
-            levelUp: s.levelUp,
-            level: s.level,
-          })
-        )
-        setDone(true)
-      } else {
-        setIndex((i) => i + 1)
-      }
-    }, 850)
-  }
-
   if (isLoading) {
-    return (
-      <div className="mx-auto h-64 max-w-2xl animate-pulse rounded-xl border border-line bg-card" />
-    )
+    return <div className="h-64 animate-pulse rounded-xl border border-line bg-card" />
   }
 
   if (isError) {
@@ -236,7 +117,6 @@ export default function Practice({ active = true }) {
   }
 
   if (done) {
-    const correctCount = results.filter((r) => r.correct).length
     const firstName = user?.name?.split(' ')[0]
     return (
       <SessionResults
@@ -244,26 +124,26 @@ export default function Practice({ active = true }) {
         message={finalMessage || 'Session complete!'}
         greeting={
           firstName
-            ? `${firstName}, you got ${correctCount} of ${results.length} right.`
+            ? `${firstName}, you got ${tally.correct} of ${results.length} right.`
             : null
         }
-        correct={correctCount}
+        correct={tally.correct}
         total={results.length}
-        levelEvent={levelEvent}
+        levelEvent={tally.levelEvent}
         results={results}
         stats={[
-          { label: 'XP earned', value: `+${sessionXp}` },
+          { label: 'XP earned', value: `+${tally.xp}` },
           {
             label: 'Best combo',
             value: (
               <>
-                {bestCombo}
+                {tally.bestCombo}
                 <FlameIcon size={18} className="text-accent" />
               </>
             ),
           },
-          { label: 'New words learned', value: newLearned },
-          { label: 'Mastered', value: caughtUp },
+          { label: 'New words learned', value: tally.newLearned },
+          { label: 'Mastered', value: tally.caughtUp },
         ]}
         actions={
           <>
@@ -279,109 +159,83 @@ export default function Practice({ active = true }) {
     )
   }
 
-  return (
-    <div className={`mx-auto max-w-2xl space-y-4 py-2 ${slideCls}`}>
-      <SessionHud
-        backTo="/"
-        backLabel={deckTitle}
-        index={index}
-        total={words.length}
-        score={score}
-        combo={combo}
-        sessionXp={sessionXp}
-      />
-
-      <div className="flex flex-wrap items-center justify-end gap-2">
-        {ttsAvailable !== null && (
-          <span
-            title={ttsAvailable ? undefined : TTS_UNAVAILABLE_HINT}
-            className={ttsAvailable ? '' : 'cursor-not-allowed'}
+  const tools = (
+    <>
+      {ttsAvailable !== null && (
+        <span
+          title={ttsAvailable ? undefined : TTS_UNAVAILABLE_HINT}
+          className={ttsAvailable ? '' : 'cursor-not-allowed'}
+        >
+          <Button
+            variant="secondary"
+            className="min-h-11 gap-1 px-2.5 text-xs"
+            aria-label={
+              ttsAvailable ? `Pronounce ${current.word}` : TTS_UNAVAILABLE_HINT
+            }
+            disabled={!ttsAvailable || (reversed && !flipped)}
+            onClick={() => speak(current.word)}
           >
-            <Button
-              variant="secondary"
-              className="min-h-11 gap-1.5 px-3 text-xs"
-              aria-label={
-                ttsAvailable ? `Pronounce ${current.word}` : TTS_UNAVAILABLE_HINT
-              }
-              disabled={!ttsAvailable || (reversed && !flipped)}
-              onClick={() => speak(current.word)}
-            >
-              <SpeakerIcon />
-              Say it
-            </Button>
-          </span>
-        )}
-        <Button
-          variant="secondary"
-          className={`min-h-11 gap-1.5 px-3 text-xs ${reversed ? 'ring-2 ring-accent' : ''}`}
-          aria-pressed={reversed}
-          onClick={() => setReversed((r) => !r)}
-        >
-          ⇄ Reverse
-        </Button>
-        <Button
-          variant="secondary"
-          className="min-h-11 px-3 text-xs"
-          aria-label={isStarred(bookmarks, current._id) ? `Remove ${current.word} from saved` : `Save ${current.word}`}
-          aria-pressed={isStarred(bookmarks, current._id)}
-          onClick={() =>
-            toggleBookmark.mutate(
-              { wordId: current._id, starred: isStarred(bookmarks, current._id) },
-              { onError: () => setToast({ variant: 'error', message: "Couldn't save that word." }) }
-            )
-          }
-        >
-          {isStarred(bookmarks, current._id) ? '★' : '☆'}
-        </Button>
-      </div>
+            <SpeakerIcon />
+            <span className="hidden sm:inline">Say it</span>
+          </Button>
+        </span>
+      )}
+      <Button
+        variant="secondary"
+        className={`min-h-11 gap-1 px-2.5 text-xs ${reversed ? 'ring-2 ring-accent' : ''}`}
+        aria-label="Reverse card"
+        aria-pressed={reversed}
+        onClick={() => setReversed((r) => !r)}
+      >
+        <span aria-hidden="true">⇄</span>
+        <span className="hidden sm:inline">Reverse</span>
+      </Button>
+      <Button
+        variant="secondary"
+        className="min-h-11 px-2.5 text-xs"
+        aria-label={starred ? `Remove ${current.word} from saved` : `Save ${current.word}`}
+        aria-pressed={starred}
+        onClick={toggleSaved}
+      >
+        {starred ? '★' : '☆'}
+      </Button>
+    </>
+  )
 
-      <Flashcard
-        word={current}
-        flipped={flipped}
-        onFlip={() => setFlipped((f) => !f)}
-        shake={shake}
-        reversed={reversed}
-      />
-
-      {flipped && !feedback && (
-        <AnswerBar
-          onAgain={() => answer(false)}
-          onGotIt={() => answer(true)}
-          disabled={submitting}
+  return (
+    <div className={`flex min-h-0 flex-1 flex-col ${slideCls}`}>
+      <StudyStage
+        status={
+          <SessionStatus
+            index={index}
+            total={total}
+            score={tally.correct}
+            combo={tally.combo}
+            xp={tally.xp}
+            actions={tools}
+          />
+        }
+        footer={
+          feedback ? (
+            <StudyFeedback feedback={feedback} onDismiss={() => setFeedback(null)} />
+          ) : flipped ? (
+            <AnswerBar
+              onAgain={() => answer(false)}
+              onGotIt={() => answer(true)}
+              disabled={submitting}
+            />
+          ) : null
+        }
+        notice={tally.levelEvent ? <LevelUpBanner level={tally.levelEvent.newLevel} /> : null}
+      >
+        <Flashcard
+          word={current}
+          flipped={flipped}
+          onFlip={toggleFlip}
+          shake={shake}
+          reversed={reversed}
         />
-      )}
-
-      {feedback?.error && (
-        <div className="animate-pop flex items-center justify-center gap-3 rounded-lg border border-stamp/30 bg-stamp/10 px-4 py-3 text-sm font-semibold text-stamp">
-          <span>Couldn&apos;t save that review. Check your connection and try again.</span>
-          <button className="ml-auto underline" onClick={() => setFeedback(null)}>
-            Dismiss
-          </button>
-        </div>
-      )}
-
-      {feedback && !feedback.error && (
-        <div
-          className={`animate-pop flex items-center justify-center gap-3 rounded-lg border px-4 py-3 text-sm font-semibold ${
-            feedback.correct
-              ? 'border-sage/30 bg-sage/10 text-sage'
-              : 'border-stamp/30 bg-stamp/10 text-stamp'
-          }`}
-        >
-          <span className="text-lg">{feedback.correct ? '✓' : '✗'}</span>
-          <span>
-            {feedback.correct ? 'Nice!' : 'Keep going!'} → {feedback.boxLabel}
-          </span>
-          <span className="relative ml-auto font-mono tabular-nums">
-            +{feedback.xpEarned} XP
-            <span className="animate-float-up absolute -top-1 right-0 text-accent">+{feedback.xpEarned}</span>
-          </span>
-        </div>
-      )}
-
-      {levelEvent && (
-        <LevelUpBanner level={levelEvent.newLevel} />
-      )}
+      </StudyStage>
 
       {toast && (
         <Toast

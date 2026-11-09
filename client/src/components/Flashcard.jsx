@@ -52,15 +52,15 @@ export default function Flashcard({ word, flipped, onFlip, shake, reversed }) {
       : `Word ${word.word}, tap to reveal`
   const face = 'flip-face absolute inset-0 overflow-y-auto overscroll-contain rounded-xl border-2 border-line bg-card text-center shadow-paper dark:shadow-none'
   return (
-    <div className={`flip-scene w-full ${shake ? 'animate-shake' : ''}`}>
+    <div className={`flip-scene flex min-h-0 w-full flex-1 flex-col ${shake ? 'animate-shake' : ''}`}>
       <button
         onClick={onFlip}
-        className="flip-scene block w-full"
+        className="flip-scene flex min-h-0 w-full flex-1 flex-col"
         aria-pressed={flipped}
         aria-label={label}
       >
         <span
-          className={`flip-inner relative flex min-h-72 w-full sm:min-h-80 ${flipped ? 'flipped' : ''}`}
+          className={`flip-inner relative flex min-h-72 w-full flex-1 flex-col sm:min-h-80 ${flipped ? 'flipped' : ''}`}
         >
           <span
             aria-hidden="true"
