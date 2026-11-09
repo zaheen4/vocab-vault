@@ -129,13 +129,18 @@ Motion earns its place when it shows where a change came from, confirms an
 action, or preserves context while something leaves. Anything else is cut.
 
 - **Library:** `motion` v14, wrapped once in `client/src/lib/motion.jsx`
-  (`MotionProvider`, `m`, `MOTION`). Always import `m` and `useReducedMotion`
-  from that module; never `motion` directly. `LazyMotion` runs in `strict` mode
-  so a full import fails loudly.
+  (`MotionProvider`, `m`, `AnimatePresence`, `MOTION`). Always import from that
+  module; never `motion` directly. `LazyMotion` runs in `strict` mode so a full
+  import fails loudly, and `design-motion.test.js` enforces it.
 - **Timing:** `MOTION.fast` 120ms (hover/press), `MOTION.base` 180ms
   (nav/toast/list), `MOTION.slow` 240ms (dialog/route). Nothing interactive
   waits more than 250ms. CSS mirrors these as `--dur-fast/base/slow` and
   `--ease-travel` in `index.css`.
+- **Overlays:** enter at `base`, leave at `fast`. Dialog panel rises 8px and
+  scales .98→1 behind a `fast` backdrop fade; toast rises 12px; both use
+  `AnimatePresence` so the exit actually plays. Menus are CSS-only —
+  120ms in from `--radix-dropdown-menu-content-transform-origin`, 100ms out —
+  because Radix keeps its content mounted until `animationend`.
 - **Easing:** `cubic-bezier(.22, 1, .36, 1)` for travel and entrances; springs
   only for drag/swipe. The celebration pop keeps
   `cubic-bezier(0.34, 1.56, 0.64, 1)`.
@@ -143,11 +148,13 @@ action, or preserves context while something leaves. Anything else is cut.
   because travelling is its whole job.
 - **Stagger:** at most 8 items, 20ms apart, entrance only.
 - **Banned:** parallax, infinite loops (the one-shot confetti is the exception),
-  scroll-jacking, magnetic cursors, kinetic body text, per-letter animation, and
+  scroll-jacking, magnetic cursors, kinetic body text, per-letter animation,
+  reading-position animations on content that is already on screen, and
   motion that hides information or blocks a click.
 - **Reduced motion:** `MotionConfig reducedMotion="user"` plus the CSS
-  kill-switch. The nav indicator lands instantly, the icon lift and count tick
-  skip, and every keyframe below is disabled.
+  kill-switch. The nav indicator lands instantly, overlays keep their opacity
+  fade but drop every transform, menus snap open, and every keyframe in
+  `index.css` is disabled.
 - **Nav:** the accent underline is one shared element (`layoutId`) that travels
   between desktop destinations while the wash cross-fades; on mobile the top
   rule slides across the five tabs and the active icon lifts 1px.

@@ -1,4 +1,5 @@
 import { TTS_UNAVAILABLE_HINT } from '../utils/speak'
+import { AnimatePresence } from '../lib/motion'
 import { useStudyKeys } from '../utils/useStudyKeys'
 import { useStudySession } from '../hooks/useStudySession'
 import { useSlideDirection } from '../utils/navDirection'
@@ -192,9 +193,11 @@ export default function ReviewSession({
         </StudyStage>
       </StudyFrame>
 
-      {toast && (
-        <Toast variant={toast.variant} message={toast.message} onDismiss={() => setToast(null)} />
-      )}
+      <AnimatePresence>
+        {toast && (
+          <Toast variant={toast.variant} message={toast.message} onDismiss={() => setToast(null)} />
+        )}
+      </AnimatePresence>
     </div>
   )
 }

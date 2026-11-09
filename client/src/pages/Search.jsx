@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
+import { AnimatePresence } from '../lib/motion'
 import { api } from '../api/client'
 import { isStarred, useBookmarks, useToggleBookmark } from '../api/queries'
 import Button from '../components/ui/Button'
@@ -197,13 +198,15 @@ export default function Search() {
         </div>
       )}
 
-      {toast && (
-        <Toast
-          variant={toast.variant}
-          message={toast.message}
-          onDismiss={() => setToast(null)}
-        />
-      )}
+      <AnimatePresence>
+        {toast && (
+          <Toast
+            variant={toast.variant}
+            message={toast.message}
+            onDismiss={() => setToast(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }

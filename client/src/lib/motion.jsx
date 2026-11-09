@@ -1,4 +1,11 @@
-import { LazyMotion, MotionConfig, domMax, m, useReducedMotion } from 'motion/react'
+import {
+  AnimatePresence,
+  LazyMotion,
+  MotionConfig,
+  domMax,
+  m,
+  useReducedMotion,
+} from 'motion/react'
 
 export const MOTION = {
   fast: 0.12,
@@ -23,4 +30,4 @@ export function MotionProvider({ children }) {
   )
 }
 
-export { m, useReducedMotion }
+export { AnimatePresence, m, useReducedMotion }

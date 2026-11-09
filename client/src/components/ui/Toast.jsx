@@ -1,5 +1,20 @@
 import { useEffect } from 'react'
 import { cn } from '../../utils/cn'
+import { MOTION, m } from '../../lib/motion'
+
+const toastMotion = {
+  initial: { opacity: 0, y: 12 },
+  animate: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: MOTION.base, ease: MOTION.easeOut },
+  },
+  exit: {
+    opacity: 0,
+    y: 8,
+    transition: { duration: MOTION.fast, ease: MOTION.easeOut },
+  },
+}
 
 export default function Toast({ message, variant = 'info', onDismiss, duration = 5000, className = '' }) {
   useEffect(() => {
@@ -16,7 +31,7 @@ export default function Toast({ message, variant = 'info', onDismiss, duration =
         : 'border-line bg-card text-ink'
 
   return (
-    <div
+    <m.div
       role={variant === 'error' ? 'alert' : 'status'}
       aria-live={variant === 'error' ? 'assertive' : 'polite'}
       className={cn(
@@ -24,6 +39,7 @@ export default function Toast({ message, variant = 'info', onDismiss, duration =
         tone,
         className
       )}
+      {...toastMotion}
     >
       <span>{message}</span>
       {onDismiss && (
@@ -36,6 +52,6 @@ export default function Toast({ message, variant = 'info', onDismiss, duration =
           ✕
         </button>
       )}
-    </div>
+    </m.div>
   )
 }

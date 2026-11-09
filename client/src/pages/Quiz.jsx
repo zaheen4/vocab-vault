@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
+import { AnimatePresence } from '../lib/motion'
 import { api } from '../api/client'
 import { isStarred, useBookmarks, useInvalidateAfterReview, useQuizPool, useSaveQuizSession, useToggleBookmark } from '../api/queries'
 import { useSlideDirection } from '../utils/navDirection'
@@ -473,9 +474,11 @@ export default function Quiz({ deckId }) {
         </div>
       </div>
       </StudyStage>
-      {toast && (
-        <Toast variant={toast.variant} message={toast.message} onDismiss={() => setToast(null)} />
-      )}
+      <AnimatePresence>
+        {toast && (
+          <Toast variant={toast.variant} message={toast.message} onDismiss={() => setToast(null)} />
+        )}
+      </AnimatePresence>
     </>
   )
 }

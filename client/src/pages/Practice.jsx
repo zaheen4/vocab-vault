@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
+import { AnimatePresence } from '../lib/motion'
 import {
   isStarred,
   useBookmarks,
@@ -237,13 +238,15 @@ export default function Practice({ active = true }) {
         />
       </StudyStage>
 
-      {toast && (
-        <Toast
-          variant={toast.variant}
-          message={toast.message}
-          onDismiss={() => setToast(null)}
-        />
-      )}
+      <AnimatePresence>
+        {toast && (
+          <Toast
+            variant={toast.variant}
+            message={toast.message}
+            onDismiss={() => setToast(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }
