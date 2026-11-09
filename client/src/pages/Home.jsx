@@ -46,7 +46,7 @@ function CatalogTab({ deck }) {
   return (
     <span
       aria-hidden="true"
-      className={`absolute -top-3 left-4 rounded-t-md border border-b-0 border-line px-2 pt-1 pb-1.5 font-mono text-2xs font-bold tracking-widest ${style}`}
+      className={`absolute -top-3 left-4 rounded-t-md border border-b-0 border-line px-2 pt-1 pb-1.5 font-mono text-3xs font-bold tracking-widest ${style}`}
     >
       {label}
     </span>
@@ -164,7 +164,7 @@ function TodayHeading({ firstRun, stats }) {
 function FirstRunPanel({ deck }) {
   return (
     <Card className="mt-4 p-4">
-      <p className="font-mono text-2xs font-semibold tracking-widest text-ink-muted uppercase">
+      <p className="font-mono text-3xs font-semibold tracking-widest text-ink-muted uppercase">
         Start here
       </p>
       <p className="mt-1.5 max-w-md text-sm text-ink">
@@ -193,7 +193,7 @@ function TodayPanel({ totalDue, stats, continueDeck }) {
     <Card className="mt-4 space-y-3 p-4">
       <div className="flex items-center gap-3">
         <div className="min-w-0 flex-1">
-          <p className="font-mono text-2xs font-semibold tracking-widest text-ink-muted uppercase">
+          <p className="font-mono text-3xs font-semibold tracking-widest text-ink-muted uppercase">
             Due today
           </p>
           <p className="flex items-baseline gap-2">
@@ -227,7 +227,7 @@ function TodayPanel({ totalDue, stats, continueDeck }) {
       </div>
 
       <div className="flex items-center gap-3">
-        <p className="shrink-0 font-mono text-2xs font-semibold tracking-widest text-ink-muted uppercase">
+        <p className="shrink-0 font-mono text-3xs font-semibold tracking-widest text-ink-muted uppercase">
           Goal
           <span className="hidden font-sans text-2xs font-semibold tracking-normal normal-case sm:inline">
             {' '}

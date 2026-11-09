@@ -33,7 +33,7 @@ export default function SessionResults({
     <div className="animate-page mx-auto max-w-2xl space-y-6 py-6 text-center">
       {confetti && <Confetti active={confetti} pieces={70} />}
       <div className="space-y-2">
-        <p className="font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase">
+        <p className="font-mono text-3xs font-bold tracking-widest text-ink-muted uppercase">
           Session complete
         </p>
         <h1 className="font-display text-display-xl font-bold text-primary dark:text-cream-100">
@@ -60,7 +60,7 @@ export default function SessionResults({
                 {stat.value}
                 {stat.icon}
               </p>
-              <p className="text-2xs font-semibold tracking-wide text-ink-muted uppercase">
+              <p className="text-3xs font-semibold tracking-wide text-ink-muted uppercase">
                 {stat.label}
               </p>
             </div>

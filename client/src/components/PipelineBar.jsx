@@ -48,7 +48,7 @@ export default function PipelineBar({ summary = {} }) {
               key={segment.key}
               className={cn('min-w-0', i > 0 && 'border-l border-line pl-3')}
             >
-              <dt className="flex items-center gap-1.5 text-2xs font-bold tracking-wide text-ink-muted uppercase">
+              <dt className="flex items-center gap-1.5 text-3xs font-bold tracking-wide text-ink-muted uppercase">
                 <span
                   aria-hidden="true"
                   className={cn('h-2 w-2 shrink-0 rounded-sm', segment.dot)}

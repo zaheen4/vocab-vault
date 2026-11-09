@@ -227,3 +227,27 @@ describe('form field legibility', () => {
     expect(INPUT).not.toMatch(/placeholder:text-ink-muted\/\d+/)
   })
 })
+
+describe('dark surfaces and micro-type floor', () => {
+  it('keeps disabled control text readable on raised surfaces in both themes', () => {
+    expect(contrast(lightColor('ink-muted'), lightColor('raised'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
+    expect(contrast(darkColor('ink-muted'), darkColor('raised'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
+  })
+
+  it('enforces micro-type floors for data stamps and eyebrows', () => {
+    const themeBlock = CSS.match(/@theme\s*\{([\s\S]*?)\}/)?.[1] || ''
+    const match2xs = themeBlock.match(/--text-2xs:\s*([0-9.]+)rem/)
+    const match3xs = themeBlock.match(/--text-3xs:\s*([0-9.]+)rem/)
+    expect(match2xs, '--text-2xs in @theme').toBeTruthy()
+    expect(parseFloat(match2xs[1])).toBeGreaterThanOrEqual(0.6875)
+    expect(match3xs, '--text-3xs in @theme').toBeTruthy()
+    expect(match3xs[1]).toBe('0.625')
+  })
+
+  it('keeps the dark hairline alpha at or above 0.16', () => {
+    const darkBlock = CSS.match(/\.dark\s*\{([\s\S]*?)\}/)?.[1] || ''
+    const matchAlpha = darkBlock.match(/--vv-line:\s*rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*([0-9.]+)\s*\)/)
+    expect(matchAlpha, '--vv-line in .dark').toBeTruthy()
+    expect(parseFloat(matchAlpha[1])).toBeGreaterThanOrEqual(0.16)
+  })
+})

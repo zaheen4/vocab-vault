@@ -198,7 +198,7 @@ export default function Typing() {
       <div className={`flex min-h-0 flex-1 flex-col ${slideCls}`}>
         <StudyStage>
           <div className="my-auto rounded-xl border-2 border-line bg-card p-5 shadow-paper dark:shadow-none">
-            <p className="font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase">
+            <p className="font-mono text-3xs font-bold tracking-widest text-ink-muted uppercase">
               Type the word
             </p>
             <p className="mt-2 text-sm text-ink-muted">

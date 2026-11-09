@@ -47,7 +47,7 @@ function DayGroup({ label, count, children }) {
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-3">
-        <h2 className="font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase">
+        <h2 className="font-mono text-3xs font-bold tracking-widest text-ink-muted uppercase">
           {label}
         </h2>
         <span aria-hidden="true" className="h-px flex-1 bg-line" />
@@ -318,7 +318,7 @@ export default function History() {
                   <p className={cn('font-display text-2xl font-bold tabular-nums', tile.tone)}>
                     {tile.value}
                   </p>
-                  <p className="mt-0.5 font-mono text-2xs tracking-widest text-ink-muted uppercase">
+                  <p className="mt-0.5 font-mono text-3xs tracking-widest text-ink-muted uppercase">
                     {tile.label}
                   </p>
                 </div>
