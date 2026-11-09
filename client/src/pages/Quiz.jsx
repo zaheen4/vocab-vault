@@ -434,8 +434,7 @@ export default function Quiz({ deckId }) {
         footer={footer}
       >
       <div className="my-auto flex flex-col gap-2">
-        <div className="relative overflow-hidden rounded-xl border-2 border-line bg-card p-6 pt-7 text-center shadow-paper dark:shadow-none">
-          <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1.5 bg-accent" />
+        <div className="rounded-xl border-2 border-line bg-card p-6 text-center shadow-paper dark:shadow-none">
           <p className="font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase">
             {q.word.partOfSpeech || 'What does this mean?'}
           </p>
