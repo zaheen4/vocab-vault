@@ -16,6 +16,8 @@ import {
   useToggleBookmark,
 } from '../api/queries'
 import Button from '../components/ui/Button'
+import Chevron from '../components/ui/Chevron'
+import Disclosure from '../components/ui/Disclosure'
 import EmptyState from '../components/ui/EmptyState'
 import EmptyArt from '../components/art/EmptyArt'
 import Input from '../components/ui/Input'
@@ -94,7 +96,7 @@ function WordRow({ entry, index = 0, lists, quickList, onQuickListUsed, notify, 
         >
           <MasteryDot status={entry.status} />
           <span className="font-display font-semibold text-ink">{word.word}</span>
-          <span className="ml-auto shrink-0 text-xs font-bold text-ink-muted">{expanded ? '▾' : '▸'}</span>
+          <Chevron open={expanded} className="ml-auto shrink-0 text-ink-muted" />
         </button>
         <Button
           variant="secondary"
@@ -111,77 +113,75 @@ function WordRow({ entry, index = 0, lists, quickList, onQuickListUsed, notify, 
         </Button>
       </div>
 
-      {expanded && (
-        <div className="space-y-2 border-t border-line px-3 py-3">
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="font-medium text-ink-muted">{masteryLabel(entry)}</span>
-            {word.partOfSpeech && <span className="text-ink-muted italic">{word.partOfSpeech}</span>}
-            {word.group != null && (
-              <span className="rounded-full bg-raised px-2 py-0.5 text-xs font-medium text-ink-muted">
-                Group {word.group}
-              </span>
-            )}
-            {word.source === 'custom' && (
-              <span className="rounded-full bg-gold/50 px-2 py-0.5 text-xs font-medium text-accent-ink dark:bg-accent/15">Yours</span>
-            )}
-            {ttsAvailable && (
-              <Button
-                variant="secondary"
-                aria-label={`Pronounce ${word.word}`}
-                onClick={() =>
-                  speakWord(word.word, {
-                    onError: () => notify("Couldn't play the pronunciation."),
-                  })
-                }
-              >
-                <SpeakerIcon />
-              </Button>
-            )}
-          </div>
-          <p className="text-sm text-ink">{word.definition}</p>
-          {word.example && <p className="text-sm text-ink-muted italic">“{word.example}”</p>}
-          <div>
-            <p className="text-xs font-bold text-ink-muted">History</p>
-            <div className="mt-1">
-              <WordHistory wordId={word._id} active={expanded} />
-            </div>
-          </div>
-          {quickList && (
+      <Disclosure open={expanded} className="space-y-2 border-t border-line px-3 py-3">
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          <span className="font-medium text-ink-muted">{masteryLabel(entry)}</span>
+          {word.partOfSpeech && <span className="text-ink-muted italic">{word.partOfSpeech}</span>}
+          {word.group != null && (
+            <span className="rounded-full bg-raised px-2 py-0.5 text-xs font-medium text-ink-muted">
+              Group {word.group}
+            </span>
+          )}
+          {word.source === 'custom' && (
+            <span className="rounded-full bg-gold/50 px-2 py-0.5 text-xs font-medium text-accent-ink dark:bg-accent/15">Yours</span>
+          )}
+          {ttsAvailable && (
             <Button
               variant="secondary"
-              disabled={addToList.isPending}
-              onClick={() => addTo(quickList._id)}
-              className="min-h-9 border-accent bg-gold/50 text-xs text-accent-ink hover:bg-gold dark:bg-accent/15 dark:hover:bg-accent/25"
+              aria-label={`Pronounce ${word.word}`}
+              onClick={() =>
+                speakWord(word.word, {
+                  onError: () => notify("Couldn't play the pronunciation."),
+                })
+              }
             >
-              + {quickList.title}
+              <SpeakerIcon />
             </Button>
           )}
-          {lists.length > 1 && (
-            <div className="flex items-center gap-2">
-              <Input
-                as="select"
-                aria-label={`Add ${word.word} to a different list`}
-                value={listId}
-                onChange={(e) => setListId(e.target.value)}
-                className="min-w-0 flex-1"
-                inputClassName="min-h-9 px-2 py-1.5"
-              >
-                <option value="">Another list…</option>
-                {lists
-                  .filter((l) => !quickList || l._id !== quickList._id)
-                  .map((l) => (
-                    <option key={l._id} value={l._id}>
-                      {l.title}
-                    </option>
-                  ))}
-              </Input>
-              <Button variant="secondary" disabled={!listId || addToList.isPending} onClick={() => addTo(listId)}>
-                Add
-              </Button>
-            </div>
-          )}
         </div>
-      )}
+        <p className="text-sm text-ink">{word.definition}</p>
+        {word.example && <p className="text-sm text-ink-muted italic">“{word.example}”</p>}
+        <div>
+          <p className="text-xs font-bold text-ink-muted">History</p>
+          <div className="mt-1">
+            <WordHistory wordId={word._id} active={expanded} />
+          </div>
+        </div>
+        {quickList && (
+          <Button
+            variant="secondary"
+            disabled={addToList.isPending}
+            onClick={() => addTo(quickList._id)}
+            className="min-h-9 border-accent bg-gold/50 text-xs text-accent-ink hover:bg-gold dark:bg-accent/15 dark:hover:bg-accent/25"
+          >
+            + {quickList.title}
+          </Button>
+        )}
+        {lists.length > 1 && (
+          <div className="flex items-center gap-2">
+            <Input
+              as="select"
+              aria-label={`Add ${word.word} to a different list`}
+              value={listId}
+              onChange={(e) => setListId(e.target.value)}
+              className="min-w-0 flex-1"
+              inputClassName="min-h-9 px-2 py-1.5"
+            >
+              <option value="">Another list…</option>
+              {lists
+                .filter((l) => !quickList || l._id !== quickList._id)
+                .map((l) => (
+                  <option key={l._id} value={l._id}>
+                    {l.title}
+                  </option>
+                ))}
+            </Input>
+            <Button variant="secondary" disabled={!listId || addToList.isPending} onClick={() => addTo(listId)}>
+              Add
+            </Button>
+          </div>
+        )}
+      </Disclosure>
     </li>
   )
 }
@@ -227,74 +227,72 @@ function ListCard({ list, open, onToggle, notify }) {
             {list.wordCount} word{list.wordCount === 1 ? '' : 's'}
           </span>
         </span>
-        <span className="shrink-0 text-xs font-bold text-ink-muted">{open ? '▾' : '▸'}</span>
+        <Chevron open={open} className="shrink-0 text-ink-muted" />
       </button>
 
-      {open && (
-        <div className="space-y-3 border-t border-line px-3 py-3">
-          <div className="flex items-center gap-2">
-            {editing ? (
-              <>
-                <Input
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  aria-label="List title"
-                  maxLength={60}
-                  className="min-w-0 flex-1"
-                  inputClassName="min-h-9 px-2 py-1.5"
-                />
-                <Button variant="secondary" disabled={rename.isPending} onClick={saveTitle}>
-                  Save
-                </Button>
-              </>
-            ) : (
-              <Button
-                variant="secondary"
-                aria-label={`Rename ${list.title}`}
-                onClick={() => {
-                  setTitle(list.title)
-                  setEditing(true)
-                }}
-              >
-                Rename
+      <Disclosure open={open} className="space-y-3 border-t border-line px-3 py-3">
+        <div className="flex items-center gap-2">
+          {editing ? (
+            <>
+              <Input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                aria-label="List title"
+                maxLength={60}
+                className="min-w-0 flex-1"
+                inputClassName="min-h-9 px-2 py-1.5"
+              />
+              <Button variant="secondary" disabled={rename.isPending} onClick={saveTitle}>
+                Save
               </Button>
-            )}
+            </>
+          ) : (
             <Button
-              variant={confirming ? 'danger' : 'secondary'}
-              aria-label={confirming ? `Confirm delete ${list.title}` : `Delete ${list.title}`}
-              disabled={remove.isPending}
-              onClick={handleDelete}
+              variant="secondary"
+              aria-label={`Rename ${list.title}`}
+              onClick={() => {
+                setTitle(list.title)
+                setEditing(true)
+              }}
             >
-              {confirming ? 'Sure?' : 'Delete'}
+              Rename
             </Button>
-          </div>
-          <ul className="space-y-1.5">
-            {(detail.data?.words || []).map((w) => (
-              <li key={w._id} className="flex items-center gap-2 text-sm">
-                <span className="font-semibold text-ink">{w.word}</span>
-                <span className="text-ink-muted">{w.definition}</span>
-                <button
-                  type="button"
-                  aria-label={`Remove ${w.word} from ${list.title}`}
-                  className="ml-auto min-h-9 min-w-9 shrink-0 rounded-md px-2 py-1 text-xs font-medium text-ink-muted hover:text-stamp"
-                  onClick={() =>
-                    removeWord.mutate(
-                      { id: list._id, wordId: w._id },
-                      { onError: () => notify("Couldn't remove that word.") }
-                    )
-                  }
-                >
-                  Remove
-                </button>
-              </li>
-            ))}
-            {detail.isLoading && <li className="text-sm text-ink-muted">Loading words…</li>}
-            {detail.data && detail.data.words.length === 0 && (
-              <li className="text-sm text-ink-muted">No words yet — add some from your saved words above.</li>
-            )}
-          </ul>
+          )}
+          <Button
+            variant={confirming ? 'danger' : 'secondary'}
+            aria-label={confirming ? `Confirm delete ${list.title}` : `Delete ${list.title}`}
+            disabled={remove.isPending}
+            onClick={handleDelete}
+          >
+            {confirming ? 'Sure?' : 'Delete'}
+          </Button>
         </div>
-      )}
+        <ul className="space-y-1.5">
+          {(detail.data?.words || []).map((w) => (
+            <li key={w._id} className="flex items-center gap-2 text-sm">
+              <span className="font-semibold text-ink">{w.word}</span>
+              <span className="text-ink-muted">{w.definition}</span>
+              <button
+                type="button"
+                aria-label={`Remove ${w.word} from ${list.title}`}
+                className="ml-auto min-h-9 min-w-9 shrink-0 rounded-md px-2 py-1 text-xs font-medium text-ink-muted hover:text-stamp"
+                onClick={() =>
+                  removeWord.mutate(
+                    { id: list._id, wordId: w._id },
+                    { onError: () => notify("Couldn't remove that word.") }
+                  )
+                }
+              >
+                Remove
+              </button>
+            </li>
+          ))}
+          {detail.isLoading && <li className="text-sm text-ink-muted">Loading words…</li>}
+          {detail.data && detail.data.words.length === 0 && (
+            <li className="text-sm text-ink-muted">No words yet — add some from your saved words above.</li>
+          )}
+        </ul>
+      </Disclosure>
     </div>
   )
 }

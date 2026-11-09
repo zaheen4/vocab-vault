@@ -13,7 +13,7 @@ token classes — never raw hex in components.
 | `canvas` | `#E9E6DE` | `#0E1326` | Page shell (semantic) |
 | `card` | `#FBF8EF` | `#171D36` | Card and sheet surfaces (semantic) |
 | `raised` | `#F3EDDD` | `#222A4A` | Nested/raised surfaces (semantic) |
-| `line` | `#D8CDB8` | `rgba(255,255,255,.10)` | Decorative borders and dividers (semantic) |
+| `line` | `#D8CDB8` | `rgba(255,255,255,.16)` | Decorative borders and dividers (semantic) |
 | `line-strong` | `#8A7B63` | `#767E9C` | Form-control borders (semantic) |
 | `ink` | `#1F2A44` | `#F4EEDF` | Headings and primary text (semantic) |
 | `ink-muted` | `#5B6478` | `#C9C2AD` | Secondary text (semantic) |
@@ -76,6 +76,29 @@ token classes — never raw hex in components.
   from `index.css` and enforces ≥4.5:1 for normal text and ≥3:1 for large
   text/UI, including control borders against canvas, card, and raised. Update
   the test and the palette together.
+
+## Theme: three preferences, one class
+
+`ThemeContext` owns the theme. `localStorage.vv_theme` holds `light`, `dark`,
+or nothing for `system`; an inline script in `client/index.html` applies
+`.dark` to `<html>` before first paint, so there is no flash of the wrong
+theme.
+
+- **Tokens, not variants.** Semantic tokens resolve through `:root` and
+  `.dark`. Never add a `dark:` override for a semantic role — only static
+  brand fills (`primary`, `gold`, `night-*`) are swapped by hand.
+- **Native chrome follows.** `:root` and `.dark` set `color-scheme`, so
+  scrollbars, form controls, and the caret follow the app. `theme-color` is
+  rewritten from `--vv-canvas` on every change, including OS changes while
+  `system` is selected; a media-scoped `<meta>` cannot do this because the OS
+  theme and the app theme can disagree.
+- **Tabs stay in sync.** A `storage` listener adopts `vv_theme` writes from
+  other tabs.
+- **Autofill keeps the field token.** `input:-webkit-autofill` is repainted
+  with `card` in light and `raised` in dark plus `ink` text; the UA would
+  otherwise paint its own light fill over a navy field.
+- **Disabled is never opacity.** `bg-raised` plus `text-ink-muted`, per the
+  control rules above.
 
 ## Typography: voice vs. reading
 
@@ -174,6 +197,11 @@ action, or preserves context while something leaves. Anything else is cut.
 - Compose from `Button`, `Card`, `Chip`, `EmptyState`, `Input` — no raw
   `<button>`, raw `<input>`, or ad-hoc card markup without a documented
   exception.
+- **Disclosure rows:** `ui/Disclosure` is the panel — 120ms `opacity` plus a
+  4px rise on open, unmounted when closed. `ui/Chevron` rotates 90° in 120ms
+  and is `aria-hidden`, so the trigger's name is its label and not `▸`. Never
+  animate the panel's height: the allowed properties are transform and
+  opacity.
 - **Home = Today + Library.** The page opens with a dated `Today` heading, a
   due card carrying the one primary action, a goal meter, and a single-line
   quick-action row. The library keeps all decks visible with
@@ -417,7 +445,8 @@ retired.)
   `text-ink`, `text-ink-muted`), not raw slate on navy.
 - Small accent text uses `text-accent-ink`; the accent fill never carries white
   text.
-- No raw hex outside `index.css` (`design-tokens.test.js`).
+- No raw hex outside `index.css` and the pre-paint bootstrap in
+  `index.html` (`design-tokens.test.js` scans `client/src`).
 - Automated contrast pairs pass (`design-contrast.test.js`): ≥4.5:1 normal
   text, ≥3:1 large UI.
 - Automated: `npm run test:e2e` (`e2e/design-contract.spec.js`, Playwright)

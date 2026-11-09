@@ -4,6 +4,8 @@ import { AnimatePresence } from '../lib/motion'
 import { api } from '../api/client'
 import { isStarred, useBookmarks, useToggleBookmark } from '../api/queries'
 import Button from '../components/ui/Button'
+import Chevron from '../components/ui/Chevron'
+import Disclosure from '../components/ui/Disclosure'
 import Input from '../components/ui/Input'
 import Notice from '../components/ui/Notice'
 import EmptyArt from '../components/art/EmptyArt'
@@ -121,9 +123,7 @@ export default function Search() {
                 className="flex min-h-9 min-w-0 flex-1 items-baseline gap-1.5 text-left"
               >
                 <span className="font-display font-semibold break-words text-ink">{w.word}</span>
-                <span className="shrink-0 text-xs font-bold text-ink-muted">
-                  {openId === w._id ? '▾' : '▸'}
-                </span>
+                <Chevron open={openId === w._id} className="shrink-0 self-center text-ink-muted" />
               </button>
               <span className="flex shrink-0 items-center gap-1.5 self-center">
                 <Button
@@ -174,14 +174,12 @@ export default function Search() {
             {w.example && (
               <p className="mt-1 text-sm text-ink-muted italic">“{w.example}”</p>
             )}
-            {openId === w._id && (
-              <div className="mt-2 border-t border-line pt-2">
-                <p className="text-xs font-bold text-ink-muted">History</p>
-                <div className="mt-1">
-                  <WordHistory wordId={w._id} active />
-                </div>
+            <Disclosure open={openId === w._id} className="mt-2 border-t border-line pt-2">
+              <p className="text-xs font-bold text-ink-muted">History</p>
+              <div className="mt-1">
+                <WordHistory wordId={w._id} active />
               </div>
-            )}
+            </Disclosure>
           </li>
         ))}
       </ul>

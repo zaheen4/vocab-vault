@@ -5,6 +5,8 @@ import { groupByDay } from '../utils/historyDays'
 import PageHeader from '../components/PageHeader'
 import Sheet from '../components/Sheet'
 import Button from '../components/ui/Button'
+import Chevron from '../components/ui/Chevron'
+import Disclosure from '../components/ui/Disclosure'
 import EmptyState from '../components/ui/EmptyState'
 import EmptyArt from '../components/art/EmptyArt'
 import { formatRelativeTime } from '../utils/date'
@@ -110,60 +112,59 @@ function QuizSessionRow({ session }) {
             type="button"
             onClick={() => setExpanded((v) => !v)}
             aria-expanded={expanded}
-            className="font-display text-xs font-bold text-accent-ink underline-offset-2 hover:underline"
+            className="inline-flex items-center gap-1.5 font-display text-xs font-bold text-accent-ink underline-offset-2 hover:underline"
           >
             {expanded ? 'Hide question audit' : `Review ${session.answers?.length || 0} questions`}
+            <Chevron open={expanded} className="shrink-0" />
           </button>
           <span className="font-mono text-2xs text-ink-muted tabular-nums">
             {session.score} correct · {session.total - session.score} missed
           </span>
         </div>
 
-        {expanded && session.answers?.length > 0 && (
-          <div className="mt-1 space-y-2 border-t border-line pt-3">
-            {session.answers.map((ans, idx) => (
-              <div
-                key={ans.wordId || idx}
-                className="rounded-md border border-line bg-raised/60 p-3 text-sm"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className="font-display font-bold text-ink">{ans.word}</span>
-                    {ans.partOfSpeech && (
-                      <span className="text-xs text-ink-muted italic">{ans.partOfSpeech}.</span>
-                    )}
-                  </div>
-                  <span
-                    className={cn(
-                      'rounded-sm border px-1.5 py-0.5 font-mono text-2xs font-bold tracking-widest uppercase',
-                      ans.correct
-                        ? 'border-sage/50 text-sage'
-                        : 'border-stamp/50 text-stamp'
-                    )}
-                  >
-                    {ans.correct ? 'Correct' : 'Missed'}
-                  </span>
+        <Disclosure open={expanded && session.answers?.length > 0} className="mt-1 space-y-2 border-t border-line pt-3">
+          {session.answers.map((ans, idx) => (
+            <div
+              key={ans.wordId || idx}
+              className="rounded-md border border-line bg-raised/60 p-3 text-sm"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="font-display font-bold text-ink">{ans.word}</span>
+                  {ans.partOfSpeech && (
+                    <span className="text-xs text-ink-muted italic">{ans.partOfSpeech}.</span>
+                  )}
                 </div>
+                <span
+                  className={cn(
+                    'rounded-sm border px-1.5 py-0.5 font-mono text-2xs font-bold tracking-widest uppercase',
+                    ans.correct
+                      ? 'border-sage/50 text-sage'
+                      : 'border-stamp/50 text-stamp'
+                  )}
+                >
+                  {ans.correct ? 'Correct' : 'Missed'}
+                </span>
+              </div>
 
-                {ans.correct ? (
-                  <p className="mt-1 text-xs text-ink-muted">
+              {ans.correct ? (
+                <p className="mt-1 text-xs text-ink-muted">
+                  {ans.correctAnswer || ans.definition}
+                </p>
+              ) : (
+                <div className="mt-1 space-y-0.5 text-xs">
+                  <p className="text-stamp">
+                    <span className="font-bold">Your answer:</span> {ans.userAnswer || 'No answer'}
+                  </p>
+                  <p className="text-sage">
+                    <span className="font-bold">Correct:</span>{' '}
                     {ans.correctAnswer || ans.definition}
                   </p>
-                ) : (
-                  <div className="mt-1 space-y-0.5 text-xs">
-                    <p className="text-stamp">
-                      <span className="font-bold">Your answer:</span> {ans.userAnswer || 'No answer'}
-                    </p>
-                    <p className="text-sage">
-                      <span className="font-bold">Correct:</span>{' '}
-                      {ans.correctAnswer || ans.definition}
-                    </p>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+                </div>
+              )}
+            </div>
+          ))}
+        </Disclosure>
       </div>
     </div>
   )

@@ -11,8 +11,8 @@ export default function Checkbox({
     <label
       htmlFor={inputId}
       className={cn(
-        'inline-flex min-h-11 cursor-pointer items-center gap-2 text-sm text-ink',
-        props.disabled && 'cursor-not-allowed opacity-50',
+        'inline-flex min-h-11 items-center gap-2 text-sm',
+        props.disabled ? 'cursor-not-allowed text-ink-muted' : 'cursor-pointer text-ink',
         className
       )}
     >
