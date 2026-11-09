@@ -138,19 +138,19 @@ function StreakChips({ stats }) {
 
 function TodayHeading({ firstRun, stats }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-x-4 gap-y-2">
-      <div>
-        <div className="flex items-baseline gap-3">
-          <h1 className="font-display text-display-lg font-bold text-ink">
+    <div className="flex items-center justify-between gap-3">
+      <div className="min-w-0">
+        <div className="flex items-baseline gap-2">
+          <h1 className="truncate font-display text-2xl leading-tight font-bold text-ink sm:text-display-lg">
             {firstRun ? 'Master your words.' : 'Today'}
           </h1>
           {!firstRun && (
-            <span className="font-mono text-2xs font-semibold tracking-widest text-ink-muted uppercase">
+            <span className="hidden font-mono text-2xs font-semibold tracking-widest text-ink-muted uppercase sm:inline">
               {todayLabel()}
             </span>
           )}
         </div>
-        <p className="mt-1 max-w-md text-sm text-ink-muted">
+        <p className="mt-0.5 hidden max-w-md text-xs text-ink-muted sm:block">
           {firstRun
             ? 'GRE words on a schedule that adapts to you — flip cards, quiz yourself, and watch the streak grow.'
             : 'A short session keeps the schedule honest. Start with what is due.'}
@@ -163,15 +163,15 @@ function TodayHeading({ firstRun, stats }) {
 
 function FirstRunPanel({ deck }) {
   return (
-    <Card className="mt-5 p-5">
+    <Card className="mt-4 p-4">
       <p className="font-mono text-2xs font-semibold tracking-widest text-ink-muted uppercase">
         Start here
       </p>
-      <p className="mt-2 max-w-md text-sm text-ink">
+      <p className="mt-1.5 max-w-md text-sm text-ink">
         Nothing reviewed yet. Group 1 is the gentlest entry point — ten words at
         a time, no quiz until you are ready.
       </p>
-      <div className="mt-4 flex flex-wrap gap-3">
+      <div className="mt-3 flex flex-wrap gap-2">
         {deck && (
           <Link to={`/decks/${deck._id}`} className={PRIMARY_LINK}>
             Start with {deck.title} →
@@ -190,54 +190,57 @@ function TodayPanel({ totalDue, stats, continueDeck }) {
   const part = continueDeck ? nextDeckPart(continueDeck) : null
 
   return (
-    <div className="mt-5 grid gap-4 md:grid-cols-5">
-      <Card className="flex flex-col p-5 md:col-span-3">
-        <p className="font-mono text-2xs font-semibold tracking-widest text-ink-muted uppercase">
-          Due today
-        </p>
-        <div className="mt-2 flex items-end gap-3">
-          <p className="font-display text-display-xl leading-none font-bold text-ink tabular-nums">
-            {totalDue}
+    <Card className="mt-4 space-y-3 p-4">
+      <div className="flex items-center gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="font-mono text-2xs font-semibold tracking-widest text-ink-muted uppercase">
+            Due today
           </p>
-          <p className="pb-1 text-sm text-ink-muted">
-            {totalDue === 1 ? 'word ready for review' : 'words ready for review'}
+          <p className="flex items-baseline gap-2">
+            <span className="font-display text-3xl leading-none font-bold text-ink tabular-nums">
+              {totalDue}
+            </span>
+            <span className="truncate text-xs font-semibold text-ink-muted">
+              {totalDue === 1 ? 'word ready' : 'words ready'}
+            </span>
           </p>
         </div>
-        <div className="mt-4 flex flex-wrap items-center gap-3">
-          {totalDue > 0 ? (
-            <Link to="/practice/due" className={PRIMARY_LINK}>
-              Start review →
-            </Link>
-          ) : (
-            <>
-              <span className="inline-flex min-h-11 items-center rounded-xl border border-sage/30 bg-sage/10 px-4 font-display text-sm font-bold text-sage">
-                All caught up
-              </span>
-              {continueDeck && (
-                <Link
-                  to={`/decks/${continueDeck._id}${part ? `?part=${part}` : ''}`}
-                  className={SECONDARY_LINK}
-                >
-                  Keep going →
-                </Link>
-              )}
-            </>
-          )}
-        </div>
-      </Card>
+        {totalDue > 0 ? (
+          <Link to="/practice/due" className={PRIMARY_LINK}>
+            Review →
+          </Link>
+        ) : (
+          <div className="flex shrink-0 items-center gap-2">
+            <span className="inline-flex min-h-11 items-center rounded-xl border border-sage/30 bg-sage/10 px-3 font-display text-xs font-bold text-sage">
+              All caught up
+            </span>
+            {continueDeck && (
+              <Link
+                to={`/decks/${continueDeck._id}${part ? `?part=${part}` : ''}`}
+                className={SECONDARY_LINK}
+              >
+                Keep going →
+              </Link>
+            )}
+          </div>
+        )}
+      </div>
 
-      <Card className="flex flex-col p-5 md:col-span-2">
-        <p className="font-mono text-2xs font-semibold tracking-widest text-ink-muted uppercase">
-          Daily goal
-        </p>
-        <p className="mt-2 font-display text-2xl font-bold text-ink tabular-nums">
-          {goal.reviews}
-          <span className="ml-1 text-sm font-semibold text-ink-muted">
-            / {goal.goal || '—'}
+      <div className="flex items-center gap-3">
+        <p className="shrink-0 font-mono text-2xs font-semibold tracking-widest text-ink-muted uppercase">
+          Goal
+          <span className="hidden font-sans text-2xs font-semibold tracking-normal normal-case sm:inline">
+            {' '}
+            ·{' '}
+            {goal.goal === 0
+              ? 'Set one in Settings'
+              : goal.met
+                ? 'met — nice work'
+                : `${goal.remaining} to go`}
           </span>
         </p>
         <div
-          className="mt-3 h-1.5 overflow-hidden rounded-full bg-raised"
+          className="h-1.5 flex-1 overflow-hidden rounded-full bg-raised"
           role="progressbar"
           aria-valuenow={goal.pct}
           aria-valuemin={0}
@@ -249,39 +252,38 @@ function TodayPanel({ totalDue, stats, continueDeck }) {
             style={{ width: `${goal.pct}%` }}
           />
         </div>
-        <p className="mt-2 text-xs font-semibold text-ink-muted">
-          {goal.goal === 0
-            ? 'Set a goal in Settings'
-            : goal.met
-              ? 'Goal met — nice work.'
-              : `${goal.remaining} to go`}
+        <p className="shrink-0 font-mono text-2xs font-bold text-ink-muted tabular-nums">
+          {goal.reviews}
+          <span className="font-semibold">/{goal.goal || '—'}</span>
         </p>
-      </Card>
-    </div>
+      </div>
+    </Card>
   )
 }
 
 function QuickActions({ continueDeck, totalWeak }) {
   const part = continueDeck ? nextDeckPart(continueDeck) : null
   const link =
-    'inline-flex min-h-11 items-center text-sm font-bold text-ink-muted transition-colors hover:text-ink'
+    'inline-flex min-h-9 shrink-0 items-center text-xs font-bold text-ink-muted transition-colors hover:text-ink'
   return (
-    <div className="mt-4 flex flex-wrap items-center gap-x-6">
+    <div className="mt-1 flex items-center gap-4">
       {continueDeck && (
         <Link
           to={`/decks/${continueDeck._id}${part ? `?part=${part}` : ''}`}
-          className={link}
+          className={`${link} min-w-0`}
         >
-          Continue {continueDeck.title}
-          {part ? ` · Part ${part}` : ''} →
+          <span className="truncate">
+            Continue {continueDeck.title}
+            {part ? ` · Part ${part}` : ''}
+          </span>
         </Link>
       )}
       {totalWeak > 0 && (
         <Link to="/practice/weak" className={link}>
-          Weak words ({totalWeak}) →
+          Weak ({totalWeak})
         </Link>
       )}
-      <Link to="/quiz" className={link}>
+      <Link to="/quiz" className={`${link} ml-auto sm:ml-0`}>
         All-deck quiz →
       </Link>
     </div>
@@ -290,9 +292,9 @@ function QuickActions({ continueDeck, totalWeak }) {
 
 function LibraryBar({ status, onStatus, query, onQuery, showSearch, count, total }) {
   return (
-    <div className="z-20 -mx-4 border-b border-line bg-canvas/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6 lg:sticky lg:top-16">
+    <div className="z-20 -mx-4 border-b border-line bg-canvas/95 px-4 py-1.5 backdrop-blur sm:-mx-6 sm:px-6 lg:sticky lg:top-16">
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <h2 className="font-display text-lg font-bold text-ink">Your library</h2>
+        <h2 className="font-display text-base font-bold text-ink">Your library</h2>
         <div
           role="group"
           aria-label="Deck status"
@@ -359,11 +361,8 @@ export default function Home() {
   if (isLoading) {
     return (
       <div className="animate-page">
-        <div className="h-8 w-40 animate-pulse rounded bg-raised" />
-        <div className="mt-5 grid gap-4 md:grid-cols-5">
-          <div className="h-36 animate-pulse rounded-xl border border-line bg-card md:col-span-3" />
-          <div className="h-36 animate-pulse rounded-xl border border-line bg-card md:col-span-2" />
-        </div>
+        <div className="h-7 w-28 animate-pulse rounded bg-raised" />
+        <div className="mt-4 h-28 animate-pulse rounded-xl border border-line bg-card" />
         <div className="mt-10">
           <HomeSkeleton />
         </div>
@@ -430,7 +429,7 @@ export default function Home() {
         </>
       )}
 
-      <section className="mt-8" data-testid="home-library">
+      <section className="mt-5" data-testid="home-library">
         <LibraryBar
           status={status}
           onStatus={setStatus}
@@ -441,7 +440,7 @@ export default function Home() {
           total={sorted.length}
         />
 
-        <div className="mt-4">
+        <div className="mt-3">
           {visible.length === 0 ? (
             <EmptyState
               title="No decks match"
