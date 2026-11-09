@@ -50,9 +50,11 @@ test('deck header labels the session and keyboard answers a card', async ({ page
 
   const header = page.getByTestId('deck-header')
   await header.waitFor({ timeout: 15000 })
-  await expect(header).toContainText(/Group \d+ · All parts/i)
+  await expect(header).toContainText(/Group \d+/i)
   await expect(header).toContainText(/\d+ words/)
-  await expect(page.getByRole('tab', { name: /Part 1/ })).toContainText(/\d+ due|\d+%/)
+  await page.getByRole('button', { name: /All parts/ }).click()
+  await expect(page.getByRole('menuitemradio', { name: /Part 1/ })).toContainText(/\d+ due|\d+%/)
+  await page.keyboard.press('Escape')
 
   await page.goto('/practice/due')
   await page.getByRole('button', { name: /tap to reveal/i }).first().waitFor({ timeout: 15000 })
@@ -88,14 +90,17 @@ test('typing submit grades the spelling', async ({ page }) => {
 test('deck part navigation switches parts and updates url', async ({ page }) => {
   const id = await firstGroupDeckId(page)
   await page.goto(`/decks/${id}`)
-  await page.waitForSelector('text=Part 1', { timeout: 15000 })
-  await expect(page.getByRole('tab', { name: /Part 1/i })).toBeVisible()
-  await expect(page.getByRole('tab', { name: /Part 2/i })).toBeVisible()
-  await expect(page.getByRole('tab', { name: /Part 3/i })).toBeVisible()
+  const trigger = page.getByRole('button', { name: /All parts/ })
+  await trigger.waitFor({ timeout: 15000 })
+  await trigger.click()
+  await expect(page.getByRole('menuitemradio', { name: /Part 1/i })).toBeVisible()
+  await expect(page.getByRole('menuitemradio', { name: /Part 2/i })).toBeVisible()
+  await expect(page.getByRole('menuitemradio', { name: /Part 3/i })).toBeVisible()
 
-  await page.getByRole('tab', { name: /Part 2/i }).click()
+  await page.getByRole('menuitemradio', { name: /Part 2/i }).click()
   await page.waitForURL(new RegExp(`/decks/${id}\\?part=2`), { timeout: 10000 })
   expect(page.url()).toContain('part=2')
+  await expect(page.getByRole('button', { name: /^Part 2$/ })).toBeVisible()
 })
 
 test('reverse card toggle alters flashcard orientation', async ({ page }) => {

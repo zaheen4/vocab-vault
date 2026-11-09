@@ -13,7 +13,7 @@ function KeyHint({ children }) {
 
 export default function AnswerBar({ onAgain, onGotIt, disabled = false }) {
   return (
-    <div className="sticky bottom-18 z-30 grid grid-cols-2 gap-3 bg-canvas p-2 md:bottom-4">
+    <div className="grid w-full grid-cols-2 gap-2">
       <Button
         variant="danger"
         onClick={onAgain}

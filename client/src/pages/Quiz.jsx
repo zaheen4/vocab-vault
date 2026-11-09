@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { isStarred, useBookmarks, useInvalidateAfterReview, useQuizPool, useSaveQuizSession, useToggleBookmark } from '../api/queries'
@@ -6,12 +6,14 @@ import { useSlideDirection } from '../utils/navDirection'
 import { getSessionMessage } from '../utils/sessionMessages'
 import { shouldCelebrate } from '../utils/celebrate'
 import Button from '../components/ui/Button'
-import SessionHud from '../components/SessionHud'
 import SessionResults from '../components/SessionResults'
-import DeckTile from '../components/DeckTile'
 import EmptyState from '../components/ui/EmptyState'
 import EmptyArt from '../components/art/EmptyArt'
 import Toast from '../components/ui/Toast'
+import SessionStatus from '../components/study/SessionStatus'
+import StudyFrame from '../components/study/StudyFrame'
+import StudyHeader from '../components/study/StudyHeader'
+import StudyStage from '../components/study/StudyStage'
 
 const LENGTHS = [5, 10, 20]
 
@@ -50,6 +52,7 @@ export default function Quiz({ deckId }) {
   const [searchParams] = useSearchParams()
   const id = deckId ?? params.id
   const isAllDeck = id === 'all'
+  const standalone = Boolean(deckId)
   const partParam = searchParams.get('part')
   const part = !isAllDeck && partParam ? Number(partParam) : undefined
   const [scope, setScope] = useState('viewed')
@@ -59,7 +62,7 @@ export default function Quiz({ deckId }) {
   const toggleBookmark = useToggleBookmark()
   const baseTitle = poolData?.title || (isAllDeck ? 'All Decks' : '')
   const deckTitle = baseTitle ? (!isAllDeck && part ? `${baseTitle} — Part ${part}` : baseTitle) : ''
-  const pool = poolData?.words ?? []
+  const pool = useMemo(() => poolData?.words ?? [], [poolData])
   const [status, setStatus] = useState('loading')
   const [length, setLength] = useState(10)
   const [questions, setQuestions] = useState([])
@@ -217,10 +220,30 @@ export default function Quiz({ deckId }) {
     }
   }
 
-  if (status === 'loading') {
+  const headerTitle = isAllDeck ? 'All-Deck Quiz' : deckTitle || 'Quiz'
+  const headerMeta = `${pool.length} viewed word${pool.length === 1 ? '' : 's'} ready`
+
+  const framing = (node, { showHeader = true } = {}) => {
+    if (!standalone) return <div className={`flex min-h-0 flex-1 flex-col ${slideCls}`}>{node}</div>
     return (
-      <div className="mx-auto h-64 max-w-2xl animate-pulse rounded-xl border border-line bg-card" />
+      <div className={`flex min-h-0 flex-1 flex-col ${slideCls}`}>
+        <StudyFrame>
+          {showHeader && (
+            <StudyHeader
+              title={headerTitle}
+              meta={headerMeta}
+              backTo="/"
+              backLabel="Back to decks"
+            />
+          )}
+          {node}
+        </StudyFrame>
+      </div>
     )
+  }
+
+  if (status === 'loading') {
+    return <div className="h-64 animate-pulse rounded-xl border border-line bg-card" />
   }
 
   if (status === 'error') {
@@ -263,28 +286,19 @@ export default function Quiz({ deckId }) {
   }
 
   if (status === 'idle') {
-    return (
-      <div className={`mx-auto max-w-2xl space-y-4 text-center ${slideCls}`}>
-        <Link
-          to="/"
-          className="inline-block text-sm text-ink-muted hover:text-ink"
-        >
-          ← {isAllDeck ? 'Back to decks' : deckTitle}
-        </Link>
-        <div className="flex justify-center">
-          <DeckTile id={id} title={deckTitle} size="lg" />
-        </div>
-        <h1 className="font-display text-2xl font-bold text-primary dark:text-cream-100">
-          {isAllDeck ? 'All-Deck Quiz' : 'Quiz yourself'}
-        </h1>
-        <p className="text-sm text-ink-muted">
+    const setup = (
+      <div className="rounded-xl border-2 border-line bg-card p-5 shadow-paper dark:shadow-none">
+        <p className="font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase">
+          Quiz yourself
+        </p>
+        <p className="mt-2 text-sm text-ink-muted">
           {isAllDeck
             ? 'Cumulative test across all 37 GregMat groups. Pick a definition for each word — every answer feeds your SRS and XP.'
             : `${pool.length} viewed word${pool.length === 1 ? '' : 's'} ready. Pick a definition for each word — every answer is recorded like practice.`}
         </p>
 
         {isAllDeck && (
-          <div className="flex justify-center gap-2">
+          <div className="mt-4 flex flex-wrap gap-2">
             <Button
               variant={scope === 'viewed' ? 'primary' : 'secondary'}
               onClick={() => setScope('viewed')}
@@ -304,24 +318,32 @@ export default function Quiz({ deckId }) {
           </div>
         )}
 
-        <div className="flex justify-center gap-2">
+        <div className="mt-4 flex flex-wrap gap-2">
           {lengths.map((n) => (
             <Button
               key={n}
               variant={length === n ? 'primary' : 'secondary'}
               onClick={() => setLength(n)}
               aria-pressed={length === n}
-              className="px-5 py-2.5"
+              className="min-w-12"
             >
               {n}
             </Button>
           ))}
         </div>
-        <p className="text-xs text-ink-muted">
+        <p className="mt-2 text-xs text-ink-muted">
           {Math.min(length, pool.length || length)} questions
         </p>
-        <Button onClick={start}>Start quiz</Button>
+        <Button className="mt-4" onClick={start}>
+          Start quiz
+        </Button>
       </div>
+    )
+
+    return framing(
+      <StudyStage footer={null}>
+        <div className="my-auto">{setup}</div>
+      </StudyStage>
     )
   }
 
@@ -360,97 +382,100 @@ export default function Quiz({ deckId }) {
 
   const q = questions[index]
   const answered = picked !== null && !pending
+  const starred = isStarred(bookmarks, q.word._id)
 
-  return (
-    <div className={`mx-auto max-w-2xl space-y-4 py-2 ${slideCls}`}>
-      <SessionHud
-        backTo="/"
-        backLabel={deckTitle}
-        index={index}
-        total={questions.length}
-        score={score}
-        actions={
-          <Button
-            variant="secondary"
-            aria-label={isStarred(bookmarks, q.word._id) ? `Remove ${q.word.word} from saved` : `Save ${q.word.word}`}
-            aria-pressed={isStarred(bookmarks, q.word._id)}
-            onClick={() =>
-              toggleBookmark.mutate(
-                { wordId: q.word._id, starred: isStarred(bookmarks, q.word._id) },
-                { onError: () => setToast({ variant: 'error', message: "Couldn't save that word." }) }
-              )
-            }
-          >
-            {isStarred(bookmarks, q.word._id) ? '★' : '☆'}
-          </Button>
+  const tools = (
+    <Button
+      variant="secondary"
+      className="min-h-11 px-2.5 text-xs"
+      aria-label={starred ? `Remove ${q.word.word} from saved` : `Save ${q.word.word}`}
+      aria-pressed={starred}
+      onClick={() =>
+        toggleBookmark.mutate(
+          { wordId: q.word._id, starred },
+          { onError: () => setToast({ variant: 'error', message: "Couldn't save that word." }) }
+        )
+      }
+    >
+      {starred ? '★' : '☆'}
+    </Button>
+  )
+
+  const footer = answered ? (
+    <div className="flex w-full items-center gap-3">
+      <p className="min-w-0 flex-1 truncate text-xs text-ink-muted">
+        <span className="font-bold text-ink">{q.word.word}</span> — {q.word.definition}
+        {q.word.example && <span className="italic"> “{q.word.example}”</span>}
+      </p>
+      <Button onClick={next} className="shrink-0">
+        {index + 1 >= questions.length ? 'See results' : 'Next →'}
+      </Button>
+    </div>
+  ) : saveError ? (
+    <div className="flex w-full items-center gap-3 rounded-lg border border-stamp/30 bg-stamp/10 px-4 py-3 text-sm font-semibold text-stamp">
+      <span>Couldn&apos;t save that answer.</span>
+      <button type="button" className="ml-auto underline" onClick={retrySave}>
+        Retry
+      </button>
+    </div>
+  ) : null
+
+  return framing(
+    <>
+      <StudyStage
+        status={
+          <SessionStatus
+            index={index}
+            total={questions.length}
+            score={score}
+            actions={tools}
+          />
         }
-      />
-
-      <div className="relative overflow-hidden rounded-xl border-2 border-line bg-card p-8 pt-9 text-center shadow-paper">
-        <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1.5 bg-accent" />
-        <p className="font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase">
-          {q.word.partOfSpeech || 'What does this mean?'}
-        </p>
-        <h2 className="mt-2 text-display-lg font-bold break-words text-primary dark:text-cream-100">
-          {q.word.word}
-        </h2>
-      </div>
-
-      <div className="grid grid-cols-1 gap-2" key={q.word._id}>
-        {q.options.map((opt, i) => {
-          let cls = 'border-line bg-card hover:border-accent hover:bg-gold/30'
-          if (picked !== null) {
-            if (i === q.answerIndex)
-              cls = 'border-sage/50 bg-sage/10 text-sage'
-            else if (i === picked)
-              cls = 'border-stamp/50 bg-stamp/10 text-stamp'
-            else cls = 'border-line bg-card opacity-50'
-          }
-          return (
-            <button
-              key={i}
-              onClick={() => choose(i)}
-              disabled={picked !== null}
-              style={picked === null ? { animationDelay: `${i * 50}ms` } : undefined}
-              className={`min-h-12 rounded-lg border-2 px-4 py-3 text-left font-display text-sm font-bold text-ink transition-all active:scale-99 disabled:cursor-default ${picked === null ? 'animate-fade-up' : 'animate-pop'} ${cls}`}
-            >
-              <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-raised font-mono text-xs font-bold text-ink-muted">
-                {picked !== null && i === q.answerIndex
-                  ? '✓'
-                  : picked === i && i !== q.answerIndex
-                    ? '✗'
-                    : String.fromCharCode(65 + i)}
-              </span>
-              {opt}
-            </button>
-          )
-        })}
-      </div>
-
-      {saveError && (
-        <div className="animate-pop flex items-center justify-center gap-3 rounded-lg border border-stamp/30 bg-stamp/10 px-4 py-3 text-sm font-semibold text-stamp">
-          <span>Couldn&apos;t save that answer.</span>
-          <button className="ml-auto underline" onClick={retrySave}>
-            Retry
-          </button>
-        </div>
-      )}
-
-      {answered && (
-        <div className="space-y-3">
-          <p className="text-center text-sm text-ink-muted">
-            {q.word.word} — {q.word.definition}
-            {q.word.example && <span className="italic"> “{q.word.example}”</span>}
+        footer={footer}
+      >
+      <div className="my-auto flex flex-col gap-2">
+        <div className="rounded-xl border-2 border-line bg-card p-6 text-center shadow-paper dark:shadow-none">
+          <p className="font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase">
+            {q.word.partOfSpeech || 'What does this mean?'}
           </p>
-          <Button onClick={next} fullWidth>
-            {index + 1 >= questions.length ? 'See results' : 'Next →'}
-          </Button>
+          <h2 className="mt-2 text-display-lg font-bold break-words text-primary dark:text-cream-100">
+            {q.word.word}
+          </h2>
         </div>
-      )}
 
+        <div className="grid grid-cols-1 gap-2" key={q.word._id}>
+          {q.options.map((opt, i) => {
+            let cls = 'border-line bg-card hover:border-accent hover:bg-gold/30'
+            if (picked !== null) {
+              if (i === q.answerIndex) cls = 'border-sage/50 bg-sage/10 text-sage'
+              else if (i === picked) cls = 'border-stamp/50 bg-stamp/10 text-stamp'
+              else cls = 'border-line bg-card opacity-50'
+            }
+            return (
+              <button
+                key={i}
+                onClick={() => choose(i)}
+                disabled={picked !== null}
+                style={picked === null ? { animationDelay: `${i * 50}ms` } : undefined}
+                className={`min-h-12 rounded-lg border-2 px-4 py-3 text-left font-display text-sm font-bold text-ink transition-all active:scale-99 disabled:cursor-default ${picked === null ? 'animate-fade-up' : 'animate-pop'} ${cls}`}
+              >
+                <span className="mr-2 inline-flex h-6 w-6 items-center justify-center rounded-full bg-raised font-mono text-xs font-bold text-ink-muted">
+                  {picked !== null && i === q.answerIndex
+                    ? '✓'
+                    : picked === i && i !== q.answerIndex
+                      ? '✗'
+                      : String.fromCharCode(65 + i)}
+                </span>
+                {opt}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+      </StudyStage>
       {toast && (
         <Toast variant={toast.variant} message={toast.message} onDismiss={() => setToast(null)} />
       )}
-    </div>
+    </>
   )
 }

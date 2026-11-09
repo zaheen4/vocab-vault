@@ -70,7 +70,7 @@ export default function App() {
                 }
               >
                 <Route index element={<Home />} />
-                <Route path="quiz" element={<div className="mx-auto max-w-xl space-y-4"><Quiz deckId="all" /></div>} />
+                <Route path="quiz" element={<Quiz deckId="all" />} />
                 <Route path="decks/all/quiz" element={<Navigate to="/quiz" replace />} />
                 <Route path="decks/all" element={<Navigate to="/quiz" replace />} />
                 <Route path="decks/:id/*" element={<DeckLayout />} />

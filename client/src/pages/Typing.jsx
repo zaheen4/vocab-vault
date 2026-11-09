@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { isStarred, useBookmarks, useInvalidateAfterReview, useQuizPool, useToggleBookmark } from '../api/queries'
@@ -9,12 +9,12 @@ import { shouldCelebrate } from '../utils/celebrate'
 import Button from '../components/ui/Button'
 import LevelUpBanner from '../components/LevelUpBanner'
 import Input from '../components/ui/Input'
-import SessionHud from '../components/SessionHud'
 import SessionResults from '../components/SessionResults'
-import DeckTile from '../components/DeckTile'
 import EmptyState from '../components/ui/EmptyState'
 import EmptyArt from '../components/art/EmptyArt'
 import Toast from '../components/ui/Toast'
+import SessionStatus from '../components/study/SessionStatus'
+import StudyStage from '../components/study/StudyStage'
 
 const LENGTHS = [5, 10, 20]
 
@@ -36,9 +36,7 @@ export default function Typing() {
   const invalidateAfterReview = useInvalidateAfterReview()
   const { data: bookmarks = [] } = useBookmarks()
   const toggleBookmark = useToggleBookmark()
-  const baseTitle = poolData?.title || ''
-  const deckTitle = baseTitle ? (part ? `${baseTitle} — Part ${part}` : baseTitle) : ''
-  const pool = poolData?.words ?? []
+  const pool = useMemo(() => poolData?.words ?? [], [poolData])
   const [status, setStatus] = useState('loading')
   const [length, setLength] = useState(10)
   const [words, setWords] = useState([])
@@ -110,7 +108,7 @@ export default function Typing() {
       if (data.gamification?.levelUp) setLevelEvent({ newLevel: data.gamification.level })
       if (data.gamification?.newBadges?.length) {
         const names = data.gamification.newBadges.map((b) => `${b.icon} ${b.name}`).join(' · ')
-        setToast({ variant: 'gold', message: `🏅 Badge earned: ${names}!` })
+        setToast({ variant: 'gold', message: `Badge earned: ${names}!` })
       }
       invalidateAfterReview(id)
       setPending(null)
@@ -166,9 +164,7 @@ export default function Typing() {
   }
 
   if (status === 'loading') {
-    return (
-      <div className="mx-auto h-64 max-w-2xl animate-pulse rounded-xl border border-line bg-card" />
-    )
+    return <div className="h-64 animate-pulse rounded-xl border border-line bg-card" />
   }
 
   if (status === 'error') {
@@ -199,33 +195,37 @@ export default function Typing() {
 
   if (status === 'idle') {
     return (
-      <div className={`mx-auto max-w-2xl space-y-4 text-center ${slideCls}`}>
-        <Link to="/" className="inline-block text-sm text-ink-muted hover:text-ink">
-          ← {deckTitle}
-        </Link>
-        <div className="flex justify-center">
-          <DeckTile id={id} title={deckTitle} size="lg" />
-        </div>
-        <h1 className="font-display text-2xl font-bold text-primary dark:text-cream-100">Type the word</h1>
-        <p className="text-sm text-ink-muted">
-          {pool.length} viewed word{pool.length === 1 ? '' : 's'} ready. Read the
-          definition, spell the word — small typos are forgiven.
-        </p>
-        <div className="flex justify-center gap-2">
-          {LENGTHS.map((n) => (
-            <Button
-              key={n}
-              variant={length === n ? 'primary' : 'secondary'}
-              onClick={() => setLength(n)}
-              aria-pressed={length === n}
-              className="px-5 py-2.5"
-            >
-              {n}
+      <div className={`flex min-h-0 flex-1 flex-col ${slideCls}`}>
+        <StudyStage>
+          <div className="my-auto rounded-xl border-2 border-line bg-card p-5 shadow-paper dark:shadow-none">
+            <p className="font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase">
+              Type the word
+            </p>
+            <p className="mt-2 text-sm text-ink-muted">
+              {pool.length} viewed word{pool.length === 1 ? '' : 's'} ready. Read the
+              definition, spell the word — small typos are forgiven.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {LENGTHS.map((n) => (
+                <Button
+                  key={n}
+                  variant={length === n ? 'primary' : 'secondary'}
+                  onClick={() => setLength(n)}
+                  aria-pressed={length === n}
+                  className="min-w-12"
+                >
+                  {n}
+                </Button>
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-ink-muted">
+              {Math.min(length, pool.length)} words
+            </p>
+            <Button className="mt-4" onClick={start}>
+              Start typing
             </Button>
-          ))}
-        </div>
-        <p className="text-xs text-ink-muted">{Math.min(length, pool.length)} words</p>
-        <Button onClick={start}>Start typing</Button>
+          </div>
+        </StudyStage>
       </div>
     )
   }
@@ -259,99 +259,102 @@ export default function Typing() {
   }
 
   const word = words[index]
+  const starred = isStarred(bookmarks, word._id)
+
+  const footer = answered && !pending ? (
+    <div className="flex w-full items-center gap-3">
+      <div
+        className={`min-w-0 flex-1 truncate rounded-lg border px-3 py-2 text-sm font-semibold ${
+          answered.correct
+            ? 'border-sage/30 bg-sage/10 text-sage'
+            : 'border-stamp/30 bg-stamp/10 text-stamp'
+        }`}
+      >
+        {answered.correct ? (
+          <span>
+            ✓ Correct{value.trim().toLowerCase() !== word.word.toLowerCase() ? ' (typo forgiven!)' : '!'}
+          </span>
+        ) : (
+          <span>
+            ✗ The spelling is <span className="font-bold">{word.word}</span>
+          </span>
+        )}
+      </div>
+      <Button onClick={next} className="shrink-0">
+        {index + 1 >= words.length ? 'See results' : 'Next →'}
+      </Button>
+    </div>
+  ) : saveError ? (
+    <div className="flex w-full items-center gap-3 rounded-lg border border-stamp/30 bg-stamp/10 px-4 py-3 text-sm font-semibold text-stamp">
+      <span>Couldn&apos;t save that answer.</span>
+      <button type="button" className="ml-auto underline" onClick={retrySave}>
+        Retry
+      </button>
+    </div>
+  ) : null
 
   return (
-    <div className={`mx-auto max-w-2xl space-y-4 py-2 ${slideCls}`}>
-      <SessionHud
-        backTo="/"
-        backLabel={deckTitle}
-        index={index}
-        total={words.length}
-        score={score}
-        actions={
-          <Button
-            variant="secondary"
-            aria-label={isStarred(bookmarks, word._id) ? `Remove ${word.word} from saved` : `Save ${word.word}`}
-            aria-pressed={isStarred(bookmarks, word._id)}
-            onClick={() =>
-              toggleBookmark.mutate(
-                { wordId: word._id, starred: isStarred(bookmarks, word._id) },
-                { onError: () => setToast({ variant: 'error', message: "Couldn't save that word." }) }
-              )
+    <div className={`flex min-h-0 flex-1 flex-col ${slideCls}`}>
+      <StudyStage
+        status={
+          <SessionStatus
+            index={index}
+            total={words.length}
+            score={score}
+            actions={
+              <Button
+                variant="secondary"
+                className="min-h-11 px-2.5 text-xs"
+                aria-label={starred ? `Remove ${word.word} from saved` : `Save ${word.word}`}
+                aria-pressed={starred}
+                onClick={() =>
+                  toggleBookmark.mutate(
+                    { wordId: word._id, starred },
+                    { onError: () => setToast({ variant: 'error', message: "Couldn't save that word." }) }
+                  )
+                }
+              >
+                {starred ? '★' : '☆'}
+              </Button>
             }
-          >
-            {isStarred(bookmarks, word._id) ? '★' : '☆'}
-          </Button>
+          />
         }
-      />
-
-      <div className="relative overflow-hidden rounded-xl border-2 border-line bg-card p-8 pt-9 text-center shadow-paper">
-        <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1.5 bg-accent" />
-        <p className="font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase">
-          {word.partOfSpeech || 'Spell this word'}
-        </p>
-        <p className="mt-2 text-lg leading-relaxed font-medium text-ink">{word.definition}</p>
-        {word.example && <p className="mt-2 text-sm text-ink-muted italic">“{word.example}”</p>}
-      </div>
-
-      <form onSubmit={submit} className="space-y-3">
-        <Input
-          type="text"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          disabled={answered !== null}
-          placeholder="Type the word…"
-          autoFocus
-          autoCapitalize="off"
-          autoCorrect="off"
-          spellCheck={false}
-          aria-label="Your spelling"
-          inputClassName={`rounded-lg border-2 px-4 py-3 text-center text-xl font-semibold${answered && !answered.correct ? ' animate-shake' : ''}`}
-        />
-        {!answered && (
-          <Button type="submit" fullWidth disabled={!value.trim()}>
-            Check spelling
-          </Button>
-        )}
-      </form>
-
-      {saveError && (
-        <div className="animate-pop flex items-center justify-center gap-3 rounded-lg border border-stamp/30 bg-stamp/10 px-4 py-3 text-sm font-semibold text-stamp">
-          <span>Couldn&apos;t save that answer.</span>
-          <button className="ml-auto underline" onClick={retrySave}>
-            Retry
-          </button>
-        </div>
-      )}
-
-      {answered && !pending && (
-        <div className="space-y-3">
-          <div
-            className={`animate-pop rounded-lg border px-4 py-3 text-center text-sm font-semibold ${
-              answered.correct
-                ? 'border-sage/30 bg-sage/10 text-sage'
-                : 'border-stamp/30 bg-stamp/10 text-stamp'
-            }`}
-          >
-            {answered.correct ? (
-              <span>
-                ✓ Correct{value.trim().toLowerCase() !== word.word.toLowerCase() ? ' (typo forgiven!)' : '!'}
-              </span>
-            ) : (
-              <span>
-                ✗ The spelling is <span className="font-bold">{word.word}</span>
-              </span>
+        footer={footer}
+        notice={levelEvent ? <LevelUpBanner level={levelEvent.newLevel} /> : null}
+      >
+        <div className="my-auto flex flex-col gap-2">
+          <div className="rounded-xl border-2 border-line bg-card p-6 text-center shadow-paper dark:shadow-none">
+            <p className="font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase">
+              {word.partOfSpeech || 'Spell this word'}
+            </p>
+            <p className="mt-2 text-lg leading-relaxed font-medium text-ink">{word.definition}</p>
+            {word.example && (
+              <p className="mt-2 text-sm text-ink-muted italic">“{word.example}”</p>
             )}
           </div>
-          <Button onClick={next} fullWidth>
-            {index + 1 >= words.length ? 'See results' : 'Next →'}
-          </Button>
-        </div>
-      )}
 
-      {levelEvent && (
-        <LevelUpBanner level={levelEvent.newLevel} />
-      )}
+          <form onSubmit={submit} className="space-y-2">
+            <Input
+              type="text"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              disabled={answered !== null}
+              placeholder="Type the word…"
+              autoFocus
+              autoCapitalize="off"
+              autoCorrect="off"
+              spellCheck={false}
+              aria-label="Your spelling"
+              inputClassName={`rounded-lg border-2 px-4 py-3 text-center text-xl font-semibold${answered && !answered.correct ? ' animate-shake' : ''}`}
+            />
+            {!answered && (
+              <Button type="submit" fullWidth disabled={!value.trim()}>
+                Check spelling
+              </Button>
+            )}
+          </form>
+        </div>
+      </StudyStage>
 
       {toast && (
         <Toast variant={toast.variant} message={toast.message} onDismiss={() => setToast(null)} />

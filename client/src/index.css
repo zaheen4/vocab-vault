@@ -83,6 +83,11 @@
   }
 }
 
+/* Study card floor: keeps the card readable on short viewports without locking the page. */
+.study-stage-body {
+  min-height: clamp(17rem, calc(100dvh - 26rem), 35rem);
+}
+
 .flip-scene {
   perspective: 1200px;
 }

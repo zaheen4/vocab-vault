@@ -48,7 +48,7 @@ export default function ModeTabs({ deckId }) {
   return (
     <nav
       aria-label="Study modes"
-      className="relative mx-auto flex w-fit max-w-full justify-center gap-1 rounded-full border border-line bg-card p-1 shadow-paper dark:shadow-none"
+      className="relative flex min-w-0 items-center gap-1 rounded-full border border-line bg-card p-1 shadow-paper dark:shadow-none"
     >
       <span
         aria-hidden="true"
@@ -77,7 +77,7 @@ export default function ModeTabs({ deckId }) {
           onFocus={warm(kind)}
           onClick={() => noteTabSwitch(pathname, to(deckId))}
           className={({ isActive }) =>
-            `relative z-10 min-h-10 rounded-full px-4 py-1.5 font-display text-sm font-bold transition-colors before:absolute before:inset-x-0 before:-inset-y-2 before:content-[''] ${
+            `relative z-10 min-h-9 rounded-full px-3 py-1.5 font-display text-xs font-bold transition-colors before:absolute before:inset-x-0 before:-inset-y-2 before:content-[''] sm:text-sm ${
               isActive
                 ? 'text-primary dark:text-night-950'
                 : 'text-ink-muted hover:text-ink'

@@ -127,6 +127,7 @@
 - [x] All Subdivide 37 GregMat groups into 3 parts each (per-deck parts, 10 words per session)
 - [x] All All-Deck Quiz mode (`/quiz`, `GET /api/decks/all/quiz`) across studied words and full catalog
 - [x] All End-to-end regression: fresh account / QA account → auth lifecycle → practice → quiz → typing → history audits → daily due / weak queues (automated across `e2e/*.spec.js`; import flow N/A — no bulk-import endpoint exists yet)
+- [x] @fe Study-screen overhaul — one `StudyStage` (header / controls / status / card / reserved footer) shared by practice, quiz, and typing; part selector menu replaces the segmented strip; answer bar in normal flow; compact Home fold puts the first deck on screen
 - [ ] All Final report write-up + screenshots (heatmap + badge + quiz numbers)
 - [ ] All Demo rehearsal (scripted walkthrough, TTS fallback line) + presentation slides update
 - [ ] All Confirm presentation-machine audio for TTS; fallback line ready
