@@ -58,7 +58,7 @@ export default function PartSelector({
         <DropdownMenu.Content
           sideOffset={6}
           align="end"
-          className="z-50 min-w-56 rounded-xl border border-line bg-card p-1 shadow-paper dark:shadow-none"
+          className="menu-surface z-50 min-w-56 rounded-xl border border-line bg-card p-1 shadow-paper dark:shadow-none"
         >
           <p className="px-2 pt-1 pb-2 font-mono text-3xs font-bold tracking-widest text-ink-muted uppercase">
             Deck parts

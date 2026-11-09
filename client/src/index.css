@@ -233,6 +233,40 @@
   animation: fade-up 0.4s ease-out both;
 }
 
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes menu-out {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.98) translateY(-2px);
+  }
+}
+
+.menu-surface {
+  transform-origin: var(--radix-dropdown-menu-content-transform-origin);
+}
+
+.menu-surface[data-state='open'] {
+  animation: menu-in var(--dur-fast) var(--ease-travel);
+}
+
+.menu-surface[data-state='closed'] {
+  animation: menu-out 100ms ease-in;
+}
+
 @keyframes confetti-burst {
   0% {
     transform: translate(0, -6vh) rotate(0deg);
@@ -260,6 +294,7 @@
   .animate-glow,
   .animate-page,
   .animate-fade-up,
+  .menu-surface,
   .confetti-piece {
     animation: none;
   }

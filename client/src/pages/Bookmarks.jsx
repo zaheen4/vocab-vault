@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
+import { AnimatePresence } from '../lib/motion'
 import { api } from '../api/client'
 import {
   useAddListWord,
@@ -637,14 +638,16 @@ export default function Bookmarks() {
         </div>
       </div>
 
-      {toast && (
-        <Toast
-          variant={toast.variant}
-          message={toast.message}
-          onDismiss={() => setToast(null)}
-          className={selectMode ? 'bottom-28 sm:bottom-24' : ''}
-        />
-      )}
+      <AnimatePresence>
+        {toast && (
+          <Toast
+            variant={toast.variant}
+            message={toast.message}
+            onDismiss={() => setToast(null)}
+            className={selectMode ? 'bottom-28 sm:bottom-24' : ''}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }

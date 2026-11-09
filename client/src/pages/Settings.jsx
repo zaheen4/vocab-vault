@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { AnimatePresence } from '../lib/motion'
 import { useAuth } from '../context/AuthContext'
 import { useTheme } from '../context/ThemeContext'
 import {
@@ -383,87 +384,91 @@ export default function Settings() {
         </div>
       </Sheet>
 
-      {showResetModal && (
-        <Dialog
-          labelledBy="danger-reset-title"
-          onClose={() => setShowResetModal(false)}
-        >
-          <h3 id="danger-reset-title" className="font-display text-lg font-bold text-stamp">
-            Confirm Progress Reset
-          </h3>
-          <p className="mt-2 text-sm text-ink-muted">
-            Are you sure you want to reset your study progress? All word mastery levels, XP, streaks, and quiz histories will be wiped clean.
-          </p>
-          {dangerErr && (
-            <Notice tone="error" className="mt-3">
-              {dangerErr}
-            </Notice>
-          )}
-          <form onSubmit={handleResetProgress} className="mt-4 space-y-3">
-            <Input
-              label="Confirm your password"
-              type="password"
-              required
-              showPasswordToggle
-              value={dangerPassword}
-              onChange={(e) => setDangerPassword(e.target.value)}
-            />
-            <div className="flex justify-end gap-2 pt-2">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => setShowResetModal(false)}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" variant="danger" loading={resetProgressMutation.isPending}>
-                Confirm reset
-              </Button>
-            </div>
-          </form>
-        </Dialog>
-      )}
+      <AnimatePresence>
+        {showResetModal && (
+          <Dialog
+            labelledBy="danger-reset-title"
+            onClose={() => setShowResetModal(false)}
+          >
+            <h3 id="danger-reset-title" className="font-display text-lg font-bold text-stamp">
+              Confirm Progress Reset
+            </h3>
+            <p className="mt-2 text-sm text-ink-muted">
+              Are you sure you want to reset your study progress? All word mastery levels, XP, streaks, and quiz histories will be wiped clean.
+            </p>
+            {dangerErr && (
+              <Notice tone="error" className="mt-3">
+                {dangerErr}
+              </Notice>
+            )}
+            <form onSubmit={handleResetProgress} className="mt-4 space-y-3">
+              <Input
+                label="Confirm your password"
+                type="password"
+                required
+                showPasswordToggle
+                value={dangerPassword}
+                onChange={(e) => setDangerPassword(e.target.value)}
+              />
+              <div className="flex justify-end gap-2 pt-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setShowResetModal(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" variant="danger" loading={resetProgressMutation.isPending}>
+                  Confirm reset
+                </Button>
+              </div>
+            </form>
+          </Dialog>
+        )}
+      </AnimatePresence>
 
-      {showDeleteModal && (
-        <Dialog
-          labelledBy="danger-delete-title"
-          onClose={() => setShowDeleteModal(false)}
-        >
-          <h3 id="danger-delete-title" className="font-display text-lg font-bold text-stamp">
-            Delete Account Permanently
-          </h3>
-          <p className="mt-2 text-sm text-ink-muted">
-            This action cannot be undone. All your vocabulary records, bookmarks, custom lists, and profile data will be erased immediately.
-          </p>
-          {dangerErr && (
-            <Notice tone="error" className="mt-3">
-              {dangerErr}
-            </Notice>
-          )}
-          <form onSubmit={handleDeleteAccount} className="mt-4 space-y-3">
-            <Input
-              label="Confirm your password"
-              type="password"
-              required
-              showPasswordToggle
-              value={dangerPassword}
-              onChange={(e) => setDangerPassword(e.target.value)}
-            />
-            <div className="flex justify-end gap-2 pt-2">
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => setShowDeleteModal(false)}
-              >
-                Cancel
-              </Button>
-              <Button type="submit" variant="danger" loading={deleteAccountMutation.isPending}>
-                Delete forever
-              </Button>
-            </div>
-          </form>
-        </Dialog>
-      )}
+      <AnimatePresence>
+        {showDeleteModal && (
+          <Dialog
+            labelledBy="danger-delete-title"
+            onClose={() => setShowDeleteModal(false)}
+          >
+            <h3 id="danger-delete-title" className="font-display text-lg font-bold text-stamp">
+              Delete Account Permanently
+            </h3>
+            <p className="mt-2 text-sm text-ink-muted">
+              This action cannot be undone. All your vocabulary records, bookmarks, custom lists, and profile data will be erased immediately.
+            </p>
+            {dangerErr && (
+              <Notice tone="error" className="mt-3">
+                {dangerErr}
+              </Notice>
+            )}
+            <form onSubmit={handleDeleteAccount} className="mt-4 space-y-3">
+              <Input
+                label="Confirm your password"
+                type="password"
+                required
+                showPasswordToggle
+                value={dangerPassword}
+                onChange={(e) => setDangerPassword(e.target.value)}
+              />
+              <div className="flex justify-end gap-2 pt-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setShowDeleteModal(false)}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" variant="danger" loading={deleteAccountMutation.isPending}>
+                  Delete forever
+                </Button>
+              </div>
+            </form>
+          </Dialog>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
