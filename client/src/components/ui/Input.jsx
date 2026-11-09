@@ -40,9 +40,9 @@ export default function Input({
 
   const inputId = id || (label ? `input-${String(label).toLowerCase().replace(/[^a-z0-9]+/g, '-')}` : undefined)
   const fieldClass = cn(
-    'w-full rounded-md border border-line bg-card px-3 py-2 text-base text-ink placeholder:text-ink-muted/60 sm:text-sm',
-    'transition-colors focus:border-accent focus:ring-2 focus:ring-accent/40 focus:outline-none',
-    'dark:bg-raised dark:placeholder:text-ink-muted/50',
+    'w-full rounded-md border border-line-strong bg-card px-3 py-2 text-base text-ink placeholder:text-ink-muted sm:text-sm',
+    'transition-colors focus:border-accent-ink focus:ring-2 focus:ring-accent/40 focus:outline-none',
+    'dark:bg-raised',
     icon && 'pl-9',
     isPassword && showPasswordToggle && 'pr-10',
     error && 'border-stamp focus:border-stamp focus:ring-stamp/30',

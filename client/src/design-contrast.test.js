@@ -184,3 +184,46 @@ describe('brand fill contrast', () => {
     expect(contrast(darkColor('ink-muted'), darkColor('raised'))).toBeGreaterThanOrEqual(NORMAL_TEXT)
   })
 })
+
+describe('control boundaries (WCAG 1.4.11)', () => {
+  it('declares line-strong as a literal hex in both themes', () => {
+    expect(lightColor('line-strong')).toMatch(/^#[0-9a-f]{6}$/)
+    expect(darkColor('line-strong')).toMatch(/^#[0-9a-f]{6}$/)
+  })
+
+  it('keeps light control borders at 3:1 on every surface they touch', () => {
+    for (const surface of ['canvas', 'card', 'raised']) {
+      expect(
+        contrast(lightColor('line-strong'), lightColor(surface)),
+        `line-strong on ${surface}`
+      ).toBeGreaterThanOrEqual(LARGE_TEXT_OR_UI)
+    }
+  })
+
+  it('keeps dark control borders at 3:1 on every surface they touch', () => {
+    for (const surface of ['canvas', 'card', 'raised']) {
+      expect(
+        contrast(darkColor('line-strong'), darkColor(surface)),
+        `line-strong on ${surface}`
+      ).toBeGreaterThanOrEqual(LARGE_TEXT_OR_UI)
+    }
+  })
+
+  it('keeps the control border stronger than the decorative hairline', () => {
+    expect(contrast(lightColor('line-strong'), lightColor('card'))).toBeGreaterThan(
+      contrast(lightColor('line'), lightColor('card'))
+    )
+  })
+})
+
+describe('form field legibility', () => {
+  const INPUT = readFileSync(join(SRC, 'src/components/ui/Input.jsx'), 'utf8')
+
+  it('draws fields with the strong control border', () => {
+    expect(INPUT).toContain('border-line-strong')
+  })
+
+  it('keeps placeholders at full muted ink instead of a faded alpha', () => {
+    expect(INPUT).not.toMatch(/placeholder:text-ink-muted\/\d+/)
+  })
+})
