@@ -294,8 +294,10 @@
   .animate-glow,
   .animate-page,
   .animate-fade-up,
-  .menu-surface,
   .confetti-piece {
+    animation: none;
+  }
+  .menu-surface[data-state] {
     animation: none;
   }
   .flip-inner {
