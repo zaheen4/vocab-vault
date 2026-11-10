@@ -23,9 +23,9 @@ export default function About() {
         <div className="space-y-2 text-sm text-ink-muted">
           <p>
             VocabVault stores your account (name, email, password hash) and
-            your study data (reviews, streaks, XP, badges, saved words,
-            custom lists) in its database so your progress follows you
-            across devices.
+            your study data (reviews, quiz history, streaks, XP, badges,
+            saved words, custom lists) in its database so your progress
+            follows you across devices.
           </p>
           <p>
             Passwords are hashed before storage and never returned by the
@@ -33,17 +33,22 @@ export default function About() {
             data is never sold or shared.
           </p>
           <p>
-            Want your account and all its data deleted? Ask through the
-            contact section below and it will be removed.
+            Want your account gone? Delete it yourself in{' '}
+            <span className="font-semibold text-ink">
+              Settings → Danger zone
+            </span>
+            . Confirm your password and your account, reviews, quiz history,
+            bookmarks, and lists are removed from the database immediately and
+            permanently.
           </p>
         </div>
       </Sheet>
 
       <Sheet tab="Contact" title="Contact" className="bg-manila">
         <p className="text-sm text-ink-muted">
-          Bugs, wrong definitions, or deletion requests — the fastest way to
-          reach the maintainers is a GitHub issue. Include what you tapped,
-          what you expected, and your account email for data requests.
+          Bugs, wrong definitions, or feature ideas — the fastest way to reach
+          the maintainers is a GitHub issue. Include what you tapped, what you
+          expected, and what actually happened.
         </p>
         <a
           href="https://github.com/zaheen4/vocab-vault/issues"

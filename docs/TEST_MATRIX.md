@@ -32,7 +32,7 @@
 | 3 | Typing session, correct spelling | `✓ Correct!`; typo within tolerance → `✓ Correct (typo forgiven!)`; wrong → shows correct spelling |
 | 4 | Practice card speaker | Pre-rendered clip plays (`/audio/words/*.mp3` 200) or first-run volume tip toast |
 | 5 | Silent device (no Web Speech voices) | Disabled speaker with `aria-label` hint; no crash, no page errors |
-| 6 | Full automated Playwright E2E suite | `npm run test:e2e` 42/42 across chromium + mobile (design-contract runs in both projects). While iterating use the targeted scripts — `test:e2e:study` / `test:e2e:design` / `test:e2e:auth` — and save the full run for review |
+| 6 | Full automated Playwright E2E suite | `npm run test:e2e` green across chromium + mobile (design-contract runs in both projects). While iterating use the targeted scripts — `test:e2e:study` / `test:e2e:design` / `test:e2e:auth` — and save the full run for review |
 
 ## Flow 3 — study flows, queues & audits (automated in `e2e/`, QA account)
 
@@ -95,6 +95,16 @@ decks intact.
 | 6 | Layout | No horizontal scroll at 375px; library bar is only sticky from `lg` up; the first deck card starts at ≤520px on 390×844 |
 
 ## Last execution
+
+- Date: 2026-11-09 · Branch: `main` @ `2154db9` · Executor: agent
+- `npm run test:e2e` 46/46 passed (chromium + mobile Pixel 7), zero page errors.
+- `npm test` 288/288 across 36 files; oxlint 0 errors (17 pre-existing warnings);
+  `lint:tw` 0 warnings; client build green.
+- The tap-target sweep now covers `/`, `/search` (with results), `/bookmarks`,
+  `/history`, `/progress`, and `/settings` instead of the home page alone. It
+  caught the 122×16 history audit trigger, now 122×24.
+- `npm run docs:check` added: README endpoint and token tables, relative links,
+  and documented environment variables are compared against the code.
 
 - Date: 2026-11-06 · Branch: feat/study-session-focus · Executor: agent
 - `npm run test:e2e` 41/41 passed (chromium + mobile Pixel 7), zero page errors.
