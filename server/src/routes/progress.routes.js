@@ -14,8 +14,8 @@ import {
   awardGoalRefill,
   awardBadges,
 } from '../utils/gamify.js'
-import { pushHistory, recordActivity } from '../utils/analytics.js'
-import { toSafeMessage } from '../utils/security.js'
+import { MAX_ACTIVITY_DAYS, MAX_HISTORY_ENTRIES } from '../utils/analytics.js'
+import { isDuplicateKeyError, toSafeMessage } from '../utils/security.js'
 import { validateHistoryQuery, buildHistoryPipeline } from '../utils/history.js'
 import { buildWordQueuePipeline, readWordQueue } from '../utils/wordQueue.js'
 
@@ -147,6 +147,40 @@ router.get('/history', requireDB, requireAuth, async (req, res) => {
   }
 })
 
+export function reviewDayKey(date) {
+  return Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())
+}
+
+export function needsReviewsTodayReset(reviewsTodayDate, now) {
+  const todayKey = reviewDayKey(now)
+  const lastKey = reviewsTodayDate
+    ? Date.UTC(
+        new Date(reviewsTodayDate).getFullYear(),
+        new Date(reviewsTodayDate).getMonth(),
+        new Date(reviewsTodayDate).getDate()
+      )
+    : 0
+  return todayKey !== lastKey
+}
+
+export function buildActivityUpdate(activityLog = [], now = new Date()) {
+  const day = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const last = activityLog[activityLog.length - 1]
+  if (last && new Date(last.date).getTime() === day.getTime()) {
+    return {
+      inc: { 'activityLog.$[day].reviews': 1 },
+      arrayFilters: [{ 'day.date': day }],
+    }
+  }
+  return {
+    push: { activityLog: { $each: [{ date: day, reviews: 1 }], $slice: -MAX_ACTIVITY_DAYS } },
+  }
+}
+
+// Writes are ordered progress -> user -> badges. Each write is a single atomic
+// update; a failure after progress leaves the review recorded but its reward
+// ungranted (an under-count, never corruption), and missing badges are awarded
+// on a later review. No transaction: this also works on standalone mongod.
 router.post('/review', requireDB, requireAuth, reviewLimiter, async (req, res) => {
   try {
     const { wordId, correct, mode } = req.body || {}
@@ -163,85 +197,134 @@ router.post('/review', requireDB, requireAuth, reviewLimiter, async (req, res) =
     const word = await Word.findById(wordId)
     if (!word) return res.status(404).json({ message: 'Word not found' })
 
-    let progress = await Progress.findOne({ userId: req.user._id, wordId })
-    if (!progress) {
-      progress = new Progress({ userId: req.user._id, wordId, status: 'new' })
+    const now = new Date()
+    let existing
+    try {
+      existing = await Progress.findOneAndUpdate(
+        { userId: req.user._id, wordId },
+        { $setOnInsert: { userId: req.user._id, wordId, status: 'new', box: 1, streakCorrect: 0 } },
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+      )
+    } catch (err) {
+      if (!isDuplicateKeyError(err)) throw err
+      existing = await Progress.findOne({ userId: req.user._id, wordId })
+      if (!existing) throw err
     }
-    const before = progress.status
-    Object.assign(progress, nextReviewState(progress, correct))
+
+    const before = existing.status
+    const next = nextReviewState(existing, correct)
+    const entry = { at: now, correct, box: next.box, mode: mode || 'practice' }
+    const progress = await Progress.findOneAndUpdate(
+      { _id: existing._id },
+      {
+        $set: next,
+        $push: { history: { $each: [entry], $slice: -MAX_HISTORY_ENTRIES } },
+      },
+      { new: true }
+    )
 
     const user = await User.findById(req.user._id)
-    if (user) {
-      const xpGained = xpForAnswer(correct, progress.box)
-      const prevLevel = user.level || 1
-      const now = new Date()
+    if (!user) return res.json({ progress })
 
-      user.xp = (user.xp || 0) + xpGained
-      user.totalReviewed = (user.totalReviewed || 0) + 1
-      if (correct) user.totalCorrect = (user.totalCorrect || 0) + 1
+    const xpGained = xpForAnswer(correct, next.box)
+    const prevLevel = user.level || 1
+    const priorFreezes = user.streakFreezes
 
-      const todayKey = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())
-      const lastKey = user.reviewsTodayDate
-        ? Date.UTC(
-            new Date(user.reviewsTodayDate).getFullYear(),
-            new Date(user.reviewsTodayDate).getMonth(),
-            new Date(user.reviewsTodayDate).getDate()
-          )
-        : 0
-      if (todayKey !== lastKey) {
-        user.reviewsToday = 0
-      }
-      user.reviewsToday = (user.reviewsToday || 0) + 1
-      user.reviewsTodayDate = now
+    user.xp = (user.xp || 0) + xpGained
+    user.totalReviewed = (user.totalReviewed || 0) + 1
+    if (correct) user.totalCorrect = (user.totalCorrect || 0) + 1
 
-      const streak = applyDailyStreak(user, now)
-      user.practiceStreakDays = streak.dailyStreak
-      user.lastPracticeDate = now
+    const needsReset = needsReviewsTodayReset(user.reviewsTodayDate, now)
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+    user.reviewsToday = needsReset ? 1 : (user.reviewsToday || 0) + 1
+    user.reviewsTodayDate = now
 
-      const goal = awardGoalRefill(user, now)
+    const streak = applyDailyStreak(user, now)
+    user.practiceStreakDays = streak.dailyStreak
+    user.lastPracticeDate = now
 
-      const newLevel = levelFor(user.xp)
-      const levelUp = newLevel > prevLevel
-      user.level = newLevel
+    const goal = awardGoalRefill(user, now)
 
-      user.perfectRun = correct ? (user.perfectRun || 0) + 1 : 0
+    const newLevel = levelFor(user.xp)
+    const levelUp = newLevel > prevLevel
+    user.level = newLevel
+    user.perfectRun = correct ? (user.perfectRun || 0) + 1 : 0
 
-      recordActivity(user, now)
-      pushHistory(progress, { correct, box: progress.box, mode }, now)
-      await progress.save()
-
-      const newBadges = awardBadges(user, now)
-
-      await user.save()
-
-      const newWordsLearned = before !== 'learning' && before !== 'mastered' && progress.status === 'learning' ? 1 : 0
-      const reviewsCaughtUp = progress.status === 'mastered' && before !== 'mastered' ? 1 : 0
-
-      res.json({
-        progress,
-        gamification: {
-          xpEarned: xpGained,
-          xp: user.xp,
-          level: newLevel,
-          levelUp,
-          dailyStreak: user.practiceStreakDays,
-          streakIncreased: streak.streakIncreased,
-          freezeUsed: streak.freezeUsed,
-          streakFreezes: user.streakFreezes || 0,
-          dailyGoalMet: goal.goalMet,
-          freezeRefilled: goal.freezeRefilled,
-          newWordsLearned,
-          reviewsCaughtUp,
-          reviewsToday: user.reviewsToday,
-          dailyGoalTarget: user.dailyGoalTarget || 10,
-          newBadges,
-        },
-      })
-    } else {
-      pushHistory(progress, { correct, box: progress.box, mode }, new Date())
-      await progress.save()
-      res.json({ progress })
+    const inc = { xp: xpGained, totalReviewed: 1 }
+    if (correct) inc.totalCorrect = 1
+    if (goal.freezeRefilled) inc.goalsMet = 1
+    const set = {
+      level: newLevel,
+      practiceStreakDays: streak.dailyStreak,
+      lastPracticeDate: now,
+      perfectRun: user.perfectRun,
     }
+    if (user.streakFreezes !== priorFreezes) set.streakFreezes = user.streakFreezes
+    if (goal.freezeRefilled) set.goalMetDate = user.goalMetDate
+
+    const activity = buildActivityUpdate(user.activityLog, now)
+    if (activity.inc) Object.assign(inc, activity.inc)
+    const update = { $inc: inc, $set: set }
+    if (activity.push) update.$push = activity.push
+    const options = { new: true }
+    if (activity.arrayFilters) options.arrayFilters = activity.arrayFilters
+    await User.findOneAndUpdate({ _id: req.user._id }, update, options)
+
+    let reviewsTodayDoc = await User.findOneAndUpdate(
+      {
+        _id: req.user._id,
+        $or: [{ reviewsTodayDate: { $gte: todayStart } }, { reviewsTodayDate: null }],
+      },
+      { $inc: { reviewsToday: 1 }, $set: { reviewsTodayDate: now } },
+      { new: true }
+    )
+    if (!reviewsTodayDoc) {
+      reviewsTodayDoc = await User.findOneAndUpdate(
+        { _id: req.user._id, reviewsTodayDate: { $lt: todayStart } },
+        { $set: { reviewsToday: 1, reviewsTodayDate: now } },
+        { new: true }
+      )
+    }
+    if (!reviewsTodayDoc) {
+      reviewsTodayDoc = await User.findOneAndUpdate(
+        { _id: req.user._id, reviewsTodayDate: { $gte: todayStart } },
+        { $inc: { reviewsToday: 1 } },
+        { new: true }
+      )
+    }
+
+    const newBadges = []
+    for (const badge of awardBadges(user, now)) {
+      const res = await User.updateOne(
+        { _id: req.user._id, 'badges.id': { $ne: badge.id } },
+        { $push: { badges: { id: badge.id, awardedAt: now } } }
+      )
+      if (res.modifiedCount === 1) newBadges.push(badge)
+    }
+
+    const newWordsLearned = before !== 'learning' && before !== 'mastered' && next.status === 'learning' ? 1 : 0
+    const reviewsCaughtUp = next.status === 'mastered' && before !== 'mastered' ? 1 : 0
+
+    res.json({
+      progress,
+      gamification: {
+        xpEarned: xpGained,
+        xp: user.xp,
+        level: newLevel,
+        levelUp,
+        dailyStreak: user.practiceStreakDays,
+        streakIncreased: streak.streakIncreased,
+        freezeUsed: streak.freezeUsed,
+        streakFreezes: user.streakFreezes || 0,
+        dailyGoalMet: goal.goalMet,
+        freezeRefilled: goal.freezeRefilled,
+        newWordsLearned,
+        reviewsCaughtUp,
+        reviewsToday: reviewsTodayDoc?.reviewsToday ?? user.reviewsToday,
+        dailyGoalTarget: user.dailyGoalTarget || 10,
+        newBadges,
+      },
+    })
   } catch (err) {
     res.status(500).json({ message: toSafeMessage(err) })
   }

@@ -22,5 +22,6 @@ deckSchema.index(
   { source: 1, group: 1 },
   { unique: true, partialFilterExpression: { source: 'gregmat', group: { $exists: true } } }
 )
+deckSchema.index({ createdBy: 1 })
 
 export default mongoose.model('Deck', deckSchema)
