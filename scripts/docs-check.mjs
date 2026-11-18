@@ -2,6 +2,7 @@
 // Verifies that the prose in README.md and docs/ still matches the code.
 // Run with `npm run docs:check`. Exits 1 on any mismatch.
 
+import { createHash } from 'node:crypto'
 import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -205,12 +206,49 @@ function checkNodeVersions() {
   return `Node ${versions.join(' / ')}`
 }
 
+function checkCsp() {
+  const html = read('client/index.html')
+  const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map((m) => m[1])
+  if (scripts.length !== 1) {
+    fail('csp', `client/index.html: expected 1 inline <script>, found ${scripts.length}`)
+    return 'inline script hash'
+  }
+  const actual = createHash('sha256').update(scripts[0]).digest('base64')
+
+  const headers = read('client/public/_headers')
+  const match = headers.match(/script-src[^;]*?sha256-([A-Za-z0-9+/=]+)/)
+  if (!match) {
+    fail('csp', 'client/public/_headers: no sha256 hash in script-src')
+    return 'inline script hash'
+  }
+  if (match[1] !== actual) {
+    fail('csp', `index.html sha256-${actual} != _headers sha256-${match[1]}`)
+  }
+  return `sha256-${actual.slice(0, 12)}`
+}
+
+function checkScripts() {
+  const defined = new Set()
+  for (const pkg of ['package.json', 'client/package.json', 'server/package.json']) {
+    for (const name of Object.keys(JSON.parse(read(pkg)).scripts ?? {})) defined.add(name)
+  }
+  const referenced = unique(
+    [...read('README.md').matchAll(/\bnpm run ([\w:-]+)/g)].map((m) => m[1])
+  )
+  for (const name of referenced) {
+    if (!defined.has(name)) fail('scripts', `README.md references missing npm run ${name}`)
+  }
+  return `${referenced.length} npm scripts`
+}
+
 const summary = [
   ['links', checkLinks()],
   ['endpoints', checkEndpoints()],
   ['tokens', checkTokens()],
   ['env', checkEnv()],
   ['node', checkNodeVersions()],
+  ['csp', checkCsp()],
+  ['scripts', checkScripts()],
 ]
 
 const byCheck = new Map()
