@@ -203,7 +203,7 @@ router.post('/review', requireDB, requireAuth, reviewLimiter, async (req, res) =
       existing = await Progress.findOneAndUpdate(
         { userId: req.user._id, wordId },
         { $setOnInsert: { userId: req.user._id, wordId, status: 'new', box: 1, streakCorrect: 0 } },
-        { upsert: true, new: true, setDefaultsOnInsert: true }
+        { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
       )
     } catch (err) {
       if (!isDuplicateKeyError(err)) throw err
@@ -220,7 +220,7 @@ router.post('/review', requireDB, requireAuth, reviewLimiter, async (req, res) =
         $set: next,
         $push: { history: { $each: [entry], $slice: -MAX_HISTORY_ENTRIES } },
       },
-      { new: true }
+      { returnDocument: 'after' }
     )
 
     const user = await User.findById(req.user._id)
@@ -266,7 +266,7 @@ router.post('/review', requireDB, requireAuth, reviewLimiter, async (req, res) =
     if (activity.inc) Object.assign(inc, activity.inc)
     const update = { $inc: inc, $set: set }
     if (activity.push) update.$push = activity.push
-    const options = { new: true }
+    const options = { returnDocument: 'after' }
     if (activity.arrayFilters) options.arrayFilters = activity.arrayFilters
     await User.findOneAndUpdate({ _id: req.user._id }, update, options)
 
@@ -276,20 +276,20 @@ router.post('/review', requireDB, requireAuth, reviewLimiter, async (req, res) =
         $or: [{ reviewsTodayDate: { $gte: todayStart } }, { reviewsTodayDate: null }],
       },
       { $inc: { reviewsToday: 1 }, $set: { reviewsTodayDate: now } },
-      { new: true }
+      { returnDocument: 'after' }
     )
     if (!reviewsTodayDoc) {
       reviewsTodayDoc = await User.findOneAndUpdate(
         { _id: req.user._id, reviewsTodayDate: { $lt: todayStart } },
         { $set: { reviewsToday: 1, reviewsTodayDate: now } },
-        { new: true }
+        { returnDocument: 'after' }
       )
     }
     if (!reviewsTodayDoc) {
       reviewsTodayDoc = await User.findOneAndUpdate(
         { _id: req.user._id, reviewsTodayDate: { $gte: todayStart } },
         { $inc: { reviewsToday: 1 } },
-        { new: true }
+        { returnDocument: 'after' }
       )
     }
 
