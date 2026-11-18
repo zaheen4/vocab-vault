@@ -18,4 +18,9 @@ const deckSchema = new mongoose.Schema(
   { timestamps: true }
 )
 
+deckSchema.index(
+  { source: 1, group: 1 },
+  { unique: true, partialFilterExpression: { source: 'gregmat', group: { $exists: true } } }
+)
+
 export default mongoose.model('Deck', deckSchema)
