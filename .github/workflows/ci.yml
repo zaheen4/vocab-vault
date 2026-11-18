@@ -43,12 +43,17 @@ jobs:
       - name: Unit tests (vitest)
         run: npm test
 
+      - name: Docs match the code (drift guard)
+        run: npm run docs:check
+
       - name: Dependency audit (fail on high+)
         run: npm audit --omit=dev --audit-level=high
 
       - name: Secret scan (no committed credentials)
         run: |
-          ! rg -n --glob '!package-lock.json' --glob '!*.map' \
+          ! rg -n --hidden --no-ignore-vcs \
+            --glob '!**/node_modules/**' --glob '!**/.git/**' --glob '!**/dist/**' \
+            --glob '!**/.env.example' --glob '!**/package-lock.json' --glob '!*.map' \
             -e 'mongodb\+srv://[^/]*@[^/]+\.mongodb\.net' \
             -e 'BEGIN [A-Z ]*PRIVATE KEY' \
             -e 'ghp_[A-Za-z0-9]{20,}' \
