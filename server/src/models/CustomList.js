@@ -9,4 +9,6 @@ const customListSchema = new mongoose.Schema(
   { timestamps: true }
 )
 
+customListSchema.index({ userId: 1, createdAt: -1 })
+
 export default mongoose.model('CustomList', customListSchema)
