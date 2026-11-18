@@ -296,13 +296,14 @@ export function useRemoveListWord() {
 
 export function useForgotPassword() {
   return useMutation({
-    mutationFn: ({ email }) => api.post('/auth/forgot-password', { email }),
+    mutationFn: ({ email }) => api.post('/auth/forgot-password', { email }, { skipUnauthorized: true }),
   })
 }
 
 export function useResetPassword() {
   return useMutation({
-    mutationFn: ({ token, password }) => api.post('/auth/reset-password', { token, password }),
+    mutationFn: ({ token, password }) =>
+      api.post('/auth/reset-password', { token, password }, { skipUnauthorized: true }),
   })
 }
 
@@ -315,7 +316,7 @@ export function useUpdateProfile() {
 export function useChangePassword() {
   return useMutation({
     mutationFn: ({ currentPassword, newPassword }) =>
-      api.patch('/auth/password', { currentPassword, newPassword }),
+      api.patch('/auth/password', { currentPassword, newPassword }, { skipUnauthorized: true }),
   })
 }
 
@@ -328,7 +329,7 @@ export function useRevokeAllSessions() {
 export function useResetProgress() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ password }) => api.post('/auth/reset-progress', { password }),
+    mutationFn: ({ password }) => api.post('/auth/reset-progress', { password }, { skipUnauthorized: true }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: GAMIFICATION_KEY })
       qc.invalidateQueries({ queryKey: SUMMARY_KEY })
@@ -340,6 +341,6 @@ export function useResetProgress() {
 
 export function useDeleteAccount() {
   return useMutation({
-    mutationFn: ({ password }) => api.delete('/auth/account', { password }),
+    mutationFn: ({ password }) => api.delete('/auth/account', { password }, { skipUnauthorized: true }),
   })
 }
