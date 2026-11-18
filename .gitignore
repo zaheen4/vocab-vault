@@ -4,11 +4,15 @@ node_modules/
 # builds
 dist/
 build/
+coverage/
 
 # environment & secrets
 .env
 .env.local
 .env.*.local
+.env*
+# keep the checked-in templates that document required variables
+!**/.env.example
 
 # logs
 *.log
@@ -20,5 +24,4 @@ npm-debug.log*
 .DS_Store
 test-results/
 .playwright/
-.env*
 .wrangler/

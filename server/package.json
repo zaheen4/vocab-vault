@@ -5,7 +5,7 @@
   "type": "module",
   "main": "src/server.js",
   "engines": {
-    "node": ">=20"
+    "node": ">=22.12"
   },
   "scripts": {
     "dev": "node --watch src/server.js",
@@ -20,7 +20,7 @@
     "express-rate-limit": "^8.7.0",
     "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.9.3"
+    "mongoose": "^9.12.2"
   },
   "description": "VocabVault — Smart Vocabulary Flashcard Web Platform (REST API)"
 }
