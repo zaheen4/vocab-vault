@@ -23,8 +23,8 @@ export default function ResetPassword() {
       setError('Missing reset token. Please request a new link.')
       return
     }
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters')
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters')
       return
     }
     if (password.length > 128) {
@@ -89,7 +89,7 @@ export default function ResetPassword() {
               label="New password"
               type="password"
               required
-              minLength={6}
+              minLength={8}
               maxLength={128}
               autoComplete="new-password"
               showPasswordToggle
@@ -103,7 +103,7 @@ export default function ResetPassword() {
             label="Confirm new password"
             type="password"
             required
-            minLength={6}
+            minLength={8}
             maxLength={128}
             autoComplete="new-password"
             showPasswordToggle

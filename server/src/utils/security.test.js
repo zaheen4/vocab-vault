@@ -4,6 +4,7 @@ import {
   isValidEmail,
   normalizeEmail,
   parsePagination,
+  resolveClientOrigin,
   toSafeMessage,
 } from './security.js'
 
@@ -43,6 +44,61 @@ describe('parsePagination', () => {
     expect(parsePagination({ page: 'abc', limit: '1000000' })).toEqual({ page: 1, limit: 100 })
     expect(parsePagination({ page: '-3', limit: '0' })).toEqual({ page: 1, limit: 1 })
     expect(parsePagination({})).toEqual({ page: 1, limit: 20 })
+  })
+})
+
+describe('resolveClientOrigin', () => {
+  it('returns null in production without configuration', () => {
+    expect(resolveClientOrigin({ NODE_ENV: 'production' })).toBe(null)
+    expect(resolveClientOrigin({ NODE_ENV: 'production', CLIENT_URL: '   ' })).toBe(null)
+  })
+
+  it('uses localhost outside production when nothing is configured', () => {
+    expect(resolveClientOrigin({})).toBe('http://localhost:5173')
+    expect(resolveClientOrigin({ NODE_ENV: 'development' })).toBe('http://localhost:5173')
+  })
+
+  it('uses CLIENT_URL as the primary origin', () => {
+    expect(
+      resolveClientOrigin({
+        NODE_ENV: 'production',
+        CLIENT_URL: 'https://vvault.pages.dev',
+      })
+    ).toBe('https://vvault.pages.dev')
+  })
+
+  it('prefers CLIENT_URL over ALLOWED_ORIGINS extras', () => {
+    expect(
+      resolveClientOrigin({
+        NODE_ENV: 'production',
+        CLIENT_URL: 'https://primary.example',
+        ALLOWED_ORIGINS: 'https://extra-a.example,https://extra-b.example',
+      })
+    ).toBe('https://primary.example')
+  })
+
+  it('uses the first ALLOWED_ORIGINS extra when CLIENT_URL is absent', () => {
+    expect(
+      resolveClientOrigin({
+        NODE_ENV: 'production',
+        ALLOWED_ORIGINS: 'https://extra-a.example,https://extra-b.example',
+      })
+    ).toBe('https://extra-a.example')
+  })
+
+  it('trims whitespace and trailing slashes', () => {
+    expect(
+      resolveClientOrigin({
+        NODE_ENV: 'production',
+        CLIENT_URL: '  https://app.example.com///  ',
+      })
+    ).toBe('https://app.example.com')
+    expect(
+      resolveClientOrigin({
+        NODE_ENV: 'production',
+        ALLOWED_ORIGINS: '  https://one.example///  ,  https://two.example  ',
+      })
+    ).toBe('https://one.example')
   })
 })
 

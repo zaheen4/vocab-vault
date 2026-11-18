@@ -82,8 +82,8 @@ export default function Settings() {
     e.preventDefault()
     setPasswordMsg('')
     setPasswordErr('')
-    if (newPassword.length < 6) {
-      setPasswordErr('New password must be at least 6 characters.')
+    if (newPassword.length < 8) {
+      setPasswordErr('New password must be at least 8 characters.')
       return
     }
     if (newPassword !== confirmPassword) {
@@ -278,7 +278,7 @@ export default function Settings() {
               label="New password"
               type="password"
               required
-              minLength={6}
+              minLength={8}
               maxLength={128}
               showPasswordToggle
               value={newPassword}
@@ -291,7 +291,7 @@ export default function Settings() {
             label="Confirm new password"
             type="password"
             required
-            minLength={6}
+            minLength={8}
             maxLength={128}
             showPasswordToggle
             value={confirmPassword}
