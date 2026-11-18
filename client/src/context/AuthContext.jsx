@@ -41,6 +41,17 @@ export function AuthProvider({ children }) {
   }, [logout])
 
   useEffect(() => {
+    const onStorage = (event) => {
+      if (event.key !== TOKEN_KEY && event.key !== USER_KEY && event.key !== null) return
+      setToken(localStorage.getItem(TOKEN_KEY))
+      setUser(readStoredUser())
+      queryClient.clear()
+    }
+    window.addEventListener('storage', onStorage)
+    return () => window.removeEventListener('storage', onStorage)
+  }, [])
+
+  useEffect(() => {
     if (!token) {
       setLoading(false)
       return undefined
@@ -82,13 +93,13 @@ export function AuthProvider({ children }) {
   }
 
   async function login(email, password, rememberMe = false) {
-    const data = await api.post('/auth/login', { email, password, rememberMe })
+    const data = await api.post('/auth/login', { email, password, rememberMe }, { skipUnauthorized: true })
     persist(data.token, data.user)
     return data.user
   }
 
   async function register(name, email, password) {
-    const data = await api.post('/auth/register', { name, email, password })
+    const data = await api.post('/auth/register', { name, email, password }, { skipUnauthorized: true })
     persist(data.token, data.user)
     return data.user
   }

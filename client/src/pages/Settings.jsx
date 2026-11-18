@@ -107,6 +107,7 @@ export default function Settings() {
     setSessionMsg('')
     try {
       const data = await revokeSessionsMutation.mutateAsync()
+      if (data.token) updateToken(data.token, data.user)
       setSessionMsg(data.message || 'All other sessions revoked.')
     } catch (err) {
       setSessionMsg(err.message)

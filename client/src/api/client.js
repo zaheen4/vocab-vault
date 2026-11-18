@@ -11,7 +11,7 @@ function getToken() {
   return localStorage.getItem(TOKEN_KEY)
 }
 
-function request(path, { method = 'GET', body, signal } = {}) {
+function request(path, { method = 'GET', body, signal, skipUnauthorized = false } = {}) {
   const headers = { 'Content-Type': 'application/json' }
   const token = getToken()
   if (token) headers.Authorization = `Bearer ${token}`
@@ -28,7 +28,7 @@ function request(path, { method = 'GET', body, signal } = {}) {
     async (res) => {
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
-        if (res.status === 401 && unauthorizedHandler) {
+        if (res.status === 401 && !skipUnauthorized && unauthorizedHandler) {
           try {
             unauthorizedHandler()
           } catch {
@@ -57,7 +57,7 @@ export const api = {
   post: (path, body, opts) => request(path, { ...opts, method: 'POST', body }),
   put: (path, body, opts) => request(path, { ...opts, method: 'PUT', body }),
   patch: (path, body, opts) => request(path, { ...opts, method: 'PATCH', body }),
-  delete: (path, opts) => request(path, { ...opts, method: 'DELETE' }),
+  delete: (path, body, opts) => request(path, { ...opts, method: 'DELETE', body }),
 }
 
 export function authLogoutBeacon(token) {

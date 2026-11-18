@@ -261,7 +261,8 @@ router.post('/revoke-all', requireDB, requireAuth, async (req, res) => {
 
     user.tokenVersion = (user.tokenVersion || 0) + 1
     await user.save()
-    res.json({ ok: true, message: 'All other sessions have been revoked' })
+    const token = sign(user, false)
+    res.json({ ok: true, token, message: 'All other sessions have been revoked' })
   } catch (err) {
     res.status(500).json({ message: toSafeMessage(err) })
   }
@@ -343,7 +344,7 @@ router.post('/logout', requireDB, requireAuth, (req, res) => {
 })
 
 router.get('/me', requireDB, requireAuth, (req, res) => {
-  res.json({ user: req.user })
+  res.json({ user: publicUser(req.user) })
 })
 
 export default router
