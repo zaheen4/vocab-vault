@@ -1,0 +1,67 @@
+name: Supply chain
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'client/package.json'
+      - 'server/package.json'
+      - '.github/workflows/supply-chain.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'client/package.json'
+      - 'server/package.json'
+  schedule:
+    # Advisory databases change without any commit, so review them weekly
+    # instead of discovering breakage in the middle of an unrelated PR.
+    - cron: '17 6 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lockfiles:
+    name: single lockfile
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Only the root lockfile may be tracked
+        run: |
+          extra=$(git ls-files '*package-lock.json' | grep -v '^package-lock.json$' || true)
+          if [ -n "$extra" ]; then
+            echo "Workspace lockfiles drift from the canonical root lock:"
+            echo "$extra"
+            echo "Delete them and install from the repository root."
+            exit 1
+          fi
+          echo "Only the root package-lock.json is tracked."
+
+  audit:
+    name: weekly audit
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Full audit report (includes dev tooling)
+        run: npm audit || true
+
+      - name: Fail on critical advisories anywhere in the tree
+        run: npm audit --audit-level=critical
