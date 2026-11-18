@@ -218,7 +218,12 @@ export default function Practice({ active = true }) {
         }
         footer={
           feedback ? (
-            <StudyFeedback feedback={feedback} onDismiss={() => setFeedback(null)} />
+            <>
+              {!feedback.error && (
+                <span className="sr-only">{feedback.correct ? 'Correct' : 'Incorrect'}</span>
+              )}
+              <StudyFeedback feedback={feedback} onDismiss={() => setFeedback(null)} />
+            </>
           ) : flipped ? (
             <AnswerBar
               onAgain={() => answer(false)}

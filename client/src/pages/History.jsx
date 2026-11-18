@@ -279,13 +279,12 @@ export default function History() {
 
       <div
         className="flex w-full gap-1 rounded-xl border border-line bg-raised/60 p-1 sm:inline-flex sm:w-auto"
-        role="tablist"
+        role="group"
         aria-label="History categories"
       >
         <button
           type="button"
-          role="tab"
-          aria-selected={activeTab === 'quiz'}
+          aria-pressed={activeTab === 'quiz'}
           onClick={() => setActiveTab('quiz')}
           className={tabClass(activeTab === 'quiz')}
         >
@@ -293,8 +292,7 @@ export default function History() {
         </button>
         <button
           type="button"
-          role="tab"
-          aria-selected={activeTab === 'cards'}
+          aria-pressed={activeTab === 'cards'}
           onClick={() => setActiveTab('cards')}
           className={tabClass(activeTab === 'cards')}
         >
@@ -365,15 +363,14 @@ export default function History() {
         </>
       ) : (
         <>
-          <div className="flex flex-wrap items-center gap-2" role="tablist" aria-label="Review filters">
+          <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Review filters">
             {FILTER_TABS.map((tab) => {
               const active = cardFilter === tab.id
               return (
                 <button
                   key={tab.id}
-                  role="tab"
                   type="button"
-                  aria-selected={active}
+                  aria-pressed={active}
                   onClick={() => handleFilterChange(tab.id)}
                   className={cn(
                     'inline-flex min-h-9 items-center rounded-full border px-3.5 font-display text-xs font-bold transition-colors',

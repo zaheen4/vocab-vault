@@ -13,7 +13,7 @@ function KeyHint({ children }) {
 
 export default function AnswerBar({ onAgain, onGotIt, disabled = false }) {
   return (
-    <div className="grid w-full grid-cols-2 gap-2">
+    <div aria-live="off" className="grid w-full grid-cols-2 gap-2">
       <Button
         variant="danger"
         onClick={onAgain}

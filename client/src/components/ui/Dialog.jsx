@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useId, useRef } from 'react'
 import Card from './Card'
 import { MOTION, m } from '../../lib/motion'
 
@@ -27,6 +27,8 @@ const panel = {
 export default function Dialog({ labelledBy, onClose, children }) {
   const panelRef = useRef(null)
   const closeRef = useRef(onClose)
+  const generatedTitleId = useId()
+  const titleId = labelledBy || generatedTitleId
 
   useEffect(() => {
     closeRef.current = onClose
@@ -34,12 +36,36 @@ export default function Dialog({ labelledBy, onClose, children }) {
 
   useEffect(() => {
     const previousActiveElement = document.activeElement
-    panelRef.current?.focus()
+    const panel = panelRef.current
+    const focusableSelector =
+      'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    const focusable = () => Array.from(panel?.querySelectorAll(focusableSelector) || [])
+    const initialFocus = focusable()[0] || panel
+
+    initialFocus?.focus()
 
     function handleKeyDown(event) {
       if (event.key === 'Escape') {
         event.stopPropagation()
         closeRef.current?.()
+        return
+      }
+      if (event.key !== 'Tab' || !panel) return
+
+      const items = focusable()
+      if (items.length === 0) {
+        event.preventDefault()
+        panel.focus()
+        return
+      }
+      const first = items[0]
+      const last = items[items.length - 1]
+      if (event.shiftKey && (document.activeElement === first || document.activeElement === panel)) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
       }
     }
 
@@ -69,11 +95,12 @@ export default function Dialog({ labelledBy, onClose, children }) {
         ref={panelRef}
         role="dialog"
         aria-modal="true"
-        aria-labelledby={labelledBy}
+        aria-labelledby={titleId}
         tabIndex={-1}
         className="w-full max-w-md focus:outline-none"
         {...panel}
       >
+        {!labelledBy && <span id={titleId} className="sr-only">Dialog</span>}
         <Card className="p-6">
           {children}
         </Card>

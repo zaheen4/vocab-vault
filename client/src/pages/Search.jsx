@@ -71,6 +71,7 @@ export default function Search() {
 
   return (
     <div className="animate-page space-y-4">
+      <h1 className="sr-only font-display">Search</h1>
       <Input
         id="word-search"
         type="search"

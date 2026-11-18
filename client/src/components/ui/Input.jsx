@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { cn } from '../../utils/cn'
 
 function EyeIcon({ className }) {
@@ -26,6 +26,7 @@ export default function Input({
   labelRight,
   icon,
   error,
+  hint,
   as,
   className = '',
   inputClassName = '',
@@ -35,6 +36,12 @@ export default function Input({
   ...props
 }) {
   const [showPassword, setShowPassword] = useState(false)
+  const uid = useId()
+  const hintId = `${uid}-hint`
+  const errorId = `${uid}-error`
+  const describedBy = [props['aria-describedby'], hint && hintId, error && errorId]
+    .filter(Boolean)
+    .join(' ')
   const isPassword = type === 'password'
   const effectiveType = isPassword && showPasswordToggle ? (showPassword ? 'text' : 'password') : type
 
@@ -51,11 +58,11 @@ export default function Input({
 
   const field =
     as === 'select' ? (
-      <select id={inputId} {...props} aria-invalid={error ? true : undefined} className={fieldClass} />
+      <select id={inputId} {...props} aria-invalid={error ? true : undefined} aria-describedby={describedBy || undefined} className={fieldClass} />
     ) : as === 'textarea' ? (
-      <textarea id={inputId} {...props} aria-invalid={error ? true : undefined} className={fieldClass} />
+      <textarea id={inputId} {...props} aria-invalid={error ? true : undefined} aria-describedby={describedBy || undefined} className={fieldClass} />
     ) : (
-      <input id={inputId} type={effectiveType} {...props} aria-invalid={error ? true : undefined} className={fieldClass} />
+      <input id={inputId} type={effectiveType} {...props} aria-invalid={error ? true : undefined} aria-describedby={describedBy || undefined} className={fieldClass} />
     )
 
   return (
@@ -84,8 +91,11 @@ export default function Input({
           </button>
         )}
       </span>
+      {hint && (
+        <span id={hintId} className="mt-1 block text-xs text-ink-muted">{hint}</span>
+      )}
       {error && (
-        <span className="mt-1 block text-xs text-stamp">{error}</span>
+        <span id={errorId} className="mt-1 block text-xs text-stamp">{error}</span>
       )}
     </label>
   )
