@@ -13,12 +13,12 @@ import { authLimiter } from '../middleware/rateLimit.js'
 import { sendPasswordResetEmail } from '../utils/mailer.js'
 import {
   MAX_PASSWORD_LENGTH,
-  MIN_PASSWORD_LENGTH,
   isDuplicateKeyError,
   isValidEmail,
   normalizeEmail,
   resolveClientOrigin,
   toSafeMessage,
+  validateNewPassword,
 } from '../utils/security.js'
 
 const router = Router()
@@ -64,10 +64,10 @@ function validateCredentials(
   if (!cleanEmail) return 'email is required'
   if (!isValidEmail(cleanEmail)) return 'valid email is required'
   if (typeof password !== 'string' || !password) return 'password is required'
-  if (enforceMinLength && password.length < MIN_PASSWORD_LENGTH) {
-    return `Password must be at least ${MIN_PASSWORD_LENGTH} characters`
-  }
-  if (password.length > MAX_PASSWORD_LENGTH) {
+  if (enforceMinLength) {
+    const passwordError = validateNewPassword(password)
+    if (passwordError) return passwordError
+  } else if (password.length > MAX_PASSWORD_LENGTH) {
     return `Password must be at most ${MAX_PASSWORD_LENGTH} characters`
   }
   return null
@@ -190,14 +190,8 @@ router.post('/reset-password', requireDB, authLimiter, async (req, res) => {
     if (!token || typeof token !== 'string') {
       return res.status(400).json({ message: 'Reset token is required' })
     }
-    if (!password || typeof password !== 'string' || password.length < MIN_PASSWORD_LENGTH) {
-      return res.status(400).json({
-        message: `Password must be at least ${MIN_PASSWORD_LENGTH} characters`,
-      })
-    }
-    if (password.length > MAX_PASSWORD_LENGTH) {
-      return res.status(400).json({ message: `Password must be at most ${MAX_PASSWORD_LENGTH} characters` })
-    }
+    const passwordError = validateNewPassword(password)
+    if (passwordError) return res.status(400).json({ message: passwordError })
 
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex')
     const user = await User.findOne({
@@ -247,14 +241,8 @@ router.patch('/password', requireDB, requireAuth, async (req, res) => {
     if (!currentPassword || typeof currentPassword !== 'string') {
       return res.status(400).json({ message: 'Current password is required' })
     }
-    if (!newPassword || typeof newPassword !== 'string' || newPassword.length < MIN_PASSWORD_LENGTH) {
-      return res.status(400).json({
-        message: `New password must be at least ${MIN_PASSWORD_LENGTH} characters`,
-      })
-    }
-    if (newPassword.length > MAX_PASSWORD_LENGTH) {
-      return res.status(400).json({ message: `Password must be at most ${MAX_PASSWORD_LENGTH} characters` })
-    }
+    const passwordError = validateNewPassword(newPassword)
+    if (passwordError) return res.status(400).json({ message: passwordError })
 
     const user = await User.findById(req.user._id)
     if (!user) return res.status(404).json({ message: 'User not found' })
@@ -368,4 +356,5 @@ router.get('/me', requireDB, requireAuth, (req, res) => {
   res.json({ user: publicUser(req.user) })
 })
 
+export { validateCredentials }
 export default router

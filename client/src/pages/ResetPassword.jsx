@@ -6,6 +6,7 @@ import Button from '../components/ui/Button'
 import Input from '../components/ui/Input'
 import Notice from '../components/ui/Notice'
 import PasswordStrength from '../components/ui/PasswordStrength'
+import { validatePassword } from '../utils/password'
 
 export default function ResetPassword() {
   const [searchParams] = useSearchParams()
@@ -23,12 +24,9 @@ export default function ResetPassword() {
       setError('Missing reset token. Please request a new link.')
       return
     }
-    if (password.length < 8) {
-      setError('Password must be at least 8 characters')
-      return
-    }
-    if (password.length > 128) {
-      setError('Password must be at most 128 characters')
+    const passwordError = validatePassword(password)
+    if (passwordError) {
+      setError(passwordError)
       return
     }
     if (password !== confirmPassword) {

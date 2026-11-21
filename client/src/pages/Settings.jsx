@@ -21,6 +21,7 @@ import Input from '../components/ui/Input'
 import Notice from '../components/ui/Notice'
 import OptionTile from '../components/ui/OptionTile'
 import PasswordStrength from '../components/ui/PasswordStrength'
+import { validatePassword } from '../utils/password'
 
 const THEME_OPTIONS = [
   {
@@ -82,8 +83,9 @@ export default function Settings() {
     e.preventDefault()
     setPasswordMsg('')
     setPasswordErr('')
-    if (newPassword.length < 8) {
-      setPasswordErr('New password must be at least 8 characters.')
+    const passwordError = validatePassword(newPassword)
+    if (passwordError) {
+      setPasswordErr(passwordError)
       return
     }
     if (newPassword !== confirmPassword) {

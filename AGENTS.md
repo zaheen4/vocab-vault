@@ -44,7 +44,7 @@ Run the smallest thing that can fail. The full suite is a per-PR gate, not a ste
 - Motion: `motion` v14 is the only animation dependency. Import `m`, `useReducedMotion`, and `MotionProvider` from `client/src/lib/motion.jsx`; never `motion` directly (`LazyMotion` runs in `strict` mode). Policy in `docs/DESIGN_SYSTEM.md` § Motion.
 - `server/` Express 5 + Mongoose, entry `src/server.js`. Routers: auth, decks, words, progress, gamification, bookmarks, lists, quiz (history), admin. SRS `utils/leitner.js`, gamification `utils/gamify.js`, history/quiz aggregation `utils/history.js` + `utils/quizHistory.js`.
 - `/api/health` is mounted **before** `apiLimiter` on purpose — warming pings, deploy-gate, and monitors must not be throttled.
-- Auth: JWT HS256 with issuer/audience + `tokenVersion`; revocation bumps `User.tokenVersion` and invalidates old tokens (`middleware/auth.js`); passwords need 8+ characters (`MIN_PASSWORD_LENGTH` in `utils/security.js`) on register, reset, and change — not on login.
+- Auth: JWT HS256 with issuer/audience + `tokenVersion`; revocation bumps `User.tokenVersion` and invalidates old tokens (`middleware/auth.js`); passwords need 8+ characters and at most 72 UTF-8 bytes (`MIN_PASSWORD_LENGTH` / `MAX_PASSWORD_BYTES` in `utils/security.js`) on register, reset, and change — not on login.
 - Seed: `server/src/scripts/seed.js`, expects `{ groups: [{ group, words: [{ word, definition, example? }] }] }` (`npm run seed -w server -- path.json`). No bulk-import endpoint exists — cut from scope.
 - Backend warming is an **external cron** hitting `/api/health` (`docs/DEPLOY.md` §6.1: 5–10 min, mind the 750 instance-hour cap). No GitHub keepalive workflow — `schedule` gets delayed past the 15-min idle window.
 
