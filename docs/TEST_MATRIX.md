@@ -96,6 +96,22 @@ decks intact.
 
 ## Last execution
 
+- Date: 2026-11-21 · Branch: `main` @ `dce6229` · Executor: agent
+- `npm run test:e2e` 46/46 passed (chromium + mobile Pixel 7), zero page errors.
+- `npm test` 346/346 across 41 files; oxlint 0 errors (pre-existing warnings only);
+  `lint:tw` 0 warnings; client build green (CSS 54,991 B; fonts emitted to
+  `dist/fonts/`).
+- `npm run docs:check` green: 43 endpoints, 11 tokens, 15 environment variables,
+  13 relative links, the CI Node matrix, the CSP hash, and 11 npm scripts.
+- Fonts are self-hosted: Baloo 2 and Nunito as latin variable woff2
+  (72,316 B total), with no Google origins left in the CSP.
+- `docs/assets` screenshots recompressed losslessly: 693,097 → 507,332 B
+  (−26.8%), zero differing pixels on all four.
+- Chip tap target is 44px; the Home fold assertion (first deck ≤520px on
+  390×844) still passes on both projects.
+- New-password ceiling is 72 UTF-8 bytes on register, reset, and change; login
+  keeps the 128-character cap and skips the byte rule.
+
 - Date: 2026-11-21 · Branch: `fix/query-determinism` · Executor: agent
 - `npm run test:e2e` 46/46 passed (chromium + mobile Pixel 7), zero page errors.
 - `npm test` 330/330 across 39 files; oxlint 0 errors (17 pre-existing warnings);
