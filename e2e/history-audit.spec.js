@@ -13,23 +13,29 @@ test.afterEach(async ({ page }) => {
 })
 
 test('review history feed renders box pills and filters', async ({ page }) => {
-  const reviewTab = page.getByRole('tab', { name: /Card Reviews/i })
+  const reviewTab = page.getByRole('button', { name: /Card Reviews/i })
   await reviewTab.waitFor({ timeout: 10000 })
   await reviewTab.click()
+  await expect(reviewTab).toHaveAttribute('aria-pressed', 'true')
 
-  await expect(page.getByRole('tab', { name: 'All', exact: true })).toBeVisible({ timeout: 10000 })
-  await expect(page.getByRole('tab', { name: 'Correct', exact: true })).toBeVisible()
-  await expect(page.getByRole('tab', { name: 'Needs Review', exact: true })).toBeVisible()
+  const allFilter = page.getByRole('button', { name: 'All', exact: true })
+  const correctFilter = page.getByRole('button', { name: 'Correct', exact: true })
+  const needsReviewFilter = page.getByRole('button', { name: 'Needs Review', exact: true })
+  await expect(allFilter).toBeVisible({ timeout: 10000 })
+  await expect(correctFilter).toBeVisible()
+  await expect(needsReviewFilter).toBeVisible()
+  await expect(allFilter).toHaveAttribute('aria-pressed', 'true')
 
-  await page.getByRole('tab', { name: 'Correct', exact: true }).click()
-  await page.waitForTimeout(300)
+  await correctFilter.click()
+  await expect(correctFilter).toHaveAttribute('aria-pressed', 'true')
+  await expect(allFilter).toHaveAttribute('aria-pressed', 'false')
 
-  await page.getByRole('tab', { name: 'Needs Review', exact: true }).click()
+  await needsReviewFilter.click()
   await page.waitForTimeout(300)
 })
 
 test('quiz history displays performance summary and question audits', async ({ page }) => {
-  const quizTab = page.getByRole('tab', { name: /Quiz History/i })
+  const quizTab = page.getByRole('button', { name: /Quiz History/i })
   await quizTab.waitFor({ timeout: 10000 })
   await quizTab.click()
 
