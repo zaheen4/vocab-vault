@@ -4,8 +4,10 @@ import {
   isValidEmail,
   normalizeEmail,
   parsePagination,
+  passwordByteLength,
   resolveClientOrigin,
   toSafeMessage,
+  validateNewPassword,
 } from './security.js'
 
 describe('normalizeEmail', () => {
@@ -29,6 +31,40 @@ describe('isValidEmail', () => {
     expect(isValidEmail('not-an-email')).toBe(false)
     expect(isValidEmail('a@b')).toBe(false)
     expect(isValidEmail(`a@${'x'.repeat(250)}.com`)).toBe(false)
+  })
+})
+
+describe('passwordByteLength', () => {
+  it('counts UTF-8 bytes, not characters', () => {
+    expect(passwordByteLength('')).toBe(0)
+    expect(passwordByteLength('abc')).toBe(3)
+    expect(passwordByteLength('é')).toBe(2)
+  })
+})
+
+describe('validateNewPassword', () => {
+  it('rejects a missing or empty password', () => {
+    expect(validateNewPassword('')).toBe('Password is required')
+    expect(validateNewPassword(undefined)).toBe('Password is required')
+  })
+
+  it('enforces the minimum length', () => {
+    expect(validateNewPassword('short')).toMatch(/8 characters/)
+    expect(validateNewPassword('abcdefgh')).toBe(null)
+  })
+
+  it('allows up to 72 ASCII bytes and rejects more', () => {
+    expect(validateNewPassword('a'.repeat(72))).toBe(null)
+    expect(validateNewPassword('a'.repeat(73))).toMatch(/72 bytes/)
+  })
+
+  it('enforces the 128 character cap', () => {
+    expect(validateNewPassword('a'.repeat(129))).toMatch(/128 characters/)
+  })
+
+  it('enforces the byte cap on multi-byte characters', () => {
+    expect(validateNewPassword('é'.repeat(36))).toBe(null)
+    expect(validateNewPassword('é'.repeat(37))).toMatch(/72 bytes/)
   })
 })
 

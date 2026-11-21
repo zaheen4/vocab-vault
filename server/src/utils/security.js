@@ -1,6 +1,7 @@
 export const MAX_EMAIL_LENGTH = 254
 export const MIN_PASSWORD_LENGTH = 8
 export const MAX_PASSWORD_LENGTH = 128
+export const MAX_PASSWORD_BYTES = 72
 export const MAX_QUERY_LENGTH = 100
 
 const DEV_CLIENT_ORIGIN = 'http://localhost:5173'
@@ -28,6 +29,24 @@ export function isValidEmail(email) {
     email.length <= MAX_EMAIL_LENGTH &&
     EMAIL_RE.test(email)
   )
+}
+
+export function passwordByteLength(value) {
+  return Buffer.byteLength(typeof value === 'string' ? value : '', 'utf8')
+}
+
+export function validateNewPassword(password) {
+  if (typeof password !== 'string' || !password) return 'Password is required'
+  if (password.length < MIN_PASSWORD_LENGTH) {
+    return `Password must be at least ${MIN_PASSWORD_LENGTH} characters`
+  }
+  if (password.length > MAX_PASSWORD_LENGTH) {
+    return `Password must be at most ${MAX_PASSWORD_LENGTH} characters`
+  }
+  if (passwordByteLength(password) > MAX_PASSWORD_BYTES) {
+    return `Password must be at most ${MAX_PASSWORD_BYTES} bytes`
+  }
+  return null
 }
 
 export function escapeRegExp(s) {
