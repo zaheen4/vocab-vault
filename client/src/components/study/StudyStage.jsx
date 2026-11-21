@@ -5,7 +5,7 @@ export default function StudyStage({ status = null, children, footer = null, not
       <div className="study-stage-body flex flex-1 flex-col gap-2">
         {children}
       </div>
-      <div className="flex min-h-14 items-center">{footer}</div>
+      <div role="status" className="flex min-h-14 items-center">{footer}</div>
       {notice}
     </div>
   )

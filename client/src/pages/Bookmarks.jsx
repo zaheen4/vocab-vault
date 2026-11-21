@@ -514,12 +514,11 @@ export default function Bookmarks() {
       ) : (
         <>
           <div className="flex flex-wrap items-center gap-2">
-            <div role="tablist" aria-label="Filter by mastery" className="flex gap-1 rounded-lg bg-raised p-1">
+            <div role="group" aria-label="Filter by mastery" className="flex gap-1 rounded-lg bg-raised p-1">
               {TABS.map((t) => (
                 <button
                   key={t.id}
-                  role="tab"
-                  aria-selected={tab === t.id}
+                  aria-pressed={tab === t.id}
                   onClick={() => setTab(t.id)}
                   className={`min-h-9 rounded-md px-3 py-1.5 text-xs font-bold transition-colors ${
                     tab === t.id
