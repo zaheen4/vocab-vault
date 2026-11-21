@@ -22,7 +22,7 @@ export function buildWordQueuePipeline({ match, sort, limit }) {
       $facet: {
         total: [{ $count: 'count' }],
         words: [
-          { $sort: sort },
+          { $sort: { _id: 1, ...sort } },
           { $limit: limit },
           { $replaceRoot: { newRoot: '$word' } },
         ],

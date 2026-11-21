@@ -168,16 +168,20 @@ export async function pruneOldSessions(QuizSessionModel, userId, max = MAX_QUIZ_
     const count = await QuizSessionModel.countDocuments({ userId })
     if (count > max) {
       const oldestToKeep = await QuizSessionModel.find({ userId })
-        .sort({ createdAt: -1 })
+        .sort({ createdAt: -1, _id: -1 })
         .skip(max - 1)
         .limit(1)
-        .select('createdAt')
+        .select('createdAt _id')
         .lean()
 
       if (oldestToKeep.length > 0) {
+        const { createdAt, _id } = oldestToKeep[0]
         await QuizSessionModel.deleteMany({
           userId,
-          createdAt: { $lt: oldestToKeep[0].createdAt },
+          $or: [
+            { createdAt: { $lt: createdAt } },
+            { createdAt, _id: { $lt: _id } },
+          ],
         })
       }
     }

@@ -5,6 +5,7 @@ import {
   validateQuizSessionPayload,
   validateQuizHistoryQuery,
   buildQuizHistoryPipeline,
+  pruneOldSessions,
 } from './quizHistory.js'
 
 describe('calculatePercentage', () => {
@@ -120,5 +121,70 @@ describe('buildQuizHistoryPipeline', () => {
     expect(pipeline[1].$facet.sessions).toBeDefined()
     expect(pipeline[1].$facet.stats).toBeDefined()
     expect(pipeline[1].$facet.totalCount).toBeDefined()
+  })
+})
+
+describe('pruneOldSessions', () => {
+  const userId = new mongoose.Types.ObjectId()
+  const oldest = {
+    createdAt: new Date('2026-01-02T03:04:05.006Z'),
+    _id: new mongoose.Types.ObjectId(),
+  }
+
+  function fakeModel({ count, rows = [], onDelete = () => {} }) {
+    return {
+      countDocuments: async () => count,
+      find: () => ({
+        sort: () => ({
+          skip: () => ({
+            limit: () => ({
+              select: () => ({ lean: async () => rows }),
+            }),
+          }),
+        }),
+      }),
+      deleteMany: async (filter) => {
+        onDelete(filter)
+        return { deletedCount: 0 }
+      },
+    }
+  }
+
+  it('deletes older rows and tiebreaks on _id', async () => {
+    const calls = []
+    await pruneOldSessions(
+      fakeModel({ count: 5, rows: [oldest], onDelete: (f) => calls.push(f) }),
+      userId,
+      3
+    )
+
+    expect(calls).toHaveLength(1)
+    expect(calls[0]).toEqual({
+      userId,
+      $or: [
+        { createdAt: { $lt: oldest.createdAt } },
+        { createdAt: oldest.createdAt, _id: { $lt: oldest._id } },
+      ],
+    })
+  })
+
+  it('does nothing while the session count is at or below the cap', async () => {
+    const calls = []
+    await pruneOldSessions(
+      fakeModel({ count: 3, rows: [oldest], onDelete: (f) => calls.push(f) }),
+      userId,
+      3
+    )
+
+    expect(calls).toHaveLength(0)
+  })
+
+  it('swallows prune failures instead of failing the request', async () => {
+    const model = fakeModel({ count: 5, rows: [oldest] })
+    model.deleteMany = async () => {
+      throw new Error('db down')
+    }
+
+    await expect(pruneOldSessions(model, userId, 3)).resolves.toBeUndefined()
   })
 })
