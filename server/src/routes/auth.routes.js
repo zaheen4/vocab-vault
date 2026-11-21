@@ -51,7 +51,10 @@ function publicUser(user) {
   return obj
 }
 
-function validateCredentials({ name, email, password }, { requireName = false } = {}) {
+function validateCredentials(
+  { name, email, password },
+  { requireName = false, enforceMinLength = true } = {}
+) {
   if (requireName) {
     const cleanName = typeof name === 'string' ? name.trim() : ''
     if (!cleanName) return 'name is required'
@@ -61,7 +64,7 @@ function validateCredentials({ name, email, password }, { requireName = false } 
   if (!cleanEmail) return 'email is required'
   if (!isValidEmail(cleanEmail)) return 'valid email is required'
   if (typeof password !== 'string' || !password) return 'password is required'
-  if (password.length < MIN_PASSWORD_LENGTH) {
+  if (enforceMinLength && password.length < MIN_PASSWORD_LENGTH) {
     return `Password must be at least ${MIN_PASSWORD_LENGTH} characters`
   }
   if (password.length > MAX_PASSWORD_LENGTH) {
@@ -97,7 +100,7 @@ router.post('/register', requireDB, authLimiter, async (req, res) => {
 router.post('/login', requireDB, authLimiter, async (req, res) => {
   try {
     const { email, password, rememberMe } = req.body || {}
-    const invalid = validateCredentials({ email, password })
+    const invalid = validateCredentials({ email, password }, { enforceMinLength: false })
     if (invalid) return res.status(401).json({ message: 'Invalid email or password' })
     if (typeof password !== 'string') {
       return res.status(401).json({ message: 'Invalid email or password' })
