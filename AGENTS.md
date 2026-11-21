@@ -6,29 +6,30 @@ node -v                 # 22 or 24 (CI: PRs run 22, main pushes run 22+24; Rende
 npm ci                  # root only — root package-lock.json is canonical
 cp server/.env.example server/.env   # set JWT_SECRET + MONGODB_URI; CLIENT_URL unset locally
 npm run dev             # API :5000 + web :5173 (Vite proxies /api → :5000)
-npm run seed            # seeds Atlas; silent no-op if .env or Atlas is unreachable
+npm run seed            # upsert bundled GregMat dataset; exits 1 without MONGODB_URI; --prune dry-runs until --yes; --force-partial allows partial files
 ```
 - `client/` + `server/` carry stale tracked `package-lock.json` files (Aug installs) — never install from them.
 - No `client/.env` needed locally; only prod builds need `VITE_API_URL`.
-- `.env.example` has no `SMTP_*` keys: password-reset email is logged to the API console locally unless `NODE_ENV=production` and `SMTP_HOST` are set. `nodemailer` is an optional dynamic import, not a dependency.
+- `.env.example` has no `SMTP_*` keys: outside production a reset request logs only "link withheld" unless `DEV_RESET_LINK=true`; in production a missing transport logs one line without the token and sends nothing. `nodemailer` is an optional dynamic import, not a dependency.
 
-## Verify (CI runs this; `.github/workflows/ci.yml`)
+## Verify (CI runs these; `.github/workflows/ci.yml`)
 ```bash
 npm test                    # vitest, pure logic, colocated *.test.js
-npx vitest run server/src/utils/leitner.test.js    # one suite
+npx vitest run server/src/utils/leitner.test.js    # one suite (local example, not CI)
 npm run lint -w client      # oxlint; pre-existing warnings are fine, errors are not
 npm run lint:tw -w client   # eslint class hygiene; zero warnings allowed (`--max-warnings 0`)
 npm run build -w client     # CI injects prod VITE_API_URL
-npm run docs:check          # README/docs claims vs routers, tokens, env, links
+npm run docs:check          # docs vs routers, tokens, env, links, CSP hash, npm scripts
 find server/src -name '*.js' -not -name '*.test.js' -exec node --check {} +
 npm audit --omit=dev --audit-level=high
 ```
+- CI also secret-scans the tree (ripgrep for committed credentials).
 - PRs always run Node 22; pushes to `main` also run 24. Docs-only pushes skip CI, but docs-only PRs still run it — branch protection requires the check.
 
 ## E2E (local only — needs dev servers + Atlas + QA creds)
 Run the smallest thing that can fail. The full suite is a per-PR gate, not a step after every edit.
 - Cheapest first: `npm test` (~3s, pure logic) and `npm run build -w client` catch most regressions. Reach for a browser only for what a browser alone proves.
-- Targeted, by area: `npm run test:e2e:study` (card, HUD, keyboard, part strip), `npm run test:e2e:design` (nav, tokens, tap targets, motion — chromium + mobile), `npm run test:e2e:auth` (signup → reset → revocation). Each is ~40–60s.
+- Targeted, by area: `npm run test:e2e:study` (card, HUD, keyboard, part strip), `npm run test:e2e:design` (nav, tokens, tap targets, motion — chromium + mobile), `npm run test:e2e:auth` (login/register/forgot-password forms, password meter, settings + danger-zone modals). Each is ~40–60s.
 - Full: `npm run test:e2e` — before requesting review, not after every edit.
 - One case: `npx playwright test --project=chromium -g "keyboard answers"`.
 - Pure look checks (a radius, a breakpoint, spacing) → a throwaway Playwright screenshot script; assert pixels, not accessible names. The suite proves behavior, not appearance.
@@ -43,7 +44,7 @@ Run the smallest thing that can fail. The full suite is a per-PR gate, not a ste
 - Motion: `motion` v14 is the only animation dependency. Import `m`, `useReducedMotion`, and `MotionProvider` from `client/src/lib/motion.jsx`; never `motion` directly (`LazyMotion` runs in `strict` mode). Policy in `docs/DESIGN_SYSTEM.md` § Motion.
 - `server/` Express 5 + Mongoose, entry `src/server.js`. Routers: auth, decks, words, progress, gamification, bookmarks, lists, quiz (history), admin. SRS `utils/leitner.js`, gamification `utils/gamify.js`, history/quiz aggregation `utils/history.js` + `utils/quizHistory.js`.
 - `/api/health` is mounted **before** `apiLimiter` on purpose — warming pings, deploy-gate, and monitors must not be throttled.
-- Auth: JWT HS256 with issuer/audience + `tokenVersion`; revocation bumps `User.tokenVersion` and invalidates old tokens (`middleware/auth.js`).
+- Auth: JWT HS256 with issuer/audience + `tokenVersion`; revocation bumps `User.tokenVersion` and invalidates old tokens (`middleware/auth.js`); passwords need 8+ characters (`MIN_PASSWORD_LENGTH` in `utils/security.js`) on register, reset, and change — not on login.
 - Seed: `server/src/scripts/seed.js`, expects `{ groups: [{ group, words: [{ word, definition, example? }] }] }` (`npm run seed -w server -- path.json`). No bulk-import endpoint exists — cut from scope.
 - Backend warming is an **external cron** hitting `/api/health` (`docs/DEPLOY.md` §6.1: 5–10 min, mind the 750 instance-hour cap). No GitHub keepalive workflow — `schedule` gets delayed past the 15-min idle window.
 

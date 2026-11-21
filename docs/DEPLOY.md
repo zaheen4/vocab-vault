@@ -64,8 +64,9 @@ link is withheld.
 3. Environment variables (Settings → Environment variables → Production):
    - `VITE_API_URL` → `https://vocab-vault-api.onrender.com/api` (your real
      API URL from step 2 — Vite bakes this in at build time).
-   - `NODE_VERSION` → `22` (required: Pages defaults to Node 18, but Vite 8
-     needs Node ≥ 20.19; without this the first Git deploy will fail).
+   - `NODE_VERSION` → `22` (Pages v3 images already default to Node 22, which
+     satisfies Vite 8's ≥ 20.19; pinning keeps the build on CI's version instead
+     of following a future image change).
 4. Push to `main` (or retry the first deploy) — the build ships `client/dist`
    including `_redirects` (SPA fallback) and `_headers` (security headers),
    plus the 1,110 pronunciation clips in `public/`.
@@ -87,6 +88,11 @@ content is spared):
 ```bash
 MONGODB_URI='<prod-uri-from-step-1>' npm run seed -w server
 ```
+
+The default run only upserts, so custom content is spared and nothing is
+deleted. `--prune` (dry run) plus `--yes` removes words, decks, and study
+history that are no longer in the dataset; `--force-partial` is needed when the
+file covers only some stored groups. Read the dry run before applying it.
 
 > The URI's database path must be `flashcards-prod` (dev uses
 > `flashcards`) — seeding the wrong database is silent and looks fine.
@@ -110,14 +116,20 @@ curl -fsSL https://<your-api>.onrender.com/api/health | python3 -c 'import json,
 ```
 
 > Render posts no commit statuses to GitHub, so a failed prod deploy is
-> silent here. The `deploy-gate` workflow covers it: after every `main`
-> push touching `server/` or `render.yaml` it polls `/api/health` for up to
-> 15 min (20 min job cap) until `deploy` equals the pushed SHA, `status` is
-> `ok`, **and** `db` is `true` — then it asserts that
+> silent here. The `deploy-gate` workflow covers it: after a `main` push that
+> touches `server/`, `render.yaml`, or the root lockfile it polls `/api/health`
+> for up to 15 min (20 min job cap) until `deploy` equals the pushed SHA,
+> `status` is `ok`, **and** `db` is `true` — then it asserts that
 > `Access-Control-Allow-Origin` echoes `https://vvault.pages.dev`. A red run
-> prints the last body and where to look. Client-only pushes skip, because
-> `rootDir: server` means Render doesn't rebuild for them. Manual re-check
-> anytime via Actions → deploy-gate → Run workflow.
+> prints the last body and where to look. Client-only pushes skip the check,
+> though Render still rebuilds the API for them because the service builds from
+> the repo root. Manual re-check anytime via Actions → deploy-gate → Run
+> workflow.
+
+A weekly `supply-chain` workflow audits the full tree on Monday 06:17 UTC and
+fails only on critical advisories; it also asserts that the root lockfile is the
+only one tracked. Production installs use `--omit=dev`, where the audit is
+clean.
 
 ## 6. Warming the API: keep-warm cron + demo fallbacks
 
