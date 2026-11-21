@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { AnimatePresence } from '../lib/motion'
@@ -43,7 +43,7 @@ const SORTS = [
 function MasteryDot({ status }) {
   const cls =
     status === 'mastered' ? 'bg-sage' : status === 'learning' ? 'bg-brass' : 'bg-ink-muted'
-  return <span title={status} aria-label={status} className={`inline-block h-2.5 w-2.5 shrink-0 rounded-full ${cls}`} />
+  return <span role="img" title={status} aria-label={status} className={`inline-block h-2.5 w-2.5 shrink-0 rounded-full ${cls}`} />
 }
 
 function masteryLabel(entry) {
@@ -185,6 +185,8 @@ function WordRow({ entry, index = 0, lists, quickList, onQuickListUsed, notify, 
     </li>
   )
 }
+
+const MemoWordRow = memo(WordRow)
 
 function ListCard({ list, open, onToggle, notify }) {
   const detail = useCustomList(open ? list._id : null)
@@ -350,7 +352,7 @@ export default function Bookmarks() {
   const [busy, setBusy] = useState(false)
   const [lastListId, setLastListId] = useState(null)
   const [toast, setToast] = useState(null)
-  const notify = (message) => setToast({ variant: 'error', message })
+  const notify = useCallback((message) => setToast({ variant: 'error', message }), [])
 
   const myDeck = decks.find((d) => d.source === 'custom')
   const quickList = lists.find((l) => l._id === lastListId) ?? lists[0] ?? null
@@ -376,9 +378,11 @@ export default function Bookmarks() {
       return 0
     })
 
-  function toggleSelect(id) {
+  const toggleSelect = useCallback((id) => {
     setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]))
-  }
+  }, [])
+
+  const selectedSet = useMemo(() => new Set(selected), [selected])
 
   async function batchAdd(listId) {
     setBusy(true)
@@ -567,7 +571,7 @@ export default function Bookmarks() {
           ) : (
             <ul className="space-y-2">
               {visible.map((b, i) => (
-                <WordRow
+                <MemoWordRow
                   key={b._id}
                   entry={b}
                   index={i}
@@ -576,7 +580,7 @@ export default function Bookmarks() {
                   onQuickListUsed={setLastListId}
                   notify={notify}
                   selectMode={selectMode}
-                  selected={selected.includes(b._id)}
+                  selected={selectedSet.has(b._id)}
                   onSelect={toggleSelect}
                 />
               ))}

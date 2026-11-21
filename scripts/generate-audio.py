@@ -9,7 +9,9 @@ Usage (from the repo root, with a Python env that has kokoro + soundfile):
 
 Outputs:
     client/public/audio/words/<slug>.mp3
-    client/public/audio/manifest.json   (word -> slug)
+
+The client derives the same slug at runtime, so no manifest is written; a slug
+collision between two words is a hard error here because the files would clash.
 
 Heteronyms whose default stress does not match the definition's primary sense
 are given a misaki phoneme override in scripts/audio-overrides.json.
@@ -25,7 +27,6 @@ ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "server/data/gregmat-words.json"
 OUT = ROOT / "client/public/audio"
 WORDS_DIR = OUT / "words"
-MANIFEST = OUT / "manifest.json"
 OVERRIDES_FILE = ROOT / "scripts/audio-overrides.json"
 
 VOICE = "af_heart"
@@ -80,7 +81,6 @@ def main():
         sys.exit("no words selected")
 
     WORDS_DIR.mkdir(parents=True, exist_ok=True)
-    manifest = json.loads(MANIFEST.read_text()) if MANIFEST.exists() else {}
 
     seen = {}
     for word in words:
@@ -88,7 +88,6 @@ def main():
         if s in seen and seen[s] != word:
             sys.exit(f"slug collision for {s!r}: {seen[s]!r} vs {word!r}")
         seen[s] = word
-        manifest[word] = s
 
     todo = [
         w for w in words
@@ -96,7 +95,6 @@ def main():
     ]
     print(f"{len(words)} word(s), {len(todo)} to generate", flush=True)
     if not todo:
-        MANIFEST.write_text(json.dumps(manifest, ensure_ascii=False, indent=1, sort_keys=True))
         return
 
     import numpy as np
@@ -120,8 +118,7 @@ def main():
 
     if tmp.exists():
         tmp.unlink()
-    MANIFEST.write_text(json.dumps(manifest, ensure_ascii=False, indent=1, sort_keys=True))
-    print(f"manifest entries: {len(manifest)}", flush=True)
+    print(f"{len(todo)} clip(s) attempted", flush=True)
 
 
 if __name__ == "__main__":

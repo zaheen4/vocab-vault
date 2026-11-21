@@ -6,12 +6,13 @@ import ReviewSession from '../components/ReviewSession'
 
 export default function WeakPractice() {
   const { data, isLoading, isError, refetch } = useWeakWords(20)
+  const reloadWeakWords = async () => (await refetch()).data?.words
   return (
     <ReviewSession
       words={data?.words}
       isLoading={isLoading}
       isError={isError}
-      onRestart={refetch}
+      onRestart={reloadWeakWords}
       title="Weak Words"
       subtitle="Mistake bank cramming (Box 1 focus)"
       backTo="/progress"

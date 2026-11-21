@@ -1,7 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-const MANIFEST = { abound: 'abound', 'stem from': 'stem-from' }
-
 function stubAudio({ playRejects = false } = {}) {
   const instances = []
   class FakeAudio {
@@ -19,13 +17,6 @@ function stubAudio({ playRejects = false } = {}) {
   }
   vi.stubGlobal('Audio', FakeAudio)
   return instances
-}
-
-function stubFetch(manifest = MANIFEST) {
-  vi.stubGlobal(
-    'fetch',
-    vi.fn(() => Promise.resolve({ ok: true, json: () => Promise.resolve(manifest) }))
-  )
 }
 
 function stubSpeech() {
@@ -58,9 +49,8 @@ afterEach(() => {
 })
 
 describe('pre-rendered audio', () => {
-  it('plays the clip resolved from the manifest', async () => {
+  it('plays the clip for a single word', async () => {
     const instances = stubAudio()
-    stubFetch()
     const { speakWord } = await freshSpeak()
 
     expect(speakWord('abound')).toBe(true)
@@ -70,9 +60,8 @@ describe('pre-rendered audio', () => {
     expect(instances[0].play).toHaveBeenCalledTimes(1)
   })
 
-  it('uses the manifest slug for multi-word entries', async () => {
+  it('slugifies multi-word entries', async () => {
     const instances = stubAudio()
-    stubFetch()
     const { speakWord } = await freshSpeak()
 
     speakWord('stem from')
@@ -83,7 +72,6 @@ describe('pre-rendered audio', () => {
 
   it('falls back to speechSynthesis when the clip cannot play', async () => {
     stubAudio({ playRejects: true })
-    stubFetch()
     const synth = stubSpeech()
     const { speakWord } = await freshSpeak()
 
@@ -94,7 +82,6 @@ describe('pre-rendered audio', () => {
 
   it('falls back to speechSynthesis when the clip 404s', async () => {
     const instances = stubAudio()
-    stubFetch({})
     const synth = stubSpeech()
     const { speakWord } = await freshSpeak()
 
@@ -106,7 +93,6 @@ describe('pre-rendered audio', () => {
 
   it('pauses the clip and cancels the synth on stopSpeaking', async () => {
     const instances = stubAudio()
-    stubFetch()
     const synth = stubSpeech()
     const { speakWord, stopSpeaking } = await freshSpeak()
 
@@ -116,5 +102,14 @@ describe('pre-rendered audio', () => {
     expect(stopSpeaking()).toBe(true)
     expect(instances[0].pause).toHaveBeenCalled()
     expect(synth.cancel).toHaveBeenCalled()
+  })
+
+  it('derives the clip URL without a network request', async () => {
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    const { audioUrlFor } = await freshSpeak()
+
+    await expect(audioUrlFor('Stem From')).resolves.toBe('/audio/words/stem-from.mp3')
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 })

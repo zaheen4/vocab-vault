@@ -70,6 +70,7 @@ function StatsChip() {
   const ringPct = stats.progressToNext || 0
   return (
     <span
+      role="img"
       className="relative inline-flex h-11 w-11 items-center justify-center"
       title={`Level ${stats.level} · ${stats.dailyStreak > 0 ? `${stats.dailyStreak}d streak · ` : ''}${Math.round(ringPct * 100)}% to next`}
       aria-label={`Level ${stats.level}${stats.dailyStreak > 0 ? `, ${stats.dailyStreak} day streak` : ''}, ${Math.round(ringPct * 100)} percent to next level`}

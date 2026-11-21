@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   usePrefetchDeck,
@@ -122,6 +122,8 @@ function DeckCard({ deck }) {
   )
 }
 
+const MemoDeckCard = memo(DeckCard)
+
 function StreakChips({ stats }) {
   if (!stats) return null
   return (
@@ -185,7 +187,7 @@ function FirstRunPanel({ deck }) {
   )
 }
 
-function TodayPanel({ totalDue, stats, continueDeck }) {
+function TodayPanel({ totalDue, stats, continueDeck, dueError = false, onRetryDue }) {
   const goal = goalProgress(stats?.reviewsToday, stats?.dailyGoalTarget)
   const part = continueDeck ? nextDeckPart(continueDeck) : null
 
@@ -198,14 +200,18 @@ function TodayPanel({ totalDue, stats, continueDeck }) {
           </p>
           <p className="flex items-baseline gap-2">
             <span className="font-display text-3xl leading-none font-bold text-ink tabular-nums">
-              {totalDue}
+              {dueError ? '—' : totalDue}
             </span>
             <span className="truncate text-xs font-semibold text-ink-muted">
-              {totalDue === 1 ? 'word ready' : 'words ready'}
+              {dueError ? 'count unavailable' : totalDue === 1 ? 'word ready' : 'words ready'}
             </span>
           </p>
         </div>
-        {totalDue > 0 ? (
+        {dueError ? (
+          <Button variant="secondary" className="shrink-0" onClick={onRetryDue}>
+            Retry
+          </Button>
+        ) : totalDue > 0 ? (
           <Link to="/practice/due" className={PRIMARY_LINK}>
             Review →
           </Link>
@@ -353,7 +359,7 @@ function HomeSkeleton() {
 export default function Home() {
   const { data: decks = [], isLoading, isError } = useDecks()
   const { data: stats } = useGamification()
-  const { data: dueData } = useDueWords(1)
+  const { data: dueData, isError: dueError, refetch: refetchDue } = useDueWords(1)
   const { data: weakData } = useWeakWords(1)
   const [status, setStatus] = useState('all')
   const [query, setQuery] = useState('')
@@ -424,7 +430,13 @@ export default function Home() {
         <FirstRunPanel deck={continueDeck} />
       ) : (
         <>
-          <TodayPanel totalDue={totalDue} stats={stats} continueDeck={continueDeck} />
+          <TodayPanel
+            totalDue={totalDue}
+            stats={stats}
+            continueDeck={continueDeck}
+            dueError={dueError}
+            onRetryDue={refetchDue}
+          />
           <QuickActions continueDeck={continueDeck} totalWeak={totalWeak} />
         </>
       )}
@@ -463,7 +475,7 @@ export default function Home() {
                   className="animate-fade-up"
                   style={{ animationDelay: `${Math.min(i, 8) * 60}ms` }}
                 >
-                  <DeckCard deck={deck} />
+                  <MemoDeckCard deck={deck} />
                 </div>
               ))}
             </div>

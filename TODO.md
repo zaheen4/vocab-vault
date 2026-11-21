@@ -110,7 +110,7 @@
 - [x] @fullstack Quiz session performance history and question audits with dual-tier history hub (`POST /api/quiz/session`, `GET /api/quiz/history`, `/history`)
 - [x] @fullstack Global daily spaced-repetition review queue across all decks (`GET /api/progress/due`, `/practice/due`, Home CTA)
 - [x] @fullstack Weak words remediation and mistake bank cramming (`GET /api/progress/weak`, `/practice/weak`, Progress card)
-- [x] @fe Route code-splitting with `React.lazy()` and Rollup `manualChunks` vendor hygiene (eliminates bundle size warnings)
+- [x] @fe Route code-splitting with `React.lazy()` and Rolldown `codeSplitting` vendor groups (framework, query, ui, motion)
 - [x] @fullstack Password recovery & reset workflow (`POST /api/auth/forgot-password`, `POST /api/auth/reset-password`, `/forgot-password`, `/reset-password`)
 - [x] @fullstack Account lifecycle, security settings, and session revocation (`tokenVersion`, `PATCH /api/auth/password`, `POST /api/auth/revoke-all`, `POST /api/auth/reset-progress`, `DELETE /api/auth/account`, `/settings`)
 - [x] @fe Authentication UX hygiene — password visibility toggles, live PasswordStrength meter, confirm-password safeguard, remember-me duration, dev-only demo quick-fill

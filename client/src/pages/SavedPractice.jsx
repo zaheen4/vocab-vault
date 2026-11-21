@@ -6,12 +6,13 @@ import ReviewSession from '../components/ReviewSession'
 
 export default function SavedPractice() {
   const { data: words, isLoading, isError, refetch } = useSavedPracticeSession(10)
+  const reloadSavedWords = async () => (await refetch()).data
   return (
     <ReviewSession
       words={words}
       isLoading={isLoading}
       isError={isError}
-      onRestart={refetch}
+      onRestart={reloadSavedWords}
       title="Review saved"
       subtitle="Starred words, unseen first"
       backTo="/bookmarks"

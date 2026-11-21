@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { AnimatePresence } from '../lib/motion'
 import { api } from '../api/client'
-import { isStarred, useBookmarks, useToggleBookmark } from '../api/queries'
+import { useBookmarks, useToggleBookmark } from '../api/queries'
 import Button from '../components/ui/Button'
 import Chevron from '../components/ui/Chevron'
 import Disclosure from '../components/ui/Disclosure'
@@ -32,6 +32,11 @@ export default function Search() {
   const toggleBookmark = useToggleBookmark()
   const ttsAvailable = useTtsAvailable()
   const timerRef = useRef(null)
+  const requestRef = useRef(0)
+  const starredIds = useMemo(
+    () => new Set(bookmarks.map((b) => b.word?._id || b.wordId)),
+    [bookmarks]
+  )
 
   useEffect(() => () => stopSpeaking(), [])
 
@@ -47,6 +52,7 @@ export default function Search() {
 
   useEffect(() => {
     clearTimeout(timerRef.current)
+    const requestId = ++requestRef.current
 
     if (!query.trim()) {
       setWords([])
@@ -60,11 +66,15 @@ export default function Search() {
       api
         .get(`/words?q=${encodeURIComponent(query.trim())}&limit=50`)
         .then((data) => {
+          if (requestRef.current !== requestId) return
           setWords(data.words)
           setTotal(data.total)
           setStatus('ready')
         })
-        .catch(() => setStatus('error'))
+        .catch(() => {
+          if (requestRef.current !== requestId) return
+          setStatus('error')
+        })
     }, 300)
     return () => clearTimeout(timerRef.current)
   }, [query])
@@ -129,11 +139,11 @@ export default function Search() {
               <span className="flex shrink-0 items-center gap-1.5 self-center">
                 <Button
                   variant="secondary"
-                  aria-label={isStarred(bookmarks, w._id) ? `Remove ${w.word} from saved` : `Save ${w.word}`}
-                  aria-pressed={isStarred(bookmarks, w._id)}
+                  aria-label={starredIds.has(w._id) ? `Remove ${w.word} from saved` : `Save ${w.word}`}
+                  aria-pressed={starredIds.has(w._id)}
                   onClick={() =>
                     toggleBookmark.mutate(
-                      { wordId: w._id, starred: isStarred(bookmarks, w._id) },
+                      { wordId: w._id, starred: starredIds.has(w._id) },
                       {
                         onError: () =>
                           setToast({ variant: 'error', message: "Couldn't save that word." }),
@@ -141,7 +151,7 @@ export default function Search() {
                     )
                   }
                 >
-                  {isStarred(bookmarks, w._id) ? '★' : '☆'}
+                  {starredIds.has(w._id) ? '★' : '☆'}
                 </Button>
                 {ttsAvailable !== null && (
                   <span

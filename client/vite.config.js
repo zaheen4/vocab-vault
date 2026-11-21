@@ -10,35 +10,19 @@ export default defineConfig({
     },
   },
   build: {
-    rollupOptions: {
+    rolldownOptions: {
       output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (
-              id.includes('/react/') ||
-              id.includes('/react-dom/') ||
-              id.includes('/react-router/') ||
-              id.includes('/react-router-dom/') ||
-              id.includes('/scheduler/')
-            ) {
-              return 'vendor-framework'
-            }
-            if (id.includes('@tanstack/react-query')) {
-              return 'vendor-query'
-            }
-            if (id.includes('@radix-ui') || id.includes('tailwind-merge')) {
-              return 'vendor-ui'
-            }
-            if (
-              id.includes('/framer-motion/') ||
-              id.includes('/motion-dom/') ||
-              id.includes('/motion-utils/') ||
-              id.includes('/motion/')
-            ) {
-              return 'vendor-motion'
-            }
-            return 'vendor'
-          }
+        codeSplitting: {
+          groups: [
+            {
+              name: 'vendor-framework',
+              test: /node_modules\/(react|react-dom|react-router|react-router-dom|scheduler)\//,
+            },
+            { name: 'vendor-query', test: /node_modules\/@tanstack\/react-query\// },
+            { name: 'vendor-ui', test: /node_modules\/(@radix-ui|tailwind-merge)\// },
+            { name: 'vendor-motion', test: /node_modules\/(motion|motion-dom|motion-utils)\// },
+            { name: 'vendor', test: /node_modules\// },
+          ],
         },
       },
     },
