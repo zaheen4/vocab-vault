@@ -236,7 +236,7 @@ test('study stage keeps the card and its answer row in the first screen', async 
     .getAttribute('href')
   await page.goto(href)
 
-  const card = page.locator('button[aria-label$="tap to reveal"]').first()
+  const card = page.getByTestId('flashcard').first()
   await card.waitFor({ timeout: 15000 })
   const box = await card.boundingBox()
   expect(Math.round(box.y), 'card top on mobile').toBeLessThanOrEqual(380)
@@ -245,6 +245,7 @@ test('study stage keeps the card and its answer row in the first screen', async 
   await expect(page.locator('a[aria-label]').filter({ hasText: '←' })).toHaveCount(1)
 
   await card.click()
+  await expect(card).toHaveAttribute('aria-pressed', 'true')
   const gotIt = page.getByRole('button', { name: /^got it$/i })
   await expect(gotIt).toBeVisible({ timeout: 10000 })
   const bar = await gotIt.boundingBox()

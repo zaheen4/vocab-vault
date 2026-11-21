@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import Confetti from './Confetti'
 import LevelUpBanner from './LevelUpBanner'
 import ScoreRing from './ScoreRing'
@@ -30,6 +31,10 @@ export default function SessionResults({
   levelEvent = null,
   actions = null,
 }) {
+  const headingRef = useRef(null)
+  useEffect(() => {
+    headingRef.current?.focus({ preventScroll: true })
+  }, [])
   return (
     <div className="animate-page mx-auto max-w-2xl space-y-6 py-6 text-center">
       {confetti && <Confetti active={confetti} pieces={70} />}
@@ -37,7 +42,7 @@ export default function SessionResults({
         <p className="font-mono text-3xs font-bold tracking-widest text-ink-muted uppercase">
           Session complete
         </p>
-        <h1 className="font-display text-display-xl font-bold text-primary dark:text-cream-100">
+        <h1 ref={headingRef} tabIndex={-1} className="font-display text-display-xl font-bold text-primary dark:text-cream-100">
           {message}
         </h1>
         {greeting && <p className="text-sm text-ink-muted">{greeting}</p>}

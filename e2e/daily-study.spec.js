@@ -14,7 +14,7 @@ test('global daily due queue loads and records SRS review', async ({ page }) => 
   await page.goto('/practice/due')
   await page.waitForSelector('text=Daily Review', { timeout: 15000 })
 
-  const revealBtn = page.getByRole('button', { name: /tap to reveal/i }).first()
+  const revealBtn = page.getByTestId('flashcard').first()
   const isAvailable = await revealBtn.isVisible({ timeout: 5000 }).catch(() => false)
 
   if (isAvailable) {
@@ -31,7 +31,7 @@ test('weak words remediation loads mistake bank or displays clean state', async 
   await page.goto('/practice/weak')
   await page.waitForSelector('text=Weak Words', { timeout: 15000 })
 
-  const revealBtn = page.getByRole('button', { name: /tap to reveal/i }).first()
+  const revealBtn = page.getByTestId('flashcard').first()
   const isAvailable = await revealBtn.isVisible({ timeout: 5000 }).catch(() => false)
 
   if (isAvailable) {
