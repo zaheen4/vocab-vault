@@ -13,13 +13,17 @@ import { authLimiter } from '../middleware/rateLimit.js'
 import { sendPasswordResetEmail } from '../utils/mailer.js'
 import {
   MAX_PASSWORD_LENGTH,
+  MIN_PASSWORD_LENGTH,
   isDuplicateKeyError,
   isValidEmail,
   normalizeEmail,
+  resolveClientOrigin,
   toSafeMessage,
 } from '../utils/security.js'
 
 const router = Router()
+
+const DUMMY_PASSWORD_HASH = bcrypt.hashSync('vocabvault-timing-dummy-password', 12)
 
 const JWT_OPTIONS = {
   algorithm: 'HS256',
@@ -47,7 +51,10 @@ function publicUser(user) {
   return obj
 }
 
-function validateCredentials({ name, email, password }, { requireName = false } = {}) {
+function validateCredentials(
+  { name, email, password },
+  { requireName = false, enforceMinLength = true } = {}
+) {
   if (requireName) {
     const cleanName = typeof name === 'string' ? name.trim() : ''
     if (!cleanName) return 'name is required'
@@ -57,7 +64,9 @@ function validateCredentials({ name, email, password }, { requireName = false } 
   if (!cleanEmail) return 'email is required'
   if (!isValidEmail(cleanEmail)) return 'valid email is required'
   if (typeof password !== 'string' || !password) return 'password is required'
-  if (password.length < 6) return 'Password must be at least 6 characters'
+  if (enforceMinLength && password.length < MIN_PASSWORD_LENGTH) {
+    return `Password must be at least ${MIN_PASSWORD_LENGTH} characters`
+  }
   if (password.length > MAX_PASSWORD_LENGTH) {
     return `Password must be at most ${MAX_PASSWORD_LENGTH} characters`
   }
@@ -91,7 +100,7 @@ router.post('/register', requireDB, authLimiter, async (req, res) => {
 router.post('/login', requireDB, authLimiter, async (req, res) => {
   try {
     const { email, password, rememberMe } = req.body || {}
-    const invalid = validateCredentials({ email, password })
+    const invalid = validateCredentials({ email, password }, { enforceMinLength: false })
     if (invalid) return res.status(401).json({ message: 'Invalid email or password' })
     if (typeof password !== 'string') {
       return res.status(401).json({ message: 'Invalid email or password' })
@@ -107,7 +116,8 @@ router.post('/login', requireDB, authLimiter, async (req, res) => {
       })
     }
 
-    const match = user ? await bcrypt.compare(password, user.passwordHash) : false
+    const hash = user ? user.passwordHash : DUMMY_PASSWORD_HASH
+    const match = await bcrypt.compare(password, hash)
     if (!user || !match) {
       if (user) {
         user.failedLoginAttempts = (user.failedLoginAttempts || 0) + 1
@@ -149,12 +159,19 @@ router.post('/forgot-password', requireDB, authLimiter, async (req, res) => {
       user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000)
       await user.save()
 
-      const origin = process.env.CLIENT_URL || req.headers.origin || 'http://localhost:5173'
-      const resetUrl = `${origin}/reset-password?token=${rawToken}`
-      await sendPasswordResetEmail({ email: cleanEmail, resetUrl })
+      const origin = resolveClientOrigin()
+      if (!origin) {
+        console.error('[AUTH] Password reset link withheld: no client origin configured in production')
+      } else {
+        const resetUrl = `${origin}/reset-password?token=${rawToken}`
+        await sendPasswordResetEmail({ email: cleanEmail, resetUrl })
 
-      if (process.env.NODE_ENV !== 'production') {
-        devResetUrl = resetUrl
+        if (
+          process.env.NODE_ENV !== 'production' &&
+          process.env.DEV_RESET_LINK === 'true'
+        ) {
+          devResetUrl = resetUrl
+        }
       }
     }
 
@@ -173,8 +190,10 @@ router.post('/reset-password', requireDB, authLimiter, async (req, res) => {
     if (!token || typeof token !== 'string') {
       return res.status(400).json({ message: 'Reset token is required' })
     }
-    if (!password || typeof password !== 'string' || password.length < 6) {
-      return res.status(400).json({ message: 'Password must be at least 6 characters' })
+    if (!password || typeof password !== 'string' || password.length < MIN_PASSWORD_LENGTH) {
+      return res.status(400).json({
+        message: `Password must be at least ${MIN_PASSWORD_LENGTH} characters`,
+      })
     }
     if (password.length > MAX_PASSWORD_LENGTH) {
       return res.status(400).json({ message: `Password must be at most ${MAX_PASSWORD_LENGTH} characters` })
@@ -228,8 +247,10 @@ router.patch('/password', requireDB, requireAuth, async (req, res) => {
     if (!currentPassword || typeof currentPassword !== 'string') {
       return res.status(400).json({ message: 'Current password is required' })
     }
-    if (!newPassword || typeof newPassword !== 'string' || newPassword.length < 6) {
-      return res.status(400).json({ message: 'New password must be at least 6 characters' })
+    if (!newPassword || typeof newPassword !== 'string' || newPassword.length < MIN_PASSWORD_LENGTH) {
+      return res.status(400).json({
+        message: `New password must be at least ${MIN_PASSWORD_LENGTH} characters`,
+      })
     }
     if (newPassword.length > MAX_PASSWORD_LENGTH) {
       return res.status(400).json({ message: `Password must be at most ${MAX_PASSWORD_LENGTH} characters` })

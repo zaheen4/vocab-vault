@@ -1,6 +1,19 @@
 export const MAX_EMAIL_LENGTH = 254
+export const MIN_PASSWORD_LENGTH = 8
 export const MAX_PASSWORD_LENGTH = 128
 export const MAX_QUERY_LENGTH = 100
+
+const DEV_CLIENT_ORIGIN = 'http://localhost:5173'
+
+export function resolveClientOrigin(env = process.env) {
+  const configured = [env.CLIENT_URL, env.ALLOWED_ORIGINS]
+    .filter(Boolean)
+    .flatMap((value) => value.split(','))
+    .map((value) => value.trim().replace(/\/+$/, ''))
+    .filter(Boolean)
+  if (configured.length) return configured[0]
+  return env.NODE_ENV === 'production' ? null : DEV_CLIENT_ORIGIN
+}
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
 

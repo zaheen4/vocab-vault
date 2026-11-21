@@ -1,13 +1,15 @@
 import { useMemo } from 'react'
 
+const MIN_PASSWORD_LENGTH = 8
+
 export function evaluatePassword(pwd = '') {
-  const lengthOk = pwd.length >= 8
+  const lengthOk = pwd.length >= MIN_PASSWORD_LENGTH
   const hasLetter = /[a-zA-Z]/.test(pwd)
   const hasNumberOrSymbol = /[\d\W_]/.test(pwd)
 
   let score = 0
-  if (pwd.length >= 6) score = 1
-  if (lengthOk && (hasLetter || hasNumberOrSymbol)) score = 2
+  if (pwd.length > 0) score = 1
+  if (pwd.length >= MIN_PASSWORD_LENGTH) score = 2
   if (lengthOk && hasLetter && hasNumberOrSymbol) score = 3
 
   return {

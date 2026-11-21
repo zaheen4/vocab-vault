@@ -19,8 +19,8 @@ export default function Register() {
 
   async function handleSubmit(e) {
     e.preventDefault()
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters')
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters')
       return
     }
     if (password.length > 128) {
@@ -76,7 +76,7 @@ export default function Register() {
             label="Password"
             type="password"
             required
-            minLength={6}
+            minLength={8}
             maxLength={128}
             autoComplete="new-password"
             showPasswordToggle
@@ -90,7 +90,7 @@ export default function Register() {
           label="Confirm password"
           type="password"
           required
-          minLength={6}
+          minLength={8}
           maxLength={128}
           autoComplete="new-password"
           showPasswordToggle
