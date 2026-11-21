@@ -43,13 +43,6 @@ export default function Flashcard({ word, flipped, onFlip, shake, reversed }) {
       )}
     </>
   )
-  const label = flipped
-    ? reversed
-      ? `Word ${word.word}`
-      : `Definition of ${word.word}`
-    : reversed
-      ? 'Definition, tap to reveal'
-      : `Word ${word.word}, tap to reveal`
   const face = 'flip-face absolute inset-0 overflow-y-auto overscroll-contain rounded-xl border-2 border-line bg-card text-center shadow-paper dark:shadow-none'
   return (
     <div className={`flip-scene flex min-h-0 w-full flex-1 flex-col ${shake ? 'animate-shake' : ''}`}>
@@ -57,7 +50,7 @@ export default function Flashcard({ word, flipped, onFlip, shake, reversed }) {
         onClick={onFlip}
         className="flip-scene flex min-h-0 w-full flex-1 flex-col"
         aria-pressed={flipped}
-        aria-label={label}
+        data-testid="flashcard"
       >
         <span
           className={`flip-inner relative flex min-h-72 w-full flex-1 flex-col sm:min-h-80 ${flipped ? 'flipped' : ''}`}
@@ -66,7 +59,7 @@ export default function Flashcard({ word, flipped, onFlip, shake, reversed }) {
             aria-hidden="true"
             className="absolute inset-x-4 top-2 -bottom-2 rounded-xl border border-line bg-raised"
           />
-          <span className={face}>
+          <span className={face} aria-hidden={flipped ? 'true' : 'false'}>
             <span
               aria-hidden="true"
               className="absolute top-4 right-4 rounded-sm border border-line bg-raised px-1.5 py-0.5 font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase"
@@ -80,7 +73,7 @@ export default function Flashcard({ word, flipped, onFlip, shake, reversed }) {
               </span>
             </span>
           </span>
-          <span className={`${face} flip-back`}>
+          <span className={`${face} flip-back`} aria-hidden={flipped ? 'false' : 'true'}>
             <span
               aria-hidden="true"
               className="absolute top-4 right-4 rounded-sm border border-line bg-raised px-1.5 py-0.5 font-mono text-2xs font-bold tracking-widest text-ink-muted uppercase"

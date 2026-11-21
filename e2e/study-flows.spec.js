@@ -37,8 +37,8 @@ test.afterEach(async ({ page }) => {
 test('practice answer records a review with XP', async ({ page }) => {
   const id = await firstDueDeckId(page)
   await page.goto(`/decks/${id}`)
-  await page.getByRole('button', { name: /tap to reveal/i }).first().waitFor({ timeout: 15000 })
-  await page.getByRole('button', { name: /tap to reveal/i }).first().click()
+  await page.getByTestId('flashcard').first().waitFor({ timeout: 15000 })
+  await page.getByTestId('flashcard').first().click()
   await page.getByRole('button', { name: /^got it$/i }).click()
   await expect(page.getByText(/Box \d|Mastered/)).toBeVisible({ timeout: 10000 })
   await expect(page.getByText(/\+\d+ XP/).first()).toBeVisible({ timeout: 10000 })
@@ -57,7 +57,7 @@ test('deck header labels the session and keyboard answers a card', async ({ page
   await page.keyboard.press('Escape')
 
   await page.goto('/practice/due')
-  await page.getByRole('button', { name: /tap to reveal/i }).first().waitFor({ timeout: 15000 })
+  await page.getByTestId('flashcard').first().waitFor({ timeout: 15000 })
   await page.keyboard.press(' ')
   await expect(page.getByRole('button', { name: /^got it$/i })).toBeVisible({ timeout: 10000 })
   await page.keyboard.press('2')

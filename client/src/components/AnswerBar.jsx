@@ -4,7 +4,7 @@ function KeyHint({ children }) {
   return (
     <kbd
       aria-hidden="true"
-      className="hidden rounded-sm border border-current px-1 font-mono text-2xs font-bold opacity-70 md:inline-flex"
+      className="hidden rounded-sm border border-current px-1 font-mono text-2xs font-bold text-ink-muted md:inline-flex"
     >
       {children}
     </kbd>

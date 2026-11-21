@@ -31,7 +31,7 @@ export default function SessionStatus({
             </span>
           )}
           {xp !== null && (
-            <span className="rounded-sm border border-brass/40 bg-gold/40 px-1.5 py-0.5 font-mono text-xs font-bold text-primary tabular-nums dark:border-accent/30 dark:bg-accent/15 dark:text-accent">
+            <span className="rounded-sm border border-brass/40 bg-gold/40 px-1.5 py-0.5 font-mono text-xs font-bold text-primary tabular-nums dark:border-accent/30 dark:bg-accent/15 dark:text-accent-ink">
               +{shownXp} XP
             </span>
           )}

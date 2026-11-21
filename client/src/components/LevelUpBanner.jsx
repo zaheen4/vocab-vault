@@ -6,7 +6,7 @@ export default function LevelUpBanner({ level, className = '' }) {
     <div
       role="status"
       className={cn(
-        'animate-pop animate-glow flex items-center justify-center gap-3 rounded-lg border-2 border-accent bg-gold px-4 py-2 text-center text-sm font-bold text-primary dark:bg-accent/15 dark:text-accent',
+        'animate-pop animate-glow flex items-center justify-center gap-3 rounded-lg border-2 border-accent bg-gold px-4 py-2 text-center text-sm font-bold text-primary dark:bg-accent/15 dark:text-accent-ink',
         className
       )}
     >
