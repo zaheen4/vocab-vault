@@ -21,6 +21,23 @@ test('voice surfaces render Baloo, body reads Nunito', async ({ page }) => {
   expect(h1).toContain('Baloo')
   const body = await page.evaluate(() => getComputedStyle(document.body).fontFamily)
   expect(body).toContain('Nunito')
+
+  const faces = await page.evaluate(async () => {
+    await document.fonts.ready
+    return [...document.fonts].map((f) => ({
+      family: f.family.replace(/["']/g, ''),
+      status: f.status,
+    }))
+  })
+
+  for (const family of ['Baloo 2', 'Nunito']) {
+    const matching = faces.filter((f) => f.family === family)
+    expect(matching.length, `${family} declares an @font-face`).toBeGreaterThan(0)
+    expect(
+      matching.every((f) => f.status === 'loaded'),
+      `${family} woff2 is loaded`
+    ).toBe(true)
+  }
 })
 
 const TAP_TARGET_ROUTES = [
