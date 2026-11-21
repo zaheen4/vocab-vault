@@ -42,10 +42,17 @@ describe('buildWordQueuePipeline', () => {
 
     expect(facet.total).toEqual([{ $count: 'count' }])
     expect(facet.words).toEqual([
-      { $sort: { streakCorrect: 1, lastReviewed: -1 } },
+      { $sort: { _id: 1, streakCorrect: 1, lastReviewed: -1 } },
       { $limit: 7 },
       { $replaceRoot: { newRoot: '$word' } },
     ])
+  })
+
+  it('sorts by _id alone when the caller passes no sort', () => {
+    const pipeline = buildWordQueuePipeline({ match, sort: {}, limit: 5 })
+    const { $facet: facet } = pipeline[pipeline.length - 1]
+
+    expect(facet.words[0].$sort).toEqual({ _id: 1 })
   })
 })
 

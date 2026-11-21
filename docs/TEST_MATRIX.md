@@ -96,14 +96,17 @@ decks intact.
 
 ## Last execution
 
-- Date: 2026-11-21 · Branch: `main` @ ef3e954 · Executor: agent
+- Date: 2026-11-21 · Branch: `fix/query-determinism` · Executor: agent
 - `npm run test:e2e` 46/46 passed (chromium + mobile Pixel 7), zero page errors.
-- `npm test` 322/322 across 39 files; oxlint 0 errors (17 pre-existing warnings);
-  `lint:tw` 0 warnings; client build green (CSS 54,565 B).
+- `npm test` 330/330 across 39 files; oxlint 0 errors (17 pre-existing warnings);
+  `lint:tw` 0 warnings; client build green (CSS 54,558 B).
 - `npm run docs:check` green: 43 endpoints, 11 tokens, 15 environment variables,
   13 relative links, the CI Node matrix, the CSP hash, and 11 npm scripts.
 - History filter rows are toggle groups (`role="group"` + `aria-pressed`), and
   the audit spec asserts the pressed state rather than a `role="tab"`.
+- History resolves each word before unwinding reviews and sorts on
+  `history.at`/`historyIndex`/`_id`; the due and weak queues tiebreak on `_id`;
+  quiz pruning compares `(createdAt, _id)`.
 
 - Date: 2026-11-09 · Branch: `main` @ `2154db9` · Executor: agent
 - `npm run test:e2e` 46/46 passed (chromium + mobile Pixel 7), zero page errors.

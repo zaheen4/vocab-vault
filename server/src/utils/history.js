@@ -53,18 +53,8 @@ export function buildHistoryPipeline(userId, { page = 1, limit = 20, filter = 'a
         'history.0': { $exists: true },
       },
     },
-    {
-      $unwind: '$history',
-    },
-  ]
-
-  if (filter === 'correct') {
-    pipeline.push({ $match: { 'history.correct': true } })
-  } else if (filter === 'incorrect') {
-    pipeline.push({ $match: { 'history.correct': false } })
-  }
-
-  pipeline.push(
+    // Resolve the word once per progress document. Doing this after unwinding
+    // history repeats the lookup for every review entry.
     {
       $lookup: {
         from: 'words',
@@ -77,7 +67,21 @@ export function buildHistoryPipeline(userId, { page = 1, limit = 20, filter = 'a
       $unwind: '$wordDoc',
     },
     {
-      $sort: { 'history.at': -1 },
+      $unwind: { path: '$history', includeArrayIndex: 'historyIndex' },
+    },
+  ]
+
+  if (filter === 'correct') {
+    pipeline.push({ $match: { 'history.correct': true } })
+  } else if (filter === 'incorrect') {
+    pipeline.push({ $match: { 'history.correct': false } })
+  }
+
+  pipeline.push(
+    {
+      // historyIndex breaks ties for two entries sharing a timestamp, so
+      // pagination is stable and reviewId stays unique.
+      $sort: { 'history.at': -1, historyIndex: -1, _id: -1 },
     },
     {
       $facet: {
@@ -96,6 +100,8 @@ export function buildHistoryPipeline(userId, { page = 1, limit = 20, filter = 'a
                       $ifNull: [{ $toLong: '$history.at' }, 0],
                     },
                   },
+                  '_',
+                  { $toString: '$historyIndex' },
                 ],
               },
               wordId: { $toString: '$wordId' },
