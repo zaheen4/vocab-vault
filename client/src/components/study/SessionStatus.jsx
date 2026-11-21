@@ -27,7 +27,7 @@ export default function SessionStatus({
           <span className={`${chip} text-sage`}>✓ {score}</span>
           {combo >= 2 && (
             <span className="inline-flex items-center gap-0.5 rounded-sm border border-accent/40 bg-accent/10 px-1.5 py-0.5 font-mono text-xs font-bold text-accent-ink tabular-nums">
-              <FlameIcon size={12} className="text-accent" />×{combo}
+              <FlameIcon size={12} className="text-accent-ink" />×{combo}
             </span>
           )}
           {xp !== null && (

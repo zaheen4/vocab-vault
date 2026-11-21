@@ -26,7 +26,7 @@ export default function StudyFeedback({ feedback, onDismiss }) {
       </span>
       <span className="relative ml-auto font-mono tabular-nums">
         +{feedback.xpEarned} XP
-        <span className="animate-float-up absolute -top-1 right-0 text-accent">
+        <span className="animate-float-up absolute -top-1 right-0 text-accent-ink">
           +{feedback.xpEarned}
         </span>
       </span>

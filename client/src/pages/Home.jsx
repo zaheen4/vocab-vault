@@ -129,10 +129,10 @@ function StreakChips({ stats }) {
   return (
     <div className="flex shrink-0 items-center gap-2">
       <span className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-line bg-card px-3 text-xs font-bold text-ink">
-        <FlameIcon size={14} className="text-accent" /> {stats.dailyStreak}d
+        <FlameIcon size={14} className="text-accent-ink" /> {stats.dailyStreak}d
       </span>
       <span className="inline-flex min-h-8 items-center gap-1.5 rounded-full border border-line bg-card px-3 text-xs font-bold text-ink">
-        <StarIcon size={14} className="text-accent" /> Lv {stats.level}
+        <StarIcon size={14} className="text-accent-ink" /> Lv {stats.level}
       </span>
     </div>
   )
