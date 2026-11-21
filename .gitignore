@@ -18,6 +18,10 @@ coverage/
 *.log
 npm-debug.log*
 
+# python bytecode
+__pycache__/
+*.pyc
+
 # editor / OS
 .vscode/
 .idea/

@@ -233,8 +233,11 @@ idempotent per group.
 
 Every word ships with a pre-rendered Kokoro clip (`af_heart`) so all browsers
 and devices hear the same voice instead of the OS speech engine. Clips live in
-`client/public/audio/words/`, mapped by `client/public/audio/manifest.json`; the
-client falls back to the Web Speech API only when a clip is missing.
+`client/public/audio/words/`, one file per word, named by lowercasing the word
+and collapsing every run of non-alphanumerics to a hyphen (`stem from` →
+`stem-from.mp3`). The client derives that name itself and probes a single clip
+to decide whether audio is available; the Web Speech API is the fallback when a
+clip is missing or fails to play.
 
 ```bash
 npm run audio:generate             # all words, existing files skipped

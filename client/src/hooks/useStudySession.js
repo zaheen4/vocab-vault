@@ -45,6 +45,7 @@ export function useStudySession({
   const advanceTimer = useRef(null)
   const busyRef = useRef(false)
   const resetRef = useRef(resetKey)
+  const holdSeedRef = useRef(false)
 
   const words = useMemo(() => pool ?? [], [pool])
   const current = words[index] ?? null
@@ -75,6 +76,7 @@ export function useStudySession({
   }, [resetKey, reset])
 
   useEffect(() => {
+    if (holdSeedRef.current) return
     if (pool === null && incomingWords) setPool(incomingWords)
   }, [incomingWords, pool])
 
@@ -89,10 +91,21 @@ export function useStudySession({
     if (!active) stopSpeaking()
   }, [active])
 
-  const restart = useCallback(() => {
+  const restart = useCallback(async () => {
+    if (!onRestart) {
+      reset()
+      if (incomingWords) setPool(incomingWords)
+      return
+    }
+    holdSeedRef.current = true
     reset()
-    onRestart?.()
-  }, [reset, onRestart])
+    try {
+      const next = await onRestart()
+      setPool(next ?? incomingWords ?? null)
+    } finally {
+      holdSeedRef.current = false
+    }
+  }, [incomingWords, onRestart, reset])
 
   const speak = useCallback(
     (text) => {

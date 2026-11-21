@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react'
 
 const TIP_KEY = 'vocabvault:tts-tip-seen'
 const AUDIO_BASE = '/audio'
+const PROBE_CLIP = `${AUDIO_BASE}/words/abound.mp3`
 
 export const TTS_UNAVAILABLE_HINT = 'Pronunciation audio unavailable'
 
-let manifestPromise = null
 const urlCache = new Map()
+let clipProbe = null
 
 function slugify(word) {
   return word
@@ -15,25 +16,23 @@ function slugify(word) {
     .replace(/^-+|-+$/g, '')
 }
 
-function loadManifest() {
-  if (!manifestPromise) {
-    manifestPromise =
+function clipsAvailable() {
+  if (!clipProbe) {
+    clipProbe =
       typeof fetch === 'function'
-        ? fetch(`${AUDIO_BASE}/manifest.json`)
-            .then((res) => (res.ok ? res.json() : {}))
-            .catch(() => ({}))
-        : Promise.resolve({})
+        ? fetch(PROBE_CLIP, { method: 'HEAD' })
+            .then((res) => res.ok)
+            .catch(() => false)
+        : Promise.resolve(false)
   }
-  return manifestPromise
+  return clipProbe
 }
 
 export async function audioUrlFor(word) {
   const key = (word ?? '').trim().toLowerCase()
   if (!key) return null
   if (urlCache.has(key)) return urlCache.get(key)
-  const manifest = await loadManifest()
-  const slug = manifest[key] || slugify(key)
-  const url = `${AUDIO_BASE}/words/${slug}.mp3`
+  const url = `${AUDIO_BASE}/words/${slugify(key)}.mp3`
   urlCache.set(key, url)
   return url
 }
@@ -153,9 +152,7 @@ export function useTtsAvailable(timeoutMs = 1500) {
   useEffect(() => {
     let alive = true
     ;(async () => {
-      const manifest = await loadManifest()
-      let ok = Object.keys(manifest).length > 0
-      if (!ok) ok = await voicesAvailable(timeoutMs)
+      const ok = (await clipsAvailable()) || (await voicesAvailable(timeoutMs))
       if (alive) setAvailable(ok)
     })()
     return () => {

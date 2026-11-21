@@ -6,12 +6,16 @@ import ReviewSession from '../components/ReviewSession'
 
 export default function DuePractice() {
   const { data, isLoading, isError, refetch } = useDueWords(20)
+  const reloadDueWords = async () => {
+    const result = await refetch()
+    return result.data?.words
+  }
   return (
     <ReviewSession
       words={data?.words}
       isLoading={isLoading}
       isError={isError}
-      onRestart={refetch}
+      onRestart={reloadDueWords}
       title="Daily Review"
       subtitle="Cross-deck spaced repetition"
       backTo="/"

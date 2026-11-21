@@ -140,8 +140,8 @@ export function usePrefetchDeck() {
   return (id) => {
     qc.prefetchQuery({ queryKey: ['deck', id], queryFn: () => fetchDeck(id), staleTime: 5 * 60 * 1000 })
     qc.prefetchQuery({
-      queryKey: ['session', id, 10],
-      queryFn: () => fetchPracticeSession(id, 10),
+      queryKey: ['session', id, 10, undefined],
+      queryFn: () => fetchPracticeSession(id, 10, undefined),
       staleTime: 0,
     })
   }
@@ -151,8 +151,8 @@ export function usePrefetchQuizPool() {
   const qc = useQueryClient()
   return (id) => {
     qc.prefetchQuery({
-      queryKey: ['quizpool', id, 50],
-      queryFn: () => fetchQuizPool(id, 50),
+      queryKey: ['quizpool', id, 50, 'viewed', undefined],
+      queryFn: () => fetchQuizPool(id, 50, 'viewed', undefined),
       staleTime: 60 * 1000,
     })
   }

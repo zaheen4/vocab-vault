@@ -203,7 +203,7 @@
   }
 }
 .animate-glow {
-  animation: glow-pulse 1.1s ease-out infinite;
+  animation: glow-pulse 1.1s ease-out 3;
 }
 
 @keyframes slide-in-right {

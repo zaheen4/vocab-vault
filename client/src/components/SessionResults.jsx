@@ -12,7 +12,8 @@ function ResultChip({ result }) {
           : 'bg-stamp/10 text-stamp'
       }`}
     >
-      {result.correct ? '✓' : '✗'}
+      <span aria-hidden="true">{result.correct ? '✓' : '✗'}</span>
+      <span className="sr-only">{result.correct ? 'Correct' : 'Incorrect'}</span>
     </span>
   )
 }
