@@ -372,8 +372,10 @@ action, or preserves context while something leaves. Anything else is cut.
     - `Dialog`: accessible in-tree modal dialog (`labelledBy`, `onClose`, `children`).
       Fixed overlay with `bg-night-950/60 p-4 backdrop-blur-xs`, focused panel
       with `role="dialog" aria-modal="true" aria-labelledby={labelledBy}` wrapping `<Card className="p-6">`.
-      Focuses panel on mount, restores previous focus on unmount, handles `Escape` key,
-      and closes on backdrop mousedown.
+      Focuses the first focusable child on mount, cycles `Tab`/`Shift+Tab` inside
+      the panel, restores previous focus on unmount, handles `Escape`, and closes
+      on backdrop mousedown. A dialog without `labelledBy` gets a generated
+      visually hidden title.
     - `GoalPicker`: daily review goal selector extracted from Progress.
       Renders `[5, 10, 15, 20, 25, 30, 40, 50]` as a
       `role="group" aria-label="Daily goal target"` of `Chip`s with tabular numbers.

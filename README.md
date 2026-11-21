@@ -14,7 +14,7 @@ Course project for CSE 4113 (Internet Programming Lab).
 - **API:** https://vocab-vault-api.onrender.com/api
 
 The API runs on Render's free tier, so the first request after ~15 idle minutes
-takes about 30 seconds while the instance wakes. Everything after that is fast.
+takes about a minute while the instance wakes. Everything after that is fast.
 
 ## Screens
 
@@ -40,20 +40,21 @@ The same app on a phone, with the five-tab bar replacing the top nav:
 
 ## Features
 
-- **Study:** flashcards, MCQ quiz over studied words only, typing with a
-  length-scaled edit tolerance; keyboard answers; per-deck parts; reverse cards.
+- **Study:** flashcards, MCQ quiz over studied words or the full catalog, typing
+  with a length-scaled edit tolerance; keyboard answers; per-deck parts; reverse
+  cards.
 - **SRS:** Leitner boxes 1–5 at 1/2/4/8/16-day intervals; a due queue across
   every deck; weak-word remediation.
-- **Progress:** XP, levels, streaks, badges, daily goal, weekly activity
-  heatmap, per-word box history, chronological review feed, and quiz session
-  history with question-by-question audits.
+- **Progress:** XP, levels, streaks, badges, daily goal, a seven-day study log,
+  per-word box history, chronological review feed, and quiz session history with
+  question-by-question audits.
 - **Words:** search 1,110 seeded GRE words, add your own, bookmark, and group
   them into custom lists.
 - **Account:** register and log in, optional 30-day session, password reset,
   change password, revoke all sessions, reset progress, delete account.
 - **UI:** light/dark/system themes applied before first paint, reduced-motion
-  support, mobile tab bar, installable PWA, pre-rendered pronunciation audio
-  with Web Speech fallback.
+  support, mobile tab bar, installable but online-only (no service worker),
+  pre-rendered pronunciation audio with Web Speech fallback.
 
 ## Architecture
 
@@ -72,6 +73,12 @@ e2e/      Playwright specs (local only, not part of CI)
 docs/     API contract, design system, deploy runbook, manual test matrix
 scripts/  Docs check, screenshot generation, pronunciation audio
 ```
+
+The SPA keeps its JWT in `localStorage` and sends it as a bearer token
+(`client/src/api/client.js`). That is readable by injected script, so the CSP in
+`server/src/server.js` is the mitigation; the alternative, `httpOnly` cookies,
+would need CSRF handling and a same-site deployment the static host does not
+provide.
 
 ## Getting started
 
@@ -96,6 +103,12 @@ npm run seed
 The dev server forwards `/api` to port 5000, so the client needs no
 `VITE_API_URL` locally; production builds take it from the Pages environment.
 
+The default run only upserts: it never deletes words, decks, or study history.
+`npm run seed -- --prune` prints what it would remove and stops; add `--yes` to
+apply it. When pruning, a custom file that covers only some stored groups is
+refused unless `--force-partial` is passed. The script exits non-zero with a
+message when the dataset or the database is unreachable.
+
 ### Environment
 
 | Variable | Required | Notes |
@@ -103,8 +116,10 @@ The dev server forwards `/api` to port 5000, so the client needs no
 | `MONGODB_URI` | yes | Connection string |
 | `JWT_SECRET` | yes | The API throws at boot when `NODE_ENV=production` and this is unset |
 | `PORT` | no | Defaults to `5000` |
-| `CLIENT_URL` | production | Comma-separated allowed origins; CORS is open when unset |
-| `SMTP_HOST` `SMTP_PORT` `SMTP_USER` `SMTP_PASS` `SMTP_FROM` | no | Password-reset mail. Without them, reset links are written to the API console outside production, and `POST /api/auth/forgot-password` returns `devResetUrl` |
+| `CLIENT_URL` | production | Comma-separated allowed origins for CORS. Production refuses to boot without it; unset outside production means open CORS |
+| `ALLOWED_ORIGINS` | no | Extra comma-separated origins for the password-reset link. `CLIENT_URL` takes precedence when both are set |
+| `SMTP_HOST` `SMTP_PORT` `SMTP_USER` `SMTP_PASS` `SMTP_FROM` | no | Password-reset mail. Without a transport, production withholds the link; outside production nothing is printed unless `DEV_RESET_LINK=true` |
+| `DEV_RESET_LINK` | no | Outside production, `true` prints password-reset links to the API console and returns `devResetUrl` from `POST /api/auth/forgot-password`. Ignored in production |
 | `VITE_API_URL` | production build | API base URL baked into the client at build time. Unset locally because Vite proxies `/api`; Cloudflare Pages injects it |
 
 ## Checks
@@ -118,8 +133,9 @@ npm run docs:check              # this README and docs/ vs the code
 find server/src -name '*.js' -not -name '*.test.js' -exec node --check {} +
 ```
 
-`docs:check` fails when the endpoint table, the token table, a relative link, or
-a documented environment variable stops matching the source.
+`docs:check` fails when the endpoint table, the token table, a relative link, a
+documented environment variable, the inline-script CSP hash, or a documented npm
+script stops matching the source.
 
 Browser tests run locally against a live API and the seeded database:
 
@@ -127,7 +143,7 @@ Browser tests run locally against a live API and the seeded database:
 npm run test:e2e                # every spec, ~2.5 min
 npm run test:e2e:study          # cards, HUD, keyboard, deck parts
 npm run test:e2e:design         # nav, tokens, tap targets, motion
-npm run test:e2e:auth           # signup → password reset → session revocation
+npm run test:e2e:auth           # login, register, reset copy, settings, danger-zone dialogs
 ```
 
 They log in once with `VV_QA_EMAIL` / `VV_QA_PASSWORD`, cache the session in
@@ -135,9 +151,11 @@ They log in once with `VV_QA_EMAIL` / `VV_QA_PASSWORD`, cache the session in
 (override with `PLAYWRIGHT_CHROMIUM_PATH`). A full run consumes the QA
 account's due cards.
 
-CI (`.github/workflows/ci.yml`) runs lint, unit tests, and the production build
-on every pull request with Node 22, and again on Node 24 for pushes to `main`.
-Playwright is deliberately not in CI.
+CI (`.github/workflows/ci.yml`) runs lint, Tailwind lint, unit tests, the
+production build, and `docs:check` on every pull request with Node 22, and again
+on Node 24 for pushes to `main`. `.github/workflows/supply-chain.yml` keeps the
+lockfile root-only and audits dependencies weekly. Playwright is deliberately
+not in CI.
 
 ## API
 
@@ -150,19 +168,19 @@ is authoritative; the table below is an index of what exists.
 | GET | `/api/health` | Liveness, database state, uptime, deploy SHA. Mounted before the rate limiter |
 | POST | `/api/auth/register` | Create an account, returns a JWT |
 | POST | `/api/auth/login` | Returns a JWT; `rememberMe` extends it to 30 days |
-| POST | `/api/auth/logout` | Ends the session (the client also discards the token) |
+| POST | `/api/auth/logout` | The server writes nothing; the client discards the token, which stays valid until it expires |
 | GET | `/api/auth/me` | Current user |
 | PATCH | `/api/auth/profile` | Rename the account |
 | PATCH | `/api/auth/password` | Change password; bumps `tokenVersion` and returns a fresh JWT |
 | POST | `/api/auth/forgot-password` | Issues a 15-minute reset link |
 | POST | `/api/auth/reset-password` | Consumes the reset token |
-| POST | `/api/auth/revoke-all` | Invalidates every issued token |
+| POST | `/api/auth/revoke-all` | Invalidates every other issued token and returns a replacement for the caller |
 | POST | `/api/auth/reset-progress` | Clears SRS boxes and quiz history, keeps the account |
 | DELETE | `/api/auth/account` | Deletes the account with its progress, quiz sessions, bookmarks, and lists |
 | GET | `/api/decks` | Decks with word counts, progress, and due counts |
 | GET | `/api/decks/:id` | One deck |
 | GET | `/api/decks/:id/practice` | Practice queue in due order |
-| GET | `/api/decks/:id/quiz` | Studied words available for a quiz |
+| GET | `/api/decks/:id/quiz` | Studied words available for a quiz (`scope=all` for the full catalog) |
 | GET | `/api/decks/all/quiz` | Quiz pool across all decks |
 | GET | `/api/words` | Search and list words (`q`, paginated) |
 | GET | `/api/words/:id` | One word |

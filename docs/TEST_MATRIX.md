@@ -96,6 +96,15 @@ decks intact.
 
 ## Last execution
 
+- Date: 2026-11-21 · Branch: `main` @ ef3e954 · Executor: agent
+- `npm run test:e2e` 46/46 passed (chromium + mobile Pixel 7), zero page errors.
+- `npm test` 322/322 across 39 files; oxlint 0 errors (17 pre-existing warnings);
+  `lint:tw` 0 warnings; client build green (CSS 54,565 B).
+- `npm run docs:check` green: 43 endpoints, 11 tokens, 15 environment variables,
+  13 relative links, the CI Node matrix, the CSP hash, and 11 npm scripts.
+- History filter rows are toggle groups (`role="group"` + `aria-pressed`), and
+  the audit spec asserts the pressed state rather than a `role="tab"`.
+
 - Date: 2026-11-09 · Branch: `main` @ `2154db9` · Executor: agent
 - `npm run test:e2e` 46/46 passed (chromium + mobile Pixel 7), zero page errors.
 - `npm test` 288/288 across 36 files; oxlint 0 errors (17 pre-existing warnings);
@@ -119,7 +128,7 @@ decks intact.
   mobile tab bar becomes the desktop nav.
 - Keyboard map (`utils/studyKeys.js` + `useStudyKeys`): Space/Enter flip,
   1/2 answer after flip, S/R/B speak/reverse/bookmark; never inside inputs,
-  and flip keys defer to focused buttons/links. 10 resolver tests.
+  and flip keys defer to focused buttons/links. 9 resolver tests.
 - Deck detail gained `DeckHeader` (`GROUP 01 · ALL PARTS`, `n words · n%
   mastered`, review-due `DUE n`) and a segmented part strip (`Part 1 · 3 due` /
   `Part 2 · 1 due` / `Part 3 · 2 due`). `DUE` uses review-due, matching Home.
@@ -165,7 +174,7 @@ decks intact.
   `npm audit --omit=dev` 0 vulnerabilities.
 
 - Date: 2026-10-29 · PR: #82 (feat/e2e-suite-expansion) · Executor: agent
-- `npm run test:e2e` 30/30 passed (chromium + mobile Pixel 7), zero page/console errors.
+- `npm run test:e2e` 30/30 passed (chromium + mobile Pixel 7), zero page errors.
 - Auth lifecycle green: quick-fill, password visibility toggle, live strength meter, confirm password mismatch, forgot password anti-enumeration, profile name update + cleanup, danger zone modals.
 - Study modes green: practice Leitner transitions, reverse mode, TTS pronunciation triggers, quiz option advancement, spell typing correction, multi-part deck tabs (`PartTabs`).
 - Daily queues & history green: global daily due queue, weak words remediation, all-deck quiz, review feed filter tabs, quiz question audit expandable accordions.

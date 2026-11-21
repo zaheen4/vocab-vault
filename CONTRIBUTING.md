@@ -71,6 +71,8 @@ The `commit-msg` hook installs automatically via root `npm ci`
 - `npm test` (vitest, colocated `*.test.js`) must pass; add unit tests for
   pure logic (SRS, gamification, message pools). Browser E2E stays local
   (`npm run test:e2e`: full suite across `e2e/*.spec.js`, needs Atlas) — never in CI.
-- `npm run docs:check` must pass when you touch prose: it compares the README's
-  endpoint and token tables, its relative links, and the documented environment
-  variables against the code.
+- `npm run docs:check` must pass when you touch prose: it checks every doc's
+  relative links, the README's endpoint and token tables and `npm run`
+  references, the documented environment variables, the Node versions in the CI
+  matrix, and the CSP hash in `client/public/_headers` against
+  `client/index.html`.

@@ -114,13 +114,13 @@
 - [x] @fullstack Password recovery & reset workflow (`POST /api/auth/forgot-password`, `POST /api/auth/reset-password`, `/forgot-password`, `/reset-password`)
 - [x] @fullstack Account lifecycle, security settings, and session revocation (`tokenVersion`, `PATCH /api/auth/password`, `POST /api/auth/revoke-all`, `POST /api/auth/reset-progress`, `DELETE /api/auth/account`, `/settings`)
 - [x] @fe Authentication UX hygiene — password visibility toggles, live PasswordStrength meter, confirm-password safeguard, remember-me duration, dev-only demo quick-fill
-- [ ] @docs Screenshots/numbers reserved for final report
+- [x] @docs Screenshots captured (`docs/assets/study.png`, `quiz.png`, `progress.png`, `mobile-home.png`) and referenced by README; report numbers land with the final write-up
 
 ## Week 4 — Deploy, Polish & Demo
 
 - [x] @data Render deployment (API) + Atlas production user; CORS locked to the Cloudflare origin ([#49](https://github.com/zaheen4/vocab-vault/pull/49), live 2026-09-14: health 200, CORS proof pass)
 - [x] @data Cloudflare Pages deployment (client, canonical `https://vvault.pages.dev`) + env vars ([#51](https://github.com/zaheen4/vocab-vault/pull/51), live 2026-09-14)
-- [x] @data Load the final 1,110-word dataset via importer; verify search/practice against it
+- [x] @data Load the final 1,110-word dataset with `server/src/scripts/seed.js` from `server/data/gregmat-words.json` (37 group decks); verify search/practice against it
 - [x] @data Warm-up runbook for demo day (Render free tier sleeps — hit API 30s before showtime) (external cron warmer + `docs/DEPLOY.md` §6)
 - [x] @fe Responsive pass — mobile-first check on all pages, tap-target sweep (24px min, 44px aim), touch-verify primary flows on a small viewport (tab bar + avatar menu + 44px targets in #72; touch inputs, dvh, PWA in #73; fluid type + sticky answers on #72's follow-ups)
 - [x] @fe Loading/error/empty states on every fetch (shared skeletons + error boxes + illustrated EmptyState across all routes; zero-errors E2E gate green)
@@ -128,7 +128,7 @@
 - [x] All All-Deck Quiz mode (`/quiz`, `GET /api/decks/all/quiz`) across studied words and full catalog
 - [x] All End-to-end regression: fresh account / QA account → auth lifecycle → practice → quiz → typing → history audits → daily due / weak queues (automated across `e2e/*.spec.js`; import flow N/A — no bulk-import endpoint exists yet)
 - [x] @fe Study-screen overhaul — one `StudyStage` (header / controls / status / card / reserved footer) shared by practice, quiz, and typing; part selector menu replaces the segmented strip; answer bar in normal flow; compact Home fold puts the first deck on screen
-- [ ] All Final report write-up + screenshots (heatmap + badge + quiz numbers)
+- [ ] All Final report write-up + numbers (heatmap + badge + quiz numbers; screenshots already in `docs/assets/`)
 - [ ] All Demo rehearsal (scripted walkthrough, TTS fallback line) + presentation slides update
 - [ ] All Confirm presentation-machine audio for TTS; fallback line ready
 

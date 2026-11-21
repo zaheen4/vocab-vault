@@ -20,7 +20,7 @@ Tokens are HS256, expire after **1 day** (`expiresIn: 1d`), and carry
 ### `POST /api/auth/register` — Create new user
 **Request:**
 ```json
-{ "name": "string (1–100 chars)", "email": "string (valid, max 254)", "password": "string (6–128 chars)" }
+{ "name": "string (1–100 chars)", "email": "string (valid, max 254)", "password": "string (8–128 chars)" }
 ```
 Email is trimmed + lowercased before lookup/creation.
 **Response 201:**
@@ -39,11 +39,18 @@ are also returned) — clients must not assume an exact shape.
 { "email": "string", "password": "string", "rememberMe": false }
 ```
 `rememberMe` is optional (boolean). When true, the issued JWT expires after 30 days (`expiresIn: 30d`) instead of 1 day.  
+Login enforces no minimum password length — it only requires a non-empty string of at
+most 128 characters, so accounts with shorter legacy passwords still sign in. For an
+existing account, each failed attempt increments `failedLoginAttempts`; the fifth
+consecutive failure also sets a 15-minute `lockUntil`, but that fifth request still
+returns 401. The next request made while the lock is active returns 423 with the
+minutes remaining. A successful login clears both fields. Unknown emails are compared
+against a dummy hash and always return 401 without creating a lock.  
 **Response 200:**
 ```json
 { "token": "jwt-string", "user": { "_id": "...", "name": "...", "email": "...", "role": "user", "createdAt": "...", "updatedAt": "..." } }
 ```
-**Errors:** 401 (invalid credentials), 423 (account temporarily locked due to 5 consecutive failed attempts), 429 (rate limit), 500
+**Errors:** 401 (invalid credentials), 423 (request made during an active 15-minute lock — i.e. the attempt after the fifth consecutive failure), 429 (rate limit), 500
 
 ---
 
@@ -59,7 +66,14 @@ are also returned) — clients must not assume an exact shape.
   "devResetUrl": "http://localhost:5173/reset-password?token=..."
 }
 ```
-Uniform message prevents account enumeration. In development environments (`NODE_ENV !== 'production'`), `devResetUrl` is included for direct evaluation.  
+Uniform message prevents account enumeration. `devResetUrl` is optional: it is returned
+only outside production (`NODE_ENV !== 'production'`) **and** only when
+`DEV_RESET_LINK=true`. It is never returned in production. The link origin comes from
+`CLIENT_URL`, then the first entry of `ALLOWED_ORIGINS`, falling back to
+`http://localhost:5173` outside production; in production with neither set, no link is
+generated and the failure is logged. The reset link is printed to the API console only
+when `DEV_RESET_LINK=true` in a non-production environment — without it, the link is
+withheld from both the response and the console.  
 **Errors:** 400 (validation), 429, 500
 
 ---
@@ -67,7 +81,7 @@ Uniform message prevents account enumeration. In development environments (`NODE
 ### `POST /api/auth/reset-password` — Reset password using token
 **Request:**
 ```json
-{ "token": "string (hex)", "password": "string (6–128 chars)" }
+{ "token": "string (hex)", "password": "string (8–128 chars)" }
 ```
 Validates the SHA-256 hash of the 15-minute token, hashes the new password with bcrypt 12, and increments `tokenVersion` to invalidate any pre-existing sessions.  
 **Response 200:**
@@ -96,7 +110,7 @@ Validates the SHA-256 hash of the 15-minute token, hashes the new password with 
 **Auth:** required  
 **Request:**
 ```json
-{ "currentPassword": "string", "newPassword": "string (6–128 chars)" }
+{ "currentPassword": "string", "newPassword": "string (8–128 chars)" }
 ```
 Verifies `currentPassword`, hashes `newPassword` with bcrypt 12, increments `tokenVersion` (invalidating other active sessions), and returns a fresh JWT token for the current session.  
 **Response 200:**
@@ -161,8 +175,10 @@ Same superset note as register — extra profile fields may be present.
 
 ### `POST /api/auth/logout` — End session (acknowledgement)
 **Auth:** required  
-Logout is client-driven (discard token + clear cache); this endpoint records
-the intent server-side and is the hook for future token revocation.
+Logout is entirely client-driven: the client discards the token and clears its cache.
+The server writes nothing — no revocation record, no state change — and the JWT stays
+valid until it expires (or until `POST /api/auth/revoke-all`, a password change, or a
+password reset bumps `tokenVersion`).  
 **Response 200:**
 ```json
 { "ok": true }
@@ -197,7 +213,7 @@ the intent server-side and is the hook for future token revocation.
       "difficulty": "basic | intermediate | advanced",
       "group": "number | null",
       "part": "number (1-3) | null",
-      "source": "gregmat | null",
+      "source": "gregmat | custom | null",
       "createdAt": "...",
       "updatedAt": "..."
     }
@@ -236,9 +252,11 @@ definition/example max 2000, partOfSpeech max 50); `difficulty` defaults to `bas
 The word is created with `source: "custom"` and added to the caller's
 personal "My Words" deck (auto-created), so it is immediately practicable in
 practice/quiz/typing.  
-**Duplicate:** `word` is globally unique (case-insensitive) — re-adding an
-existing word returns **409** `{ "message": "...", "existingWordId": "..." }`
-so the client can link the existing entry instead.
+**Duplicate:** `word` is globally unique (case-insensitive). The pre-check path returns
+**409** `{ "message": "That word already exists", "existingWordId": "..." }` so the
+client can link the existing entry instead. If two requests race past the pre-check, the
+unique-index path returns **409** `{ "message": "That word already exists" }` — same
+message, no `existingWordId` — so clients must treat that field as optional.  
 **Errors:** 400 (validation), 409 (duplicate), 500
 
 ---
@@ -270,7 +288,7 @@ so the client can link the existing entry instead.
       ],
       "group": "number | null",
       "part": "number (1-3) | null",
-      "source": "gregmat | null",
+      "source": "gregmat | custom | null",
       "createdBy": "userObjectId",
       "createdAt": "...",
       "updatedAt": "..."
@@ -278,11 +296,12 @@ so the client can link the existing entry instead.
   ]
 }
 ```
-**Note:** `wordCount` is derived from `wordIds.length` and must be present in every deck object.
+**Note:** `wordCount` is derived from `wordIds.length`; `progress`, `dueCount`, and
+`parts` are computed per request. All four appear on every object in this list response.
 `progress` counts the caller's SRS states across the deck's words (unreviewed words
 count as `new`), joined in one query — no per-deck fan-out. `dueCount` is the
 practicable subset right now (unseen plus due), mirroring the practice-pool
-selection order exactly.
+selection order exactly. `parts` is `[]` for decks with 10 or fewer words.
 Decks are returned sorted by `group` ascending; decks without a group come last.
 **Scoping:** only shared decks (`createdBy` absent) and the caller's own
 personal decks are returned — never another user's.
@@ -296,8 +315,33 @@ personal decks are returned — never another user's.
 **Params:** `id` (ObjectId)  
 **Response 200:**
 ```json
-{ "deck": { ... } }
+{
+  "deck": {
+    "_id": "...",
+    "title": "string",
+    "description": "string | null",
+    "difficulty": "basic | intermediate | advanced",
+    "wordIds": [ { ...word } ],
+    "parts": [
+      {
+        "part": 1,
+        "wordCount": 10,
+        "progress": { "new": 10, "learning": 0, "mastered": 0 },
+        "dueCount": 10
+      }
+    ],
+    "group": "number | null",
+    "part": "number (1-3) | null",
+    "source": "gregmat | custom | null",
+    "createdBy": "userObjectId | null",
+    "createdAt": "...",
+    "updatedAt": "..."
+  }
+}
 ```
+`wordIds` is populated with full word documents. This endpoint does **not** add
+`wordCount`, `progress`, or `dueCount` — derive the count from `wordIds.length` and use
+the per-part summaries. `parts` is `[]` for decks with 10 or fewer words.  
 **Errors:** 400 (invalid id), 404 (not found), 500
 
 ---
@@ -307,7 +351,13 @@ personal decks are returned — never another user's.
 **Params:** `id` (ObjectId)  
 **Query:**
 - `limit` (number, default 10, max 50)
-- `part` (optional number 1-3; scopes to that part's words)  
+- `part` (optional integer 1–3; see the part rule below)  
+**Part rule:** parts only apply to decks with more than 10 words. When
+`deck.wordIds.length > 10` and `part` parses to 1, 2, or 3, the pool is limited to
+wordIds 1–10, 11–20, or 21+ respectively (deck order). On a deck with 10 or fewer words
+`part` is ignored and the whole deck is used. Any value that does not parse to 1, 2, or 3
+(0, 4, or a string with no leading integer) is ignored the same way — an out-of-range
+`part` never produces a 400.  
 **Selection order:** words never seen by this user first (deck order), then seen
 words whose SRS due date (`reviewDueAfter`) has passed — oldest due first.
 Seen-but-not-yet-due words are excluded.  
@@ -328,10 +378,16 @@ Seen-but-not-yet-due words are excluded.
 When `scope=viewed`, returns words this user has already viewed across all decks,
 most-recently-reviewed first (supplemented from catalog if fewer than 4 viewed).
 When `scope=all`, returns a random sample across all 1,110 GregMat words.  
-**Response 200:**
+**Response 200 (`scope=viewed`):**
 ```json
 { "deck": { "_id": "all", "title": "All Decks" }, "words": [ { ...word } ], "totalViewed": 48 }
 ```
+`totalViewed` is the caller's total viewed-word count across all decks.  
+**Response 200 (`scope=all`):**
+```json
+{ "deck": { "_id": "all", "title": "All Decks" }, "words": [ { ...word } ] }
+```
+The `scope=all` response omits `totalViewed` entirely.  
 **Errors:** 500
 
 ---
@@ -341,7 +397,7 @@ When `scope=all`, returns a random sample across all 1,110 GregMat words.
 **Params:** `id` (ObjectId)  
 **Query:**
 - `limit` (number, default 50, max 100)
-- `part` (optional number 1-3; scopes to viewed words in that part)  
+- `part` (optional integer 1–3; same part rule as practice — ignored for decks of 10 or fewer words)  
 Only words this user has already viewed (has a Progress record for) are
 returned, most-recently-reviewed first. Unviewed words are excluded so
 quizzes test recall, not first exposure. Empty array when nothing viewed yet.  
@@ -483,7 +539,7 @@ Aggregates across the user's progress records, sorted newest first. Returns `"hi
   "gamification": {
     "xpEarned": 14,
     "xp": 340,
-    "level": 3,
+    "level": 2,
     "levelUp": false,
     "dailyStreak": 5,
     "streakIncreased": false,
@@ -495,7 +551,7 @@ Aggregates across the user's progress records, sorted newest first. Returns `"hi
     "reviewsCaughtUp": 0,
     "reviewsToday": 8,
     "dailyGoalTarget": 10,
-    "newBadges": [{ "id": "first-word", "name": "First Word", "icon": "🌱" }]
+    "newBadges": [{ "id": "first-word", "name": "First Word", "icon": "🌱", "description": "Review your first word" }]
   }
 }
 ```
@@ -511,8 +567,8 @@ level increases; `newWordsLearned` is 1 when a word moves `new → learning`;
 `dailyGoalTarget`, `dailyGoalMet` becomes true and `freezeRefilled` true on the
 first cross per day (freeze count resets to 1).
 **Badges:** `newBadges` lists badges earned by this exact review (empty when
-none); each entry carries the catalog `id`, `name`, and `icon`. Award is
-idempotent — an already-earned badge is never returned again.
+none); each entry carries the catalog `id`, `name`, `icon`, and `description`.
+Award is idempotent — an already-earned badge is never returned again.
 **Errors:** 400 (invalid wordId / non-boolean correct), 404 (unknown word), 500
 
 ---
@@ -610,20 +666,38 @@ Persists the session in the dedicated `QuizSession` collection, capped at 100 se
 
 ### `GET /api/quiz/history/:id` — Get single quiz session detail
 **Auth:** required  
+Returns the raw `QuizSession` document (lean read), scoped to the caller.  
 **Response 200:**
 ```json
 {
   "session": {
     "_id": "string",
+    "userId": "string",
+    "deckId": "string | null",
     "deckTitle": "string",
+    "part": 1,
+    "scope": "viewed | all",
     "score": 8,
     "total": 10,
     "percentage": 80,
     "timeSpentSeconds": 142,
-    "answers": []
+    "answers": [
+      {
+        "wordId": "ObjectId",
+        "word": "string",
+        "definition": "string",
+        "partOfSpeech": "string | null",
+        "userAnswer": "string",
+        "correctAnswer": "string",
+        "correct": true
+      }
+    ],
+    "createdAt": "2026-10-27T14:30:00.000Z"
   }
 }
 ```
+The fields above are the full stored set except Mongoose bookkeeping: because the
+document is returned as-is, clients must tolerate extra keys such as `__v`.  
 **Errors:** 400 (invalid id), 401, 404 (session not found), 500
 
 ---
@@ -637,12 +711,12 @@ Persists the session in the dedicated `QuizSession` collection, capped at 100 se
 {
   "gamification": {
     "xp": 340,
-    "level": 3,
+    "level": 2,
     "dailyStreak": 5,
     "totalCorrect": 21,
     "totalReviewed": 30,
     "nextLevelXp": 400,
-    "progressToNext": 0.6,
+    "progressToNext": 0.8,
     "streakFreezes": 1,
     "dailyGoalTarget": 10,
     "reviewsToday": 8,
@@ -653,7 +727,8 @@ Persists the session in the dedicated `QuizSession` collection, capped at 100 se
 }
 ```
 `activity` holds per-day review counts, newest last (response window: last 14 days;
-storage retains 60 days).
+storage retains 60 days). With the sample values above, `levelFor(340)` is 2, level 3
+starts at 400 XP, and `progressToNext` is `(340 - 100) / (400 - 100) = 0.8`.  
 **Errors:** 401 (unauthorized), 404 (user not found), 500
 
 ---
