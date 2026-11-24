@@ -42,6 +42,10 @@ token classes — never raw hex in components.
 - **Accent contrast:** `#D9772F` on white is only ~3:1. Use it for fills,
   focus rings, and large UI — never small text. Small accent text uses
   `text-accent-ink` (5.9:1 on card, 4.7:1 on `gold`, 4.9:1 on `manila`).
+  Icons are not text but carry the same floor: at 12–18px on `card` the accent
+  measures 2.98:1, under the 3:1 non-text minimum, so glyphs also use
+  `text-accent-ink`. The sole exception is the `✓` bullet on the static
+  `primary` panel, where `accent` is 4.50:1 and `accent-ink` is 2.28:1.
 - **Button ink:** navy `primary` on the accent fill is 4.50:1. Never white text
   on `accent`.
 - **Stamp:** white on the solid `stamp` fill is 6.31:1; small stamp text on a

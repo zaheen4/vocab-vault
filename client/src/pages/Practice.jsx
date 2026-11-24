@@ -139,7 +139,7 @@ export default function Practice({ active = true }) {
             value: (
               <>
                 {tally.bestCombo}
-                <FlameIcon size={18} className="text-accent" />
+                <FlameIcon size={18} className="text-accent-ink" />
               </>
             ),
           },
