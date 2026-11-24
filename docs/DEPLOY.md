@@ -68,8 +68,8 @@ link is withheld.
      satisfies Vite 8's ≥ 20.19; pinning keeps the build on CI's version instead
      of following a future image change).
 4. Push to `main` (or retry the first deploy) — the build ships `client/dist`
-   including `_redirects` (SPA fallback) and `_headers` (security headers),
-   plus the 1,110 pronunciation clips in `public/`.
+   including `_redirects` (SPA fallback) and `_headers` (security and cache
+   headers), plus the 1,110 pronunciation clips in `public/`.
 
 ### Fallback: manual upload (one-off, no auto-deploy)
 

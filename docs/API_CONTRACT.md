@@ -20,7 +20,7 @@ Tokens are HS256, expire after **1 day** (`expiresIn: 1d`), and carry
 ### `POST /api/auth/register` — Create new user
 **Request:**
 ```json
-{ "name": "string (1–100 chars)", "email": "string (valid, max 254)", "password": "string (8–128 chars, 72 bytes max)" }
+{ "name": "string (1–100 chars)", "email": "string (valid, max 254)", "password": "string (8+ chars, ≤72 bytes)" }
 ```
 Email is trimmed + lowercased before lookup/creation. Passwords must be at least 8 characters and at most 72 UTF-8 bytes, because bcrypt hashes only the first 72 bytes.
 **Response 201:**
@@ -81,7 +81,7 @@ withheld from both the response and the console.
 ### `POST /api/auth/reset-password` — Reset password using token
 **Request:**
 ```json
-{ "token": "string (hex)", "password": "string (8–128 chars, 72 bytes max)" }
+{ "token": "string (hex)", "password": "string (8+ chars, ≤72 bytes)" }
 ```
 Validates the SHA-256 hash of the 15-minute token, hashes the new password with bcrypt 12, and increments `tokenVersion` to invalidate any pre-existing sessions. Passwords must be at least 8 characters and at most 72 UTF-8 bytes, because bcrypt hashes only the first 72 bytes.  
 **Response 200:**
@@ -110,7 +110,7 @@ Validates the SHA-256 hash of the 15-minute token, hashes the new password with 
 **Auth:** required  
 **Request:**
 ```json
-{ "currentPassword": "string", "newPassword": "string (8–128 chars, 72 bytes max)" }
+{ "currentPassword": "string", "newPassword": "string (8+ chars, ≤72 bytes)" }
 ```
 Verifies `currentPassword`, hashes `newPassword` with bcrypt 12, increments `tokenVersion` (invalidating other active sessions), and returns a fresh JWT token for the current session. Passwords must be at least 8 characters and at most 72 UTF-8 bytes, because bcrypt hashes only the first 72 bytes.  
 **Response 200:**
