@@ -6,7 +6,7 @@ multiple-choice quizzes, and typing drills in the browser.
 [![CI](https://github.com/zaheen4/vocab-vault/actions/workflows/ci.yml/badge.svg)](https://github.com/zaheen4/vocab-vault/actions/workflows/ci.yml)
 [![demo](https://img.shields.io/badge/demo-vvault.pages.dev-2F6B4F)](https://vvault.pages.dev)
 [![node](https://img.shields.io/badge/node-22%20%7C%2024-339933)](https://nodejs.org)
-[![license](https://img.shields.io/badge/license-coursework-8A6414)](#license-and-use)
+[![license](https://img.shields.io/badge/license-coursework-8A6414)](LICENSE)
 
 Course project for CSE 4113 (Internet Programming Lab).
 
@@ -53,8 +53,9 @@ The same app on a phone, with the five-tab bar replacing the top nav:
 - **Account:** register and log in, optional 30-day session, password reset,
   change password, revoke all sessions, reset progress, delete account.
 - **UI:** light/dark/system themes applied before first paint, reduced-motion
-  support, mobile tab bar, installable but online-only (no service worker),
-  pre-rendered pronunciation audio with Web Speech fallback.
+  support, mobile tab bar, add-to-home-screen on supported browsers (no service
+  worker, so it stays online-only), pre-rendered pronunciation audio with Web
+  Speech fallback.
 
 ## Architecture
 
@@ -76,9 +77,9 @@ scripts/  Docs check, screenshot generation, pronunciation audio
 
 The SPA keeps its JWT in `localStorage` and sends it as a bearer token
 (`client/src/api/client.js`). That is readable by injected script, so the CSP in
-`server/src/server.js` is the mitigation; the alternative, `httpOnly` cookies,
-would need CSRF handling and a same-site deployment the static host does not
-provide.
+`client/public/_headers` is the mitigation for the SPA; `helmet()` supplies the
+API-side defaults. The alternative, `httpOnly` cookies, would need CSRF handling
+and a same-site deployment the static host does not provide.
 
 ## Getting started
 
@@ -147,8 +148,8 @@ npm run test:e2e:auth           # login, register, reset copy, settings, danger-
 ```
 
 They log in once with `VV_QA_EMAIL` / `VV_QA_PASSWORD`, cache the session in
-`.playwright/.auth/user.json`, and expect Chromium at `/usr/bin/chromium`
-(override with `PLAYWRIGHT_CHROMIUM_PATH`). A full run consumes the QA
+`.playwright/.auth/user.json`, and expect Chromium at `/usr/bin/chromium` on
+Linux (override with `PLAYWRIGHT_CHROMIUM_PATH`). A full run consumes the QA
 account's due cards.
 
 CI (`.github/workflows/ci.yml`) runs lint, Tailwind lint, unit tests, the
@@ -295,7 +296,7 @@ environment variables, and rollback are in [`docs/DEPLOY.md`](docs/DEPLOY.md).
 ## License and use
 
 Coursework for CSE 4113 (Internet Programming Lab), completed November 2026. The
-code is not licensed for reuse. The 1,110-word GregMat list in
-`server/data/gregmat-words.json` belongs to its authors and is included for
-coursework only.
+code is not licensed for reuse; the terms are in [`LICENSE`](LICENSE). The
+1,110-word GregMat list in `server/data/gregmat-words.json` belongs to its
+authors and is included for coursework only.
 

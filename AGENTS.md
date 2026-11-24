@@ -6,9 +6,9 @@ node -v                 # 22 or 24 (CI: PRs run 22, main pushes run 22+24; Rende
 npm ci                  # root only — root package-lock.json is canonical
 cp server/.env.example server/.env   # set JWT_SECRET + MONGODB_URI; CLIENT_URL unset locally
 npm run dev             # API :5000 + web :5173 (Vite proxies /api → :5000)
-npm run seed            # upsert bundled GregMat dataset; exits 1 without MONGODB_URI; --prune dry-runs until --yes; --force-partial allows partial files
+npm run seed            # upsert bundled GregMat dataset; exits 1 without MONGODB_URI; --prune dry-runs until --yes; --force-partial allows partial files; writes to whatever MONGODB_URI points at
 ```
-- `client/` + `server/` carry stale tracked `package-lock.json` files (Aug installs) — never install from them.
+- Only the root `package-lock.json` is tracked (the workspace copies were removed in #109). Never commit `client/` or `server/` lockfiles; `npm ci` runs at the root only.
 - No `client/.env` needed locally; only prod builds need `VITE_API_URL`.
 - `.env.example` has no `SMTP_*` keys: outside production a reset request logs only "link withheld" unless `DEV_RESET_LINK=true`; in production a missing transport logs one line without the token and sends nothing. `nodemailer` is an optional dynamic import, not a dependency.
 
@@ -35,7 +35,7 @@ Run the smallest thing that can fail. The full suite is a per-PR gate, not a ste
 - Pure look checks (a radius, a breakpoint, spacing) → a throwaway Playwright screenshot script; assert pixels, not accessible names. The suite proves behavior, not appearance.
 - `e2e/auth.setup.js` logs in once with `VV_QA_EMAIL` / `VV_QA_PASSWORD` and caches state in `.playwright/.auth/user.json` (gitignored).
 - Specs: `design-contract`, `study-flows`, `daily-study`, `history-audit`, `auth-lifecycle`. `chromium` + `mobile` (Pixel 7, design-contract only) projects.
-- Chromium is auto-detected at `/usr/bin/chromium`; override with `PLAYWRIGHT_CHROMIUM_PATH`. Zero page errors expected. Assert tight values (`+\d+ XP`, never `+.*XP`).
+- Chromium is auto-detected (Linux: `/usr/bin/chromium`); override with `PLAYWRIGHT_CHROMIUM_PATH`. Zero page errors expected. Assert tight values (`+\d+ XP`, never `+.*XP`).
 - Restart `npm run dev` after any branch switch — `node --watch` / HMR serves stale code across checkouts.
 - Rate limits are production-only (`middleware/rateLimit.js`), so reruns never need a restart to clear a 429. A full run still drains the QA account's due cards — use `/practice/due` for study screenshots.
 

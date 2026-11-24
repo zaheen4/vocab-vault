@@ -1,0 +1,11 @@
+VocabVault — CSE 4113 coursework
+Copyright (c) 2026 The VocabVault authors. All rights reserved.
+
+This repository is coursework submitted for CSE 4113 (Internet Programming
+Lab). It is published for review and demonstration only. No permission is
+granted to copy, modify, distribute, sublicense, or reuse the source code, in
+whole or in part, without written permission from the authors.
+
+Third-party material is not covered by the terms above. The 1,110-word GregMat
+list in `server/data/gregmat-words.json` belongs to its authors and is included
+for coursework use only.
