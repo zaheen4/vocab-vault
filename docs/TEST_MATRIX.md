@@ -96,6 +96,24 @@ decks intact.
 
 ## Last execution
 
+- Date: 2026-11-24 · Branch: `main` @ `2631bd4` · Executor: agent
+- `npm run test:e2e` 46/46 passed (chromium + mobile Pixel 7), zero page errors.
+- `npm test` 349/349 across 41 files; oxlint 0 errors (16 pre-existing warnings);
+  `lint:tw` 0 warnings; client build green (CSS 54,991 B).
+- `npm run docs:check` green: 43 endpoints, 11 tokens, 15 environment variables,
+  14 relative links, the CI Node matrix, the CSP hash, and 11 npm scripts.
+  `npm audit --omit=dev --audit-level=high` reports 0 vulnerabilities.
+- Remaining `text-accent` foregrounds moved to `text-accent-ink` (2.57–2.98:1 →
+  5.06–5.88:1 light); the `✓` bullet on `bg-primary` stays `text-accent` at
+  4.50:1, now recorded in `docs/DESIGN_SYSTEM.md`.
+- The password meter lists `At most 72 bytes` and reports `Too long` instead of
+  `Strong`; `evaluatePassword` shares `MIN_PASSWORD_LENGTH`/`MAX_PASSWORD_BYTES`
+  with the submit-time validator.
+- The font test asserts `FontFace.status`; renaming a woff2 makes it fail.
+- Production (`vvault.pages.dev`) serves both faces as `loaded`, renders the
+  byte row, and returns `max-age=31536000, immutable` on `/assets/*` and
+  `max-age=604800` on `/fonts/*`.
+
 - Date: 2026-11-21 · Branch: `main` @ `dce6229` · Executor: agent
 - `npm run test:e2e` 46/46 passed (chromium + mobile Pixel 7), zero page errors.
 - `npm test` 346/346 across 41 files; oxlint 0 errors (pre-existing warnings only);
